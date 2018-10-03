@@ -1,0 +1,9 @@
+Flask
+flask-restful
+urllib3
+cloudant
+reportlab
+pandas
+marshmallow
+beautifulsoup4
+
