@@ -1,8 +1,10 @@
 """DocuScope Classroom analysis tools interface."""
 from functools import lru_cache
 import json
+import logging
 import urllib3
 
+from cloudant import couchdb
 from flask import request, make_response
 from flask_restful import Resource, Api, abort
 from marshmallow import Schema, fields, ValidationError
@@ -14,12 +16,40 @@ app = create_flask_app()
 API = Api(app)
 HTTP = urllib3.PoolManager()
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers',
+                         'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
+    return response
+
+
 @lru_cache(maxsize=1)
 def available_dictionaries():
     """Retrieve the list of available DocuScope dictionaries."""
     req = HTTP.request('GET',
                        "{}/dictionary".format(app.config['DICTIONARY_SERVER']))
     return json.loads(req.data.decode('utf-8'))
+
+class DSDictionaries(Resource):
+    def get(self):
+        return available_dictionaries()
+    def post(self):
+        return available_dictionaries()
+API.add_resource(DSDictionaries, '/_dictionary')
+
+class DSDocs(Resource):
+    def get(self):
+        with couchdb(app.config['COUCHDB_USER'],
+                     app.config['COUCHDB_PASSWORD'],
+                     url=app.config['COUCHDB_URL']) as cserv:
+            try:
+                corpus_db = cserv['corpus']
+            except KeyError:
+                abort(422, message='Corpus database unavailable')
+            return [doc['_id'] for doc in corpus_db]
+API.add_resource(DSDocs, '/_documents')
 
 class DocSchema(Schema):
     id = fields.String(required=True) # fields.UUID()?
@@ -31,12 +61,14 @@ def get_docs():
     if not json_data:
         abort(400, message='No input data provided, probably not JSON')
     try:
-        data = DOC_SCHEMA.load(json_data)
+        data, val_errors = DOC_SCHEMA.load(json_data)
     except ValidationError as err:
         abort(422, message="{}".format(err))
     except Exception as gen_err:
         abort(422, message="{}".format(gen_err))
-    return data[0]
+    if val_errors:
+        logging.warning("Parsing errors: {}".format(val_errors))
+    return data
 
 class CorpusSchema(Schema):
     corpus = fields.Nested(DocSchema, many=True)
@@ -54,13 +86,13 @@ class BoxplotData(Resource):
         if not json_data:
             abort(404, message="No input data provided.")
         try:
-            data = BOXPLOT_SCHEMA.load(json_data)
+            data, _errors = BOXPLOT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
-        corpus = data[0]['corpus']
+        corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_boxplot_data(corpus, data[0]['level'], data[0]['dictionary'])
+        return get_boxplot_data(corpus, data['level'], data['dictionary'])
 API.add_resource(BoxplotData, '/boxplot_data')
 
 class RankedListSchema(CorpusSchema):
@@ -73,14 +105,14 @@ class RankedList(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data = RANK_SCHEMA.load(json_data)
+            data, _errors = RANK_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
-        corpus = data[0]['corpus']
+        corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_rank_data(corpus, data[0]['level'], data[0]['dictionary'],
-                             data[0]['sortby'])
+        return get_rank_data(corpus, data['level'], data['dictionary'],
+                             data['sortby'])
 API.add_resource(RankedList, '/ranked_list')
 
 class ScatterplotSchema(CorpusSchema):
@@ -94,14 +126,14 @@ class ScatterplotData(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data = SCATTER_PLOT_SCHEMA.load(json_data)
+            data, _errors = SCATTER_PLOT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
-        corpus = data[0]['corpus']
+        corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_scatter_data(corpus, data[0]['level'], data[0]['dictionary'],
-                                data[0]['catX'], data[0]['catY'])
+        return get_scatter_data(corpus, data['level'], data['dictionary'],
+                                data['catX'], data['catY'])
 
 API.add_resource(ScatterplotData, '/scatterplot_data')
 
@@ -116,14 +148,14 @@ class Groups(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data = GROUP_SCHEMA.load(json_data)
+            data, _errors = GROUP_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
-        corpus = data[0]['corpus']
+        corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_pairings(corpus, data[0]['level'], data[0]['dictionary'],
-                            data[0]['group_size'])
+        return get_pairings(corpus, data['level'], data['dictionary'],
+                            data['group_size'])
 API.add_resource(Groups, '/groups')
 
 class ReportsSchema(Schema):
@@ -143,17 +175,17 @@ class Reports(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data = REPORT_SCHEMA.load(json_data)
+            data, _errors = REPORT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
-        corpus = data[0]['corpus']
+        corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        response = make_response(get_reports(corpus, data[0]['dictionary'],
-                                             data[0]['course'],
-                                             data[0]['assignment'],
-                                             data[0]['intro'],
-                                             data[0]['stv_intro']))
+        response = make_response(get_reports(corpus, data['dictionary'],
+                                             data['course'],
+                                             data['assignment'],
+                                             data['intro'],
+                                             data['stv_intro']))
         response.headers['Content-Disposition'] = "attachment; filename='report.pdf'"
         response.mimetype = 'application/pdf'
         return response

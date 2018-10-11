@@ -1,7 +1,9 @@
 from cloudant import couchdb
 from flask import current_app
+from flask_restful import abort
 import pandas as pd
 import logging
+#from functools import lru_cache
 
 from ds_tones import DocuScopeTones
 import ds_groups
@@ -40,23 +42,29 @@ def get_level_frame(stats_frame, level, tones):
             sumframe = stats_frame.filter(lats)
             if not sumframe.empty:
                 data[dim] = sumframe.transpose().sum()
+                logging.debug("get_level_frame dimension: {}, sum:".format(dim))
+                logging.debug(data[dim])
     elif level == 'Cluster':
-        for cluster, dims in tones.map_cluster_to_dimensions().items():
-            sumframe = stats_frame.filter(dims)
+        for cluster, clats in tones.map_cluster_to_lats().items():
+            sumframe = stats_frame.filter(clats)
             if not sumframe.empty:
                 data[cluster] = sumframe.transpose().sum()
+                logging.debug("get_level_frame cluster: {}, sum:".format(cluster))
+                logging.debug(data[cluster])
     frame = pd.DataFrame(data)
-    frame = frame.add(stats_frame.filter(['total_words', 'title']))
-    #frame['total_words'] = stats_frame['total_words']
-    #frame['title'] = stats_frame['title']
+
+    logging.debug(frame)
+    frame['total_words'] = stats_frame['total_words']
+    frame['title'] = stats_frame['title']
+    logging.debug(frame)
     return frame.transpose()
 
-def get_boxplot_data(documents, level, dictionary):
-    logging.info("get_boxplot_data({}, {}, {})".format(documents,level,dictionary))
-    stat_frame = get_ds_stats(documents)
+def get_boxplot_data(corpus, level, ds_dictionary):
+    logging.info("get_boxplot_data({}, {}, {})".format(corpus, level, ds_dictionary))
+    stat_frame = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
-    tones = DocuScopeTones(dictionary)
+    tones = DocuScopeTones(ds_dictionary)
     logging.info(" number of tones: {}".format(len(tones.tones)))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
@@ -112,58 +120,103 @@ def get_boxplot_data(documents, level, dictionary):
     return {"bpdata": bpdata, "outliers": outliers}
 
 def get_rank_data(corpus, level, ds_dictionary, sortby):
-    frame = get_level_frame(corpus, level, ds_dictionary)
+    logging.info("get_rank_data({}, {}, {}, {})".format(corpus, level, ds_dictionary, sortby))
+    stat_frame = get_ds_stats(corpus)
+    logging.info(" get_ds_stats =>")
+    logging.info(stat_frame)
+    tones = DocuScopeTones(ds_dictionary)
+    logging.info(" number of tones: {}".format(len(tones.tones)))
+    frame = get_level_frame(stat_frame, level, tones)
+    logging.info(frame)
 
     title_row = frame.loc['title':]
-    frame.drop('title')
+    frame = frame.drop('title')
 
-    frame = frame.apply(lambda x: x.divide(x['total_words']))
+    frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
     frame = frame.drop('total_words')
-    frame = frame.drop('Other')
+    if 'Other' in frame:
+        frame = frame.drop('Other')
     frame = frame.append(title_row)
     frame = frame.transpose()
     frame = frame.fillna(0)
 
-    cols_to_delete = list(df.columns.values)
-    cols_to_delete.remove(sortby)
-    cols_to_delete.remove('title')
+    if sortby not in frame:
+        logging.error("{} is not in {}".format(sortby, frame.columns))
+        abort(422, message="{} is not in {}".format(sortby, frame.columns.values))
+    frame = frame.loc[:, ['title', sortby]]
+    #logging.debug(frame)
+    #cols_to_delete = list(frame.columns.values)
 
-    frame.drop(cols_to_delete, axis=1, inplace=True)
+    #cols_to_delete.remove(sortby)
+    #cols_to_delete.remove('title')
+
+    #frame.drop(cols_to_delete, axis=1, inplace=True)
     frame.reset_index(inplace=True)
-    frame.rename(columns={'title': 'text'}, inplace=True)
-    frame.rename(columns={sortby: 'value'}, inplace=True)
+    frame.rename(columns={'title': 'text', sortby: 'value'}, inplace=True)
 
     frame.sort_values('value', ascending=False, inplace=True)
 
     frame = frame.head(50)
     frame = frame[frame.value != 0]
-
+    logging.info(frame)
     return {'result': frame.to_dict('records')}
 
 def get_scatter_data(corpus, level, ds_dictionary, cat_x, cat_y):
-    frame = get_level_frame(corpus, level, ds_dictionary)
+    logging.info("get_scatter_data({}, {}, {}, {}, {})".format(corpus, level, ds_dictionary, cat_x, cat_y))
+    stat_frame = get_ds_stats(corpus)
+    logging.info(" get_ds_stats =>")
+    logging.info(stat_frame)
+    tones = DocuScopeTones(ds_dictionary)
+    logging.info(" number of tones: {}".format(len(tones.tones)))
+    frame = get_level_frame(stat_frame, level, tones)
+    logging.info(frame)
+
     title_row = frame.loc['title']
-    frame = frame.drop('title').drop('Other').fillna(0)
+    frame = frame.drop('title')
+    if 'Other' in frame:
+        frame = frame.drop('Other')
+    frame = frame.fillna(0)
     frame = frame.apply(lambda x: x.divide(x['total_words'])*100)
     frame = frame.drop('total_words')
     frame = frame.append(title_row)
     frame = frame.transpose()
+    if cat_x not in frame or cat_y not in frame:
+        abort(422, message="Either '{}' or '{}' is not in {}.".format(cat_x, cat_y, frame.columns.values))
     frame = frame[[cat_x, cat_y, 'title']]
     frame['text_id'] = frame.index
     frame = frame.rename(columns = {cat_x: 'catX', cat_y: 'catY'})
     return {'spdata': frame.to_dict('records')}
 
 def get_pairings(corpus, level, ds_dictionary, group_size):
-    frame = get_level_frame(corpus, level, ds_dictionary)
+    logging.info("get_pairings({}, {}, {}, {})".format(corpus, level, ds_dictionary, group_size))
+    stat_frame = get_ds_stats(corpus)
+    logging.info(" get_ds_stats =>")
+    logging.info(stat_frame)
+    tones = DocuScopeTones(ds_dictionary)
+    logging.info(" number of tones: {}".format(len(tones.tones)))
+    frame = get_level_frame(stat_frame, level, tones)
+    logging.info(frame)
+
     title_row = frame.loc['title':]
     frame = frame.drop('title')
     frame = frame.apply(lambda x: x.divide(x['total_words']))
-    frame = frame.drop('total_words').drop('Other').append(title_row)
+    frame = frame.drop('total_words')
+    if 'Other' in frame:
+        frame = frame.drop('Other')
+    frame = frame.append(title_row)
     frame = frame.transpose().fillna(0).set_index('title')
-    return ds_groups.get_best_groups(df, group_size=group_size)
+    return ds_groups.get_best_groups(frame, group_size=group_size)
 
 def get_reports(corpus, ds_dictionary,
                 course="", assignment="", intro="", stv_intro=""):
-    frame, tones = get_level_frame(corpus, 'Cluster', ds_dictionary)
+    logging.info("get_reports({}, {}, {}, {}, {}, {})".format(corpus, ds_dictionary, course, assignment, intro, stv_intro))
+    stat_frame = get_ds_stats(corpus)
+    logging.info(" get_ds_stats =>")
+    logging.info(stat_frame)
+    tones = DocuScopeTones(ds_dictionary)
+    logging.info(" number of tones: {}".format(len(tones.tones)))
+    frame = get_level_frame(stat_frame, 'Cluster', tones)
+    logging.info(frame)
+
     generate_pdf_reports(frame, corpus, ds_dictionary, tones)
     return
