@@ -1,0 +1,14 @@
+<div *ngIf="corpus">
+  <h2>{{corpus.course}} - {{corpus.assignment}} Rankings</h2>
+  <div *ngIf="categories">
+    <aside>
+      <label for="select_category">Category:</label>
+      <select id="select_category" [(ngModel)]="category" (ngModelChange)="on_select($event)">
+        <option *ngFor="let c of categories" [value]="c">{{c}}</option>
+      </select>
+    </aside>
+    <article>
+      <app-rank-graph [rank_data]="data"></app-rank-graph>
+    </article>
+  </div>
+</div>

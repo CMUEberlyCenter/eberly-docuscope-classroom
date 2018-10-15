@@ -1,0 +1,12 @@
+<h2>Corpus</h2>
+<ul class="corpus_list">
+  <li *ngFor="let corpus of corpus_list">
+    <!--[class.selected]="corpus === selectedCorpus"
+      (click)="onSelect(corpus)">-->
+    <a routerLink="/corpus/{{corpus.id}}"><span class="badge">{{corpus.id}}</span> {{corpus.course}} - {{corpus.assignment}}</a>
+    <a routerLink="/boxplot/{{corpus.id}}">Box Plot</a>
+  </li>
+</ul>
+
+<!--<app-corpus-detail [corpus]="selectedCorpus">
+</app-corpus-detail>-->

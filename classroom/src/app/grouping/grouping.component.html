@@ -1,0 +1,16 @@
+<div *ngIf="corpus">
+  <h2>{{corpus.course}} - {{corpus.assignment}} Grouping</h2>
+  <p>Use this tool to automatically assign students to groups.</p>
+  <div *ngFor="let n of group_sizes">
+    <label><input type="radio" value="{{n}}" [(ngModel)]="group_size">{{n}}</label>
+  </div>
+  <button (click)="generate_groups(event$)">Group Students</button>
+  <div *ngIf="groups">
+    <h3>Groups:</h3>
+    <div class="groups_container">
+      <div class="group" *ngFor="let group of groups.groups">
+        <div class="group_member" *ngFor="let ind of group">{{ind}}</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+.document_id {
+  font-family: monospace;
+}
+
+#ds_dict {
+  border-radius: 3px;
+  border: 1px solid grey;
+  padding: 3px;
+  margin: 3px;
+}

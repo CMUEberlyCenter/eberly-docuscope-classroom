@@ -1,0 +1,7 @@
+<h3>Box Plot</h3>
+<div *ngIf="corpus">
+  <h3>{{corpus.course}} - {{corpus.assignment}} Box Plot</h3>
+  <div class="graph_container">
+    <app-boxplot-graph [boxplot]="data"></app-boxplot-graph>
+  </div>
+</div>
