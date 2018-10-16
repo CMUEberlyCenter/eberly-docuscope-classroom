@@ -2,6 +2,7 @@ from cloudant import couchdb
 from flask import current_app
 from flask_restful import abort
 import pandas as pd
+import re
 import logging
 #from functools import lru_cache
 
@@ -71,8 +72,7 @@ def get_boxplot_data(corpus, level, ds_dictionary):
     frame = frame.drop('title')
     frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
     frame = frame.drop('total_words')
-    if 'Other' in frame:
-        frame = frame.drop('Other')
+    frame = frame.drop('Other', errors='ignore')
     frame = frame.transpose()
 
     frame = frame.fillna(0)
@@ -220,3 +220,34 @@ def get_reports(corpus, ds_dictionary,
 
     generate_pdf_reports(frame, corpus, ds_dictionary, tones)
     return
+
+def get_html_string(text_id, ds_dictionary):
+    tones = DocuScopeTones(ds_dictionary)
+
+    tags_dicts = {}
+    html_content = ""
+    res = {
+        "text_id": text_id,
+        "word_count": 0,
+        "html_content": "",
+        "dict": {}
+    }
+    with couchdb(current_app.config['COUCHDB_USER'],
+                 current_app.config['COUCHDB_PASSWORD'],
+                 url=current_app.config['COUCHDB_URL']) as cserv:
+        corpus_db = cserv['corpus']
+        with corpus_db[text_id] as doc:
+            html_content = doc['ds_output']
+            tags_dicts = doc['ds_tag_dict']
+            res['word_count'] = doc['ds_num_word_tokens']
+            res['text_id'] = doc['_id'] # TODO: get title
+    html_content = re.sub('(\n|\s)+', ' ', html_content)
+    html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
+    res['html_content'] = html_content
+    if (tags_dicts):
+        cats = {}
+        for lat in tags_dicts.keys():
+            cats[lat] = {"dimension": tones.get_dimension(lat),
+                         "cluster": tones.get_dimension(lat)}
+        res['dict'] = cats
+    return res
