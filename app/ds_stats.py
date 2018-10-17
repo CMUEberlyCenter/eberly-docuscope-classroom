@@ -221,9 +221,7 @@ def get_reports(corpus, ds_dictionary,
     generate_pdf_reports(frame, corpus, ds_dictionary, tones)
     return
 
-def get_html_string(text_id, ds_dictionary):
-    tones = DocuScopeTones(ds_dictionary)
-
+def get_html_string(text_id):
     tags_dicts = {}
     html_content = ""
     res = {
@@ -232,6 +230,7 @@ def get_html_string(text_id, ds_dictionary):
         "html_content": "",
         "dict": {}
     }
+    ds_dictionary = 'default'
     with couchdb(current_app.config['COUCHDB_USER'],
                  current_app.config['COUCHDB_PASSWORD'],
                  url=current_app.config['COUCHDB_URL']) as cserv:
@@ -241,13 +240,16 @@ def get_html_string(text_id, ds_dictionary):
             tags_dicts = doc['ds_tag_dict']
             res['word_count'] = doc['ds_num_word_tokens']
             res['text_id'] = doc['_id'] # TODO: get title
+            ds_dictionary = doc['ds_dictionary']
     html_content = re.sub('(\n|\s)+', ' ', html_content)
     html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
     res['html_content'] = html_content
     if (tags_dicts):
+        logging.info("Retrieving tones for {}".format(ds_dictionary))
+        tones = DocuScopeTones(ds_dictionary)
         cats = {}
         for lat in tags_dicts.keys():
             cats[lat] = {"dimension": tones.get_dimension(lat),
-                         "cluster": tones.get_dimension(lat)}
+                         "cluster": tones.get_lat_cluster(lat)}
         res['dict'] = cats
     return res

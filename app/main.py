@@ -193,9 +193,6 @@ API.add_resource(Reports, '/generate_reports')
 
 class TextSchema(Schema):
     text_id = fields.String()
-    dictionary = fields.String( # TODO: check if dictionary should be from doc
-        default='default',
-        validate=lambda d: d in available_dictionaries())
 TEXT_SCHEMA = TextSchema()
 
 class TextContent(Resource):
@@ -212,7 +209,7 @@ class TextContent(Resource):
         logging.debug("/text_request/{}".format(file_id))
         if not file_id:
             abort(404, message="No document specified.")
-        return get_html_string(file_id, data['dictionary'])
+        return get_html_string(file_id)
 API.add_resource(TextContent, '/text_content')
 
 if __name__ == '__main__':
