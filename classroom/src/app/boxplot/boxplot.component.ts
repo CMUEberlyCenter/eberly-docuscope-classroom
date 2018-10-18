@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
-import { BoxplotData, RankData } from '../boxplot-data';
+import { BoxplotData, RankData, max_boxplot_value } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
 
 @Component({
@@ -15,6 +15,7 @@ export class BoxplotComponent implements OnInit {
   data: BoxplotData;
   rank_data: RankData;
   selected_category: string;
+  max_value: number;
 
   constructor(private corpusService: CorpusService,
               private dataService: BoxplotDataService) { }
@@ -29,7 +30,10 @@ export class BoxplotComponent implements OnInit {
   }
   getData():void {
     this.dataService.getBoxPlotData(this.corpus)
-      .subscribe(data => this.data = data);
+      .subscribe(data => {
+        this.data = data;
+        this.max_value = max_boxplot_value(data);
+      });
   }
   getRankData(selected_category:string):void {
     if (selected_category) {

@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 
 import * as d3 from 'd3';
 
@@ -24,7 +23,6 @@ export class TextViewComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _location: Location,
     private _text_service: TaggedTextService,
     private _sanitizer: DomSanitizer
   ) { }
@@ -60,7 +58,9 @@ export class TextViewComponent implements OnInit {
       if (obj) {
         this.selected_dimension = obj['dimension'];
         this.selected_cluster = obj['cluster'];
-        this.selection = $event.target.textContent;
+        this.selection = $event.target.parentNode.textContent;
+        d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.select($event.target.parentNode).classed('selected_text', true);
       }
     }
   }
@@ -77,21 +77,35 @@ export class TextViewComponent implements OnInit {
     console.log($event.target.checked, $event.target.value);
     let clust: string = $event.target.value;
     //let lats = this.tagged_text.dict
-    console.log(`[data-key=${clust}]`);
+    //console.log(`[data-key=${clust}]`);
     //d3.select($event.target).style('color','pink');
     //d3.select($event.target).style('color', 'black')
     let lats = this.get_lats(clust);
+    let css_class = this.get_cluster_class(clust);
+    if (!$event.target.checked && this._selected_clusters.has(clust)) {
+      this._css_classes.unshift(this._selected_clusters.get(clust));
+      this._selected_clusters.delete(clust);
+    }
+    d3.select($event.target.parentNode).classed(css_class, $event.target.checked);
+    //console.log(css_class, this._selected_clusters, this._css_classes);
     let lat =  lats.next();
     while (!lat.done) {
-      console.log(lat.value);
+      //console.log(lat.value);
       d3.selectAll(`[data-key=${lat.value}]`)
-        .classed('cluster_0', $event.target.checked);
-        //.style('border-bottom-width', '3px');
+        .classed(css_class, $event.target.checked);
       lat = lats.next();
     }
-
   }
-  goBack(): void {
-    this._location.back();
+
+  private _css_classes: string[] = ["cluster_0","cluster_1","cluster_2","cluster_3","cluster_4","cluster_5"];
+  private _selected_clusters: Map<string,string> = new Map<string,string>();
+  get_cluster_class(cluster: string): string {
+    if (this._selected_clusters.has(cluster)) {
+      return this._selected_clusters.get(cluster);
+    } else if (this._css_classes.length) {
+      this._selected_clusters.set(cluster, this._css_classes.shift());
+      return this._selected_clusters.get(cluster);
+    }
+    return 'cluster_default';
   }
 }

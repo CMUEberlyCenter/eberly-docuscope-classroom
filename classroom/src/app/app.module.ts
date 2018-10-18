@@ -17,6 +17,7 @@ import { TextViewComponent } from './text-view/text-view.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { RankGraphComponent } from './rank-graph/rank-graph.component';
 import { RankComponent } from './rank/rank.component';
+import { NavComponent } from './nav/nav.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { RankComponent } from './rank/rank.component';
     TextViewComponent,
     ScatterplotGraphComponent,
     RankGraphComponent,
-    RankComponent
+    RankComponent,
+    NavComponent
   ],
   imports: [
     BrowserModule,

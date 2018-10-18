@@ -11,8 +11,9 @@ import { RankData, RankDataEntry } from '../boxplot-data';
 })
 export class RankGraphComponent implements OnInit, OnChanges {
   @Input() rank_data: RankData;
+  @Input() max_value: number;
 
-  options: { width, height } = { width: 400, height: 50 };
+  options: { width, height } = { width: 450, height: 50 };
 
   constructor() { }
 
@@ -23,11 +24,11 @@ export class RankGraphComponent implements OnInit, OnChanges {
     const entry_height: number = 28;
     const top_margin: number = 2;
     const bottom_margin: number = 2;
-    const title_offset:number = 200;
+    const title_offset:number = 160;
 
     let x = d3.scaleLinear()
-      .domain([0, 1])
-      .range([title_offset, this.options.width-10]);
+      .domain([0, this.max_value])
+      .range([title_offset, this.options.width-15]).nice();
     let y = d3.scaleLinear()
       .domain([0, 1])
       .range([top_margin, entry_height-bottom_margin]);

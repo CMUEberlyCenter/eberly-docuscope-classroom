@@ -15,6 +15,7 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
   set boxplot(bpd: BoxplotData) { this._boxplot = bpd; };
   get boxplot():BoxplotData { return this._boxplot; }
   @Output() selected_category = new EventEmitter<string>();
+  @Input() max_value: number;
 
   private _options: { width, height } = { width: 500, height: 50 };
 
@@ -32,6 +33,17 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
 
   constructor() { }
 
+  /*get max_value():number {
+    let maximum = 0.0;
+    if (this.boxplot) {
+      for (let cat in this.boxplot.bpdata) {
+        let entry = this.boxplot.bpdata[cat];
+        maximum = Math.max(maximum, entry.max, entry.uifence);
+      }
+    }
+    return Math.ceil(maximum*10)/10;
+  }*/
+
   draw() {
     console.log("boxplot-graph.draw",this.boxplot);
     const entry_height: number = 28;
@@ -39,9 +51,10 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
     const bottom_margin: number = 2;
     const category_offset: number = 200;
 
+    console.log(this.max_value);
     let x = d3.scaleLinear()
-      .domain([0, 1])
-      .range([category_offset, this.options.width-10]);
+      .domain([0, this.max_value])
+      .range([category_offset, this.options.width-15]).nice();
     let y = d3.scaleLinear()
       .domain([0, 1])
       .range([top_margin, entry_height - bottom_margin]);
@@ -113,16 +126,16 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
       .attr('class', 'bp-min')
       .attr('x1', d => x(d.min))
       .attr('x2', d => x(d.min))
-      .attr('y1', y(0))
-      .attr('y2', y(1))
+      .attr('y1', y(0.25))
+      .attr('y2', y(0.75))
       .style('stroke', '#3C3C3C')
       .style('stroke-width', 1);
     bar.append('line')
       .attr('class', 'bp-max')
       .attr('x1', d => x(d.max))
       .attr('x2', d => x(d.max))
-      .attr('y1', y(0))
-      .attr('y2', y(1))
+      .attr('y1', y(0.25))
+      .attr('y2', y(0.75))
       .style('stroke', '#3C3C3C')
       .style('stroke-width', 1);
   }

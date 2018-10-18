@@ -99,6 +99,17 @@ export class BoxplotData {
   outliers: Outlier[];
 }
 
+export function max_boxplot_value(boxplot:BoxplotData):number {
+  let maximum: number = 0.0;
+  if (boxplot) {
+    for (let cat in boxplot.bpdata) {
+      let entry: BoxplotDataEntry = boxplot.bpdata[cat];
+      maximum = Math.max(maximum, entry.max, entry.uifence);
+    }
+  }
+  return Math.ceil(maximum*10)/10;
+}
+
 export class RankDataEntry {
   index: string;
   text: string;

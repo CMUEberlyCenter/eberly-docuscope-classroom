@@ -1,8 +1,9 @@
+<app-nav></app-nav>
 <h3>Box Plot</h3>
 <div *ngIf="corpus">
   <h3>{{corpus.course}} - {{corpus.assignment}} Box Plot</h3>
   <div class="graph_container">
-    <app-boxplot-graph [boxplot]="data" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
-    <app-rank-graph [rank_data]="rank_data"></app-rank-graph>
+    <app-boxplot-graph [boxplot]="data" [max_value]="max_value" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
+    <app-rank-graph [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
   </div>
 </div>

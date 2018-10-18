@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
-import { RankData, BoxplotDataEntry } from '../boxplot-data';
+import { RankData, BoxplotDataEntry, max_boxplot_value } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
 
 @Component({
@@ -15,6 +15,7 @@ export class RankComponent implements OnInit {
   data: RankData;
   categories: string[];
   category: string;
+  max_value: number;
 
   constructor(private _corpus_service: CorpusService,
               private _data_service: BoxplotDataService) { }
@@ -31,6 +32,7 @@ export class RankComponent implements OnInit {
       .subscribe(data => {
         this.categories = data.bpdata.map(
           (bpd: BoxplotDataEntry):string => { return bpd.category; });
+        this.max_value = max_boxplot_value(data);
         this.category = this.categories[0];
         this.getData();
       });

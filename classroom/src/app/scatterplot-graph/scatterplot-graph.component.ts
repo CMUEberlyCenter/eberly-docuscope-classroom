@@ -21,12 +21,15 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
   constructor() { }
 
   draw() {
+    let ex_x = d3.extent(this.points.spdata, d => d['catX']);
+    let ex_y = d3.extent(this.points.spdata, d => d['catY']);
+    let max_value = Math.max(ex_x[1], ex_y[1]);
     let x = d3.scaleLinear()
-      .domain([0, 100])
-      .range([0, this.options.width]);
+      .domain([0, max_value])
+      .range([0, this.options.width]).nice();
     let y = d3.scaleLinear()
-      .domain([0, 100])
-      .range([this.options.height, 0]);
+      .domain([0, max_value])
+      .range([this.options.height, 0]).nice();
     let x_axis = d3.axisBottom(x);
     let y_axis = d3.axisLeft(y);
     let chart = d3.select(".scatterplot")

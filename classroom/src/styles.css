@@ -34,3 +34,6 @@
   border-bottom-width: 3px;
   border-bottom-color: rgb(220,10,169);
 }
+.selected_text {
+  background-color: pink;
+}
