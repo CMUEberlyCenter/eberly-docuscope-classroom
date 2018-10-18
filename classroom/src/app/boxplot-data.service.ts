@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, retry, tap, publishReplay, refCount, take } from 'rxjs/operators';
 import { MessageService } from './message.service';
-import { CONFIG } from './app-settings';
+import { AppSettingsService } from './app-settings.service';
 import { Corpus } from './corpus';
 import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema, ScatterplotData, makeScatterplotSchema, GroupsData, makeGroupsSchema  } from './boxplot-data';
 
@@ -11,15 +11,16 @@ import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema, Scatter
   providedIn: 'root'
 })
 export class BoxplotDataService {
-  private boxplot_server: string = CONFIG.backend_server+'/boxplot_data';
+  private boxplot_server: string = '/boxplot_data';
   private boxplot_data: Observable<BoxplotData>; //: BoxplotData;
-  private rank_server: string = CONFIG.backend_server+'/ranked_list';
+  private rank_server: string = this.env.config.backend_server+'/ranked_list';
   private rank_data: Map<string, Observable<RankData>> = new Map<string, Observable<RankData>>();
-  private scatter_server: string = CONFIG.backend_server+'/scatterplot_data';
+  private scatter_server: string = this.env.config.backend_server+'/scatterplot_data';
   private scatterplot_data: Map<string, Map<string, Observable<ScatterplotData>>> = new Map<string, Map<string, Observable<ScatterplotData>>>();
-  private groups_server: string = CONFIG.backend_server+'/groups';
+  private groups_server: string = this.env.config.backend_server+'/groups';
 
   constructor(private http: HttpClient,
+              private env: AppSettingsService,
               private messageService: MessageService) { }
 
   private handleError(error: HttpErrorResponse) {
@@ -34,7 +35,7 @@ export class BoxplotDataService {
     } else {
       this.messageService.add('Going to retrieve Box Plot data from server, please wait.');
       let bp_query = makeBoxplotSchema(corpus);
-      this.boxplot_data = this.http.post<BoxplotData>(this.boxplot_server, bp_query)
+      this.boxplot_data = this.http.post<BoxplotData>(this.env.config.backend_server+this.boxplot_server, bp_query)
         .pipe(
           publishReplay(1),
           refCount(),

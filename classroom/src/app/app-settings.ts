@@ -1,5 +1,7 @@
-export class AppSettings {
-  backend_server: string = "http://localhost:4444";
+export interface AppSettings {
+  backend_server: string;
 }
 
-export const CONFIG: AppSettings = new AppSettings()
+export const CONFIG: AppSettings = {
+  backend_server: "http://localhost:4444"
+}

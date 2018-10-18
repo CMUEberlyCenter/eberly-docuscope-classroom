@@ -12,15 +12,21 @@
   margin-left: 0px;
   margin-right: 0px;
   margin-top: 0px;
-  box-sizing: border-box;
+  /*box-sizing: border-box;*/
+  padding: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title-banner > * {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+.pointer {
+  cursor: pointer;
 }
 h1 {
   /*font-size: 1.2em;
   color: #EEE;
   margin-bottom: 0;*/
-}
-h2 {
-  font-size: 2em;
-  margin-top: 0;
-  padding-top: 0;
 }

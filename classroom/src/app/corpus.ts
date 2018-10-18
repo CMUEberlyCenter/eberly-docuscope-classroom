@@ -1,5 +1,3 @@
-import { BoxplotSchema, DocumentSchema, Level} from './boxplot-data';
-
 export class Corpus {
   id: number;
   course: string;

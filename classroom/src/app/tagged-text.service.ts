@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
-import { CONFIG } from './app-settings';
+import { AppSettingsService } from './app-settings.service';
 
 interface TextContentSchema {
   text_id: string;
@@ -18,11 +18,12 @@ export interface TextContent {
   providedIn: 'root'
 })
 export class TaggedTextService {
-  private server: string = CONFIG.backend_server+'/text_content';
+  private server: string = this.env.config.backend_server+'/text_content';
   // since this is a new window, caching doesn't seem to be useful.
   private tag_data: Map<string, Observable<TextContent>> = new Map<string, Observable<TextContent>>();
 
-  constructor(private _http: HttpClient) { }
+  constructor(private _http: HttpClient,
+              private env: AppSettingsService) { }
 
   private handleError(error: HttpErrorResponse) {
     console.log(error);

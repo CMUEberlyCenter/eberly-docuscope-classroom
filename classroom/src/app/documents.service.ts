@@ -3,15 +3,17 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, map, publishReplay, refCount } from 'rxjs/operators';
 import { MessageService } from './message.service';
-import { CONFIG } from './app-settings';
+import { AppSettingsService } from './app-settings.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentsService {
-  database = CONFIG.backend_server+'/_documents';
+  database = this.env.config.backend_server+'/_documents';
 
-  constructor(private http: HttpClient, private messageService: MessageService) { }
+  constructor(private http: HttpClient,
+              private env: AppSettingsService,
+              private messageService: MessageService) { }
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {

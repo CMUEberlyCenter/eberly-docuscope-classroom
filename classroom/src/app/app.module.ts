@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
+import { AppSettingsService } from './app-settings.service';
 import { AppComponent } from './app.component';
 import { CorpusComponent } from './corpus/corpus.component';
 import { CorpusDetailComponent } from './corpus-detail/corpus-detail.component';
@@ -18,6 +19,11 @@ import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph
 import { RankGraphComponent } from './rank-graph/rank-graph.component';
 import { RankComponent } from './rank/rank.component';
 import { NavComponent } from './nav/nav.component';
+import { ModalComponent } from './modal/modal.component';
+
+const appInitializerFn = (appConfig: AppSettingsService) => {
+  return () => appConfig.loadSettings();
+};
 
 @NgModule({
   declarations: [
@@ -34,7 +40,8 @@ import { NavComponent } from './nav/nav.component';
     ScatterplotGraphComponent,
     RankGraphComponent,
     RankComponent,
-    NavComponent
+    NavComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +49,15 @@ import { NavComponent } from './nav/nav.component';
     HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    AppSettingsService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFn,
+      multi: true,
+      deps: [AppSettingsService]
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

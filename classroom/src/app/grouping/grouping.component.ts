@@ -15,6 +15,13 @@ export class GroupingComponent implements OnInit {
   group_sizes: number[] = [2, 3, 4];
   group_size: string = "2";
   groups: GroupsData;
+  students: [string, boolean][] = [
+    ['John', true],
+    ['Mike', true],
+    ['Alex', true],
+    ['Kate', true],
+    ['Sarah', true],
+  ];
 
   constructor(private corpus_service: CorpusService,
               private data_service: BoxplotDataService) { }

@@ -1,17 +1,28 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { AppSettings } from './app-settings';
+import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
+import { AppSettings, CONFIG } from './app-settings';
 
-@Injectable({
+@Injectable(/*{
   providedIn: 'root'
-})
+}*/)
 export class AppSettingsService {
+  settings_url: string = '/assets/app-settings.json';
+  private _settings;
 
-  constructor(private http: HttpClient) { }
+  constructor(private injector: Injector) { }
 
-  getSettings(): Observable<AppSettings> {
-    return this.http.get<AppSettings>('/assets/appsettings.json');
+  loadSettings() {
+    let http = this.injector.get(HttpClient);
+    return http.get(this.settings_url)
+      .toPromise()
+      .then(data => this._settings = data)
+      .catch(error => this._settings = CONFIG)
+  }
+
+  get config() { return this._settings; }
+  get settings() {
+    return this._settings;
   }
 }

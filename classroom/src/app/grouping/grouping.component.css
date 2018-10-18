@@ -1,3 +1,8 @@
+.container {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
 .groups_container {
   display: flex;
   flex-flow: column;
