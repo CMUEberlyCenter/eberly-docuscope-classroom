@@ -1,3 +1,32 @@
-<p>
-  text-view works!
-</p>
+<div *ngIf="tagged_text">
+  <div class="text_view_container">
+    <aside class="clusters">
+      <div class="md-toolbar-tools">
+        <h3>Dictionary Categories</h3>
+      </div>
+      <div *ngFor="let c of clusters;">
+        <label><input class="ds-stv-category" type="checkbox" [value]="c" (change)="toggle_category($event)">{{c}}</label>
+      </div>
+    </aside>
+    <article class="text_view">
+      <h2>{{tagged_text.text_id}}</h2>
+      <div [innerHTML]="html_content" (click)="click_select($event)"
+           ></div>
+    </article>
+    <aside class="details">
+      <div class="pattern">
+        <h3>Selected Pattern</h3>
+        <div>{{selection}}</div>
+        <ul>
+          <li>LAT = {{selected_lat}}</li>
+          <li>Dimension = {{selected_dimension}}</li>
+          <li>Cluster = {{selected_cluster}}</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>Text Information</h3>
+        <p>Word Count = {{tagged_text.word_count}}</p>
+      </div>
+    </aside>
+  </div>
+</div>

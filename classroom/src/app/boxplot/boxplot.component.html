@@ -2,6 +2,7 @@
 <div *ngIf="corpus">
   <h3>{{corpus.course}} - {{corpus.assignment}} Box Plot</h3>
   <div class="graph_container">
-    <app-boxplot-graph [boxplot]="data"></app-boxplot-graph>
+    <app-boxplot-graph [boxplot]="data" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
+    <app-rank-graph [rank_data]="rank_data"></app-rank-graph>
   </div>
 </div>

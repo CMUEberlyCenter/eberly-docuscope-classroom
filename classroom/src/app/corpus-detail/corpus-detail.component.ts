@@ -1,10 +1,8 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
-import { DSDictionaryService } from '../ds-dictionary.service';
 import { DocumentsService } from '../documents.service';
 
 @Component({
@@ -14,25 +12,14 @@ import { DocumentsService } from '../documents.service';
 })
 export class CorpusDetailComponent implements OnInit, OnChanges {
   corpus: Corpus;
-
-  dictionaries: string[];
   documents: [string, boolean][];
 
   constructor(private corpusService: CorpusService,
-              private dictionaryService: DSDictionaryService,
-              private documentService: DocumentsService,
-              private route: ActivatedRoute,
-              private location: Location) { }
+              private documentService: DocumentsService) { }
 
   getCorpus(): void {
-    //const id = +this.route.snapshot.paramMap.get('id');
-    this.corpusService.getCorpus() //(id)
+    this.corpusService.getCorpus()
       .subscribe(corpus => this.corpus = corpus);
-  }
-
-  getDictionaries(): void {
-    this.dictionaryService.getDictionaryNames()
-      .subscribe(ds_dicts => this.dictionaries = ds_dicts);
   }
 
   getDocuments(): void {
@@ -41,7 +28,6 @@ export class CorpusDetailComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.getDictionaries();
     this.getDocuments();
     this.getCorpus();
   }
@@ -52,9 +38,5 @@ export class CorpusDetailComponent implements OnInit, OnChanges {
         this.documents = this.documents.map((doc:[string, boolean]):[string, boolean] => [doc[0], this.corpus.documents.includes(doc[0])]);
       }
     }
-  }
-
-  goBack(): void {
-    this.location.back();
   }
 }

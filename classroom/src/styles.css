@@ -1,1 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
+.cluster_default {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: black;
+}
+.cluster_0 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(255,0,32);
+}
+.cluster_1 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(255,172,0);
+}
+.cluster_2 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(119,189,11);
+}
+.cluster_3 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(49,117,230);
+}
+.cluster_4 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(137,80,224);
+}
+.cluster_5 {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(220,10,169);
+}

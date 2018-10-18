@@ -1,19 +1,46 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
 import { CONFIG } from './app-settings';
+
+interface TextContentSchema {
+  text_id: string;
+}
+export interface TextContent {
+  text_id: string;
+  word_count: number;
+  html_content: string;
+  dict: Record<string, {dimension: string, cluster: string}>;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaggedTextService {
   private server: string = CONFIG.backend_server+'/text_content';
+  // since this is a new window, caching doesn't seem to be useful.
+  private tag_data: Map<string, Observable<TextContent>> = new Map<string, Observable<TextContent>>();
 
-  constructor(private http: HttpClient) { }
+  constructor(private _http: HttpClient) { }
 
-  getTaggedText(doc_id: string) {
-    let text_query = {'text_id': doc_id, 'dictionary': '270CoverLetter'};
-    return this.http.post(this.server, text_query);
+  private handleError(error: HttpErrorResponse) {
+    console.log(error);
+    return throwError('Something bad happened');
+  }
+
+  getTaggedText(doc_id: string): Observable<TextContent> {
+    if (!this.tag_data.has(doc_id)) {
+      let text_query:TextContentSchema = {'text_id': doc_id};
+      this.tag_data.set(
+        doc_id,
+        this._http.post<TextContent>(this.server, text_query)
+          .pipe(
+            publishReplay(1),
+            refCount(),
+            catchError(this.handleError))
+      );
+    }
+    return this.tag_data.get(doc_id);
   }
 }

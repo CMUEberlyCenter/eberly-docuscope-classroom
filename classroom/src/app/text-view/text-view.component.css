@@ -1,0 +1,16 @@
+.text_view_container {
+  display: flex;
+  flex-direction: row;
+}
+
+.clusters {
+  background: beige;
+}
+
+.text_view {
+  flex: 2 2 auto;
+}
+
+.details {
+  background: beige;
+}

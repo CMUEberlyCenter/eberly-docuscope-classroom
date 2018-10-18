@@ -37,7 +37,7 @@ export class RankComponent implements OnInit {
   }
   getData(): void {
     this._data_service.getRankedList(this.corpus, this.category)
-      .subscribe(data => { this.data = data; console.log(data); });
+      .subscribe(data => { this.data = data; });
   }
   ngOnInit() {
     this.getCorpus();

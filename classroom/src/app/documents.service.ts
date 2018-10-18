@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry, map } from 'rxjs/operators';
+import { catchError, retry, map, publishReplay, refCount } from 'rxjs/operators';
 import { MessageService } from './message.service';
 import { CONFIG } from './app-settings';
 
@@ -29,9 +29,16 @@ export class DocumentsService {
     return throwError('Something bad happened; please try again later.');
   };
 
+  _document_ids;
   getDocumentIds(): Observable<string[]> {
-    this.messageService.add('Fetching document id\'s');
-    return this.http.get<string[]>(this.database)
-      .pipe(catchError(this.handleError));
+    if (!this._document_ids) {
+      this.messageService.add('Fetching document id\'s');
+      this._document_ids = this.http.get<string[]>(this.database)
+        .pipe(
+          publishReplay(1),
+          refCount(),
+          catchError(this.handleError));
+    }
+    return this._document_ids;
   }
 }

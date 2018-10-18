@@ -34,7 +34,7 @@ export class RankGraphComponent implements OnInit, OnChanges {
 
     let axis_x = d3.axisTop(x);
     d3.selectAll('.rank_wait').remove();
-    d3.selectAll('.rank_axis > g').remove();
+    //d3.selectAll('.rank_axis > g').remove();
     //d3.selectAll('.rank_data *').remove();
 
     let data: RankDataEntry[] = this.rank_data.result; //{index,text,value}
@@ -47,8 +47,6 @@ export class RankGraphComponent implements OnInit, OnChanges {
     chart.selectAll('.rank_data > *').remove();
     let axis = chart.select('.rank_data').append('g');
 
-
-    //chart.selectAll(".rank_axis").selectAll('*').remove();
     axis
       .attr('transform', 'translate(0,30)')
       .append('g')

@@ -1,6 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -16,11 +14,10 @@ export class BoxplotComponent implements OnInit {
   corpus: Corpus;
   data: BoxplotData;
   rank_data: RankData;
+  selected_category: string;
 
   constructor(private corpusService: CorpusService,
-              private dataService: BoxplotDataService,
-              private route: ActivatedRoute,
-              private location: Location) { }
+              private dataService: BoxplotDataService) { }
 
   getCorpus(): void {
     //const id = +this.route.snapshot.paramMap.get('id');
@@ -31,22 +28,30 @@ export class BoxplotComponent implements OnInit {
       });
   }
   getData():void {
-    //let corpus_scheme: DocumentSchema[] = this.corpus.documents.map((d: string):DocumentSchema => { return {id: d}; });
     this.dataService.getBoxPlotData(this.corpus)
-    //this.dataService.getBoxPlotData({
-    //  corpus: corpus_scheme,
-    //  level: Level.Cluster,
-    //  dictionary: this.corpus.ds_dictionary
-    //})
       .subscribe(data => this.data = data);
   }
-  /*getRankData():void {
-    this.dataService.getRankedList(this.corpus, this.sort_by)
-      .subscribe(data => this.rank_data = data);
-  }*/
-  ngOnInit() {
-    this.getCorpus();
-    //this.getData();
+  getRankData(selected_category:string):void {
+    if (selected_category) {
+      this.dataService.getRankedList(this.corpus, selected_category)
+        .subscribe(data => this.rank_data = data);
+    }
   }
-
+  ngOnInit() {
+    console.log("boxplot.component ngOnInit()");
+    this.getCorpus();
+  }
+  ngAfterViewCheck() {
+    //this.getCorpus();
+  }
+  ngAfterViewInit() {
+    //this.getCorpus();
+  }
+  ngOnDestroy() {
+    //this.data = null;
+  }
+  onSelectCategory(category:string) {
+    this.selected_category = category;
+    this.getRankData(category);
+  }
 }

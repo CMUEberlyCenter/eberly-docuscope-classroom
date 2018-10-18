@@ -18,7 +18,7 @@ const routes: Routes = [
   { path: 'report', component: ReportComponent },
   { path: 'scatterplot', component: ScatterplotComponent },
   { path: 'stv/:doc', component: TextViewComponent },
-  { path: '', redirectTo: '/corpus', pathMatch: 'full' }
+  { path: '', redirectTo: '/boxplot', pathMatch: 'full' }
 ];
 
 @NgModule({

@@ -1,36 +1,23 @@
 <div *ngIf="corpus">
   <h2>{{corpus.course}} - {{corpus.assignment}} Details</h2>
-  <!--<div><span>id: </span>{{corpus.id}}</div>-->
   <div>
     <label>Course:
-      <input [(ngModel)]="corpus.course" placeholder="course">
+      <!--<input [(ngModel)]="corpus.course" placeholder="course">-->
     </label>
   </div>
   <div>
     <label>Assignment:
-      <input [(ngModel)]="corpus.assignment" placeholder="assignment">
+      <!--<input [(ngModel)]="corpus.assignment" placeholder="assignment">-->
     </label>
   </div>
   <div>
     <label for="ds_dict">DocuScope Dictionary:</label>
     <span id="ds_dict">{{corpus.ds_dictionary}}</span>
-    <!--<select id="ds_dict" [(ngModel)]="corpus.ds_dictionary">
-      <option *ngFor="let x of dictionaries" [value]="x">{{x}}</option>
-    </select>-->
   </div>
   <div>
     <h3>Documents:</h3>
     <div *ngFor="let d of documents">
-      <label class="document_id"><input name="document_check" type="checkbox" [value]="d[0]" [(ngModel)]="d[1]">{{d[0]}}</label>
+      <!--<label class="document_id"><input name="document_check" type="checkbox" [value]="d[0]" [(ngModel)]="d[1]">--><a href="stv/{{d[0]}}" target="_blank">{{d[0]}}</a><!--</label>-->
     </div>
   </div>
-  <!--<div>
-    <h3>Introduction Text:</h3>
-    <textarea [(ngModel)]="corpus.intro"></textarea>
-  </div>
-  <div>
-    <h3>STV Introduction Text:</h3>
-    <textarea [(ngModel)]="corpus.stv_intro"></textarea>
-  </div>-->
-  <button (click)="goBack()">Back</button>
 </div>
