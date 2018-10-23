@@ -60,8 +60,9 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
       .attr("cx", d => x(d.catX))
       .attr('cy', d => y(d.catY))
       .style('fill', 'skyblue')
+      .style('cursor', 'pointer')
       .on("mouseover", d => {
-        console.log(`mouseover: ${d}`);
+        //console.log(`mouseover: ${d}`);
         let div = d3.select('div.tooltip');
         div.transition().duration(200).style("opacity", .9);
         div.html(d.title)

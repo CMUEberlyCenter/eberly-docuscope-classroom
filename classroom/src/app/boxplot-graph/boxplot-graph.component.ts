@@ -87,14 +87,23 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
       .enter().append("g")
       .attr('class', 'boxplot_entry')
       .attr("transform", (d, i) => `translate(0, ${i * entry_height})`)
-      .on("click", (d, i) => component.update_selection(d.category));
+      .on("click", d => component.update_selection(d.category));
+      //.on('mouseover', (d,i,n) => {d3.select(n[i]).style('fill','pink')})
+      //.on('mouseout', (d,i,n) => {d3.select(n[i]).style('fill', null)});
 
+    bar.append('circle')
+      .attr('r', 5)
+      .attr('cx', 8)
+      .attr('cy', y(0.5))
+      .style('stroke', 'darkgrey')
+      .style('stroke-width', 1)
+      .style('fill', 'none');
     bar.append("text")
       .attr('class', 'bp-cat')
-      .attr('x', 5)
+      .attr('x', 16)
       .attr('y', y(0.5))
       .attr('dy', '.35em')
-      .style('cursor', 'default')
+      .style('cursor', 'pointer')
       .text(d => d.category);
 
     bar.append('line') // base line
@@ -138,6 +147,14 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
       .attr('y2', y(0.75))
       .style('stroke', '#3C3C3C')
       .style('stroke-width', 1);
+    bar.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', '100%')
+      .attr('height', y(1))
+      .style('fill', 'rgba(255,255,255,0)')
+      .on('mouseover', (d,i,n) => {d3.select(n[i]).style('fill','rgba(255,177,255,0.2)')})
+      .on('mouseout', (d,i,n) => {d3.select(n[i]).style('fill', 'rgba(255,177,255,0)')});
   }
 
   ngOnInit() {
