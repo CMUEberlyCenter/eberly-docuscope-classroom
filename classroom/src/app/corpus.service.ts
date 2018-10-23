@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
 import { Corpus } from './corpus';
@@ -9,7 +10,7 @@ import { CORPI } from './mock-corpus';
 })
 export class CorpusService {
 
-  constructor() { }
+  constructor(private activatedRoute: ActivatedRoute) { }
 
   getCorpi(): Observable<Corpus[]> {
     return of(CORPI);
@@ -21,4 +22,11 @@ export class CorpusService {
   getCorpus(): Observable<Corpus> {
     return of(CORPI[0]);
   }
+
+  getParams() {
+    return this.activatedRoute.queryParams.subscribe((params: Params) => {
+      console.log(params);
+    });
+  }
+
 }

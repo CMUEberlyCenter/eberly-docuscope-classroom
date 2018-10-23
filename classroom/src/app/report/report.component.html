@@ -11,5 +11,6 @@
     <p>Customize the introduction to the text analysis section:</p>
     <textarea [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
   </div>
-  <button>Generate Report (TBD)</button>
+  <button (click)="generate_report($event)">Generate Report</button>
+  <a #download_link></a>
 </div>

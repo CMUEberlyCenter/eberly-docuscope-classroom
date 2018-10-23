@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
+import { ReportService } from '../report.service';
 
 @Component({
   selector: 'app-report',
@@ -10,8 +11,10 @@ import { CorpusService } from '../corpus.service';
 })
 export class ReportComponent implements OnInit {
   corpus: Corpus;
+  @ViewChild('download_link') private download_link: ElementRef;
 
-  constructor(private corpusService: CorpusService) { }
+  constructor(private corpusService: CorpusService,
+              private reportService: ReportService) { }
 
   getCorpus(): void {
     this.corpusService.getCorpus()
@@ -22,4 +25,14 @@ export class ReportComponent implements OnInit {
     this.getCorpus();
   }
 
+  generate_report($event): void {
+    this.reportService.getReports(this.corpus).subscribe(data => {
+      const url = window.URL.createObjectURL(data);
+      const link = this.download_link.nativeElement;
+      link.href = url;
+      link.download = 'reports.zip';
+      link.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

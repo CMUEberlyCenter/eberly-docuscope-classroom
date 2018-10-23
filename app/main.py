@@ -11,6 +11,7 @@ from marshmallow import Schema, fields, ValidationError
 
 from create_app import create_flask_app
 from ds_stats import *
+from ds_report import get_reports
 
 app = create_flask_app()
 API = Api(app)
@@ -181,13 +182,14 @@ class Reports(Resource):
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        response = make_response(get_reports(corpus, data['dictionary'],
-                                             data['course'],
-                                             data['assignment'],
-                                             data['intro'],
-                                             data['stv_intro']))
-        response.headers['Content-Disposition'] = "attachment; filename='report.pdf'"
-        response.mimetype = 'application/pdf'
+        zip_buffer = get_reports(corpus, data['dictionary'],
+                                 data['course'],
+                                 data['assignment'],
+                                 data['intro'],
+                                 data['stv_intro'])
+        response = make_response(zip_buffer)
+        response.headers['Content-Disposition'] = "attachment; filename='report.zip'"
+        response.mimetype = 'application/zip'
         return response
 API.add_resource(Reports, '/generate_reports')
 

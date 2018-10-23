@@ -6,6 +6,7 @@ import time
 import copy
 import math
 import os
+import io
 
 # reportlab
 from reportlab.platypus.flowables import Flowable
@@ -18,6 +19,7 @@ from reportlab.platypus import SimpleDocTemplate, BaseDocTemplate, PageTemplate,
 from reportlab.platypus import Frame, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
+import tempfile
 import urllib3
 
 import json
@@ -33,6 +35,10 @@ from flask import g, current_app
 
 from bs4 import BeautifulSoup as bs
 
+from ds_stats import get_boxplot_data, get_html_string, get_ds_stats, get_level_frame
+from ds_tones import DocuScopeTones
+import logging
+
 # debug
 # import pprint
 # pp = pprint.PrettyPrinter(indent=4)
@@ -42,9 +48,23 @@ from bs4 import BeautifulSoup as bs
 
 HTTP = urllib3.PoolManager()
 
+def get_reports(corpus, ds_dictionary,
+                course="", assignment="", intro="", stv_intro=""):
+    logging.info("get_reports({}, {}, {}, {}, {}, {})".format(corpus, ds_dictionary, course, assignment, intro, stv_intro))
+    stat_frame = get_ds_stats(corpus)
+    logging.info(" get_ds_stats =>")
+    logging.info(stat_frame)
+    tones = DocuScopeTones(ds_dictionary)
+    logging.info(" number of tones: {}".format(len(tones.tones)))
+    bp_data = get_boxplot_data(corpus, 'Cluster', ds_dictionary, tones=tones);
+    frame = get_level_frame(stat_frame, 'Cluster', tones)
+    logging.info(frame)
+    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, course, assignment, intro, stv_intro, bp_data)
+
+
 class Divider(Flowable):
     def __init__(self, wd, wt=0.5, col=black):
-        super().__init__(self)
+        super().__init__()
         self.width  = wd
         self.weight = wt
         self.color  = col
@@ -68,7 +88,7 @@ class Boxplot(Flowable):
                        rh=1.10*pica,
                        whisker=.125*inch, radius=2):
 
-        super().__init__(self)
+        super().__init__()
         self.data     = data
         self.outliers = outliers
         self.value    = val
@@ -178,7 +198,7 @@ def zip_reports(corpus_id, src_dir, dst_dir, dst_file):
 # tones:        The tones object.
 # dst_dir:      The directory in which all the PDF reports will be generated.
 #
-def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro, stv_intro):
+def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro, stv_intro, bp_data):
     descriptions = {'course': course, 'assignment': assignment, 'intro': intro, 'stv_intro': stv_intro}
 
     def get_cat_descriptions(cats, dict_name):
@@ -207,42 +227,42 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
                 res.append(o)
         return res
 
-    def get_html_string(text_id, dict_name, tones_):
-        """This is identical to ds_utils.get_html_string, except that it does not convert
-           paragraph break symbols with the <p> tags.
-        """
-        html_content = ""
-        tags_dicts = {}
-        res = {}
-        word_count = 0
+    #def get_html_string(text_id, dict_name, tones_):
+    #    """This is identical to ds_utils.get_html_string, except that it does not convert
+    #       paragraph break symbols with the <p> tags.
+    #    """
+    #    html_content = ""
+    #    tags_dicts = {}
+    #    res = {}
+    #    word_count = 0
 
-        with couchdb(current_app.config['COUCHDB_USER'],
-                     current_app.config['COUCHDB_PASSWORD'],
-                     url=current_app.config['COUCHDB_URL']) as cserv:
-            corpus_db = cserv["corpus"]
+    #    with couchdb(current_app.config['COUCHDB_USER'],
+    #                 current_app.config['COUCHDB_PASSWORD'],
+    #                 url=current_app.config['COUCHDB_URL']) as cserv:
+    #        corpus_db = cserv["corpus"]
 
-            if text_id not in corpus_db:
-                return res
-            with corpus_db[text_id] as doc:
-                html_content = doc['ds_output']
-                tags_dicts = doc['ds_tag_dict']
-                word_count = doc['ds_num_word_tokens']
-                title = doc['_id'] # TODO: get student name
+    #        if text_id not in corpus_db:
+    #            return res
+    #        with corpus_db[text_id] as doc:
+    #            html_content = doc['ds_output']
+    #            tags_dicts = doc['ds_tag_dict']
+    #            word_count = doc['ds_num_word_tokens']
+    #            title = doc['_id'] # TODO: get student name
 
-            html_content = re.sub('\n', ' ', html_content)
-            html_content = re.sub(' +', ' ', html_content)
+    #        html_content = re.sub('\n', ' ', html_content)
+    #        html_content = re.sub(' +', ' ', html_content)
 
-            cats = {}
-            if (tags_dicts):
-                for lat in tags_dicts.keys():    # for lat in the list of lats found in a particular text.
+    #        cats = {}
+    #        if (tags_dicts):
+    #            for lat in tags_dicts.keys():    # for lat in the list of lats found in a particular text.
                     # could use tones_.tones directly?
-                    dim = tones_.get_dimension(lat)
-                    cluster = tones_.get_cluster(dim)
-                    cats[lat] = {"dimension": dim, "cluster": cluster}    # cats = categories
+    #                dim = tones_.get_dimension(lat)
+    #                cluster = tones_.get_cluster(dim)
+    #                cats[lat] = {"dimension": dim, "cluster": cluster}    # cats = categories
 
-            res = {"text_id": title, "word_count": word_count, "html_content": html_content, "dict": cats}
+    #        res = {"text_id": title, "word_count": word_count, "html_content": html_content, "dict": cats}
 
-        return res
+    #    return res
 
     patterns_all = {}
     def html_to_report_string(node, d):
@@ -253,7 +273,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
             name = getattr(child, "name",  None)
 
             if name:
-                if 'tag' in child.attrs['class']:
+                if 'class' in child.attrs and 'tag' in child.attrs['class']:
                     words, _ = html_to_report_string(child, d)
                     inner_str = ' '.join(words)
                     cluster = d[child.attrs['data-key']].get('cluster', "?")
@@ -336,7 +356,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
     df1 = df1.drop('total_words')
     df1 = df1.drop('Other')
     df1 = df1.transpose()
-    bp_data = {} #FIXME: ds_utils.generate_boxplot_data(df1)
+    #bp_data = {} #FIXME: ds_utils.generate_boxplot_data(df1)
 
     # calculate the max value for the box-plot. It will be used to deermine
     # the scale factor by Boxplot class.
@@ -356,13 +376,16 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
 
     # create a document with 3 templates
     # report_dir = os.path.join(dst_dir, "{}_reports".format(corpus_id))
-    report_dir = tempfile.TemporaryDirectory()
+    #report_dir = tempfile.TemporaryDirectory()
     #if not os.path.exists(report_dir):
     #    os.makedirs(report_dir)
-    with tempfile.TemporaryDirectory() as report_dir, \
-         tempfile.NamedTemporaryFile(suffix='_all.pdf') as fpath:
+    zip_stream = io.BytesIO()
+    with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
+         io.BytesIO() as all_reports:
+        # tempfile.TemporaryDirectory() as report_dir, \
+        # tempfile.NamedTemporaryFile(suffix='_all.pdf') as allfpath:
         #fpath = os.path.join(report_dir, "_{}_all.pdf".format(corpus_id))
-        doc = BaseDocTemplate(fpath, pagesize=letter,
+        doc = BaseDocTemplate(all_reports, pagesize=letter,
                               rightMargin=0.75*inch, leftMargin=1.5*inch,
                               topMargin=0.5*inch, bottomMargin=0.5*inch)
 
@@ -430,14 +453,14 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
                     id='left',
                     showBoundary=0
                 ),
-            Frame(
-                doc.leftMargin + gutter + (doc.width - gutter*2) / 3,
-                doc.bottomMargin,
-                (doc.width - gutter*2) / 3,
-                doc.height,
-                id='middle',
-                showBoundary=0
-            ),
+                Frame(
+                    doc.leftMargin + gutter + (doc.width - gutter*2) / 3,
+                    doc.bottomMargin,
+                    (doc.width - gutter*2) / 3,
+                    doc.height,
+                    id='middle',
+                    showBoundary=0
+                ),
                 Frame(
                     doc.leftMargin + gutter*2 + 2 * (doc.width - gutter*2) / 3,
                     doc.bottomMargin,
@@ -500,62 +523,100 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
             title = df2[text_id]['title']
 
             # create a new document
-            fpath = os.path.join(report_dir, "{}.pdf".format(title))
-            individual_doc = BaseDocTemplate(fpath, pagesize=letter,
-                                             rightMargin=0.75*inch,
-                                             leftMargin=1.5*inch,
-                                             topMargin=0.5*inch,
-                                             bottomMargin=0.5*inch)
-            individual_doc.addPageTemplates([one_column_template, three_column_template, three_column_hd_template])
-            content = []
+            with io.BytesIO() as fpath:
+                #fpath = os.path.join(report_dir, "{}.pdf".format(title))
+                individual_doc = BaseDocTemplate(fpath, pagesize=letter,
+                                                 rightMargin=0.75*inch,
+                                                 leftMargin=1.5*inch,
+                                                 topMargin=0.5*inch,
+                                                 bottomMargin=0.5*inch)
+                individual_doc.addPageTemplates([one_column_template, three_column_template, three_column_hd_template])
+                content = []
 
-            # header area (course name, assignment name, and the student's name)
-            content.append(Paragraph("<b>{}</b>".format(descriptions['course']), styles['DS_MetaData']))
-            content.append(Paragraph("Assignment: {}".format(descriptions['assignment']), styles['DS_MetaData']))
-            content.append(Spacer(1, pica))
-            content.append(Paragraph("Report for {}".format(title), styles['DS_Student']))  # just for a demo
-            content.append(Divider(doc.width))
+                # header area (course name, assignment name, and the student's name)
+                content.append(Paragraph("<b>{}</b>".format(descriptions['course']), styles['DS_MetaData']))
+                content.append(Paragraph("Assignment: {}".format(descriptions['assignment']), styles['DS_MetaData']))
+                content.append(Spacer(1, pica))
+                content.append(Paragraph("Report for {}".format(title), styles['DS_Student']))  # just for a demo
+                content.append(Divider(doc.width))
 
-            # introduction to the report
-            content.append(Paragraph(descriptions['intro'], styles['DS_Intro']))
-            content.append(Spacer(1, pica))
+                # introduction to the report
+                content.append(Paragraph(descriptions['intro'], styles['DS_Intro']))
+                content.append(Spacer(1, pica))
 
-            # draw boxplots for each category (cluster)
-            for c in categories:
-                bp = find_bp(c, bp_data)
-                o = find_outliers(c, bp_data)
-                v = df2[text_id][c]
+                # draw boxplots for each category (cluster)
+                for c in categories:
+                    bp = find_bp(c, bp_data)
+                    o = find_outliers(c, bp_data)
+                    v = df2[text_id][c]
 
-                bp_item = Boxplot(bp, outliers=o, val=v, max_val=max_val)
-                content.append(Paragraph(cat_descriptions[c]['name'], styles["DS_Heading1"]))
-                content.append(Paragraph(cat_descriptions[c]['description'], styles["DS_Help"]))
-                content.append(bp_item)
-            content.append(PageBreak())
+                    bp_item = Boxplot(bp, outliers=o, val=v, max_val=max_val)
+                    content.append(Paragraph(cat_descriptions[c]['name'], styles["DS_Heading1"]))
+                    content.append(Paragraph(cat_descriptions[c]['description'], styles["DS_Help"]))
+                    content.append(bp_item)
+                content.append(PageBreak())
 
-            # STV (annotated text)
-            content.append(Paragraph("Your Text", styles['DS_Title']))
-            content.append(Paragraph(descriptions['stv_intro'], styles['DS_Intro']))
-            content.append(Spacer(1, 2*pica))
+                # STV (annotated text)
+                content.append(Paragraph("Your Text", styles['DS_Title']))
+                content.append(Paragraph(descriptions['stv_intro'], styles['DS_Intro']))
+                content.append(Spacer(1, 2*pica))
 
-            # get the text with docuscope tags, and reformat the text for the report.
-            with couchdb(current_app.config.get("COUCHDB_USER"),
-                         current_app.config.get("COUCHDB_PASS"),
-                         url=current_app.config.get("COUCHDB_URL")) as server:
-                tagged_str = get_html_string(server['corpus'], text_id, tones)
+                # get the text with docuscope tags, and reformat the text for the report.
+                tagged_str = get_html_string(text_id, format_paragraph=False)
+            #with couchdb(current_app.config.get("COUCHDB_USER"),
+            #             current_app.config.get("COUCHDB_PASSWORD"),
+            #             url=current_app.config.get("COUCHDB_URL")) as server:
+            #    tagged_str = get_html_string(server['corpus'], text_id, tones)
 
                 # current_app.logger.debug("debug: generate_pdf_reports(). tagged_str['html_content'] = {}\n".format(tagged_str['html_content']))
 
-            soup = bs(tagged_str['html_content'], "html.parser")
+                soup = bs(tagged_str['html_content'], "html.parser")
 
-            para_list, patterns = html_to_report_string(soup, tagged_str['dict'])
-            for p in para_list:
-                content.append(Paragraph(p, styles['DS_Body']))
+                para_list, patterns = html_to_report_string(soup, tagged_str['dict'])
+                for p in para_list:
+                    content.append(Paragraph(p, styles['DS_Body']))
 
-            content.append(NextPageTemplate('three_column_w_header'))
-            content.append(PageBreak())
-            content.append(Paragraph("Patterns Used in Your Document", styles['DS_Title']))
-            content.append(NextPageTemplate('one_column'))
-            ranked_patterns = sort_patterns(patterns)
+                content.append(NextPageTemplate('three_column_w_header'))
+                content.append(PageBreak())
+                content.append(Paragraph("Patterns Used in Your Document", styles['DS_Title']))
+                content.append(NextPageTemplate('one_column'))
+                ranked_patterns = sort_patterns(patterns)
+                for c in categories:
+                    lst = ranked_patterns.get(c, [])
+                    content.append(Paragraph(c, styles['DS_Heading1']))
+                    for p in lst:
+                        ln = "{} ({})".format(p[1], p[0])
+                        content.append(Paragraph(ln, styles['DS_Pattern']))
+
+                content.append(PageBreak())
+                combined_content += copy.deepcopy(content)  # add the content for each file to the large file.
+                individual_doc.build(content)    # create an individual PDF (pe student)
+                zip_file.writestr(f"{title}.pdf", fpath.getvalue())
+
+        # ########################################
+        # Create a PDF that includes all the PDF reports.
+        # ########################################
+
+        res = doc.build(combined_content)
+        zip_file.writestr(f"_all.pdf", all_reports.getvalue())
+
+        # ########################################
+        # Create a summary of patterns in a separate PDF.
+        # ########################################
+
+        ranked_patterns = sort_patterns(patterns_all)
+        #fpath = os.path.join(report_dir, "_patterns.pdf")
+        with io.BytesIO() as fpath:
+            patterns_doc = BaseDocTemplate(fpath, pagesize=letter,
+                                           rightMargin=0.75*inch,
+                                           leftMargin=1.5*inch,
+                                           topMargin=0.5*inch,
+                                           bottomMargin=0.5*inch)
+            patterns_doc.addPageTemplates([three_column_hd_template, three_column_template])
+            conent = []
+            content.append(NextPageTemplate('three_column'))
+            content.append(Paragraph("Patterns Used in the Corpus", styles['DS_Title']))
+            content.append(FrameBreak())
             for c in categories:
                 lst = ranked_patterns.get(c, [])
                 content.append(Paragraph(c, styles['DS_Heading1']))
@@ -563,37 +624,6 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
                     ln = "{} ({})".format(p[1], p[0])
                     content.append(Paragraph(ln, styles['DS_Pattern']))
 
-            content.append(PageBreak())
-            combined_content += copy.deepcopy(content)  # add the content for each file to the large file.
-            individual_doc.build(content)    # create an individual PDF (pe student)
-
-        # ########################################
-        # Create a PDF that includes all the PDF reports.
-        # ########################################
-
-        res = doc.build(combined_content)
-
-        # ########################################
-        # Create a summary of patterns in a separate PDF.
-        # ########################################
-
-        ranked_patterns = sort_patterns(patterns_all)
-        fpath = os.path.join(report_dir, "_patterns.pdf")
-        patterns_doc = BaseDocTemplate(fpath, pagesize=letter,
-                                       rightMargin=0.75*inch,
-                                       leftMargin=1.5*inch,
-                                       topMargin=0.5*inch,
-                                       bottomMargin=0.5*inch)
-        patterns_doc.addPageTemplates([three_column_hd_template, three_column_template])
-        conent = []
-        content.append(NextPageTemplate('three_column'))
-        content.append(Paragraph("Patterns Used in the Corpus", styles['DS_Title']))
-        content.append(FrameBreak())
-        for c in categories:
-            lst = ranked_patterns.get(c, [])
-            content.append(Paragraph(c, styles['DS_Heading1']))
-            for p in lst:
-                ln = "{} ({})".format(p[1], p[0])
-                content.append(Paragraph(ln, styles['DS_Pattern']))
-
-        patterns_doc.build(content)
+            patterns_doc.build(content)
+            zip_file.writestr("_patterns.pdf", fpath.getvalue())
+    return zip_stream.getvalue()

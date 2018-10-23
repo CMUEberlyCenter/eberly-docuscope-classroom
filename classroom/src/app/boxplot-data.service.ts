@@ -11,7 +11,7 @@ import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema, Scatter
   providedIn: 'root'
 })
 export class BoxplotDataService {
-  private boxplot_server: string = '/boxplot_data';
+  private boxplot_server: string = this.env.config.backend_server+'/boxplot_data';
   private boxplot_data: Observable<BoxplotData>; //: BoxplotData;
   private rank_server: string = this.env.config.backend_server+'/ranked_list';
   private rank_data: Map<string, Observable<RankData>> = new Map<string, Observable<RankData>>();
@@ -35,7 +35,7 @@ export class BoxplotDataService {
     } else {
       this.messageService.add('Going to retrieve Box Plot data from server, please wait.');
       let bp_query = makeBoxplotSchema(corpus);
-      this.boxplot_data = this.http.post<BoxplotData>(this.env.config.backend_server+this.boxplot_server, bp_query)
+      this.boxplot_data = this.http.post<BoxplotData>(this.boxplot_server, bp_query)
         .pipe(
           publishReplay(1),
           refCount(),

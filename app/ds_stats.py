@@ -8,7 +8,7 @@ import logging
 
 from ds_tones import DocuScopeTones
 import ds_groups
-from ds_report import generate_pdf_reports
+#from ds_report import generate_pdf_reports
 
 logging.basicConfig(level=logging.DEBUG)
 #logger = logging.getLogger(__name__)
@@ -60,12 +60,13 @@ def get_level_frame(stats_frame, level, tones):
     logging.debug(frame)
     return frame.transpose()
 
-def get_boxplot_data(corpus, level, ds_dictionary):
+def get_boxplot_data(corpus, level, ds_dictionary, tones={}):
     logging.info("get_boxplot_data({}, {}, {})".format(corpus, level, ds_dictionary))
     stat_frame = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
-    tones = DocuScopeTones(ds_dictionary)
+    if not tones:
+        tones = DocuScopeTones(ds_dictionary)
     logging.info(" number of tones: {}".format(len(tones.tones)))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
@@ -207,21 +208,7 @@ def get_pairings(corpus, level, ds_dictionary, group_size):
     frame = frame.transpose().fillna(0).set_index('title')
     return ds_groups.get_best_groups(frame, group_size=group_size)
 
-def get_reports(corpus, ds_dictionary,
-                course="", assignment="", intro="", stv_intro=""):
-    logging.info("get_reports({}, {}, {}, {}, {}, {})".format(corpus, ds_dictionary, course, assignment, intro, stv_intro))
-    stat_frame = get_ds_stats(corpus)
-    logging.info(" get_ds_stats =>")
-    logging.info(stat_frame)
-    tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
-    frame = get_level_frame(stat_frame, 'Cluster', tones)
-    logging.info(frame)
-
-    generate_pdf_reports(frame, corpus, ds_dictionary, tones)
-    return
-
-def get_html_string(text_id):
+def get_html_string(text_id, format_paragraph=True):
     tags_dicts = {}
     html_content = ""
     res = {
@@ -242,7 +229,8 @@ def get_html_string(text_id):
             res['text_id'] = doc['_id'] # TODO: get title
             ds_dictionary = doc['ds_dictionary']
     html_content = re.sub('(\n|\s)+', ' ', html_content)
-    html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
+    if format_paragraph:
+        html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
     res['html_content'] = html_content
     if (tags_dicts):
         logging.info("Retrieving tones for {}".format(ds_dictionary))
