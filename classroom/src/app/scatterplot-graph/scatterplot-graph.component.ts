@@ -59,7 +59,17 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
       .attr('r', 6)
       .attr("cx", d => x(d.catX))
       .attr('cy', d => y(d.catY))
-      .style('fill', 'skyblue');
+      .style('fill', 'skyblue')
+      .on("mouseover", d => {
+        console.log(`mouseover: ${d}`);
+        let div = d3.select('div.tooltip');
+        div.transition().duration(200).style("opacity", .9);
+        div.html(d.title)
+          .style('left', (d3.event.pageX)+'px')
+          .style('top', (d3.event.pageY-30)+'px');
+      })
+      .on('mouseout', d => d3.select('div.tooltip').transition().duration(500).style('opacity',0))
+      .on('click', d => window.open(`/stv/${d.text_id}`));
   }
 
   ngOnInit() {

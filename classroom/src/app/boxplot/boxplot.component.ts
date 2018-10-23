@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -18,27 +19,36 @@ export class BoxplotComponent implements OnInit {
   max_value: number;
 
   constructor(private corpusService: CorpusService,
+              private spinner: NgxSpinnerService,
               private dataService: BoxplotDataService) { }
 
   getCorpus(): void {
     //const id = +this.route.snapshot.paramMap.get('id');
+    this.spinner.show();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
+        this.spinner.hide();
         this.getData();
       });
   }
   getData():void {
+    this.spinner.show();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.data = data;
         this.max_value = max_boxplot_value(data);
+        this.spinner.hide();
       });
   }
   getRankData(selected_category:string):void {
     if (selected_category) {
+      this.spinner.show();
       this.dataService.getRankedList(this.corpus, selected_category)
-        .subscribe(data => this.rank_data = data);
+        .subscribe(data => {
+          this.rank_data = data;
+          this.spinner.hide();
+        });
     }
   }
   ngOnInit() {

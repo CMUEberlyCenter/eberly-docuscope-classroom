@@ -67,7 +67,8 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('x', 5)
       .attr('y', y(0.5))
       .attr('dy', '.35em')
-      .text(d => `${d.value.toFixed(3)} ${d.text.slice(0,8)}`);
+      .text(d => `${d.value.toFixed(3)} ${d.text.slice(0,8)}`)
+      .on('click', d => window.open(`/stv/${d.text}`));
     dg.append('rect')
       .attr('class', 'bars')
       .attr('x', x(0))

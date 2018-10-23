@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -24,16 +25,26 @@ export class GroupingComponent implements OnInit {
   ];
 
   constructor(private corpus_service: CorpusService,
+              private _spinner: NgxSpinnerService,
               private data_service: BoxplotDataService) { }
 
   getCorpus(): void {
+    this._spinner.show();
     this.corpus_service.getCorpus()
-      .subscribe(corpus => this.corpus = corpus);
+      .subscribe(corpus => {
+        this.corpus = corpus;
+        this._spinner.hide();
+      });
   }
 
   getGroupsData(): void {
+    this._spinner.show();
     this.data_service.getGroupsData(this.corpus, +this.group_size)
-      .subscribe(data => {this.groups = data; console.log(data);});
+      .subscribe(data => {
+        this.groups = data;
+        //console.log(data);
+        this._spinner.hide();
+      });
   }
 
   ngOnInit() {
@@ -41,10 +52,11 @@ export class GroupingComponent implements OnInit {
   }
 
   generate_groups(e): void {
-    if (this.group_size)
+    if (this.group_size) {
       this.getGroupsData();
-    else
+    } else {
       alert("Select a group size");
+    }
   }
 
 }
