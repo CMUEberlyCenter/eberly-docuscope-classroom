@@ -1,24 +1,14 @@
 <app-nav></app-nav>
-<div *ngIf="corpus">
+<div *ngIf="corpus" class="container">
   <h2>{{corpus.course}} - {{corpus.assignment}} Details</h2>
-  <div>
-    <label>Course:
-      <!--<input [(ngModel)]="corpus.course" placeholder="course">-->
-    </label>
-  </div>
-  <div>
-    <label>Assignment:
-      <!--<input [(ngModel)]="corpus.assignment" placeholder="assignment">-->
-    </label>
-  </div>
   <div>
     <label for="ds_dict">DocuScope Dictionary:</label>
     <span id="ds_dict">{{corpus.ds_dictionary}}</span>
   </div>
   <div>
     <h3>Documents:</h3>
-    <div *ngFor="let d of documents">
-      <!--<label class="document_id"><input name="document_check" type="checkbox" [value]="d[0]" [(ngModel)]="d[1]">--><a href="stv/{{d[0]}}" target="_blank">{{d[0]}}</a><!--</label>-->
+    <div *ngFor="let d of corpus.documents">
+      <a class="document_id" href="stv/{{d}}" target="_blank">{{d}}</a>
     </div>
   </div>
 </div>

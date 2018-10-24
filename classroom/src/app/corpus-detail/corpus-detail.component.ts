@@ -28,7 +28,7 @@ export class CorpusDetailComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.getDocuments();
+    //this.getDocuments();
     this.getCorpus();
   }
 

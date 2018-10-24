@@ -1,26 +1,35 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { zip } from 'rxjs/operators';
 
+import { AssignmentService } from './assignment.service';
+import { DocumentsService } from './documents.service';
 import { Corpus } from './corpus';
-import { CORPI } from './mock-corpus';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CorpusService {
 
-  constructor(private activatedRoute: ActivatedRoute) { }
+  constructor(private activatedRoute: ActivatedRoute,
+              private assignment: AssignmentService,
+              private documents: DocumentsService) { }
 
-  getCorpi(): Observable<Corpus[]> {
-    return of(CORPI);
-  }
-
-  // getCorpus(id: number): Observable<Corpus> {
-  //  return of(CORPI.find(corpus => corpus.id === id));
-  //}
   getCorpus(): Observable<Corpus> {
-    return of(CORPI[0]);
+    return this.assignment.getAssignment('270CoverLetter')
+      .pipe(
+        zip(this.documents.getDocumentIds(),
+            (assign, docs) => {
+              console.log(assign, docs);
+              return {
+                course: assign.course,
+                assignment: assign.assignment,
+                ds_dictionary: '270CoverLetter',
+                documents: docs,
+                intro: assign.intro,
+                stv_intro: assign.stv_intro
+              }}));
   }
 
   getParams() {

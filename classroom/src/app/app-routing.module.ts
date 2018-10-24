@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { BoxplotComponent } from './boxplot/boxplot.component';
-import { CorpusComponent } from './corpus/corpus.component';
 import { CorpusDetailComponent } from './corpus-detail/corpus-detail.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { GroupingComponent } from './grouping/grouping.component';
