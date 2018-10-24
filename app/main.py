@@ -2,16 +2,20 @@
 from functools import lru_cache
 import json
 import logging
+import os
 import urllib3
 
 from cloudant import couchdb
-from flask import request, make_response
+from flask import request, make_response, send_file
 from flask_restful import Resource, Api, abort
 from marshmallow import Schema, fields, ValidationError
 
 from create_app import create_flask_app
 from ds_stats import *
 from ds_report import get_reports
+
+#logging.basicConfig(level=logging.DEBUG)
+#logger = logging.getLogger(__name__)
 
 app = create_flask_app()
 API = Api(app)
@@ -24,7 +28,6 @@ def after_request(response):
                          'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
     return response
-
 
 @lru_cache(maxsize=1)
 def available_dictionaries():
@@ -187,6 +190,7 @@ class Reports(Resource):
                                  data['assignment'],
                                  data['intro'],
                                  data['stv_intro'])
+        # https://gist.github.com/widoyo/3897853
         response = make_response(zip_buffer)
         response.headers['Content-Disposition'] = "attachment; filename='report.zip'"
         response.mimetype = 'application/zip'
@@ -213,6 +217,19 @@ class TextContent(Resource):
             abort(404, message="No document specified.")
         return get_html_string(file_id)
 API.add_resource(TextContent, '/text_content')
+
+@app.route('/')
+def classroom():
+    index_path = os.path.join(app.static_folder, 'index.html')
+    return send_file(index_path)
+@app.route('/<path:path>')
+def route_frontend(path):
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.isfile(file_path):
+        return send_file(file_path)
+    else:
+        index_path = os.path.join(app.static_folder, 'index.html')
+        return send_file(index_path)
 
 if __name__ == '__main__':
     app.run(debug=True)

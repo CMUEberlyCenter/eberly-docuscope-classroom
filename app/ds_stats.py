@@ -10,9 +10,6 @@ from ds_tones import DocuScopeTones
 import ds_groups
 #from ds_report import generate_pdf_reports
 
-logging.basicConfig(level=logging.DEBUG)
-#logger = logging.getLogger(__name__)
-
 def get_ds_stats(documents):
     stats = {}
     with couchdb(current_app.config['COUCHDB_USER'],
