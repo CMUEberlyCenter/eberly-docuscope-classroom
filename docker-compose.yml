@@ -27,7 +27,7 @@ services:
       - couchdb
       - dictionary
   celery:
-    image: registry.gitlab.com/cmu_sidecar/docuscope-tag:master-task
+    image: registry.gitlab.com/cmu_sidecar/docuscope-tag/task:master
     depends_on:
       - rabbitmq
       - couchdb
