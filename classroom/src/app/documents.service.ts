@@ -19,13 +19,17 @@ export class DocumentsService {
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred.
       console.error('An error occurred:', error.error.message);
-      this.messageService.add('An error occurred: '+ error.error.message);
+      if (this.messageService) {
+        this.messageService.add('An error occurred: '+ error.error.message);
+      }
     } else {
       // service returned an unsuccessful response code.
       console.error(`Service returned code ${error.status}, ` +
                     `body was: ${error.error}`);
-      this.messageService.add(`Service returned code ${error.status}, ` +
-                    `body was: ${error.error}`);
+      if (this.messageService) {
+        this.messageService.add(`Service returned code ${error.status}, ` +
+                                `body was: ${error.error}`);
+      }
     }
     // return an observable
     return throwError('Something bad happened; please try again later.');
