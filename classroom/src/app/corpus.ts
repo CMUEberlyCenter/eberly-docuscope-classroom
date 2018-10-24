@@ -1,5 +1,4 @@
 export class Corpus {
-  id: number;
   course: string;
   assignment: string;
   ds_dictionary: string;
