@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:latest as builder
 WORKDIR /classroom
 COPY ./classroom .
 RUN npm i && npm run build --prod
@@ -8,4 +8,4 @@ COPY requirements.txt /tmp
 RUN pip install --upgrade pip && pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 ENV STATIC_INDEX 1
 COPY ./app /app
-COPY --from=0 /classroom/dist/classroom /app/static
+COPY --from=builder /classroom/dist/classroom /app/static
