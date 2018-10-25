@@ -52,6 +52,7 @@ class DocuScopeTones():
         self.dictionary_name = dictionary_name
         self._tones = None
         self._lats = None
+        self._dim_to_clust = None # TODO: remove as unused
 
     @property
     def tones(self):

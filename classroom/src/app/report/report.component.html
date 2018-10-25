@@ -1,0 +1,17 @@
+<app-nav></app-nav>
+<ngx-spinner type="ball-pulse"><span style="font-size: 20px; color: white">Generating Reports...</span></ngx-spinner>
+<div *ngIf="corpus" class="container">
+  <h2>{{corpus.course}} - {{corpus.assignment}} Reports</h2>
+  <div>
+    <h3>Introduction Text:</h3>
+    <p>Customize the introductory text used in the report:</p>
+    <textarea [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
+  </div>
+  <div>
+    <h3>STV Introduction Text:</h3>
+    <p>Customize the introduction to the text analysis section:</p>
+    <textarea [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
+  </div>
+  <button (click)="generate_report($event)">Generate Report</button>
+  <a #download_link></a>
+</div>

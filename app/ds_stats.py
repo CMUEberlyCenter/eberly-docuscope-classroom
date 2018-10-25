@@ -2,15 +2,13 @@ from cloudant import couchdb
 from flask import current_app
 from flask_restful import abort
 import pandas as pd
+import re
 import logging
 #from functools import lru_cache
 
 from ds_tones import DocuScopeTones
 import ds_groups
-from ds_report import generate_pdf_reports
-
-logging.basicConfig(level=logging.DEBUG)
-#logger = logging.getLogger(__name__)
+#from ds_report import generate_pdf_reports
 
 def get_ds_stats(documents):
     stats = {}
@@ -59,20 +57,20 @@ def get_level_frame(stats_frame, level, tones):
     logging.debug(frame)
     return frame.transpose()
 
-def get_boxplot_data(corpus, level, ds_dictionary):
+def get_boxplot_data(corpus, level, ds_dictionary, tones={}):
     logging.info("get_boxplot_data({}, {}, {})".format(corpus, level, ds_dictionary))
     stat_frame = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
-    tones = DocuScopeTones(ds_dictionary)
+    if not tones:
+        tones = DocuScopeTones(ds_dictionary)
     logging.info(" number of tones: {}".format(len(tones.tones)))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
     frame = frame.drop('title')
     frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
     frame = frame.drop('total_words')
-    if 'Other' in frame:
-        frame = frame.drop('Other')
+    frame = frame.drop('Other', errors='ignore')
     frame = frame.transpose()
 
     frame = frame.fillna(0)
@@ -207,16 +205,36 @@ def get_pairings(corpus, level, ds_dictionary, group_size):
     frame = frame.transpose().fillna(0).set_index('title')
     return ds_groups.get_best_groups(frame, group_size=group_size)
 
-def get_reports(corpus, ds_dictionary,
-                course="", assignment="", intro="", stv_intro=""):
-    logging.info("get_reports({}, {}, {}, {}, {}, {})".format(corpus, ds_dictionary, course, assignment, intro, stv_intro))
-    stat_frame = get_ds_stats(corpus)
-    logging.info(" get_ds_stats =>")
-    logging.info(stat_frame)
-    tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
-    frame = get_level_frame(stat_frame, 'Cluster', tones)
-    logging.info(frame)
-
-    generate_pdf_reports(frame, corpus, ds_dictionary, tones)
-    return
+def get_html_string(text_id, format_paragraph=True):
+    tags_dicts = {}
+    html_content = ""
+    res = {
+        "text_id": text_id,
+        "word_count": 0,
+        "html_content": "",
+        "dict": {}
+    }
+    ds_dictionary = 'default'
+    with couchdb(current_app.config['COUCHDB_USER'],
+                 current_app.config['COUCHDB_PASSWORD'],
+                 url=current_app.config['COUCHDB_URL']) as cserv:
+        corpus_db = cserv['corpus']
+        with corpus_db[text_id] as doc:
+            html_content = doc['ds_output']
+            tags_dicts = doc['ds_tag_dict']
+            res['word_count'] = doc['ds_num_word_tokens']
+            res['text_id'] = doc['_id'] # TODO: get title
+            ds_dictionary = doc['ds_dictionary']
+    html_content = re.sub('(\n|\s)+', ' ', html_content)
+    if format_paragraph:
+        html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
+    res['html_content'] = html_content
+    if (tags_dicts):
+        logging.info("Retrieving tones for {}".format(ds_dictionary))
+        tones = DocuScopeTones(ds_dictionary)
+        cats = {}
+        for lat in tags_dicts.keys():
+            cats[lat] = {"dimension": tones.get_dimension(lat),
+                         "cluster": tones.get_lat_cluster(lat)}
+        res['dict'] = cats
+    return res

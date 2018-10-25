@@ -2,15 +2,20 @@
 from functools import lru_cache
 import json
 import logging
+import os
 import urllib3
 
 from cloudant import couchdb
-from flask import request, make_response
+from flask import request, make_response, send_file
 from flask_restful import Resource, Api, abort
 from marshmallow import Schema, fields, ValidationError
 
 from create_app import create_flask_app
 from ds_stats import *
+from ds_report import get_reports
+
+#logging.basicConfig(level=logging.DEBUG)
+#logger = logging.getLogger(__name__)
 
 app = create_flask_app()
 API = Api(app)
@@ -23,7 +28,6 @@ def after_request(response):
                          'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
     return response
-
 
 @lru_cache(maxsize=1)
 def available_dictionaries():
@@ -181,15 +185,51 @@ class Reports(Resource):
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        response = make_response(get_reports(corpus, data['dictionary'],
-                                             data['course'],
-                                             data['assignment'],
-                                             data['intro'],
-                                             data['stv_intro']))
-        response.headers['Content-Disposition'] = "attachment; filename='report.pdf'"
-        response.mimetype = 'application/pdf'
+        zip_buffer = get_reports(corpus, data['dictionary'],
+                                 data['course'],
+                                 data['assignment'],
+                                 data['intro'],
+                                 data['stv_intro'])
+        # https://gist.github.com/widoyo/3897853
+        response = make_response(zip_buffer)
+        response.headers['Content-Disposition'] = "attachment; filename='report.zip'"
+        response.mimetype = 'application/zip'
         return response
 API.add_resource(Reports, '/generate_reports')
+
+class TextSchema(Schema):
+    text_id = fields.String()
+TEXT_SCHEMA = TextSchema()
+
+class TextContent(Resource):
+    def post(self):
+        logging.debug('Recieved /text_content request')
+        json_data = request.get_json()
+        if not json_data:
+            abort(404, message="No input data provided, requires JSON.")
+        try:
+            data, _errors = TEXT_SCHEMA.load(json_data)
+        except ValidationError as err:
+            abort(422, message="{}".format(err))
+        file_id = data['text_id']
+        logging.debug("/text_request/{}".format(file_id))
+        if not file_id:
+            abort(404, message="No document specified.")
+        return get_html_string(file_id)
+API.add_resource(TextContent, '/text_content')
+
+@app.route('/')
+def classroom():
+    index_path = os.path.join(app.static_folder, 'index.html')
+    return send_file(index_path)
+@app.route('/<path:path>')
+def route_frontend(path):
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.isfile(file_path):
+        return send_file(file_path)
+    else:
+        index_path = os.path.join(app.static_folder, 'index.html')
+        return send_file(index_path)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,16 @@
+<app-nav></app-nav>
+<ngx-spinner type="ball-pulse"><span style="font-size: 20px; color: white">Loading...</span></ngx-spinner>
+<div *ngIf="corpus" class="rank_container">
+  <h2>{{corpus.course}} - {{corpus.assignment}} Rankings</h2>
+  <div *ngIf="categories">
+    <aside>
+      <label for="select_category">Category:</label>
+      <select id="select_category" [(ngModel)]="category" (ngModelChange)="on_select($event)">
+        <option *ngFor="let c of categories" [value]="c">{{c}}</option>
+      </select>
+    </aside>
+    <article>
+      <app-rank-graph [rank_data]="data" [max_value]="max_value"></app-rank-graph>
+    </article>
+  </div>
+</div>

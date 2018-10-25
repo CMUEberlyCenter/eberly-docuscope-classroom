@@ -1,0 +1,8 @@
+<div class="tooltip" style="opacity: 0;"></div>
+<svg [ngClass]="{'scatterplot':true}" [attr.width]="options.width" [attr.height]="options.height">
+  <g [ngClass]="{'scatterplot_wait':true}">
+    <text y="50%">Please wait, loading...</text>
+  </g>
+  <g [ngClass]="{'scatterplot_axis':true}"></g>
+  <g [ngClass]="{'scatterplot_data':true}"></g>
+</svg>

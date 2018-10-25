@@ -1,0 +1,35 @@
+<ngx-spinner type="ball-pulse"><span style="font-size: 20px; color: white">Loading...</span></ngx-spinner>
+<div *ngIf="tagged_text">
+  <div class="text_view_container">
+    <aside class="clusters">
+      <h3 class="header">Dictionary Categories</h3>
+      <div *ngFor="let c of clusters;">
+        <label><input class="ds-stv-category" type="checkbox" [value]="c" (change)="toggle_category($event)">{{c}}</label>
+      </div>
+    </aside>
+    <article class="text_view">
+      <h3 class="header">ID: {{tagged_text.text_id}}</h3>
+      <div class="text_content" [innerHTML]="html_content" (click)="click_select($event)"></div>
+    </article>
+    <aside class="details">
+      <div class="pattern">
+        <h3 class="header">Selected Pattern</h3>
+        <div class="selection">{{selection}}</div>
+        <div class="selection_table">
+          <div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>
+          <div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>
+          <div class="selection_row"><div class="selection_label">Cluster</div><div class="selection_data">{{selected_cluster}}</div></div>
+        </div>
+        <!--<ul>
+          <li>LAT = {{selected_lat}}</li>
+          <li>Dimension = {{selected_dimension}}</li>
+          <li>Cluster = {{selected_cluster}}</li>
+        </ul>-->
+      </div>
+      <div class="info">
+        <h3 class="header">Text Information</h3>
+        <p>Word Count = {{tagged_text.word_count}}</p>
+      </div>
+    </aside>
+  </div>
+</div>

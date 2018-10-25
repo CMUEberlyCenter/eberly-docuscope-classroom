@@ -1,0 +1,14 @@
+<app-nav></app-nav>
+<div *ngIf="corpus" class="container">
+  <h2>{{corpus.course}} - {{corpus.assignment}} Details</h2>
+  <div>
+    <label for="ds_dict">DocuScope Dictionary:</label>
+    <span id="ds_dict">{{corpus.ds_dictionary}}</span>
+  </div>
+  <div>
+    <h3>Documents:</h3>
+    <div *ngFor="let d of corpus.documents">
+      <a class="document_id" href="stv/{{d}}" target="_blank">{{d}}</a>
+    </div>
+  </div>
+</div>
