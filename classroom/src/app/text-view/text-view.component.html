@@ -1,35 +1,30 @@
-<ngx-spinner type="ball-pulse"><span style="font-size: 20px; color: white">Loading...</span></ngx-spinner>
-<div *ngIf="tagged_text">
-  <div class="text_view_container">
-    <aside class="clusters">
-      <h3 class="header">Dictionary Categories</h3>
-      <div *ngFor="let c of clusters;">
-        <label><input class="ds-stv-category" type="checkbox" [value]="c" (change)="toggle_category($event)">{{c}}</label>
-      </div>
-    </aside>
-    <article class="text_view">
-      <h3 class="header">ID: {{tagged_text.text_id}}</h3>
-      <div class="text_content" [innerHTML]="html_content" (click)="click_select($event)"></div>
-    </article>
-    <aside class="details">
-      <div class="pattern">
-        <h3 class="header">Selected Pattern</h3>
+<div class="container" *ngIf="tagged_text">
+  <eui-layout #layout class="layout" fit="true">
+    <eui-layout-panel class="categories" euiResizable handles="e" region="west"
+                      title="Dictionary Categories"  split="true"
+                      (resizing)="layout.updatePaddings()">
+      <aside>
+        <div *ngFor="let c of clusters;">
+          <label><input class="ds-stv-category" type="checkbox" [value]="c" (change)="toggle_category($event)">{{c}}</label>
+        </div>
+      </aside>
+    </eui-layout-panel>
+    <eui-layout-panel region="center" title="ID: {{tagged_text.text_id}}" style="height:100%">
+      <article class="text_content" [innerHTML]="html_content" (click)="click_select($event)"></article>
+    </eui-layout-panel>
+    <eui-layout-panel euiResizable region="east" style="width:300px;" split="true"
+                      handles="w" (resizing)="layout.updatePaddings()">
+      <eui-panel style="margin-bottom:10px;" title="Selected Pattern">
         <div class="selection">{{selection}}</div>
         <div class="selection_table">
           <div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>
           <div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>
           <div class="selection_row"><div class="selection_label">Cluster</div><div class="selection_data">{{selected_cluster}}</div></div>
         </div>
-        <!--<ul>
-          <li>LAT = {{selected_lat}}</li>
-          <li>Dimension = {{selected_dimension}}</li>
-          <li>Cluster = {{selected_cluster}}</li>
-        </ul>-->
-      </div>
-      <div class="info">
-        <h3 class="header">Text Information</h3>
-        <p>Word Count = {{tagged_text.word_count}}</p>
-      </div>
-    </aside>
-  </div>
+      </eui-panel>
+      <eui-panel title="Text Information" collapsible="true">
+        <aside class="text_info">Word Count = {{tagged_text.word_count}}</aside>
+      </eui-panel>
+    </eui-layout-panel>
+  </eui-layout>
 </div>

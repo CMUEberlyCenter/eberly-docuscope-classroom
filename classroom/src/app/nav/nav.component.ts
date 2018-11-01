@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NavComponent implements OnInit {
 
-  constructor() { }
+  constructor(private _route: ActivatedRoute) { }
 
-  ngOnInit() {
+  is_current(id:string) {
+    return id === `/${this._route.snapshot.url.join('/')}`;
   }
+  ngOnInit() { }
 
 }
