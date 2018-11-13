@@ -20,6 +20,25 @@ export class RankGraphComponent implements OnInit, OnChanges {
   ngOnInit() {
   }
 
+  get x() {
+    return d3.scaleLinear().domain([0, this.max_value*100])
+      .range([10, 280]).nice().clamp(true);
+  }
+  scale(value:number):number {
+    return 100*value/this.max_value;
+  }
+
+  draw_axis() {
+    let x = d3.scaleLinear()
+      .domain([0, this.max_value*100])
+      .range([0, 100]).nice();
+    let axis_x = d3.axisTop(x);
+    let axis = d3.select('.grid_axis')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .append('g')
+      .call(g => { g.call(axis_x);} );
+  }
   draw() {
     const entry_height: number = 28;
     const top_margin: number = 2;
@@ -79,8 +98,14 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('width', d => x(d.value) - x(0));
   }
 
+  open(doc_id:string) {
+    window.open(doc_id);
+  }
   ngOnChanges() {
-    if (this.rank_data) this.draw();
+    if (this.rank_data) {
+      //this.draw();
+      //this.draw_axis();
+    }
   }
 
 }

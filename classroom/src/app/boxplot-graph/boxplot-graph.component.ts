@@ -16,6 +16,7 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
   get boxplot():BoxplotData { return this._boxplot; }
   @Output() selected_category = new EventEmitter<string>();
   @Input() max_value: number;
+  selection;
 
   private _options: { width, height } = { width: 500, height: 50 };
 
@@ -26,6 +27,10 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
     };*/
   }
 
+  handle_selection() {
+    //console.log('handle_selection()',this.selection.category);
+    this.update_selection(this.selection.category);
+  }
   update_selection(category:string) {
     //console.log(category);
     this.selected_category.emit(category);
@@ -43,6 +48,26 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
     }
     return Math.ceil(maximum*10)/10;
   }*/
+
+  percent(value:number):string {
+    return `${(100*value).toFixed(2)}%`;
+  }
+  get x() {
+    return d3.scaleLinear().domain([0, this.max_value*100])
+      .range([10, 280]).nice().clamp(true);
+  }
+  scale_x(value:number):number {
+    let x = d3.scaleLinear()
+      .domain([0, this.max_value])
+      .range([10, 280]).nice().clamp(true); //this.options.width
+    return x(value);
+  }
+  scale_y(value:number):number {
+    let y = d3.scaleLinear()
+      .domain([0, 1])
+      .range([2, 30 - 4]);
+    return y(value);
+  }
 
   draw() {
     console.log("boxplot-graph.draw",this.boxplot);
@@ -165,10 +190,14 @@ export class BoxplotGraphComponent implements OnInit, AfterContentInit, OnChange
     //if (this.boxplot) this.draw();
   }
   ngAfterViewInit() {
-    if (this.boxplot) this.draw();
+    //if (this.boxplot) this.draw();
+    //this.draw_bars();
   }
   ngOnChanges() {
     //console.log(this.boxplot);
-    if (this.boxplot) this.draw();
+    if (this.boxplot) {
+      //this.draw();
+      //this.draw_bars();
+    }
   }
 }

@@ -3,6 +3,7 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -47,6 +48,7 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
     FormsModule,
     HttpClientModule,
     NgxSpinnerModule,
+    EasyUIModule,
     AppRoutingModule
   ],
   providers: [

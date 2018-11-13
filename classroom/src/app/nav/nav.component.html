@@ -1,8 +1,20 @@
 <nav>
-  <a routerLink="/corpus">Corpus</a>
-  <a routerLink="/boxplot">Box Plot</a>
-  <a routerLink="/ranking">Rankings</a>
-  <a routerLink="/scatterplot">Scatter Plot</a>
-  <a routerLink="/grouping">Groups</a>
-  <a routerLink="/report">Reports</a>
+  <eui-linkbutton [selected]="is_current('/corpus')"
+                  [title]="'Go to corpus details.'"
+                  routerLink="/corpus">Corpus</eui-linkbutton>
+  <eui-linkbutton [selected]="is_current('/boxplot')"
+                  [title]="'Go to Box Plot display.'"
+                  routerLink="/boxplot">Box Plot</eui-linkbutton>
+  <eui-linkbutton [selected]="is_current('/ranking')"
+                  [title]="'Go to rankings list.'"
+                  routerLink="/ranking">Rankings</eui-linkbutton>
+  <eui-linkbutton [selected]="is_current('/scatterplot')"
+                  [title]="'Go to scatter plot display.'"
+                  routerLink="/scatterplot">Scatter Plot</eui-linkbutton>
+  <eui-linkbutton [selected]="is_current('/grouping')"
+                  [title]="'Go to group generator.'"
+                  routerLink="/grouping">Groups</eui-linkbutton>
+  <eui-linkbutton [selected]="is_current('/report')"
+                  [title]="'Go to report generator.'"
+                  routerLink="/report">Reports</eui-linkbutton>
 </nav>

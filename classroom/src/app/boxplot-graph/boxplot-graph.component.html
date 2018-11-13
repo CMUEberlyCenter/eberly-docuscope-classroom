@@ -1,6 +1,72 @@
-<svg [ngClass]="{'boxplot':true}" [attr.width]="options.width" [attr.height]="options.height">
-  <g [ngClass]="{'boxplot_wait':true}">
+<eui-datagrid *ngIf="boxplot" [data]="boxplot.bpdata" [style.width]="'500px'"
+              [(selection)]="selection" selectionMode="single"
+              (selectionChange)="handle_selection()">
+  <eui-grid-column field="category" title="Category" width="20ch">
+  </eui-grid-column>
+  <eui-grid-column width="300px">
+    <ng-template euiHeaderTemplate>
+      <svg width="300px" height="30px">
+        <desc>Linear scale ruler from 0 to {{x.tickFormat(10)(x.ticks(10)[10])}}.</desc>
+        <g fill="none" font-size="10" font-family="sans-serif" font-weight="normal" text-anchor="middle">
+          <line stroke="currentColor" [attr.x1]="scale_x(0)" [attr.x2]="scale_x(max_value)"
+                [attr.y1]="17" [attr.y2]="17"/>
+          <g class="tick" *ngFor="let tick of x.ticks(10); index as i;">
+
+            <line stroke="currentColor" [attr.x1]="x(tick)" [attr.x2]="x(tick)" y1="12" y2="17"/>
+            <text [attr.x]="x(tick)" [attr.y]="11" fill="black">{{x.tickFormat(10)(tick)}}</text>
+          </g>
+        </g>
+      </svg>
+    </ng-template>
+    <ng-template euiCellTemplate let-row>
+      <div euiTooltip="Min={{percent(row.min)}};  Q1={{percent(row.q1)}};  Mean={{percent(row.q2)}};  Q3={{percent(row.q3)}};  Max={{percent(row.max)}}">
+      <svg class="box_plot_item" [attr.width]="'300px'" [attr.height]="'30px'"
+           [attr.data-min]="row.min" [attr.data-max]="row.max"
+           [attr.data-q1]="row.q1" [attr.data-q2]="row.q1" [attr.data-q3]="row.q3">
+        <desc>A box plot where the minimum is {{percent(row.min)}},
+          the first quantile is {{percent(row.q1)}},
+          the mean is {{percent(row.q2)}},
+          the third quantile is {{percent(row.q3)}},
+          and the maximum is {{percent(row.max)}}.
+        </desc>
+        <!-- Base line -->
+        <line [attr.x1]="scale_x(row.min)" [attr.x2]="scale_x(row.max)"
+              [attr.y1]="scale_y(0.5)" [attr.y2]="scale_y(0.5)"
+              [style.stroke]="'#3c3c3c'"
+              [style.stroke-width]="'1px'"/>
+        <!-- Q1 to Q3 -->
+        <rect [attr.x]="scale_x(row.q1)"
+              [attr.y]="scale_y(0.1)"
+              [attr.height]="scale_y(0.9)-scale_y(0.1)"
+              [attr.width]="scale_x(row.q3) - scale_x(row.q1)"
+              [attr.fill]="'#EEEEEE'"
+              [attr.stroke]="'#3C3C3C'"
+              [attr.stroke-width]="1"/>
+        <!-- Mean -->
+        <line [attr.x1]="scale_x(row.q2)" [attr.x2]="scale_x(row.q2)"
+              [attr.y1]="scale_y(0.1)" [attr.y2]="scale_y(0.9)"
+              [style.stroke]="'#3c3c3c'"
+              [style.stroke-width]="1"/>
+        <!-- Minimum -->
+        <line [attr.x1]="scale_x(row.min)" [attr.x2]="scale_x(row.min)"
+              [attr.y1]="scale_y(0.25)" [attr.y2]="scale_y(0.75)"
+              [style.stroke]="'#3c3c3c'"
+              [style.stroke-width]="1"/>
+        <!-- Maximum -->
+        <line [attr.x1]="scale_x(row.max)" [attr.x2]="scale_x(row.max)"
+              [attr.y1]="scale_y(0.25)" [attr.y2]="scale_y(0.75)"
+              [style.stroke]="'#3c3c3c'"
+              [style.stroke-width]="1"/>
+      </svg>
+      </div>
+    </ng-template>
+  </eui-grid-column>
+</eui-datagrid>
+
+<!--<svg class="boxplot" [attr.width]="options.width" [attr.height]="options.height">
+  <g class="boxplot_wait">
     <text y="50%">Please wait, loading...</text>
   </g>
   <g class="boxplot_data"></g>
 </svg>
+-->
