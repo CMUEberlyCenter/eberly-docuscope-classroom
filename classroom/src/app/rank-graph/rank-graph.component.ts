@@ -98,6 +98,9 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('width', d => x(d.value) - x(0));
   }
 
+  open(doc_id:string) {
+    window.open(doc_id);
+  }
   ngOnChanges() {
     if (this.rank_data) {
       //this.draw();
