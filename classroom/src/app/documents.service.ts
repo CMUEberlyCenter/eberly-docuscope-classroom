@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, retry, map, publishReplay, refCount } from 'rxjs/operators';
 import { MessageService } from './message.service';
 import { AppSettingsService } from './app-settings.service';
@@ -37,6 +37,7 @@ export class DocumentsService {
 
   _document_ids;
   getDocumentIds(): Observable<string[]> {
+    return of(["1","2","3"]);
     if (!this._document_ids) {
       this.messageService.add('Fetching document id\'s');
       this._document_ids = this.http.get<string[]>(this.database)
@@ -47,4 +48,5 @@ export class DocumentsService {
     }
     return this._document_ids;
   }
+
 }

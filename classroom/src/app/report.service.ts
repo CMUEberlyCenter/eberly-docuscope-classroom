@@ -18,7 +18,7 @@ export interface ReportsSchema {
 function generateReportsSchema(corpus: Corpus): ReportsSchema {
   let report = {
     corpus: corpus.documents.map((d: string):{id:string} => {return {id: d};}),
-    dictionary: corpus.ds_dictionary,
+    //dictionary: corpus.ds_dictionary,
     course: corpus.course,
     assignment: corpus.assignment,
     intro: corpus.intro,
