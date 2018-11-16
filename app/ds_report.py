@@ -20,17 +20,18 @@ from reportlab.platypus import Frame, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 import tempfile
-import urllib3
+#import urllib3
+import requests
 
 import json
 import zipfile
 import itertools
 import re
 
-from cloudant import couchdb
+#from cloudant import couchdb
 import pandas as pd
 
-from flask import g, current_app
+from flask import current_app
 #import ds_utils
 
 from bs4 import BeautifulSoup as bs
@@ -46,17 +47,17 @@ import logging
 # units
 #point = 1 #inch/72.0
 
-HTTP = urllib3.PoolManager()
+#HTTP = urllib3.PoolManager()
 
-def get_reports(corpus, ds_dictionary,
+def get_reports(corpus,
                 course="", assignment="", intro="", stv_intro=""):
-    logging.info("get_reports({}, {}, {}, {}, {}, {})".format(corpus, ds_dictionary, course, assignment, intro, stv_intro))
-    stat_frame = get_ds_stats(corpus)
+    logging.info("get_reports({}, {}, {}, {}, {})".format(corpus, course, assignment, intro, stv_intro))
+    stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
     logging.info(" number of tones: {}".format(len(tones.tones)))
-    bp_data = get_boxplot_data(corpus, 'Cluster', ds_dictionary, tones=tones);
+    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones);
     frame = get_level_frame(stat_frame, 'Cluster', tones)
     logging.info(frame)
     return generate_pdf_reports(frame, corpus, ds_dictionary, tones, course, assignment, intro, stv_intro, bp_data)
@@ -205,11 +206,10 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
         """ From the dictionary 'dict_name', returns a set of cluster definitions for the
             clusters included in the list 'cats'
         """
-        req = HTTP.request('GET',
-                           "{}/dictionary/{}/clusters".format(
-                               current_app.config.get('DICTIONARY_SERVER'),
-                               dict_name))
-        clusters = json.loads(req.data.decode('utf-8'))
+        req = requests.get("{}/dictionary/{}/clusters".format(
+            current_app.config.get('DICTIONARY_SERVER'),
+            dict_name))
+        clusters = req.json() #json.loads(req.data.decode('utf-8'))
         return {k:v for (k, v) in clusters.items() if k in cats}
 
     def find_bp(category, bp_data):
