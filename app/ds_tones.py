@@ -99,7 +99,7 @@ class DocuScopeTones():
             cluster = self.lats[lat].cluster
         except KeyError:
             logging.error("Cluster lookup: {} is not in LATS".format(lat))
-        return
+        return cluster
 
     def get_dimension(self, lat):
         dim = ""
