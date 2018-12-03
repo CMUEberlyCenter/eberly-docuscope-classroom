@@ -1,12 +1,10 @@
 from marshmallow import Schema, fields, post_load, ValidationError
-import urllib3
+import requests
 import logging
-from functools import lru_cache
+#from functools import lru_cache
 
 from flask import current_app
 from flask_restful import abort
-
-HTTP = urllib3.PoolManager()
 
 class DocuScopeTone():
     def __init__(self, cluster, dimension, lats):
@@ -27,15 +25,14 @@ class DocuScopeToneSchema(Schema):
         return DocuScopeTone(**data)
 DST_SCHEMA = DocuScopeToneSchema(many=True)
 
-@lru_cache(maxsize=16)
+#@lru_cache(maxsize=16)
 def get_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary."""
-    req = HTTP.request('GET',
-                       "{}/dictionary/{}/tones".format(
-                           current_app.config['DICTIONARY_SERVER'], dictionary_name))
+    req = requests.get("{}/dictionary/{}/tones".format(
+        current_app.config['DICTIONARY_SERVER'], dictionary_name))
     #logging.info(req.data.decode('utf-8'))
     try:
-        tones, val_errors = DST_SCHEMA.loads(req.data.decode('utf-8'))
+        tones, val_errors = DST_SCHEMA.load(req.json())
         if val_errors:
             logging.warning("Parsing errors: {}".format(val_errors))
     except ValidationError as err:
@@ -97,10 +94,20 @@ class DocuScopeTones():
         return {tone.dimension: tone.cluster for tone in self.tones}
 
     def get_lat_cluster(self, lat):
-        return self.lats[lat].cluster
+        cluster = ""
+        try:
+            cluster = self.lats[lat].cluster
+        except KeyError:
+            logging.error("Cluster lookup: {} is not in LATS".format(lat))
+        return cluster
 
     def get_dimension(self, lat):
-        return self.lats[lat].dimension
+        dim = ""
+        try:
+            dim = self.lats[lat].dimension
+        except KeyError:
+            logging.error("Dimension lookup: {} is not in LATS".format(lat))
+        return dim
 
     def get_cluster(self, dimension):
         if not self._dim_to_clust:

@@ -1,5 +1,5 @@
-from cloudant import couchdb
-from flask import current_app
+#from cloudant import couchdb
+from flask import current_app, session
 from flask_restful import abort
 import pandas as pd
 import re
@@ -9,29 +9,43 @@ import logging
 from ds_tones import DocuScopeTones
 import ds_groups
 #from ds_report import generate_pdf_reports
+from ds_db import Filesystem
+
+import json
 
 def get_ds_stats(documents):
     stats = {}
-    with couchdb(current_app.config['COUCHDB_USER'],
-                 current_app.config['COUCHDB_PASSWORD'],
-                 url=current_app.config['COUCHDB_URL']) as cserv:
-        try:
-            corpus_db = cserv["corpus"]
-        except KeyError:
-            corpus_db = cserv.create_database('corpus')
+    #with couchdb(current_app.config['COUCHDB_USER'],
+    #             current_app.config['COUCHDB_PASSWORD'],
+    #             url=current_app.config['COUCHDB_URL']) as cserv:
+    #    try:
+    #        corpus_db = cserv["corpus"]
+    #    except KeyError:
+    #        corpus_db = cserv.create_database('corpus')
 
-        for document in documents:
-            if document['id'] not in corpus_db:
-                logging.warning("{} is not in db!".format(document['id']))
-                break # TODO: tag and wait
-            with corpus_db[document['id']] as doc:
-                # TODO: if ds stuff not there, start tagging/wait
-                s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
-                s['total_words'] = doc['ds_num_word_tokens']
-                s['title'] = doc['_id'] # TODO: get student name
-                stats[doc['_id']] = s # orig is 'key'... probably a view thing
-
-    return pd.DataFrame(data=stats).transpose()
+    #    for document in documents:
+    #        if document['id'] not in corpus_db:
+    #            logging.warning("{} is not in db!".format(document['id']))
+    #            break # TODO: tag and wait
+    #        with corpus_db[document['id']] as doc:
+    ds_dictionaries = set()
+    for document in Filesystem.query.filter(Filesystem.id.in_([d['id'] for d in documents])):
+        if document.processed:
+            doc = json.loads(document.processed)
+            # TODO: if ds stuff not there, start tagging/wait
+            s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
+            s['total_words'] = doc['ds_num_word_tokens']
+            s['title'] = document.fullname
+            stats[document.id] = s # orig is 'key'... probably a view thing
+            ds_dictionaries.add(doc['ds_dictionary'])
+    ds_dictionary = 'default'
+    if len(ds_dictionaries) == 1:
+        ds_dictionary = list(ds_dictionaries)[0]
+    else:
+        logging.error("Inconsistant dictionaries in corpus!!!")
+        #TODO: throw error
+        
+    return pd.DataFrame(data=stats).transpose(), ds_dictionary
 
 def get_level_frame(stats_frame, level, tones):
     data = {}
@@ -57,9 +71,9 @@ def get_level_frame(stats_frame, level, tones):
     logging.debug(frame)
     return frame.transpose()
 
-def get_boxplot_data(corpus, level, ds_dictionary, tones={}):
-    logging.info("get_boxplot_data({}, {}, {})".format(corpus, level, ds_dictionary))
-    stat_frame = get_ds_stats(corpus)
+def get_boxplot_data(corpus, level, tones={}):
+    logging.info("get_boxplot_data({}, {})".format(corpus, level))
+    stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     if not tones:
@@ -117,9 +131,9 @@ def get_boxplot_data(corpus, level, ds_dictionary, tones={}):
     bpdata.reverse()
     return {"bpdata": bpdata, "outliers": outliers}
 
-def get_rank_data(corpus, level, ds_dictionary, sortby):
-    logging.info("get_rank_data({}, {}, {}, {})".format(corpus, level, ds_dictionary, sortby))
-    stat_frame = get_ds_stats(corpus)
+def get_rank_data(corpus, level, sortby):
+    logging.info("get_rank_data({}, {}, {})".format(corpus, level, sortby))
+    stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
@@ -159,9 +173,9 @@ def get_rank_data(corpus, level, ds_dictionary, sortby):
     logging.info(frame)
     return {'result': frame.to_dict('records')}
 
-def get_scatter_data(corpus, level, ds_dictionary, cat_x, cat_y):
-    logging.info("get_scatter_data({}, {}, {}, {}, {})".format(corpus, level, ds_dictionary, cat_x, cat_y))
-    stat_frame = get_ds_stats(corpus)
+def get_scatter_data(corpus, level, cat_x, cat_y):
+    logging.info("get_scatter_data({}, {}, {}, {})".format(corpus, level, cat_x, cat_y))
+    stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
@@ -185,9 +199,9 @@ def get_scatter_data(corpus, level, ds_dictionary, cat_x, cat_y):
     frame = frame.rename(columns = {cat_x: 'catX', cat_y: 'catY'})
     return {'spdata': frame.to_dict('records')}
 
-def get_pairings(corpus, level, ds_dictionary, group_size):
-    logging.info("get_pairings({}, {}, {}, {})".format(corpus, level, ds_dictionary, group_size))
-    stat_frame = get_ds_stats(corpus)
+def get_pairings(corpus, level, group_size):
+    logging.info("get_pairings({}, {}, {})".format(corpus, level, group_size))
+    stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
@@ -215,16 +229,19 @@ def get_html_string(text_id, format_paragraph=True):
         "dict": {}
     }
     ds_dictionary = 'default'
-    with couchdb(current_app.config['COUCHDB_USER'],
-                 current_app.config['COUCHDB_PASSWORD'],
-                 url=current_app.config['COUCHDB_URL']) as cserv:
-        corpus_db = cserv['corpus']
-        with corpus_db[text_id] as doc:
-            html_content = doc['ds_output']
-            tags_dicts = doc['ds_tag_dict']
-            res['word_count'] = doc['ds_num_word_tokens']
-            res['text_id'] = doc['_id'] # TODO: get title
-            ds_dictionary = doc['ds_dictionary']
+    document = Filesystem.query.filter_by(id = text_id).first()
+    doc = json.loads(document.processed)
+    #TODO check for existence error
+    #with couchdb(current_app.config['COUCHDB_USER'],
+    #             current_app.config['COUCHDB_PASSWORD'],
+    #             url=current_app.config['COUCHDB_URL']) as cserv:
+    #    corpus_db = cserv['corpus']
+    #    with corpus_db[text_id] as doc:
+    html_content = doc['ds_output']
+    tags_dicts = doc['ds_tag_dict']
+    res['word_count'] = doc['ds_num_word_tokens']
+    res['text_id'] = document.name
+    ds_dictionary = doc['ds_dictionary']
     html_content = re.sub('(\n|\s)+', ' ', html_content)
     if format_paragraph:
         html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"

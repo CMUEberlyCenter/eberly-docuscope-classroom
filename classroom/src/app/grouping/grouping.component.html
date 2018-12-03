@@ -7,11 +7,11 @@
       <label><input type="radio" [value]="n" [(ngModel)]="group_size">{{n}}</label>
     </div>
   </div>
-  <div class="roster">
+<!--  <div class="roster">
     <h2>Roster</h2>
     <div *ngFor="let s of students">
       <label><input type="checkbox" [value]="s[0]" [(ngModel)]="s[1]">{{s[0]}}</label>
-  </div>
+  </div>-->
   <button (click)="generate_groups(event$)">Group Students</button>
   <ng-container *ngIf="groups">
     <h3>Groups:</h3><!-- potentially use eui-datalist -->

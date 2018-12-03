@@ -16,13 +16,13 @@ export function makeDocumentSchema(corpus: Corpus): DocumentSchema[] {
 export class CorpusSchema {
   corpus: DocumentSchema[];
   level: Level;
-  dictionary: string;
+  //dictionary: string;
 }
 function makeCorpusSchema(corpus: Corpus): CorpusSchema {
   return {
     corpus: makeDocumentSchema(corpus),
-    level: Level.Cluster,
-    dictionary: corpus.ds_dictionary
+    level: Level.Cluster//,
+    //dictionary: corpus.ds_dictionary
   };
 }
 export class BoxplotSchema extends CorpusSchema {}
@@ -61,18 +61,18 @@ export function makeGroupsSchema(corpus: Corpus, group_size: number): GroupsSche
 
 export class ReportsSchema {
   corpus: DocumentSchema[];
-  dictionary: string;
-  course: string;
-  assignment: string;
+  //dictionary: string;
+  //course: string;
+  //assignment: string;
   intro: string;
   stv_intro: string;
 }
 export function makeReportsSchema(corpus: Corpus): ReportsSchema {
   return {
     corpus: makeDocumentSchema(corpus),
-    dictionary: corpus.ds_dictionary,
-    course: corpus.course,
-    assignment: corpus.assignment,
+    //dictionary: corpus.ds_dictionary,
+    //course: corpus.course,
+    //assignment: corpus.assignment,
     intro: corpus.intro,
     stv_intro: corpus.stv_intro
   };

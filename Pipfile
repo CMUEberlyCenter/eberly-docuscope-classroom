@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-restful = "*"
+reportlab = "*"
+pandas = "*"
+marshmallow = "*"
+"beautifulsoup4" = "*"
+flask-sqlalchemy = "*"
+requests = "*"
+mysqlclient = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3"

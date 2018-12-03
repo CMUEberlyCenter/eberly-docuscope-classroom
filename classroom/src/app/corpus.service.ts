@@ -16,7 +16,8 @@ export class CorpusService {
 
   constructor(private activatedRoute: ActivatedRoute,
               private assignment: AssignmentService,
-              private documents: DocumentsService) { }
+              private documents: DocumentsService
+             ) { }
 
   getCorpus(): Observable<Corpus> {
     if (this._corpus) {
@@ -24,14 +25,15 @@ export class CorpusService {
     } else {
       return this.assignment.getAssignment('270CoverLetter')
         .pipe(
-          zip(this.documents.getDocumentIds(),
-              (assign, docs) => { // TODO: add types
+          zip(this.documents.getDocumentIds(), //activatedRoute.queryParams,
+              (assign, params) => { // TODO: add types
                 //console.log(assign, docs);
+                console.log("getCorpus() => ${{params.ids}}")
                 return {
                   course: assign.course,
                   assignment: assign.assignment,
-                  ds_dictionary: '270CoverLetter',
-                  documents: docs,
+                  //ds_dictionary: '270CoverLetter',
+                  documents: this.activatedRoute.snapshot.queryParamMap.get('ids').split(','),
                   intro: assign.intro,
                   stv_intro: assign.stv_intro
                 }}),
@@ -40,10 +42,12 @@ export class CorpusService {
     }
   }
 
-  getParams() {
-    return this.activatedRoute.queryParams.subscribe((params: Params) => {
-      console.log(params);
-    });
-  }
+  //getParams() {
+  //  return this.activatedRoute.queryParams.subscribe((params: Params) => {
+      //console.log(params.roles)
+      //console.log(params.token)
+  //    return params.ids.split(',')
+  //  });
+  //}
 
 }

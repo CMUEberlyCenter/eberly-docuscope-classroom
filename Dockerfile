@@ -1,7 +1,11 @@
 FROM node:latest as builder
+WORKDIR /tmp
+COPY ./classroom/package*.json /tmp/
+RUN npm install
+RUN mkdir -p /classroom && cp -a /tmp/node_modules /classroom
 WORKDIR /classroom
 COPY ./classroom .
-RUN npm i && npm run build --prod
+RUN npm run build_prod
 
 FROM tiangolo/uwsgi-nginx-flask:python3.7
 COPY requirements.txt /tmp

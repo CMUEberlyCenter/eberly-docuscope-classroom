@@ -1,25 +1,28 @@
 """DocuScope Classroom analysis tools interface."""
-from functools import lru_cache
-import json
 import logging
 import os
-import urllib3
+import requests
 
-from cloudant import couchdb
-from flask import request, make_response, send_file
+#from cloudant import couchdb
+from flask import Flask, request, make_response, send_file, g
 from flask_restful import Resource, Api, abort
 from marshmallow import Schema, fields, ValidationError
 
-from create_app import create_flask_app
-from ds_stats import *
-from ds_report import get_reports
+from create_app import create_flask_app, db
+import schema
 
 #logging.basicConfig(level=logging.DEBUG)
 #logger = logging.getLogger(__name__)
 
 app = create_flask_app()
 API = Api(app)
-HTTP = urllib3.PoolManager()
+
+from ds_stats import *
+from ds_report import get_reports
+from ds_db import Filesystem
+
+#python -c 'import os; print(os.urandom(16))' =>
+app.secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
 @app.after_request
 def after_request(response):
@@ -29,60 +32,41 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
     return response
 
-@lru_cache(maxsize=1)
-def available_dictionaries():
-    """Retrieve the list of available DocuScope dictionaries."""
-    req = HTTP.request('GET',
-                       "{}/dictionary".format(app.config['DICTIONARY_SERVER']))
-    return json.loads(req.data.decode('utf-8'))
+#def available_dictionaries():
+#    """Retrieve the list of available DocuScope dictionaries."""
+    #TODO: add staleness check/timeout
+#    if 'ds_dictionaries' not in g:
+#        req = requests.get("{}/dictionary".format(app.config['DICTIONARY_SERVER']))
+#        if req.status_code >= 400:
+#            abort(req.status_code, message = req.text())
+#        g.ds_dictionaries = req.json()
+#    return g.ds_dictionaries
 
-class DSDictionaries(Resource):
-    def get(self):
-        return available_dictionaries()
-    def post(self):
-        return available_dictionaries()
-API.add_resource(DSDictionaries, '/_dictionary')
+#class DSDictionaries(Resource):
+#    def get(self):
+#        return available_dictionaries()
+#    def post(self):
+#        return available_dictionaries()
+#API.add_resource(DSDictionaries, '/_dictionary')
 
 class DSDocs(Resource):
     def get(self):
-        with couchdb(app.config['COUCHDB_USER'],
-                     app.config['COUCHDB_PASSWORD'],
-                     url=app.config['COUCHDB_URL']) as cserv:
-            try:
-                corpus_db = cserv['corpus']
-            except KeyError:
-                abort(422, message='Corpus database unavailable')
-            return [doc['_id'] for doc in corpus_db]
+        return [doc.id for doc in Filesystem.query.with_entities(Filesystem.id)]
 API.add_resource(DSDocs, '/_documents')
 
-class DocSchema(Schema):
-    id = fields.String(required=True) # fields.UUID()?
-    data = fields.String()
-DOC_SCHEMA = DocSchema(many=True)
-
-def get_docs():
-    json_data = request.get_json()
-    if not json_data:
-        abort(400, message='No input data provided, probably not JSON')
-    try:
-        data, val_errors = DOC_SCHEMA.load(json_data)
-    except ValidationError as err:
-        abort(422, message="{}".format(err))
-    except Exception as gen_err:
-        abort(422, message="{}".format(gen_err))
-    if val_errors:
-        logging.warning("Parsing errors: {}".format(val_errors))
-    return data
-
-class CorpusSchema(Schema):
-    corpus = fields.Nested(DocSchema, many=True)
-    level = fields.String(required=True,
-                          validate=lambda x: x in ('Dimension', 'Cluster'))
-    dictionary = fields.String(
-        default='default',
-        validate=lambda d: d in available_dictionaries())
-
-BOXPLOT_SCHEMA = CorpusSchema()
+#def get_docs():
+#    json_data = request.get_json()
+#    if not json_data:
+#        abort(400, message='No input data provided, probably not JSON')
+#    try:
+#        data, val_errors = DOC_SCHEMA.load(json_data)
+#    except ValidationError as err:
+#        abort(422, message="{}".format(err))
+#    except Exception as gen_err:
+#        abort(422, message="{}".format(gen_err))
+#    if val_errors:
+#        logging.warning("Parsing errors: {}".format(val_errors))
+#    return data
 
 class BoxplotData(Resource):
     def post(self):
@@ -90,18 +74,14 @@ class BoxplotData(Resource):
         if not json_data:
             abort(404, message="No input data provided.")
         try:
-            data, _errors = BOXPLOT_SCHEMA.load(json_data)
+            data, _errors = schema.BOXPLOT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_boxplot_data(corpus, data['level'], data['dictionary'])
+        return get_boxplot_data(corpus, data['level'])
 API.add_resource(BoxplotData, '/boxplot_data')
-
-class RankedListSchema(CorpusSchema):
-    sortby = fields.String(required=True)
-RANK_SCHEMA = RankedListSchema()
 
 class RankedList(Resource):
     def post(self):
@@ -109,20 +89,14 @@ class RankedList(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data, _errors = RANK_SCHEMA.load(json_data)
+            data, _errors = schema.RANK_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_rank_data(corpus, data['level'], data['dictionary'],
-                             data['sortby'])
+        return get_rank_data(corpus, data['level'], data['sortby'])
 API.add_resource(RankedList, '/ranked_list')
-
-class ScatterplotSchema(CorpusSchema):
-    catX = fields.String(required=True)
-    catY = fields.String(required=True)
-SCATTER_PLOT_SCHEMA = ScatterplotSchema()
 
 class ScatterplotData(Resource):
     def post(self):
@@ -130,21 +104,15 @@ class ScatterplotData(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data, _errors = SCATTER_PLOT_SCHEMA.load(json_data)
+            data, _errors = schema.SCATTER_PLOT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_scatter_data(corpus, data['level'], data['dictionary'],
-                                data['catX'], data['catY'])
+        return get_scatter_data(corpus, data['level'], data['catX'], data['catY'])
 
 API.add_resource(ScatterplotData, '/scatterplot_data')
-
-class GroupsSchema(CorpusSchema):
-    group_size = fields.Integer(required=True, default=2)
-    #absent_list
-GROUP_SCHEMA = GroupsSchema()
 
 class Groups(Resource):
     def post(self):
@@ -152,26 +120,14 @@ class Groups(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data, _errors = GROUP_SCHEMA.load(json_data)
+            data, _errors = schema.GROUP_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        return get_pairings(corpus, data['level'], data['dictionary'],
-                            data['group_size'])
+        return get_pairings(corpus, data['level'], data['group_size'])
 API.add_resource(Groups, '/groups')
-
-class ReportsSchema(Schema):
-    corpus = fields.Nested(DocSchema, many=True)
-    dictionary = fields.String(
-        default='default',
-        validate=lambda d: d in available_dictionaries())
-    course = fields.String()
-    assignment = fields.String()
-    intro = fields.String()
-    stv_intro = fields.String()
-REPORT_SCHEMA = ReportsSchema()
 
 class Reports(Resource):
     def post(self):
@@ -179,27 +135,23 @@ class Reports(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data, _errors = REPORT_SCHEMA.load(json_data)
+            data, _errors = schema.REPORT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        zip_buffer = get_reports(corpus, data['dictionary'],
-                                 data['course'],
-                                 data['assignment'],
-                                 data['intro'],
-                                 data['stv_intro'])
+        zip_buffer = get_reports(corpus,
+                                 course=data['course'],
+                                 assignment=data['assignment'],
+                                 intro=data['intro'],
+                                 stv_intro=data['stv_intro'])
         # https://gist.github.com/widoyo/3897853
         response = make_response(zip_buffer)
         response.headers['Content-Disposition'] = "attachment; filename='report.zip'"
         response.mimetype = 'application/zip'
         return response
 API.add_resource(Reports, '/generate_reports')
-
-class TextSchema(Schema):
-    text_id = fields.String()
-TEXT_SCHEMA = TextSchema()
 
 class TextContent(Resource):
     def post(self):
@@ -208,7 +160,7 @@ class TextContent(Resource):
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
         try:
-            data, _errors = TEXT_SCHEMA.load(json_data)
+            data, _errors = schema.TEXT_SCHEMA.load(json_data)
         except ValidationError as err:
             abort(422, message="{}".format(err))
         file_id = data['text_id']
@@ -218,6 +170,7 @@ class TextContent(Resource):
         return get_html_string(file_id)
 API.add_resource(TextContent, '/text_content')
 
+# Statically serve the web interface
 @app.route('/')
 def classroom():
     index_path = os.path.join(app.static_folder, 'index.html')
