@@ -1,7 +1,8 @@
 <app-nav></app-nav>
 <ngx-spinner type="ball-pulse"><span style="font-size: 20px; color: white">Loading...</span></ngx-spinner>
 <div *ngIf="corpus" class="container">
-  <h2>{{corpus.course}} - {{corpus.assignment}} Scatter Plot</h2>
+  <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Scatter Plot</h2>-->
+  <h2>Scatter Plot</h2>
   <div *ngIf="categories" class="scatter_container">
     <aside class="aside aside-y">
       <label for="select_y">Y Axis:</label>
