@@ -30,13 +30,14 @@ def get_ds_stats(documents):
     #        with corpus_db[document['id']] as doc:
     ds_dictionaries = set()
     for document in Filesystem.query.filter(Filesystem.id.in_([d['id'] for d in documents])):
-        doc = json.loads(document.processed)
-        # TODO: if ds stuff not there, start tagging/wait
-        s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
-        s['total_words'] = doc['ds_num_word_tokens']
-        s['title'] = document.fullname
-        stats[document.id] = s # orig is 'key'... probably a view thing
-        ds_dictionaries.add(doc['ds_dictionary'])
+        if document.processed:
+            doc = json.loads(document.processed)
+            # TODO: if ds stuff not there, start tagging/wait
+            s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
+            s['total_words'] = doc['ds_num_word_tokens']
+            s['title'] = document.fullname
+            stats[document.id] = s # orig is 'key'... probably a view thing
+            ds_dictionaries.add(doc['ds_dictionary'])
     ds_dictionary = 'default'
     if len(ds_dictionaries) == 1:
         ds_dictionary = list(ds_dictionaries)[0]
