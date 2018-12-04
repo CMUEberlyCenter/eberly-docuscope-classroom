@@ -35,7 +35,7 @@ def get_ds_stats(documents):
             # TODO: if ds stuff not there, start tagging/wait
             s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
             s['total_words'] = doc['ds_num_word_tokens']
-            s['title'] = document.fullname
+            s['title'] = document.fullname if document.ownedby is '0' else document.name
             stats[document.id] = s # orig is 'key'... probably a view thing
             ds_dictionaries.add(doc['ds_dictionary'])
     ds_dictionary = 'default'
@@ -71,7 +71,7 @@ def get_level_frame(stats_frame, level, tones):
     logging.debug(frame)
     return frame.transpose()
 
-def get_boxplot_data(corpus, level, tones={}):
+def get_boxplot_data(corpus, level, tones=None):
     logging.info("get_boxplot_data({}, {})".format(corpus, level))
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
