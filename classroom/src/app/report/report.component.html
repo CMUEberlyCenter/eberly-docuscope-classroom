@@ -4,6 +4,12 @@
   <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Reports</h2>-->
   <h2>Reports</h2>
   <div>
+    <label for="course_title">Course: <input [(ngModel)]="corpus.course" id="course_title" placeholder="course"></label>
+  </div>
+  <div>
+    <label for="assignment_title">Assignment: <input [(ngModel)]="corpus.assignment" id="assignment_title" placeholder="assignment"></label>
+  </div>
+  <div>
     <h3>Introduction Text:</h3>
     <p>Customize the introductory text used in the report:</p>
     <textarea [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
@@ -13,6 +19,7 @@
     <p>Customize the introduction to the text analysis section:</p>
     <textarea [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
   </div>
+  <!-- Absentee list -->
   <button (click)="generate_report($event)">Generate Report</button>
   <a #download_link></a>
 </div>

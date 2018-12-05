@@ -20,7 +20,6 @@ from reportlab.platypus import Frame, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 import tempfile
-#import urllib3
 import requests
 
 import json
@@ -32,7 +31,6 @@ import re
 import pandas as pd
 
 from flask import current_app
-#import ds_utils
 
 from bs4 import BeautifulSoup as bs
 
@@ -46,8 +44,6 @@ import logging
 
 # units
 #point = 1 #inch/72.0
-
-#HTTP = urllib3.PoolManager()
 
 def get_reports(corpus,
                 course="", assignment="", intro="", stv_intro=""):
@@ -106,7 +102,8 @@ class Boxplot(Flowable):
         draw the line
         """
         c = self.canv
-        scale = (self.width - self.margins['left'] - self.margins['right'])/math.ceil(self.max_val)
+        #scale = (self.width - self.margins['left'] - self.margins['right'])/math.ceil(self.max_val)
+        scale = (self.width - self.margins['left'] - self.margins['right'])/self.max_val
 
         box_height = self.height-(self.margins['top']+self.margins['bottom']+self.ruler_ht)
         box_v_center = box_height/2 + self.margins['bottom']+self.ruler_ht
@@ -157,12 +154,13 @@ class Boxplot(Flowable):
 
         # draw a ruler
         c.setFont("Helvetica", 6)
-        msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words".format(self.value*10)
+        msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words".format(self.value*1000)
         c.circle(self.margins['left'], self.margins['bottom']-6, self.radius, fill=1)
         c.drawString(self.margins['left']+3, self.margins['bottom']-8, msg)
-        for x in range(math.ceil(self.max_val)+1):
-            c.line(self.margins['left'] + x*scale, self.margins['bottom'], self.margins['left'] + x*scale, self.margins['bottom']+3)
-            c.drawCentredString(self.margins['left'] + x*scale, self.margins['bottom']+5, "{0:.1f}".format(x))
+        #for x in range(math.ceil(self.max_val)+1):
+        for x in range(0, math.ceil(self.max_val*1000),10):
+            c.line(self.margins['left'] + x*scale/1000, self.margins['bottom'], self.margins['left'] + x*scale/1000, self.margins['bottom']+3)
+            c.drawCentredString(self.margins['left'] + x*scale/1000, self.margins['bottom']+5, "{0:.1f}".format(x))
 
 #
 # zip reports
@@ -344,7 +342,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
     # prepare the dataframe 'df2' which will be used later.
     df2 = df2.drop('title')
     df2 = df2.fillna(0)
-    df2 = df2.apply(lambda x: x.divide(x['total_words'])*100)  # calculate frequencies
+    df2 = df2.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df2 = df2.drop('total_words')
     df2 = df2.drop('Other')
     df2 = df2.append(title_row)
@@ -352,11 +350,10 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
     # use df1 to get the boxplot data for this corpus
     df1 = df1.drop('title')
     df1 = df1.fillna(0)
-    df1 = df1.apply(lambda x: x.divide(x['total_words'])*100)  # calculate frequencies
+    df1 = df1.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df1 = df1.drop('total_words')
     df1 = df1.drop('Other')
     df1 = df1.transpose()
-    #bp_data = {} #FIXME: ds_utils.generate_boxplot_data(df1)
 
     # calculate the max value for the box-plot. It will be used to deermine
     # the scale factor by Boxplot class.
