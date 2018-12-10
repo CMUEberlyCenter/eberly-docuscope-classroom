@@ -37,5 +37,8 @@ class Assignment(Base):
     __tablename__ = 'assignments'
     id = db.Column(db.String(50), primary_key=True)
     dictionary = db.Column(db.String(50))
+    name = db.Column(db.String(150))
+    course = db.Column(db.String(150))
+    instructor = db.Column(db.String(150))
     def __repr__(self):
-        return "<Assignment(id='{}', dictionary='{}'".format(self.id,self.dictionary)
+        return "<Assignment(id='{}', name='{}', dictionary='{}', ".format(self.id, self.name, self.dictionary)

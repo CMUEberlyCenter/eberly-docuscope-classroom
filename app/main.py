@@ -142,8 +142,8 @@ class Reports(Resource):
         if not corpus:
             abort(404, message="No documents specified.")
         zip_buffer = get_reports(corpus,
-                                 course=data['course'],
-                                 assignment=data['assignment'],
+                                 #course=data['course'],
+                                 #assignment=data['assignment'],
                                  intro=data['intro'],
                                  stv_intro=data['stv_intro'])
         # https://gist.github.com/widoyo/3897853

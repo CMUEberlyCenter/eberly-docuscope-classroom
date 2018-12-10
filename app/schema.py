@@ -59,8 +59,8 @@ class ReportsSchema(Schema):
     #dictionary = fields.String(
     #    default='default',
     #    validate=lambda d: d in available_dictionaries())
-    course = fields.String()
-    assignment = fields.String()
+    #course = fields.String()
+    #assignment = fields.String()
     intro = fields.String()
     stv_intro = fields.String()
 REPORT_SCHEMA = ReportsSchema()

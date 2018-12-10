@@ -9,9 +9,9 @@ import { Corpus } from './corpus';
 
 export interface ReportsSchema {
   corpus: {id: string}[];
-  dictionary: string;
-  course: string;
-  assignment: string;
+  //dictionary: string;
+  //course: string;
+  //assignment: string;
   intro: string;
   stv_intro: string;
 }
@@ -19,8 +19,8 @@ function generateReportsSchema(corpus: Corpus): ReportsSchema {
   let report = {
     corpus: corpus.documents.map((d: string):{id:string} => {return {id: d};}),
     //dictionary: corpus.ds_dictionary,
-    course: corpus.course,
-    assignment: corpus.assignment,
+    //course: corpus.course,
+    //assignment: corpus.assignment,
     intro: corpus.intro,
     stv_intro: corpus.stv_intro,
   }

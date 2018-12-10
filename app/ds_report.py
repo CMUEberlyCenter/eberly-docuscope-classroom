@@ -36,6 +36,7 @@ from bs4 import BeautifulSoup as bs
 
 from ds_stats import get_boxplot_data, get_html_string, get_ds_stats, get_level_frame
 from ds_tones import DocuScopeTones
+from ds_db import Filesystem, Assignment
 import logging
 
 # debug
@@ -45,9 +46,8 @@ import logging
 # units
 #point = 1 #inch/72.0
 
-def get_reports(corpus,
-                course="", assignment="", intro="", stv_intro=""):
-    logging.info("get_reports({}, {}, {}, {}, {})".format(corpus, course, assignment, intro, stv_intro))
+def get_reports(corpus, intro="", stv_intro=""):
+    logging.info("get_reports({}, {}, {})".format(corpus, intro, stv_intro))
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
@@ -56,7 +56,7 @@ def get_reports(corpus,
     bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones);
     frame = get_level_frame(stat_frame, 'Cluster', tones)
     logging.info(frame)
-    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, course, assignment, intro, stv_intro, bp_data)
+    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, intro, stv_intro, bp_data)
 
 
 class Divider(Flowable):
@@ -197,8 +197,20 @@ def zip_reports(corpus_id, src_dir, dst_dir, dst_file):
 # tones:        The tones object.
 # dst_dir:      The directory in which all the PDF reports will be generated.
 #
-def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro, stv_intro, bp_data):
-    descriptions = {'course': course, 'assignment': assignment, 'intro': intro, 'stv_intro': stv_intro}
+def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data):
+    # Get assignment information, assumes that the corpus is all from a single assignment.
+    assignment_id = Filesystem.query.filter(Filesystem.id.in_([d['id'] for d in corpus])).first().assignment
+    assignment_entry = Assignment.query.get(assignment_id);
+
+    descriptions = {
+        'course': assignment_entry.course,
+        'assignment': assignment_entry.name,
+        'instructor': assignment_entry.instructor,
+        'intro': intro,
+        'stv_intro': stv_intro
+    }
+    logging.info("{}".format(descriptions))
+    
 
     def get_cat_descriptions(cats, dict_name):
         """ From the dictionary 'dict_name', returns a set of cluster definitions for the
@@ -502,9 +514,12 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
         combined_content.append(Spacer(1, pica))
         combined_content.append(Paragraph("<b>DocuScope Report</b>", styles["DS_CoverText"]))
         combined_content.append(Spacer(1, 6))
-        #combined_content.append(Paragraph("<b>Instructor:</b>    suguru@cmu.edu", styles["DS_CoverText"]))
-        combined_content.append(Paragraph("<b>Course:</b>        {}".format(course), styles["DS_CoverText"]))
-        combined_content.append(Paragraph("<b>Assignment:</b>    {}".format(assignment), styles["DS_CoverText"]))
+        if descriptions['instructor']:
+            combined_content.append(Paragraph("<b>Instructor:</b>    {}".format(descriptions['instructor']), styles["DS_CoverText"]))
+        if descriptions['course']:
+            combined_content.append(Paragraph("<b>Course:</b>        {}".format(descriptions['course']), styles["DS_CoverText"]))
+        if descriptions['assignment']:
+            combined_content.append(Paragraph("<b>Assignment:</b>    {}".format(descriptions['assignment']), styles["DS_CoverText"]))
 
         combined_content.append(PageBreak())
 
