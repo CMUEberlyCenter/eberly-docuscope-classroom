@@ -502,9 +502,9 @@ def generate_pdf_reports(df, corpus, dict_name, tones, course, assignment, intro
         combined_content.append(Spacer(1, pica))
         combined_content.append(Paragraph("<b>DocuScope Report</b>", styles["DS_CoverText"]))
         combined_content.append(Spacer(1, 6))
-        combined_content.append(Paragraph("<b>Instructor:</b>    suguru@cmu.edu", styles["DS_CoverText"]))
-        combined_content.append(Paragraph("<b>Course:</b>        76-101", styles["DS_CoverText"]))
-        combined_content.append(Paragraph("<b>Assignment:</b>    CGA", styles["DS_CoverText"]))
+        #combined_content.append(Paragraph("<b>Instructor:</b>    suguru@cmu.edu", styles["DS_CoverText"]))
+        combined_content.append(Paragraph("<b>Course:</b>        {}".format(course), styles["DS_CoverText"]))
+        combined_content.append(Paragraph("<b>Assignment:</b>    {}".format(assignment), styles["DS_CoverText"]))
 
         combined_content.append(PageBreak())
 
