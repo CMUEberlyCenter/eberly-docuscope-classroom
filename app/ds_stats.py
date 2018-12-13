@@ -35,9 +35,11 @@ def get_ds_stats(documents):
             # TODO: if ds stuff not there, start tagging/wait
             s = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
             s['total_words'] = doc['ds_num_word_tokens']
-            s['title'] = document.fullname if document.ownedby is '0' else document.name.split('.')[0]
-            stats[document.id] = s # orig is 'key'... probably a view thing
+            s['title'] = document.fullname if document.ownedby is '0' else '.'.join(document.name.split('.')[0:-1])
+            stats[document.id] = s
             ds_dictionaries.add(doc['ds_dictionary'])
+    if not stats:
+        abort(500, message="ERROR: No tagged documents were submitted, please close this window and wait until all of the selected documents are tagged before submitting again.")
     ds_dictionary = 'default'
     if len(ds_dictionaries) == 1:
         ds_dictionary = list(ds_dictionaries)[0]

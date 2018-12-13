@@ -141,11 +141,13 @@ class Reports(Resource):
         corpus = data['corpus']
         if not corpus:
             abort(404, message="No documents specified.")
-        zip_buffer = get_reports(corpus,
-                                 #course=data['course'],
-                                 #assignment=data['assignment'],
-                                 intro=data['intro'],
-                                 stv_intro=data['stv_intro'])
+        try:
+            zip_buffer = get_reports(corpus,
+                                     intro=data['intro'],
+                                     stv_intro=data['stv_intro'])
+        except Exception as excp:
+            logging.error("{}\n{}".format(corpus, excp))
+            abort(500, message="ERROR in report generation.")
         # https://gist.github.com/widoyo/3897853
         response = make_response(zip_buffer)
         response.headers['Content-Disposition'] = "attachment; filename='report.zip'"

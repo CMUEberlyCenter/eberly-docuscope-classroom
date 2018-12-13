@@ -53,7 +53,7 @@ def get_reports(corpus, intro="", stv_intro=""):
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
     logging.info(" number of tones: {}".format(len(tones.tones)))
-    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones);
+    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones) #TODO refactor so it does not do get_level_frame/get_ds_stats twice
     frame = get_level_frame(stat_frame, 'Cluster', tones)
     logging.info(frame)
     return generate_pdf_reports(frame, corpus, ds_dictionary, tones, intro, stv_intro, bp_data)
@@ -356,7 +356,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
     df2 = df2.fillna(0)
     df2 = df2.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df2 = df2.drop('total_words')
-    df2 = df2.drop('Other')
+    df2 = df2.drop('Other', errors='ignore')
     df2 = df2.append(title_row)
 
     # use df1 to get the boxplot data for this corpus
@@ -364,7 +364,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
     df1 = df1.fillna(0)
     df1 = df1.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df1 = df1.drop('total_words')
-    df1 = df1.drop('Other')
+    df1 = df1.drop('Other', errors='ignore')
     df1 = df1.transpose()
 
     # calculate the max value for the box-plot. It will be used to deermine
