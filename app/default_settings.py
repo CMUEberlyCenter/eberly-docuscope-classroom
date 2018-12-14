@@ -6,7 +6,7 @@ class Config():
     """Configuration object used as part of initializing this Flask app."""
     DICTIONARY_SERVER = os.getenv('DICTIONARY_SERVER', 'http://dictionary')
     dbHost = os.getenv('dbHost', '192.168.37.135')
-    dbPort = os.getenv('dbPort', 13306)
+    dbPort = os.getenv('dbPort', '13306')
     dbName = os.getenv('dbName', 'docuscope')
     dbTable = os.getenv('dbTable', 'ds_documents')
     dbUsername = os.getenv('dbUsername', 'unity')

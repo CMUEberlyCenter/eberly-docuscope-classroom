@@ -1,12 +1,11 @@
-from marshmallow import Schema, fields, post_load, ValidationError
-import requests
 import logging
-#from functools import lru_cache
-
 from flask import current_app
 from flask_restful import abort
+from marshmallow import Schema, fields, post_load, ValidationError
+import requests
 
 class DocuScopeTone():
+    """A DocuScope Tone entry."""
     def __init__(self, cluster, dimension, lats):
         self.cluster = cluster or '***NO CLUSTER***'
         self.dimension = dimension or '***NO DIMENSION***'
@@ -16,16 +15,17 @@ class DocuScopeTone():
         return self.lats[0]
 
 class DocuScopeToneSchema(Schema):
+    """A Schema for validating tones."""
     cluster = fields.String()
     dimension = fields.String()
     lats = fields.List(fields.String())
 
     @post_load
     def make_lat(self, data):
+        """Convert json data to a DocuScopeTone object."""
         return DocuScopeTone(**data)
 DST_SCHEMA = DocuScopeToneSchema(many=True)
 
-#@lru_cache(maxsize=16)
 def get_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary."""
     req = requests.get("{}/dictionary/{}/tones".format(
@@ -45,6 +45,7 @@ def get_tones(dictionary_name="default"):
     return tones
 
 class DocuScopeTones():
+    """A collection of DocuScope tones/lats."""
     def __init__(self, dictionary_name="default"):
         self.dictionary_name = dictionary_name
         self._tones = None
@@ -53,17 +54,20 @@ class DocuScopeTones():
 
     @property
     def tones(self):
+        """Retrieve the tones."""
         if not self._tones:
             self._tones = get_tones(self.dictionary_name)
         return self._tones
 
     @property
     def lats(self):
+        """Return dictionary of lat -> tone."""
         if not self._lats:
             self._lats = {tone.lat: tone for tone in self.tones}
         return self._lats
 
     def map_dimension_to_lats(self):
+        """Return dictionary of dimention -> lat."""
         dim_dict = {}
         for tone in self.tones:
             if tone.dimension not in dim_dict:
@@ -72,6 +76,7 @@ class DocuScopeTones():
         return dim_dict
 
     def map_cluster_to_lats(self):
+        """Return dictionary of cluster -> lat."""
         clust_dict = {}
         for tone in self.tones:
             if tone.cluster not in clust_dict:
@@ -80,9 +85,11 @@ class DocuScopeTones():
         return clust_dict
 
     def map_lats_to_dimension(self):
+        """Maps lat -> dimension."""
         return {lat: tone.dimension for (lat, tone) in self.lats.items()}
 
     def map_cluster_to_dimension(self):
+        """Maps cluster -> dimension."""
         clust_dict = {}
         for tone in self.tones:
             if tone.cluster not in clust_dict:
@@ -91,9 +98,11 @@ class DocuScopeTones():
         return clust_dict
 
     def map_dimension_to_cluster(self):
+        """Maps dimension -> cluster."""
         return {tone.dimension: tone.cluster for tone in self.tones}
 
     def get_lat_cluster(self, lat):
+        """Returns the cluster for the given lat."""
         cluster = ""
         try:
             cluster = self.lats[lat].cluster
@@ -102,6 +111,7 @@ class DocuScopeTones():
         return cluster
 
     def get_dimension(self, lat):
+        """Returns the dimension for the given lat."""
         dim = ""
         try:
             dim = self.lats[lat].dimension
@@ -110,6 +120,7 @@ class DocuScopeTones():
         return dim
 
     def get_cluster(self, dimension):
+        """Returns the cluster for the given dimension."""
         if not self._dim_to_clust:
             self._dim_to_clust = self.map_dimension_to_cluster()
         return self._dim_to_clust[dimension]

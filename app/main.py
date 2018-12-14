@@ -1,15 +1,20 @@
 """DocuScope Classroom analysis tools interface."""
 import logging
 import os
-import requests
+#import requests
 
 #from cloudant import couchdb
-from flask import Flask, request, make_response, send_file, g
+from flask import request, make_response, send_file
 from flask_restful import Resource, Api, abort
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import ValidationError
 
-from create_app import create_flask_app, db
+from create_app import create_flask_app
 import schema
+
+from ds_stats import get_boxplot_data, get_rank_data, get_scatter_data, \
+    get_pairings, get_html_string
+from ds_report import get_reports
+from ds_db import Filesystem
 
 #logging.basicConfig(level=logging.DEBUG)
 #logger = logging.getLogger(__name__)
@@ -17,15 +22,12 @@ import schema
 app = create_flask_app()
 API = Api(app)
 
-from ds_stats import *
-from ds_report import get_reports
-from ds_db import Filesystem
-
 #python -c 'import os; print(os.urandom(16))' =>
 app.secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
 @app.after_request
 def after_request(response):
+    """Adds extra headers to deal with cross-origin issues."""
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers',
                          'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Content-Type')
@@ -50,6 +52,7 @@ def after_request(response):
 #API.add_resource(DSDictionaries, '/_dictionary')
 
 class DSDocs(Resource):
+    """Resource for handling request for a list of document ids."""
     def get(self):
         return [doc.id for doc in Filesystem.query.with_entities(Filesystem.id)]
 API.add_resource(DSDocs, '/_documents')
@@ -69,6 +72,7 @@ API.add_resource(DSDocs, '/_documents')
 #    return data
 
 class BoxplotData(Resource):
+    """Resource for handling requests for box plot data."""
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -84,6 +88,7 @@ class BoxplotData(Resource):
 API.add_resource(BoxplotData, '/boxplot_data')
 
 class RankedList(Resource):
+    """Resource for handling requests for ranking data."""
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -99,6 +104,7 @@ class RankedList(Resource):
 API.add_resource(RankedList, '/ranked_list')
 
 class ScatterplotData(Resource):
+    """Resource for handling requests for scatterplot data."""
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -115,6 +121,7 @@ class ScatterplotData(Resource):
 API.add_resource(ScatterplotData, '/scatterplot_data')
 
 class Groups(Resource):
+    """Resource for handling requests for grouping documents."""
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -130,6 +137,7 @@ class Groups(Resource):
 API.add_resource(Groups, '/groups')
 
 class Reports(Resource):
+    """Resource for handling requests for report generation."""
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -156,6 +164,7 @@ class Reports(Resource):
 API.add_resource(Reports, '/generate_reports')
 
 class TextContent(Resource):
+    """Resource for handling requests for tagged text data."""
     def post(self):
         logging.debug('Recieved /text_content request')
         json_data = request.get_json()
@@ -175,10 +184,12 @@ API.add_resource(TextContent, '/text_content')
 # Statically serve the web interface
 @app.route('/')
 def classroom():
+    """Returns top level application interface."""
     index_path = os.path.join(app.static_folder, 'index.html')
     return send_file(index_path)
 @app.route('/<path:path>')
 def route_frontend(path):
+    """Routes for static files."""
     file_path = os.path.join(app.static_folder, path)
     if os.path.isfile(file_path):
         return send_file(file_path)

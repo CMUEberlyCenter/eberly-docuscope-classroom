@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Aug 16 10:00:08 2017
-For Suguru: group selector 
+For Suguru: group selector
 
 @author: hseltman
 """
@@ -12,18 +12,18 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
     """ Get the best set student groups of size 'group_size' among 'nsim'
         random groupings.  Each run, left-over students are in a group of
         their own or added to other groups based on 'min_group_size'.
-        
+
         The "quality" of a single group of students is defined as the maximum
         difference among all comparisons of paris of students in the group
         across all available DocusScope categories.
-        
+
         The "quality" of "student grouping", i.e., an assignment of students
-        in a class to a set of student groups, is defined as the minimum 
+        in a class to a set of student groups, is defined as the minimum
         of all of the qualities of the student groups.
-        
+
         "Best" is defined the student grouping with the highest "quality"
         among all random student groupings tested.
-        
+
         'dtf': a pandas dataFrame for a classroom with one row per student,
             columns for each DocuScope category, and student names as the
             index
@@ -35,7 +35,7 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
             only if there are ties)
         'verbose': True shows at which simluation numbers improvements are
             found.  This might lend some insight into choosing 'nsim'.
-        
+
         The return value is a dictionary with these elements:
             'groups': a list of lists, with the outer elements being student
                 groups, and the inner elements being student ids
@@ -43,7 +43,7 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
             'quality': the quality of the worst group in the grouping
     """
     import pandas
-    
+
     # Verify input
     if type(dtf) is not pandas.core.frame.DataFrame:
         raise Exception("'dtf' is not a pandas DataFrame")
@@ -69,7 +69,7 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
         raise Exception("'nsim' should be between 2 and 10,000,000")
 
     # Format data as a list of lists and an index list
-    lst = [dtf.iloc[i,:].tolist() for i in range(dtf.shape[0])]
+    lst = [dtf.iloc[i, :].tolist() for i in range(dtf.shape[0])]
     labels = [di for di in dtf.index]
 
     # Find best grouping
@@ -81,7 +81,7 @@ def max_abs_diff(x, y):
     """ Given two commensurate lists of k numbers, return the maximum
         of the k differences.
     """
-    d = [abs(a-b) for (a,b) in zip(x,y)]
+    d = [abs(a-b) for (a, b) in zip(x, y)]
     return max(d)
 
 def order(v, small=0.01):
@@ -101,7 +101,7 @@ def order(v, small=0.01):
         s = copy.copy(v)
         s.sort(reverse=True)
     return [v.index(i) for i in s]
-    
+
 
 def make_pairs(data, ids, group_size, min_group_size, randomize=True):
     """
@@ -112,7 +112,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
         'group_size': the desired number of students per group
         'randomize': False is for testing only (groups differ on reapeat runs
                 only if there are ties)
-    
+
     Student groups are formed by this algorithm:
         1) Compute 'ng', the number of complete groups possible for the
             given number of students.
@@ -124,11 +124,11 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
         4) Remove the group from the data, and go back to step 2) if there
             are more complete groups to assemble.
         5) If there are remaining students, place them in 'extra'
-            
+
     Return a dictionary with elements:
         'groups': a list of lists with one outer element per student group and
             inner elements that are lists of the student ids for the group
-        'extra': a list of ids of left-over students            
+        'extra': a list of ids of left-over students
         'qualities': a list of length 'k' with the "quality" of the class
             grouping as the minumum in each group of the k maximums.
         'quality': the maximum of the 'qualities'
@@ -139,7 +139,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
     ng = n // group_size
     grps = []
     qualities = []
-    
+
     # Loop to create each complete group
     for grp in range(ng):
         # Last group may be deterministic
@@ -203,10 +203,10 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
     """
     import copy
     best_group = None
-    for iter in range(nsim):
+    for i_sim in range(nsim):
         # generate a grouping, possibly with left-over students
         trial = make_pairs(data=data, ids=ids, group_size=group_size,
-                           min_group_size = min_group_size,
+                           min_group_size=min_group_size,
                            randomize=randomize)
         # Adjust for left-over students (may have improved quality)
         n_left = len(trial['extra'])
@@ -215,18 +215,18 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
             for left_index in range(n_left):
                 index = left_index % ng
                 trial['groups'][index].append(trial['extra'][left_index])
-                this_quality = max_dist_one_to_many(data, ids, 
+                this_quality = max_dist_one_to_many(data, ids,
                                                     trial['groups'][index])
                 if this_quality > trial['qualities'][index]:
                     trial['qualities'][index] = this_quality
 
         if best_group is None or trial['quality'] > best_group['quality']:
             if verbose and best_group is not None:
-                print(str(iter) + ": " + str(best_group['quality']) + \
+                print(str(i_sim) + ": " + str(best_group['quality']) + \
                       " ->  " + str(trial['quality']))
             best_group = copy.copy(trial)
 
-    return {'groups': best_group['groups'], 
+    return {'groups': best_group['groups'],
             'grp_qualities': best_group['qualities'],
             'quality': best_group['quality']}
 
@@ -235,7 +235,7 @@ def max_dist_one_to_many(data, all_ids, group_ids):
     Given complete data find maximum distance (across DocuScope categories)
     between last student and each of the others.  Return the maximum of those
     distances.
-    
+
     'data' is a list of lists with the outer list being groups and the inner
         list being DocusScope scores for those students.
     'all_ids' is the list of student ids
