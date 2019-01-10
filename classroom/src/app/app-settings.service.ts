@@ -8,7 +8,7 @@ import { AppSettings, CONFIG } from './app-settings';
   providedIn: 'root'
 }*/)
 export class AppSettingsService {
-  settings_url: string = '/assets/app-settings.json';
+  settings_url: string = 'assets/app-settings.json';
   private _settings;
 
   constructor(private injector: Injector) { }

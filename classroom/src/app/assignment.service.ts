@@ -35,7 +35,7 @@ accomplish the purpose of your document.`
   providedIn: 'root'
 })
 export class AssignmentService {
-  assignments_base_url: string = '/assets/assignments/';
+  assignments_base_url: string = 'assets/assignments/';
 
   constructor(private http: HttpClient) { }
 
