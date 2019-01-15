@@ -5,16 +5,17 @@ import { Injectable } from '@angular/core';
 })
 export class MessageService {
   messages: string[] = [];
-  debug: boolean = true;
-  debug_msg: boolean = false;
+  debug = true;
+  debug_msg = false;
 
   constructor() { }
 
   add(message: string) {
     if (this.debug) {
-      console.log(message)
-      if (this.debug_msg)
+      console.log(message);
+      if (this.debug_msg) {
         this.messages.push(message);
+      }
     }
   }
 

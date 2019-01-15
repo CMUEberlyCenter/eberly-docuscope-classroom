@@ -3,5 +3,5 @@ export interface AppSettings {
 }
 
 export const CONFIG: AppSettings = {
-  backend_server: "http://localhost:4444"
-}
+  backend_server: 'http://localhost:4444'
+};

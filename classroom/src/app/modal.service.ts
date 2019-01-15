@@ -22,12 +22,12 @@ export class ModalService {
   }
 
   open(id: string) {
-    let modal: Modal = this.modals.get(id);
+    const modal: Modal = this.modals.get(id);
     modal.open();
   }
 
   close(id: string) {
-    let modal: Modal = this.modals.get(id);
+    const modal: Modal = this.modals.get(id);
     modal.close();
   }
 }

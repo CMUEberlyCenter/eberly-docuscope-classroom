@@ -10,19 +10,17 @@ export class DocumentSchema {
   data?: string;
 }
 export function makeDocumentSchema(corpus: Corpus): DocumentSchema[] {
-    return corpus.documents.map((d: string): DocumentSchema => {return {id: d}; });
+  return corpus.documents.map((d: string): DocumentSchema => ({id: d}));
 }
 
 export class CorpusSchema {
   corpus: DocumentSchema[];
   level: Level;
-  //dictionary: string;
 }
 function makeCorpusSchema(corpus: Corpus): CorpusSchema {
   return {
     corpus: makeDocumentSchema(corpus),
-    level: Level.Cluster//,
-    //dictionary: corpus.ds_dictionary
+    level: Level.Cluster
   };
 }
 export class BoxplotSchema extends CorpusSchema {}
@@ -34,7 +32,7 @@ export class RankedListSchema extends CorpusSchema {
   sortby: string;
 }
 export function makeRankedListSchema(corpus: Corpus, sortby: string): RankedListSchema {
-  let schema = makeCorpusSchema(corpus) as RankedListSchema;
+  const schema = makeCorpusSchema(corpus) as RankedListSchema;
   schema.sortby = sortby;
   return schema;
 }
@@ -44,7 +42,7 @@ export class ScatterplotSchema extends CorpusSchema {
   catY: string;
 }
 export function makeScatterplotSchema(corpus: Corpus, cat_x: string, cat_y: string): ScatterplotSchema {
-  let schema = makeCorpusSchema(corpus) as ScatterplotSchema;
+  const schema = makeCorpusSchema(corpus) as ScatterplotSchema;
   schema.catX = cat_x;
   schema.catY = cat_y;
   return schema;
@@ -54,25 +52,19 @@ export class GroupsSchema extends CorpusSchema {
   group_size: number;
 }
 export function makeGroupsSchema(corpus: Corpus, group_size: number): GroupsSchema {
-  let schema = makeCorpusSchema(corpus) as GroupsSchema;
+  const schema = makeCorpusSchema(corpus) as GroupsSchema;
   schema.group_size = group_size;
   return schema;
 }
 
 export class ReportsSchema {
   corpus: DocumentSchema[];
-  //dictionary: string;
-  //course: string;
-  //assignment: string;
   intro: string;
   stv_intro: string;
 }
 export function makeReportsSchema(corpus: Corpus): ReportsSchema {
   return {
     corpus: makeDocumentSchema(corpus),
-    //dictionary: corpus.ds_dictionary,
-    //course: corpus.course,
-    //assignment: corpus.assignment,
     intro: corpus.intro,
     stv_intro: corpus.stv_intro
   };
@@ -99,15 +91,15 @@ export class BoxplotData {
   outliers: Outlier[];
 }
 
-export function max_boxplot_value(boxplot:BoxplotData):number {
-  let maximum: number = 0.0;
+export function max_boxplot_value(boxplot: BoxplotData): number {
+  let maximum = 0.0;
   if (boxplot) {
-    for (let cat in boxplot.bpdata) {
-      let entry: BoxplotDataEntry = boxplot.bpdata[cat];
+    for (const cat of Object.keys(boxplot.bpdata)) {
+      const entry: BoxplotDataEntry = boxplot.bpdata[cat];
       maximum = Math.max(maximum, entry.max, entry.uifence);
     }
   }
-  return Math.ceil(maximum*10)/10;
+  return Math.ceil(maximum * 10) / 10;
 }
 
 export class RankDataEntry {
@@ -116,7 +108,7 @@ export class RankDataEntry {
   value: number;
 }
 export class RankData {
-  result: RankDataEntry[]
+  result: RankDataEntry[];
 }
 
 export class ScatterplotDataPoint {

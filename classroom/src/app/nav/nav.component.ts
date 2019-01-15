@@ -10,7 +10,7 @@ export class NavComponent implements OnInit {
 
   constructor(private _route: ActivatedRoute) { }
 
-  is_current(id:string) {
+  is_current(id: string) {
     return id === `/${this._route.snapshot.url.join('/')}`;
   }
   ngOnInit() { }

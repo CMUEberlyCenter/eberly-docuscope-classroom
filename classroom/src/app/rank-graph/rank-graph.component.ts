@@ -21,63 +21,60 @@ export class RankGraphComponent implements OnInit, OnChanges {
   }
 
   get x() {
-    return d3.scaleLinear().domain([0, this.max_value*100])
+    return d3.scaleLinear().domain([0, this.max_value * 100])
       .range([10, 280]).nice().clamp(true);
   }
-  scale(value:number):number {
-    return 100*value/this.max_value;
+  scale(value: number): number {
+    return 100 * value / this.max_value;
   }
 
   draw_axis() {
-    let x = d3.scaleLinear()
-      .domain([0, this.max_value*100])
+    const x = d3.scaleLinear()
+      .domain([0, this.max_value * 100])
       .range([0, 100]).nice();
-    let axis_x = d3.axisTop(x);
-    let axis = d3.select('.grid_axis')
+    const axis_x = d3.axisTop(x);
+    const axis = d3.select('.grid_axis')
       .attr('width', '100%')
       .attr('height', '100%')
       .append('g')
-      .call(g => { g.call(axis_x);} );
+      .call(g => { g.call(axis_x); });
   }
   draw() {
-    const entry_height: number = 28;
-    const top_margin: number = 2;
-    const bottom_margin: number = 2;
-    const title_offset:number = 160;
+    const entry_height = 28;
+    const top_margin = 2;
+    const bottom_margin = 2;
+    const title_offset = 160;
 
-    let x = d3.scaleLinear()
+    const x = d3.scaleLinear()
       .domain([0, this.max_value])
-      .range([title_offset, this.options.width-15]).nice();
-    let y = d3.scaleLinear()
+      .range([title_offset, this.options.width - 15]).nice();
+    const y = d3.scaleLinear()
       .domain([0, 1])
-      .range([top_margin, entry_height-bottom_margin]);
+      .range([top_margin, entry_height - bottom_margin]);
 
-    let axis_x = d3.axisTop(x);
+    const axis_x = d3.axisTop(x);
     d3.selectAll('.rank_wait').remove();
-    //d3.selectAll('.rank_axis > g').remove();
-    //d3.selectAll('.rank_data *').remove();
 
-    let data: RankDataEntry[] = this.rank_data.result; //{index,text,value}
+    const data: RankDataEntry[] = this.rank_data.result;
 
-    let chart = d3.select('.rank_graph')
+    const chart = d3.select('.rank_graph')
       .attr('width', this.options.width)
       .attr('height', entry_height * data.length);
     chart.selectAll('.rank_entry').remove();
 
     chart.selectAll('.rank_data > *').remove();
-    let axis = chart.select('.rank_data').append('g');
+    const axis = chart.select('.rank_data').append('g');
 
     axis
       .attr('transform', 'translate(0,30)')
       .append('g')
-      .call(g => { g.call(axis_x);} );
+      .call(g => { g.call(axis_x); });
 
-    //chart.selectAll('.rank_data').selectAll('*').remove();
-    let data_group = axis.selectAll('.rank_entry')
+    const data_group = axis.selectAll('.rank_entry')
       .data(data);
     data_group
       .exit().remove();
-    let dg = data_group
+    const dg = data_group
       .enter().append('g')
       .attr('class', 'rank_entry')
       .attr('transform', (d, i) => `translate(0, ${i * entry_height})`);
@@ -86,7 +83,7 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('x', 5)
       .attr('y', y(0.5))
       .attr('dy', '.35em')
-      .text(d => `${d.value.toFixed(3)} ${d.text.slice(0,8)}`)
+      .text(d => `${d.value.toFixed(3)} ${d.text.slice(0, 8)}`)
       .style('cursor', 'pointer')
       .on('click', d => window.open(`/stv/${d.text}`));
     dg.append('rect')
@@ -98,14 +95,10 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('width', d => x(d.value) - x(0));
   }
 
-  open(doc_id:string) {
+  open(doc_id: string) {
     window.open(doc_id);
   }
   ngOnChanges() {
-    if (this.rank_data) {
-      //this.draw();
-      //this.draw_axis();
-    }
   }
 
 }

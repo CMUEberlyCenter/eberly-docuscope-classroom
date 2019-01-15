@@ -18,7 +18,7 @@ export interface TextContent {
   providedIn: 'root'
 })
 export class TaggedTextService {
-  private server: string = this.env.config.backend_server+'/text_content';
+  private server = `${this.env.config.backend_server}/text_content`;
   // since this is a new window, caching doesn't seem to be useful.
   private tag_data: Map<string, Observable<TextContent>> = new Map<string, Observable<TextContent>>();
 
@@ -32,7 +32,7 @@ export class TaggedTextService {
 
   getTaggedText(doc_id: string): Observable<TextContent> {
     if (!this.tag_data.has(doc_id)) {
-      let text_query:TextContentSchema = {'text_id': doc_id};
+      const text_query: TextContentSchema = {'text_id': doc_id};
       this.tag_data.set(
         doc_id,
         this._http.post<TextContent>(this.server, text_query)

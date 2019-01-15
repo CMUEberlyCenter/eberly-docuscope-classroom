@@ -14,7 +14,7 @@ import { GroupsData } from '../boxplot-data';
 export class GroupingComponent implements OnInit {
   corpus: Corpus;
   group_sizes: number[] = [2, 3, 4];
-  group_size: string = "2";
+  group_size = '2';
   groups: GroupsData;
   students: [string, boolean][] = [
     ['John', true],
@@ -42,7 +42,6 @@ export class GroupingComponent implements OnInit {
     this.data_service.getGroupsData(this.corpus, +this.group_size)
       .subscribe(data => {
         this.groups = data;
-        //console.log(data);
         this._spinner.hide();
       });
   }
@@ -55,7 +54,7 @@ export class GroupingComponent implements OnInit {
     if (this.group_size) {
       this.getGroupsData();
     } else {
-      alert("Select a group size");
+      alert('Select a group size.');
     }
   }
 

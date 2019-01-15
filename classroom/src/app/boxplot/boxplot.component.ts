@@ -23,7 +23,6 @@ export class BoxplotComponent implements OnInit {
               private dataService: BoxplotDataService) { }
 
   getCorpus(): void {
-    //const id = +this.route.snapshot.paramMap.get('id');
     this.spinner.show();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
@@ -32,7 +31,7 @@ export class BoxplotComponent implements OnInit {
         this.getData();
       });
   }
-  getData():void {
+  getData(): void {
     this.spinner.show();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
@@ -41,7 +40,7 @@ export class BoxplotComponent implements OnInit {
         this.spinner.hide();
       });
   }
-  getRankData(selected_category:string):void {
+  getRankData(selected_category: string): void {
     if (selected_category) {
       this.spinner.show();
       this.dataService.getRankedList(this.corpus, selected_category)
@@ -51,20 +50,12 @@ export class BoxplotComponent implements OnInit {
         });
     }
   }
+
   ngOnInit() {
-    console.log("boxplot.component ngOnInit()");
     this.getCorpus();
   }
-  ngAfterViewCheck() {
-    //this.getCorpus();
-  }
-  ngAfterViewInit() {
-    //this.getCorpus();
-  }
-  ngOnDestroy() {
-    //this.data = null;
-  }
-  onSelectCategory(category:string) {
+
+  onSelectCategory(category: string) {
     this.selected_category = category;
     this.getRankData(category);
   }

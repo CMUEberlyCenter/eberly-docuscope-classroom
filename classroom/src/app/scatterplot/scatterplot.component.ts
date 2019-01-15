@@ -38,7 +38,7 @@ export class ScatterplotComponent implements OnInit {
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry):string => { return bpd.category; });
+          (bpd: BoxplotDataEntry): string => bpd.category);
         this.x_categories = new Set<string>(this.categories);
         this.y_categories = new Set<string>(this.categories);
         this.x_axis = this.categories[0];
@@ -65,12 +65,12 @@ export class ScatterplotComponent implements OnInit {
   ngOnInit() {
     this.getCorpus();
   }
-  on_select(event):void {
+  on_select(event): void {
     console.log(this.x_axis, this.y_axis);
-    let x_cat:Set<string> = new Set<string>(this.categories);
+    const x_cat: Set<string> = new Set<string>(this.categories);
     x_cat.delete(this.y_axis);
     this.x_categories = x_cat;
-    let y_cat:Set<string> = new Set<string>(this.categories);
+    const y_cat: Set<string> = new Set<string>(this.categories);
     y_cat.delete(this.x_axis);
     this.y_categories = y_cat;
     this.getData();

@@ -36,7 +36,7 @@ export class RankComponent implements OnInit {
     this._data_service.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry):string => { return bpd.category; });
+          (bpd: BoxplotDataEntry): string => bpd.category);
         this.max_value = max_boxplot_value(data);
         this.category = this.categories[0];
         this._spinner.hide();
@@ -54,8 +54,8 @@ export class RankComponent implements OnInit {
   ngOnInit() {
     this.getCorpus();
   }
-  on_select(event):void {
-    console.log(this.category);
+  on_select(event): void {
+    // console.log(this.category);
     this.getData();
   }
 }

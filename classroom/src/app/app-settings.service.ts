@@ -8,17 +8,17 @@ import { AppSettings, CONFIG } from './app-settings';
   providedIn: 'root'
 }*/)
 export class AppSettingsService {
-  settings_url: string = 'assets/app-settings.json';
+  settings_url = 'assets/app-settings.json';
   private _settings;
 
   constructor(private injector: Injector) { }
 
   loadSettings() {
-    let http = this.injector.get(HttpClient);
+    const http = this.injector.get(HttpClient);
     return http.get(this.settings_url)
       .toPromise()
       .then(data => this._settings = data)
-      .catch(error => this._settings = CONFIG)
+      .catch(error => this._settings = CONFIG);
   }
 
   get config() { return this._settings; }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-//import { MessageService } from './message.service';
+// import { MessageService } from './message.service';
 
 export interface AssignmentData {
   course: string;
@@ -29,18 +29,18 @@ own writing. These categories are what we consider to be "core" for the task
 of writing this type of document, but they can be expressed in different ways
 by different writers--and they blend with other compositional moves to
 accomplish the purpose of your document.`
-}
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssignmentService {
-  assignments_base_url: string = 'assets/assignments/';
+  assignments_base_url = 'assets/assignments/';
 
   constructor(private http: HttpClient) { }
 
   getAssignment(assignment: string): Observable<AssignmentData> {
-    return this.http.get<AssignmentData>(this.assignments_base_url+assignment+'.json')
+    return this.http.get<AssignmentData>(`${this.assignments_base_url}${assignment}.json`)
       .pipe(
         catchError(err => of(DefaultAssignmentData))
       );

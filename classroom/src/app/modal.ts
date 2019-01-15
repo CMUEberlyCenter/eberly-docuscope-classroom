@@ -1,5 +1,5 @@
 export interface Modal {
   id: string;
-  open():void;
-  close():void;
+  open(): void;
+  close(): void;
 }

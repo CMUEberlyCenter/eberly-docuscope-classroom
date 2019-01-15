@@ -17,10 +17,19 @@ export class TextViewComponent implements OnInit {
   clusters: Set<string>;
   html_content: SafeHtml;
 
-  selection: string = 'No Selection';
+  selection = 'No Selection';
   selected_lat: string;
   selected_dimension: string;
   selected_cluster: string;
+
+  private _css_classes: string[] = [
+    'cluster_0',
+    'cluster_1',
+    'cluster_2',
+    'cluster_3',
+    'cluster_4',
+    'cluster_5'];
+  private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
     private _route: ActivatedRoute,
@@ -38,9 +47,9 @@ export class TextViewComponent implements OnInit {
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        let clusters = new Set<string>();
-        for (let d in txt.dict) {
-          let cluster = txt.dict[d]['cluster'];
+        const clusters = new Set<string>();
+        for (const d of Object.keys(txt.dict)) {
+          const cluster = txt.dict[d]['cluster'];
           clusters.add(cluster);
         }
         clusters.delete('Other');
@@ -54,11 +63,11 @@ export class TextViewComponent implements OnInit {
 
   click_select($event) {
     console.log($event);
-    let parent_key = $event.target.parentNode.getAttribute('data-key');
+    const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
-      let lat = parent_key.trim();
+      const lat = parent_key.trim();
       this.selected_lat = lat;
-      let obj = this.tagged_text.dict[lat];
+      const obj = this.tagged_text.dict[lat];
       if (obj) {
         this.selected_dimension = obj['dimension'];
         this.selected_cluster = obj['cluster'];
@@ -68,8 +77,8 @@ export class TextViewComponent implements OnInit {
       }
     }
   }
-  *get_lats(cluster:string) {
-    for (let lat in this.tagged_text.dict) {
+  *get_lats(cluster: string) {
+    for (const lat in this.tagged_text.dict) {
       if (this.tagged_text.dict[lat]['cluster'] === cluster) {
         yield lat;
       }
@@ -77,32 +86,24 @@ export class TextViewComponent implements OnInit {
   }
 
   toggle_category($event) {
-    console.log($event);
-    console.log($event.target.checked, $event.target.value);
-    let clust: string = $event.target.value;
-    //let lats = this.tagged_text.dict
-    //console.log(`[data-key=${clust}]`);
-    //d3.select($event.target).style('color','pink');
-    //d3.select($event.target).style('color', 'black')
-    let lats = this.get_lats(clust);
-    let css_class = this.get_cluster_class(clust);
+    // console.log($event);
+    // console.log($event.target.checked, $event.target.value);
+    const clust: string = $event.target.value;
+    const lats = this.get_lats(clust);
+    const css_class = this.get_cluster_class(clust);
     if (!$event.target.checked && this._selected_clusters.has(clust)) {
       this._css_classes.unshift(this._selected_clusters.get(clust));
       this._selected_clusters.delete(clust);
     }
     d3.select($event.target.parentNode).classed(css_class, $event.target.checked);
-    //console.log(css_class, this._selected_clusters, this._css_classes);
-    let lat =  lats.next();
+    let lat = lats.next();
     while (!lat.done) {
-      //console.log(lat.value);
       d3.selectAll(`[data-key=${lat.value}]`)
         .classed(css_class, $event.target.checked);
       lat = lats.next();
     }
   }
 
-  private _css_classes: string[] = ["cluster_0","cluster_1","cluster_2","cluster_3","cluster_4","cluster_5"];
-  private _selected_clusters: Map<string,string> = new Map<string,string>();
   get_cluster_class(cluster: string): string {
     if (this._selected_clusters.has(cluster)) {
       return this._selected_clusters.get(cluster);

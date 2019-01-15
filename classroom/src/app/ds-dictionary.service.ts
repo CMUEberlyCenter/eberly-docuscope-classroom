@@ -10,7 +10,7 @@ import { AppSettingsService } from './app-settings.service';
 })
 export class DSDictionaryService {
 
-  private ds_dictionary_server: string = this.env.config.backend_server+'/_dictionary';
+  private ds_dictionary_server = `${this.env.config.backend_server}/_dictionary`;
 
   constructor(private http: HttpClient,
               private env: AppSettingsService,
