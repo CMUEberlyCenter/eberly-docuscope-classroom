@@ -10,10 +10,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppSettingsService } from './app-settings.service';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { BoxplotGraphComponent } from './boxplot-graph/boxplot-graph.component';
-// import { CorpusDetailComponent } from './corpus-detail/corpus-detail.component';
 import { GroupingComponent } from './grouping/grouping.component';
 import { MessagesComponent } from './messages/messages.component';
-//import { ModalComponent } from './modal/modal.component';
 import { NavComponent } from './nav/nav.component';
 import { RankComponent } from './rank/rank.component';
 import { RankGraphComponent } from './rank-graph/rank-graph.component';
@@ -29,7 +27,6 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
 @NgModule({
   declarations: [
     AppComponent,
-    // CorpusDetailComponent,
     MessagesComponent,
     BoxplotComponent,
     BoxplotGraphComponent,
@@ -41,7 +38,6 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
     RankGraphComponent,
     RankComponent,
     NavComponent
-    //ModalComponent
   ],
   imports: [
     BrowserModule,
