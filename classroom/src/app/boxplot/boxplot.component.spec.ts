@@ -1,14 +1,59 @@
+import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { asyncData } from '../../testing';
 
 import { BoxplotComponent } from './boxplot.component';
+import { BoxplotData, RankData } from '../boxplot-data';
+import { CorpusService } from '../corpus.service';
+import { BoxplotDataService} from '../boxplot-data.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+
+@Component({selector: 'app-boxplot-graph', template: ''})
+class BoxplotGraphStubComponent {
+  @Input() boxplot: BoxplotData;
+  @Input() max_value: number;
+}
+
+@Component({selector: 'app-nav', template: ''})
+class NavStubComponent {}
+
+@Component({selector: 'app-rank-graph', template: ''})
+class RankGraphStubComponent {
+  @Input() rank_data: RankData;
+  @Input() max_value: number;
+}
 
 describe('BoxplotComponent', () => {
   let component: BoxplotComponent;
   let fixture: ComponentFixture<BoxplotComponent>;
 
   beforeEach(async(() => {
+    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
+    const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+    corpusService_spy.getCorpus.and.returnValue(asyncData({
+      course: 'stub',
+      assignment: 'stub',
+      documents: ['1', '2', '3'],
+      intro: 'stub',
+      stv_intro: 'stub'
+    }));
+    const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getRankedList']);
+    dataService_spy.getBoxPlotData.and.returnValue(asyncData({
+      bpdata: [],
+      outliers: []
+    }));
+    dataService_spy.getRankedList.and.returnValue(asyncData({ result: [] }));
+
     TestBed.configureTestingModule({
-      declarations: [ BoxplotComponent ]
+      declarations: [ BoxplotComponent,
+                      BoxplotGraphStubComponent,
+                      NavStubComponent,
+                      RankGraphStubComponent ],
+      providers: [
+        { provide: BoxplotDataService, useValue: dataService_spy },
+        { provide: CorpusService, useValue: corpusService_spy },
+        { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy }
+      ]
     })
     .compileComponents();
   }));
