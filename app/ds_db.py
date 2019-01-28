@@ -6,25 +6,23 @@ from create_app import db
 #db.Model.metadata.reflect(db.get_engine(app=current_app))
 
 Base = db.Model
+TinyText = db.String(255)
+UUID = db.BINARY(16)
 
 class Filesystem(Base):
     """The filesystem table in the docuscope database."""
     __tablename__ = 'filesystem'
-    id = db.Column(db.String(40), primary_key=True)
-    name = db.Column(db.String(200))
-    assignment = db.Column(db.String(50))
-    owner = db.Column(db.String(100))
-    created = db.Column(db.String(50))
-    createdraw = db.Column(db.String(50))
-    size = db.Column(db.String(50))
-    type = db.Column(db.String(50))
-    course = db.Column(db.String(100))
-    fullname = db.Column(db.String(100))
-    state = db.Column(db.String(5)) #ENUM
-    ownedby = db.Column(db.String(5))
-    json = db.Column(db.String) #BLOB
-    processed = db.Column(db.String) #JSON
-    pdf = db.Column(db.String) #BLOB
+    id = db.Column(UUID, primary_key=True)
+    name = db.Column(TinyText)
+    assignment = db.Column(UUID)
+    owner = db.Column(TinyText)
+    created = db.Column(db.TIMESTAMP)
+    fullname = db.Column(TinyText)
+    state = db.Column(db.Enum('pending', 'subitted', 'tagged', 'error'))
+    ownedby = db.Column(db.Enum('student', 'instructor'))
+    content = db.Column(db.LargeBinary)
+    processed = db.Column(db.JSON)
+    pdf = db.Column(db.LargeBinary)
 
     def __repr__(self):
         return "<File(id='{}', state='{}', assignment='{}'>"\
@@ -33,18 +31,19 @@ class Filesystem(Base):
 class DSDictionary(Base):
     """The valid dictionaries in the docuscope database."""
     __tablename__ = 'dictionaries'
-    name = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.SmallInteger, primary_key=True)
+    name = db.Column(TinyText)
     def __repr__(self):
         return "<DS_Dictionary(name='{}')>".format(self.name)
 
 class Assignment(Base):
     """The assignments table in the docuscope database."""
     __tablename__ = 'assignments'
-    id = db.Column(db.String(50), primary_key=True)
-    dictionary = db.Column(db.String(50))
-    name = db.Column(db.String(150))
-    course = db.Column(db.String(150))
-    instructor = db.Column(db.String(150))
+    id = db.Column(UUID, primary_key=True)
+    dictionary = db.Column(db.SmallInteger)
+    name = db.Column(TinyText)
+    course = db.Column(TinyText)
+    instructor = db.Column(TinyText)
     def __repr__(self):
         return "<Assignment(id='{}', name='{}', dictionary='{}', "\
             .format(self.id, self.name, self.dictionary)

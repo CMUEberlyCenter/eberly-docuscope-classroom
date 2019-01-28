@@ -15,7 +15,7 @@ def get_ds_stats(documents):
     ds_dictionaries = set()
     for document in Filesystem.query.filter(Filesystem.id.in_([d['id'] for d in documents])):
         if document.processed:
-            doc = json.loads(document.processed)
+            doc = document.processed
             # TODO: if ds stuff not there, start tagging/wait
             ser = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
             ser['total_words'] = doc['ds_num_word_tokens']
@@ -221,7 +221,7 @@ def get_html_string(text_id, format_paragraph=True):
     }
     ds_dictionary = 'default'
     document = Filesystem.query.filter_by(id=text_id).first()
-    doc = json.loads(document.processed)
+    doc = document.processed #json.loads(document.processed)
     html_content = doc['ds_output']
     tags_dicts = doc['ds_tag_dict']
     res['word_count'] = doc['ds_num_word_tokens']
