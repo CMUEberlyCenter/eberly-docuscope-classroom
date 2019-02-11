@@ -1,9 +1,7 @@
 """DocuScope Classroom analysis tools interface."""
 import logging
 import os
-#import requests
 
-#from cloudant import couchdb
 from flask import request, make_response, send_file
 from flask_restful import Resource, Api, abort
 from marshmallow import ValidationError
@@ -14,12 +12,11 @@ import schema
 from ds_stats import get_boxplot_data, get_rank_data, get_scatter_data, \
     get_pairings, get_html_string
 from ds_report import get_reports
-from ds_db import Filesystem
 
 #logging.basicConfig(level=logging.DEBUG)
 #logger = logging.getLogger(__name__)
 
-app = create_flask_app()
+app = create_flask_app() #pylint: disable=C0103
 API = Api(app)
 
 #python -c 'import os; print(os.urandom(16))' =>
@@ -30,50 +27,17 @@ def after_request(response):
     """Adds extra headers to deal with cross-origin issues."""
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers',
-                         'Access-Control-Allow-Headers,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Content-Type')
+                         ','.join(['Access-Control-Allow-Headers',
+                                   'Access-Control-Allow-Origin',
+                                   'Access-Control-Allow-Methods',
+                                   'Content-Type']))
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
     return response
 
-#def available_dictionaries():
-#    """Retrieve the list of available DocuScope dictionaries."""
-    #TODO: add staleness check/timeout
-#    if 'ds_dictionaries' not in g:
-#        req = requests.get("{}/dictionary".format(app.config['DICTIONARY_SERVER']))
-#        if req.status_code >= 400:
-#            abort(req.status_code, message = req.text())
-#        g.ds_dictionaries = req.json()
-#    return g.ds_dictionaries
-
-#class DSDictionaries(Resource):
-#    def get(self):
-#        return available_dictionaries()
-#    def post(self):
-#        return available_dictionaries()
-#API.add_resource(DSDictionaries, '/_dictionary')
-
-class DSDocs(Resource):
-    """Resource for handling request for a list of document ids."""
-    def get(self):
-        return [doc.id for doc in Filesystem.query.with_entities(Filesystem.id)]
-API.add_resource(DSDocs, '/_documents')
-
-#def get_docs():
-#    json_data = request.get_json()
-#    if not json_data:
-#        abort(400, message='No input data provided, probably not JSON')
-#    try:
-#        data, val_errors = DOC_SCHEMA.load(json_data)
-#    except ValidationError as err:
-#        abort(422, message="{}".format(err))
-#    except Exception as gen_err:
-#        abort(422, message="{}".format(gen_err))
-#    if val_errors:
-#        logging.warning("Parsing errors: {}".format(val_errors))
-#    return data
-
 class BoxplotData(Resource):
     """Resource for handling requests for box plot data."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         json_data = request.get_json()
         if not json_data:
             abort(404, message="No input data provided.")
@@ -89,7 +53,8 @@ API.add_resource(BoxplotData, '/boxplot_data')
 
 class RankedList(Resource):
     """Resource for handling requests for ranking data."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         json_data = request.get_json()
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
@@ -105,7 +70,8 @@ API.add_resource(RankedList, '/ranked_list')
 
 class ScatterplotData(Resource):
     """Resource for handling requests for scatterplot data."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         json_data = request.get_json()
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
@@ -122,7 +88,8 @@ API.add_resource(ScatterplotData, '/scatterplot_data')
 
 class Groups(Resource):
     """Resource for handling requests for grouping documents."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         json_data = request.get_json()
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
@@ -138,7 +105,8 @@ API.add_resource(Groups, '/groups')
 
 class Reports(Resource):
     """Resource for handling requests for report generation."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         json_data = request.get_json()
         if not json_data:
             abort(404, message="No input data provided, requires JSON.")
@@ -153,8 +121,8 @@ class Reports(Resource):
             zip_buffer = get_reports(corpus,
                                      intro=data['intro'],
                                      stv_intro=data['stv_intro'])
-        except Exception as excp:
-            logging.error("{}\n{}".format(corpus, excp))
+        except Exception as excp: #pylint: disable=W0703
+            logging.error("%s\n%s", corpus, excp)
             abort(500, message="ERROR in report generation.")
         # https://gist.github.com/widoyo/3897853
         response = make_response(zip_buffer)
@@ -165,7 +133,8 @@ API.add_resource(Reports, '/generate_reports')
 
 class TextContent(Resource):
     """Resource for handling requests for tagged text data."""
-    def post(self):
+    def post(self): #pylint: disable=R0201
+        """Respond to POST requests."""
         logging.debug('Recieved /text_content request')
         json_data = request.get_json()
         if not json_data:
@@ -175,7 +144,7 @@ class TextContent(Resource):
         except ValidationError as err:
             abort(422, message="{}".format(err))
         file_id = data['text_id']
-        logging.debug("/text_request/{}".format(file_id))
+        logging.debug("/text_request/%s", file_id)
         if not file_id:
             abort(404, message="No document specified.")
         return get_html_string(file_id)
@@ -187,15 +156,15 @@ def classroom():
     """Returns top level application interface."""
     index_path = os.path.join(app.static_folder, 'index.html')
     return send_file(index_path)
+
 @app.route('/<path:path>')
 def route_frontend(path):
     """Routes for static files."""
     file_path = os.path.join(app.static_folder, path)
     if os.path.isfile(file_path):
         return send_file(file_path)
-    else:
-        index_path = os.path.join(app.static_folder, 'index.html')
-        return send_file(index_path)
+    index_path = os.path.join(app.static_folder, 'index.html')
+    return send_file(index_path)
 
 if __name__ == '__main__':
     app.run(debug=True)

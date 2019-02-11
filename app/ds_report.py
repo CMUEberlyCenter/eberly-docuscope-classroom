@@ -1,14 +1,13 @@
+"""Generate printable reports based on a tagged set of files."""
 # coding: utf-8
 # PDF REPORT
 
 # system
 import copy
 import io
-#import json
 import logging
 import math
-import os
-#import tempfile
+#import os
 import time
 import zipfile
 
@@ -26,41 +25,35 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 import requests
 
-#import itertools
-#import re
-
-#from cloudant import couchdb
-#import pandas as pd
-
 from flask import current_app
 
 from bs4 import BeautifulSoup as bs
 
 from ds_stats import get_boxplot_data, get_html_string, get_ds_stats, get_level_frame
 from ds_tones import DocuScopeTones
-from ds_db import Filesystem, Assignment
+from ds_db import Filesystem, Assignment, session_scope
 
 # debug
 # import pprint
 # pp = pprint.PrettyPrinter(indent=4)
 
-# units
-#point = 1 #inch/72.0
-
 def get_reports(corpus, intro="", stv_intro=""):
-    logging.info("get_reports({}, {}, {})".format(corpus, intro, stv_intro))
+    """Generate and return the reports."""
+    logging.info("get_reports(%s, %s, %s)", corpus, intro, stv_intro)
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
-    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones) #TODO refactor so it does not do get_level_frame/get_ds_stats twice
+    logging.info(" number of tones: %d", len(tones.tones))
+    #TODO refactor so it does not do get_level_frame/get_ds_stats twice
+    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones)
     frame = get_level_frame(stat_frame, 'Cluster', tones)
     logging.info(frame)
     return generate_pdf_reports(frame, corpus, ds_dictionary, intro, stv_intro, bp_data)
 
 
 class Divider(Flowable):
+    """A Divider."""
     def __init__(self, wd, wt=0.5, col=black):
         super().__init__()
         self.width = wd
@@ -68,6 +61,7 @@ class Divider(Flowable):
         self.color = col
 
     def draw(self):
+        """Draw the divider."""
         c = self.canv
         c.setLineWidth(self.weight)
         c.setStrokeColor(self.color)
@@ -103,7 +97,6 @@ class Boxplot(Flowable):
         draw the line
         """
         c = self.canv
-        #scale = (self.width - self.margins['left'] - self.margins['right'])/math.ceil(self.max_val)
         scale = (self.width - self.margins['left'] - self.margins['right'])/self.max_val
 
         box_height = self.height-(self.margins['top']+self.margins['bottom']+self.ruler_ht)
@@ -159,38 +152,11 @@ class Boxplot(Flowable):
                  .format(self.value*1000)
         c.circle(self.margins['left'], self.margins['bottom']-6, self.radius, fill=1)
         c.drawString(self.margins['left']+3, self.margins['bottom']-8, msg)
-        #for x in range(math.ceil(self.max_val)+1):
         for x in range(0, math.ceil(self.max_val*1000), 10):
             c.line(self.margins['left'] + x*scale/1000, self.margins['bottom'],
                    self.margins['left'] + x*scale/1000, self.margins['bottom']+3)
             c.drawCentredString(self.margins['left'] + x*scale/1000,
                                 self.margins['bottom']+5, "{0:.1f}".format(x))
-
-#
-# zip reports
-#
-# src_dir:    This directory should contain all the pdf reports.
-# dst_fpath:  The path to the zip file that will be created.
-#
-def zip_reports(corpus_id, src_dir, dst_dir, dst_file):
-    zipf = zipfile.ZipFile(os.path.join(dst_dir, dst_file), 'w', zipfile.ZIP_DEFLATED)
-
-    # for root, dirs, files in os.walk(src_dir):
-    #     for file in files:
-    #         if not file.startswith("."):
-    #             # zipf.write(os.path.join(root, file))  # original
-    #             zipf.write(os.path.relpath(f, root))
-    #             zipf.write(os.path.join(root, file), start=dst_dir)
-
-    #cmd = "chmod 644 {}".format(os.path.join(dst_dir, dst_file))
-    #os.system("echo {} |sudo -S {}".format('MdiH123.', cmd))
-
-    for _, _, files in os.walk(src_dir):
-        for filename in files:
-            absname = os.path.join(src_dir, filename)
-            arcname = os.path.join(corpus_id, filename)
-            zipf.write(absname, arcname)
-    zipf.close()
 
 def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
     """Generate all of the pdf reports.
@@ -203,10 +169,14 @@ def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
     @param bp_data - the data frame of the box plot data."""
     # Get assignment information,
     #  assumes that the corpus is all from a single assignment.
-    assignment_id = Filesystem.query.filter(
-        Filesystem.id.in_([d['id'] for d in corpus])).first().assignment
-    assignment_entry = Assignment.query.get(assignment_id)
-
+    assignment_entry = None
+    with session_scope() as session:
+        assignment_id = session.query(Filesystem).filter_by(
+            id in [d['id'] for d in corpus]).first().assignment
+        #Filesystem.id.in_([d['id'] for d in corpus])).first().assignment
+        assignment_entry = session.query(Assignment).get(assignment_id)
+    if not assignment_entry:
+        raise Exception('Could not retrieve Assignment.')
     descriptions = {
         'course': assignment_entry.course,
         'assignment': assignment_entry.name,
@@ -214,7 +184,7 @@ def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
         'intro': intro,
         'stv_intro': stv_intro
     }
-    logging.info("{}".format(descriptions))
+    logging.info("%s", descriptions)
 
 
     def get_cat_descriptions(cats, dict_name):
@@ -356,16 +326,9 @@ def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
     cat_descriptions = get_cat_descriptions(categories, dict_name)
 
     # create a document with 3 templates
-    # report_dir = os.path.join(dst_dir, "{}_reports".format(corpus_id))
-    #report_dir = tempfile.TemporaryDirectory()
-    #if not os.path.exists(report_dir):
-    #    os.makedirs(report_dir)
     zip_stream = io.BytesIO()
     with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
          io.BytesIO() as all_reports:
-        # tempfile.TemporaryDirectory() as report_dir, \
-        # tempfile.NamedTemporaryFile(suffix='_all.pdf') as allfpath:
-        #fpath = os.path.join(report_dir, "_{}_all.pdf".format(corpus_id))
         doc = BaseDocTemplate(all_reports, pagesize=letter,
                               rightMargin=0.75*inch, leftMargin=1.5*inch,
                               topMargin=0.5*inch, bottomMargin=0.5*inch)
