@@ -1,10 +1,11 @@
+"""Retrieves and compiles tone information for a dictionary."""
 import logging
 from flask import current_app
 from flask_restful import abort
 from marshmallow import Schema, fields, post_load, ValidationError
 import requests
 
-class DocuScopeTone():
+class DocuScopeTone(): #pylint: disable=R0903
     """A DocuScope Tone entry."""
     def __init__(self, cluster, dimension, lats):
         self.cluster = cluster or '***NO CLUSTER***'
@@ -12,6 +13,7 @@ class DocuScopeTone():
         self.lats = lats or ['***NO CLASS***']
     @property
     def lat(self):
+        """Return the main lat."""
         return self.lats[0]
 
 class DocuScopeToneSchema(Schema):
@@ -21,7 +23,7 @@ class DocuScopeToneSchema(Schema):
     lats = fields.List(fields.String())
 
     @post_load
-    def make_lat(self, data):
+    def make_lat(self, data): #pylint: disable=R0201
         """Convert json data to a DocuScopeTone object."""
         return DocuScopeTone(**data)
 DST_SCHEMA = DocuScopeToneSchema(many=True)
@@ -30,11 +32,10 @@ def get_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary."""
     req = requests.get("{}/dictionary/{}/tones".format(
         current_app.config['DICTIONARY_SERVER'], dictionary_name))
-    #logging.info(req.data.decode('utf-8'))
     try:
         tones, val_errors = DST_SCHEMA.load(req.json())
         if val_errors:
-            logging.warning("Parsing errors: {}".format(val_errors))
+            logging.warning("Parsing errors: %s", val_errors)
     except ValidationError as err:
         logging.error(err.messages)
         tones = err.valid_data
@@ -50,7 +51,7 @@ class DocuScopeTones():
         self.dictionary_name = dictionary_name
         self._tones = None
         self._lats = None
-        self._dim_to_clust = None # TODO: remove as unused
+        #self._dim_to_clust = None # TODO: remove as unused
 
     @property
     def tones(self):
@@ -97,9 +98,9 @@ class DocuScopeTones():
             clust_dict[tone.cluster].update(tone.dimension)
         return clust_dict
 
-    def map_dimension_to_cluster(self):
-        """Maps dimension -> cluster."""
-        return {tone.dimension: tone.cluster for tone in self.tones}
+    #def map_dimension_to_cluster(self):
+    #    """Maps dimension -> cluster."""
+    #    return {tone.dimension: tone.cluster for tone in self.tones}
 
     def get_lat_cluster(self, lat):
         """Returns the cluster for the given lat."""
@@ -107,7 +108,7 @@ class DocuScopeTones():
         try:
             cluster = self.lats[lat].cluster
         except KeyError:
-            logging.error("Cluster lookup: {} is not in LATS".format(lat))
+            logging.error("Cluster lookup: %s is not in LATS", lat)
         return cluster
 
     def get_dimension(self, lat):
@@ -116,11 +117,11 @@ class DocuScopeTones():
         try:
             dim = self.lats[lat].dimension
         except KeyError:
-            logging.error("Dimension lookup: {} is not in LATS".format(lat))
+            logging.error("Dimension lookup: %s is not in LATS", lat)
         return dim
 
-    def get_cluster(self, dimension):
-        """Returns the cluster for the given dimension."""
-        if not self._dim_to_clust:
-            self._dim_to_clust = self.map_dimension_to_cluster()
-        return self._dim_to_clust[dimension]
+#    def get_cluster(self, dimension):
+#        """Returns the cluster for the given dimension."""
+#        if not self._dim_to_clust:
+#            self._dim_to_clust = self.map_dimension_to_cluster()
+#        return self._dim_to_clust[dimension]

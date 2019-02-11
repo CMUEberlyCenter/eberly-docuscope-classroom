@@ -10,7 +10,7 @@ def get_secret(env_var, default=None):
     return Path(efile).read_text().strip() if efile else os.getenv(env_var, default)
 
 
-class Config():
+class Config(): #pylint: disable=R0903
     """Configuration object used as part of initializing this Flask app."""
     DICTIONARY_SERVER = os.getenv('DICTIONARY_SERVER', 'http://dictionary')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

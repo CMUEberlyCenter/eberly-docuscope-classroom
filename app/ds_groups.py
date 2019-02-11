@@ -6,6 +6,9 @@ For Suguru: group selector
 
 @author: hseltman
 """
+import random
+import copy
+import pandas
 
 def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
                     randomize=True, verbose=False):
@@ -42,16 +45,14 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
             'qualities': the qualities of the individual groups
             'quality': the quality of the worst group in the grouping
     """
-    import pandas
-
     # Verify input
-    if type(dtf) is not pandas.core.frame.DataFrame:
+    if not isinstance(dtf, pandas.core.frame.DataFrame):
         raise Exception("'dtf' is not a pandas DataFrame")
-    if type(group_size) is not int:
+    if not isinstance(group_size, int):
         raise Exception("'group_size' is not an integer")
-    if type(min_group_size) is not int:
+    if not isinstance(min_group_size, int):
         raise Exception("'min_group_size' is not an integer")
-    if type(nsim) is not int:
+    if not isinstance(nsim, int):
         raise Exception("'nsim' is not an integer")
 
     n = dtf.shape[0]
@@ -84,23 +85,20 @@ def max_abs_diff(x, y):
     d = [abs(a-b) for (a, b) in zip(x, y)]
     return max(d)
 
-def order(v, small=0.01):
+def order(vals, small=0.01):
     """ Given a list of values, return a list of the indices of the largest
         value, next to largest, etc.
         Uses 'small' to add random values of that order of magnitude to
         resolve ties (if needed)
     """
-    import copy
-    import random
-    cpy = [v.count(i) for i in v]
-    max_cpy = max(cpy)
-    s = copy.copy(v)
-    s.sort(reverse=True)
+    max_cpy = max([vals.count(i) for i in vals])
+    slav = copy.copy(vals)
+    slav.sort(reverse=True)
     if max_cpy > 1:
-        v = [i + random.uniform(-small, small) for i in v]
-        s = copy.copy(v)
-        s.sort(reverse=True)
-    return [v.index(i) for i in s]
+        vals = [i + random.uniform(-small, small) for i in vals]
+        slav = copy.copy(vals)
+        slav.sort(reverse=True)
+    return [vals.index(i) for i in slav]
 
 
 def make_pairs(data, ids, group_size, min_group_size, randomize=True):
@@ -133,8 +131,6 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
             grouping as the minumum in each group of the k maximums.
         'quality': the maximum of the 'qualities'
     """
-    import random
-    import copy
     n = len(data)
     ng = n // group_size
     grps = []
@@ -146,8 +142,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
         if grp == ng - 1 and n == group_size:
             grps.append(ids)
             ids = []
-            q = [max_abs_diff(data[0], b) for b in data[1:]]
-            qualities.append(max(q))
+            qualities.append(max([max_abs_diff(data[0], b) for b in data[1:]]))
         else:
             if randomize:
                 # Swap first student with a random student ('data' and 'ids')
@@ -177,8 +172,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
     if n_left > 0 and n_left >= min_group_size:
         grps.append(ids)
         extra = []
-        q = [max_abs_diff(data[0], b) for b in data[1:]]
-        qualities.append(min(q))
+        qualities.append(min([max_abs_diff(data[0], b) for b in data[1:]]))
     else:
         extra = ids
 
@@ -201,8 +195,7 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
                 only if there are ties)
     Return value is a dictionary like from make_pairs(), but without 'extra'.
     """
-    import copy
-    best_group = None
+    best_group = {'quality': float('-inf')}
     for i_sim in range(nsim):
         # generate a grouping, possibly with left-over students
         trial = make_pairs(data=data, ids=ids, group_size=group_size,
@@ -210,7 +203,7 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
                            randomize=randomize)
         # Adjust for left-over students (may have improved quality)
         n_left = len(trial['extra'])
-        if n_left > 0 and n_left < min_group_size:
+        if 0 < n_left < min_group_size:
             ng = len(trial['groups'])
             for left_index in range(n_left):
                 index = left_index % ng

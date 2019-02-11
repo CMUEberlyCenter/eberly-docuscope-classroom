@@ -10,9 +10,9 @@ reportlab = "*"
 pandas = "*"
 marshmallow = "*"
 "beautifulsoup4" = "*"
-flask-sqlalchemy = "*"
 requests = "*"
 mysqlclient = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 pylint = "*"

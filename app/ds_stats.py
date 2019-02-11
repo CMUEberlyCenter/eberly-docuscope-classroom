@@ -6,31 +6,36 @@ from flask_restful import abort
 import pandas as pd
 
 from ds_tones import DocuScopeTones
-import ds_groups
-from ds_db import Filesystem
+from ds_groups import *
+from ds_db import Filesystem, session_scope
 
 def get_ds_stats(documents):
     """Retrieve tagger statistics for the given documents."""
     stats = {}
     ds_dictionaries = set()
-    for document in Filesystem.query.filter(Filesystem.id.in_([d['id'] for d in documents])):
-        if document.processed:
-            doc = document.processed
-            # TODO: if ds stuff not there, start tagging/wait
-            ser = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
-            ser['total_words'] = doc['ds_num_word_tokens']
-            ser['title'] = document.fullname if document.ownedby is '0' else \
-                         '.'.join(document.name.split('.')[0:-1])
-            stats[document.id] = ser
-            ds_dictionaries.add(doc['ds_dictionary'])
+    with session_scope() as session:
+        for document in session.query(Filesystem).filter(
+                Filesystem.id.in_([d['id'] for d in documents])):
+            if document.processed:
+                doc = document.processed
+                # TODO: if ds stuff not there, start tagging/wait
+                ser = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
+                ser['total_words'] = doc['ds_num_word_tokens']
+                ser['title'] = document.fullname if document.ownedby is 'student' else \
+                               '.'.join(document.name.split('.')[0:-1])
+                stats[document.id] = ser
+                ds_dictionaries.add(doc['ds_dictionary'])
     if not stats:
-        abort(500, message="ERROR: No tagged documents were submitted, please close this window and wait until all of the selected documents are tagged before submitting again.")
+        abort(500, message="ERROR: No tagged documents were submitted, "
+              + "please close this window and wait until all of the selected "
+              + "documents are tagged before submitting again.")
     ds_dictionary = 'default'
     if len(ds_dictionaries) == 1:
         ds_dictionary = list(ds_dictionaries)[0]
     else:
         logging.error("Inconsistant dictionaries in corpus!!!")
-        #TODO: throw error
+        abort(500, message="ERROR: Inconsistant dictionaries used in corpus, "
+              + "documents are not compairable.")
 
     return pd.DataFrame(data=stats).transpose(), ds_dictionary
 
@@ -42,14 +47,14 @@ def get_level_frame(stats_frame, level, tones):
             sumframe = stats_frame.filter(lats)
             if not sumframe.empty:
                 data[dim] = sumframe.transpose().sum()
-                logging.debug("get_level_frame dimension: {}, sum:".format(dim))
+                logging.debug("get_level_frame dimension: %s, sum:", dim)
                 logging.debug(data[dim])
     elif level == 'Cluster':
         for cluster, clats in tones.map_cluster_to_lats().items():
             sumframe = stats_frame.filter(clats)
             if not sumframe.empty:
                 data[cluster] = sumframe.transpose().sum()
-                logging.debug("get_level_frame cluster: {}, sum:".format(cluster))
+                logging.debug("get_level_frame cluster: %s, sum:", cluster)
                 logging.debug(data[cluster])
     frame = pd.DataFrame(data)
 
@@ -61,13 +66,13 @@ def get_level_frame(stats_frame, level, tones):
 
 def get_boxplot_data(corpus, level, tones=None):
     """Given a corpus and level, generate the box plots."""
-    logging.info("get_boxplot_data({}, {})".format(corpus, level))
+    logging.info("get_boxplot_data(%s, %s)", corpus, level)
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     if not tones:
         tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
+    logging.info(" number of tones: %d", len(tones.tones))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
     frame = frame.drop('title')
@@ -84,16 +89,16 @@ def get_boxplot_data(corpus, level, tones=None):
     logging.info("get_boxplot_data categories")
     logging.info(categories)
 
-    q1 = frame.quantile(q=0.25)[::-1]
-    q2 = frame.quantile(q=0.5)[::-1]
-    q3 = frame.quantile(q=0.75)[::-1]
+    quant1 = frame.quantile(q=0.25)[::-1]
+    quant2 = frame.quantile(q=0.5)[::-1]
+    quant3 = frame.quantile(q=0.75)[::-1]
     qmin = frame.quantile(q=0)[::-1]
     qmax = frame.quantile(q=1)[::-1]
-    iqr = q3 - q1
-    upper_inner_fence = q2 + 1.5 * iqr
-    #upper_outer_fence = q2 + 3.0 * iqr
-    lower_inner_fence = (q2 - 1.5 * iqr).apply(lambda x: 0 if x < 0 else x)
-    #lower_outer_fence = (q2 - 3.0 * iqr).apply(lambda x: 0 if x < 0 else x)
+    iqr = quant3 - quant1
+    upper_inner_fence = quant2 + 1.5 * iqr
+    #upper_outer_fence = quant2 + 3.0 * iqr
+    lower_inner_fence = (quant2 - 1.5 * iqr).apply(lambda x: 0 if x < 0 else x)
+    #lower_outer_fence = (quant2 - 3.0 * iqr).apply(lambda x: 0 if x < 0 else x)
 
     outliers = []
     for category in frame:
@@ -106,9 +111,9 @@ def get_boxplot_data(corpus, level, tones=None):
                 })
 
     res = {
-        "q1": q1,
-        "q2": q2,
-        "q3": q3,
+        "q1": quant1,
+        "q2": quant2,
+        "q3": quant3,
         "min": qmin,
         "max": qmax,
         "uifence": upper_inner_fence,
@@ -122,12 +127,12 @@ def get_boxplot_data(corpus, level, tones=None):
 
 def get_rank_data(corpus, level, sortby):
     """Generate the rankings of documents at the given granularity by the given dimension."""
-    logging.info("get_rank_data({}, {}, {})".format(corpus, level, sortby))
+    logging.info("get_rank_data(%s, %s, %s)", corpus, level, sortby)
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
+    logging.info(" number of tones: %d", len(tones.tones))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
 
@@ -142,16 +147,10 @@ def get_rank_data(corpus, level, sortby):
     frame = frame.fillna(0)
 
     if sortby not in frame:
-        logging.error("{} is not in {}".format(sortby, frame.columns))
+        logging.error("%s is not in %s", sortby, frame.columns)
         abort(422, message="{} is not in {}".format(sortby, frame.columns.values))
     frame = frame.loc[:, ['title', sortby]]
-    #logging.debug(frame)
-    #cols_to_delete = list(frame.columns.values)
 
-    #cols_to_delete.remove(sortby)
-    #cols_to_delete.remove('title')
-
-    #frame.drop(cols_to_delete, axis=1, inplace=True)
     frame.reset_index(inplace=True)
     frame.rename(columns={'title': 'text', sortby: 'value'}, inplace=True)
 
@@ -164,12 +163,12 @@ def get_rank_data(corpus, level, sortby):
 
 def get_scatter_data(corpus, level, cat_x, cat_y):
     """Generate the scatterplot data for the given documents."""
-    logging.info("get_scatter_data({}, {}, {}, {})".format(corpus, level, cat_x, cat_y))
+    logging.info("get_scatter_data(%s, %s, %s, %s)", corpus, level, cat_x, cat_y)
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
+    logging.info(" number of tones: %d", len(tones.tones))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
 
@@ -191,12 +190,12 @@ def get_scatter_data(corpus, level, cat_x, cat_y):
 
 def get_pairings(corpus, level, group_size):
     """Generate the pairing of documents."""
-    logging.info("get_pairings({}, {}, {})".format(corpus, level, group_size))
+    logging.info("get_pairings(%s, %s, %s)", corpus, level, group_size)
     stat_frame, ds_dictionary = get_ds_stats(corpus)
     logging.info(" get_ds_stats =>")
     logging.info(stat_frame)
     tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: {}".format(len(tones.tones)))
+    logging.info(" number of tones: %d", len(tones.tones))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
 
@@ -220,7 +219,11 @@ def get_html_string(text_id, format_paragraph=True):
         "dict": {}
     }
     ds_dictionary = 'default'
-    document = Filesystem.query.filter_by(id=text_id).first()
+    document = None
+    with session_scope() as session:
+        document = session.query(Filesystem).filter_by(id=text_id).first()
+    if not document:
+        raise Exception('File record not found for {}'.format(text_id))
     doc = document.processed #json.loads(document.processed)
     html_content = doc['ds_output']
     tags_dicts = doc['ds_tag_dict']
@@ -232,7 +235,7 @@ def get_html_string(text_id, format_paragraph=True):
         html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
     res['html_content'] = html_content
     if tags_dicts:
-        logging.info("Retrieving tones for {}".format(ds_dictionary))
+        logging.info("Retrieving tones for %s", ds_dictionary)
         tones = DocuScopeTones(ds_dictionary)
         cats = {}
         for lat in tags_dicts.keys():
