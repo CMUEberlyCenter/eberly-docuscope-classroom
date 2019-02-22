@@ -70,7 +70,7 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
           .style('top', (d3.event.pageY-30)+'px');
       })
       .on('mouseout', d => d3.select('div.tooltip').transition().duration(500).style('opacity',0))
-      .on('click', d => window.open(`/stv/${d.text_id}`));
+      .on('click', d => window.open(`stv/${d.text_id}`));
   }
 
   ngOnInit() {
