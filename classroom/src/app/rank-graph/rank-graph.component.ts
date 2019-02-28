@@ -28,9 +28,9 @@ export class RankGraphComponent implements OnInit, OnChanges {
     return 100 * value / this.max_value;
   }
 
-  draw_axis() {
+  /*draw_axis() {
     const x = d3.scaleLinear()
-      .domain([0, this.max_value * 100])
+      .domain([0, this.max_value*100])
       .range([0, 100]).nice();
     const axis_x = d3.axisTop(x);
     const axis = d3.select('.grid_axis')
@@ -93,7 +93,7 @@ export class RankGraphComponent implements OnInit, OnChanges {
       .attr('height', y(.6))
       .attr('fill', '#C6C6C6')
       .attr('width', d => x(d.value) - x(0));
-  }
+  }*/
 
   open(doc_id: string) {
     window.open(doc_id);
