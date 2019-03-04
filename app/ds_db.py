@@ -3,7 +3,7 @@
 #from create_app import db
 from contextlib import contextmanager
 from flask import current_app
-from sqlalchemy import BINARY, Column, Enum, JSON, \
+from sqlalchemy import VARBINARY, Column, Enum, Integer, JSON, \
     LargeBinary, SmallInteger, String, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -11,7 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 #db.Model.metadata.reflect(db.get_engine(app=current_app))
 
 TINY_TEXT = String(255)
-UUID = BINARY(16)
+UUID = VARBINARY(16)
 BASE = declarative_base()
 
 class Filesystem(BASE): #pylint: disable=R0903
@@ -20,7 +20,7 @@ class Filesystem(BASE): #pylint: disable=R0903
 
     id = Column(UUID, primary_key=True)
     name = Column(TINY_TEXT)
-    assignment = Column(UUID)
+    assignment = Column(Integer)
     owner = Column(TINY_TEXT)
     created = Column(TIMESTAMP)
     fullname = Column(TINY_TEXT)
@@ -48,7 +48,8 @@ class Assignment(BASE): #pylint: disable=R0903
     """The assignments table in the docuscope database."""
     __tablename__ = 'assignments'
 
-    id = Column(UUID, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    oli_id = Column(VARBINARY(20))
     dictionary = Column(SmallInteger)
     name = Column(TINY_TEXT)
     course = Column(TINY_TEXT)
