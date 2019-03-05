@@ -1,4 +1,8 @@
-"""Retrieves and compiles tone information for a dictionary."""
+"""
+Defines class DocuScopeTones which is used to retrieve and parse tones
+for a dictionary.
+"""
+
 import logging
 from flask import current_app
 from flask_restful import abort
@@ -13,7 +17,7 @@ class DocuScopeTone(): #pylint: disable=R0903
         self.lats = lats or ['***NO CLASS***']
     @property
     def lat(self):
-        """Return the main lat."""
+        """Returns the index lat (first one) in the lats."""
         return self.lats[0]
 
 class DocuScopeToneSchema(Schema):
@@ -31,16 +35,40 @@ DST_SCHEMA = DocuScopeToneSchema(many=True)
 def get_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary."""
     req = requests.get("{}/dictionary/{}/tones".format(
-        current_app.config['DICTIONARY_SERVER'], dictionary_name))
+        current_app.config['DICTIONARY_SERVER'], dictionary_name),
+                       timeout=1)
+    # TODO: Instead of handling errors at this level, re-raise and let caller
+    # deal so that it could potentially be retried.
+    # This also indicates that serving dictionary files is probably the wrong
+    # way to do this at scale and a file server or database should be better.
+    try:
+        req.raise_for_status()
+    except requests.exceptions.HTTPError as h_err:
+        logging.error("Error retrieving %s tones: %s - %s",
+                      dictionary_name, req.status_code, h_err)
+        abort(422, message="Error retrieving {}: {}".format(dictionary_name, h_err))
+    except requests.exceptions.Timeout:
+        logging.error("Dictionary server timed out retrieving tones for %s",
+                      dictionary_name)
+        abort(422, message="Timeout error retrieving tones for {}".format(dictionary_name))
+    #logging.info(req.data.decode('utf-8'))
     try:
         tones, val_errors = DST_SCHEMA.load(req.json())
         if val_errors:
             logging.warning("Parsing errors: %s", val_errors)
     except ValidationError as err:
+        logging.error("Validation Error rparsing tones for %s", dictionary_name)
         logging.error(err.messages)
         tones = err.valid_data
-        abort(422, message="Errors in parsing tones: {}".format(err.messages))
+        abort(422, message="Errors in parsing tones for {}: {}".format(
+            dictionary_name, err.messages))
+    except ValueError as v_err:
+        logging.error("Invalid JSON returned for %s", dictionary_name)
+        logging.error("%s", v_err)
+        tones = None
+        abort(422, message="Errors decoding tones for {}: {}".format(dictionary_name, v_err))
     if not tones:
+        logging.error("No tones were retrieved for %s.", dictionary_name)
         abort(422,
               message="No tones were retrieved for {}.".format(dictionary_name))
     return tones
@@ -51,7 +79,7 @@ class DocuScopeTones():
         self.dictionary_name = dictionary_name
         self._tones = None
         self._lats = None
-        #self._dim_to_clust = None # TODO: remove as unused
+        #self._dim_to_clust = None # TODO: remove as currently unused
 
     @property
     def tones(self):

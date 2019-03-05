@@ -208,7 +208,7 @@ def get_pairings(corpus, level, group_size):
     frame = frame.transpose().fillna(0).set_index('title')
     return ds_groups.get_best_groups(frame, group_size=group_size)
 
-def get_html_string(text_id, format_paragraph=True):
+def get_html_string(text_id, format_paragraph=True, tones=None):
     """Retrieve the html formatted string of the given document."""
     tags_dicts = {}
     html_content = ""
@@ -235,8 +235,9 @@ def get_html_string(text_id, format_paragraph=True):
         html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
     res['html_content'] = html_content
     if tags_dicts:
-        logging.info("Retrieving tones for %s", ds_dictionary)
-        tones = DocuScopeTones(ds_dictionary)
+        if not tones:
+            logging.info("Retrieving tones for %s", ds_dictionary)
+            tones = DocuScopeTones(ds_dictionary)
         cats = {}
         for lat in tags_dicts.keys():
             cats[lat] = {"dimension": tones.get_dimension(lat),
