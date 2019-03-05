@@ -57,7 +57,7 @@ def get_reports(corpus, intro="", stv_intro=""):
     bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones) #TODO refactor so it does not do get_level_frame/get_ds_stats twice
     frame = get_level_frame(stat_frame, 'Cluster', tones)
     logging.info(frame)
-    return generate_pdf_reports(frame, corpus, ds_dictionary, intro, stv_intro, bp_data)
+    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, intro, stv_intro, bp_data)
 
 
 class Divider(Flowable):
@@ -192,12 +192,13 @@ def zip_reports(corpus_id, src_dir, dst_dir, dst_file):
             zipf.write(absname, arcname)
     zipf.close()
 
-def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
+def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data):
     """Generate all of the pdf reports.
 
     @param df - the data frame for the corpus.
     @param corpus - a list of document ids.
     @param dict_name - the name of the DocuScope dictionary used.
+    @param tones - the DocuScopeTones object for the dictionary.
     @param intro - a string used as the introduction to the reports.
     @param stv_intro - a string uses as the introduction to the text analysis.
     @param bp_data - the data frame of the box plot data."""
@@ -575,7 +576,7 @@ def generate_pdf_reports(df, corpus, dict_name, intro, stv_intro, bp_data):
                 content.append(Spacer(1, 2*pica))
 
                 # get the text with docuscope tags, and reformat the text for the report.
-                tagged_str = get_html_string(text_id, format_paragraph=False)
+                tagged_str = get_html_string(text_id, format_paragraph=False, tones=tones)
 
                 soup = bs(tagged_str['html_content'], "html.parser")
 
