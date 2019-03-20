@@ -2,7 +2,8 @@
 Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
-
+import gzip
+import json
 import logging
 from flask import current_app
 from flask_restful import abort
@@ -32,6 +33,41 @@ class DocuScopeToneSchema(Schema):
         return DocuScopeTone(**data)
 DST_SCHEMA = DocuScopeToneSchema(many=True)
 
+def get_local_tones(dictionary_name="default"):
+    """Retrieve the DocuScope tones data for a dictionary from a local file."""
+    #TODO: add checks for file existance and valid tones file.
+    #TODO: parameterize dictionary directory.
+    try:
+        with gzip.open("/app/dictionaries/{}_tones.json.gz".format(dictionary_name), 'rt') as jin:
+            data = json.loads(jin.read())
+    except ValueError as enc_error:
+        logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
+        abort(422, message="Error reading {}_tones.json.gz: {}".format(dictionary_name, enc_error))
+    except OSError as os_error:
+        logging.error("Error reading %s tones: %s", dictionary_name, os_error)
+        abort(422, message="Error reading {}_tones.json.gz: {}".format(dictionary_name, os_error))
+    try:
+        tones, val_errors = DST_SCHEMA.load(data)
+        if val_errors:
+            logging.warning("Parsing errors: %s", val_errors)
+    except ValidationError as err:
+        logging.error("Validation Error rparsing tones for %s", dictionary_name)
+        logging.error(err.messages)
+        tones = err.valid_data
+        abort(422, message="Errors in parsing tones for {}: {}".format(
+            dictionary_name, err.messages))
+    except ValueError as v_err:
+        logging.error("Invalid JSON returned for %s", dictionary_name)
+        logging.error("%s", v_err)
+        tones = None
+        abort(422, message="Errors decoding tones for {}: {}".format(dictionary_name, v_err))
+    if not tones:
+        logging.error("No tones were retrieved for %s.", dictionary_name)
+        abort(422,
+              message="No tones were retrieved for {}.".format(dictionary_name))
+    return tones
+
+#@depricated
 def get_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary."""
     req = requests.get("{}/dictionary/{}/tones".format(
@@ -85,7 +121,7 @@ class DocuScopeTones():
     def tones(self):
         """Retrieve the tones."""
         if not self._tones:
-            self._tones = get_tones(self.dictionary_name)
+            self._tones = get_local_tones(self.dictionary_name)
         return self._tones
 
     @property

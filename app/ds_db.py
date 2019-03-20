@@ -1,18 +1,39 @@
-"""The database schemas for the docuscope database."""
-#from sqlalchemy.orm import relationship, backref
-#from create_app import db
+"""Schemas for the SQL DocuScope sidecar database."""
+import uuid
 from contextlib import contextmanager
 from flask import current_app
-from sqlalchemy import VARBINARY, Column, Enum, Integer, JSON, \
-    LargeBinary, SmallInteger, String, TIMESTAMP
+from sqlalchemy import Boolean, Column, Enum, Integer, JSON, ForeignKey, \
+    LargeBinary, SmallInteger, String, TIMESTAMP, VARBINARY
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import TypeDecorator
+from sqlalchemy.orm import relationship
 
-#db = SQLAlchemy(current_app)
-#db.Model.metadata.reflect(db.get_engine(app=current_app))
-
-TINY_TEXT = String(255)
-UUID = VARBINARY(16)
 BASE = declarative_base()
+TINY_TEXT = String(255)
+
+class UUID(TypeDecorator):
+    """A sqlalchemy type for handling UUIDs stored as bytes."""
+    #pylint: disable=W0223
+    impl = VARBINARY(16)
+
+    def process_bind_param(self, value, dialect):
+        """When binding the parameter, convert to bytes."""
+        if value is None:
+            return value
+        if not isinstance(value, uuid.UUID):
+            if isinstance(value, str):
+                return uuid.UUID(value).bytes
+            if isinstance(value, bytes):
+                return uuid.UUID(bytes=value).bytes
+            return uuid.UUID(value).bytes
+        return value.bytes
+    def process_result_value(self, value, dialect):
+        """When processing results, convert to UUID."""
+        if value is None:
+            return value
+        if not isinstance(value, uuid.UUID):
+            value = uuid.UUID(bytes=value)
+        return value
 
 class Filesystem(BASE): #pylint: disable=R0903
     """The filesystem table in the docuscope database."""
@@ -20,23 +41,25 @@ class Filesystem(BASE): #pylint: disable=R0903
 
     id = Column(UUID, primary_key=True)
     name = Column(TINY_TEXT)
-    assignment = Column(Integer)
+    assignment = Column(Integer, ForeignKey("assignments.id"))
+    Assignment = relationship("Assignment")
     owner = Column(TINY_TEXT)
     created = Column(TIMESTAMP)
     fullname = Column(TINY_TEXT)
-    state = Column(Enum('pending', 'subitted', 'tagged', 'error'))
+    state = Column(Enum('pending', 'submitted', 'tagged', 'error'))
     ownedby = Column(Enum('student', 'instructor'))
     content = Column(LargeBinary)
     processed = Column(JSON)
     pdf = Column(LargeBinary)
 
     def __repr__(self):
-        return "<File(id='{}', state='{}', assignment='{}'>"\
-            .format(self.id, self.state, self.assignment)
+        return "<File(id='{}', state='{}'>"\
+            .format(self.id, self.state)
 
 class DSDictionary(BASE): #pylint: disable=R0903
     """The valid dictionaries in the docuscope database."""
     __tablename__ = 'dictionaries'
+
     id = Column(SmallInteger, primary_key=True)
     name = Column(TINY_TEXT)
     class_info = Column(JSON)
@@ -50,14 +73,18 @@ class Assignment(BASE): #pylint: disable=R0903
 
     id = Column(Integer, primary_key=True)
     oli_id = Column(VARBINARY(20))
-    dictionary = Column(SmallInteger)
+    dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
+    Dictionary = relationship("DSDictionary")
     name = Column(TINY_TEXT)
     course = Column(TINY_TEXT)
     instructor = Column(TINY_TEXT)
+    showmodel = Column(Boolean)
+    report_introduction = Column(String)
+    report_stv_introduction = Column(String)
 
     def __repr__(self):
         return "<Assignment(id='{}', name='{}', dictionary='{}', "\
-            .format(self.id, self.name, self.dictionary)
+            .format(self.id, self.name, self.oli_id)
 
 @contextmanager
 def session_scope():

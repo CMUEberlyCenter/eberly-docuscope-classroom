@@ -7,24 +7,28 @@ import pandas as pd
 
 from ds_tones import DocuScopeTones
 from ds_groups import *
-from ds_db import Filesystem, session_scope
+from ds_db import Assignment, DSDictionary, Filesystem, session_scope
 
 def get_ds_stats(documents):
     """Retrieve tagger statistics for the given documents."""
     stats = {}
     ds_dictionaries = set()
     with session_scope() as session:
-        for document in session.query(Filesystem).filter(
-                Filesystem.id.in_([d['id'] for d in documents])):
-            if document.processed:
-                doc = document.processed
+        for doc, fullname, ownedby, filename, doc_id, ds_dic in \
+            session.query(Filesystem.processed, Filesystem.fullname,
+                          Filesystem.ownedby, Filesystem.name, Filesystem.id,
+                          DSDictionary.name)\
+                   .filter(Filesystem.id.in_([d['id'] for d in documents]))\
+                   .filter(Assignment.id == Filesystem.assignment)\
+                   .filter(DSDictionary.id == Assignment.dictionary):
+            if doc:
                 # TODO: if ds stuff not there, start tagging/wait
                 ser = pd.Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
                 ser['total_words'] = doc['ds_num_word_tokens']
-                ser['title'] = document.fullname if document.ownedby is 'student' else \
-                               '.'.join(document.name.split('.')[0:-1])
-                stats[document.id] = ser
-                ds_dictionaries.add(doc['ds_dictionary'])
+                ser['title'] = fullname if ownedby is 'student' else \
+                               '.'.join(filename.split('.')[0:-1])
+                stats[str(doc_id)] = ser
+                ds_dictionaries.add(ds_dic)
     if not stats:
         abort(500, message="ERROR: No tagged documents were submitted, "
               + "please close this window and wait until all of the selected "
@@ -219,16 +223,15 @@ def get_html_string(text_id, format_paragraph=True, tones=None):
         "dict": {}
     }
     ds_dictionary = 'default'
-    document = None
+    doc = None
     with session_scope() as session:
-        document = session.query(Filesystem).filter_by(id=text_id).first()
-    if not document:
+        doc, filename = session.query(Filesystem.processed, Filesystem.name).filter_by(id=text_id).first()
+    if not doc:
         raise Exception('File record not found for {}'.format(text_id))
-    doc = document.processed #json.loads(document.processed)
     html_content = doc['ds_output']
     tags_dicts = doc['ds_tag_dict']
     res['word_count'] = doc['ds_num_word_tokens']
-    res['text_id'] = document.name
+    res['text_id'] = filename
     ds_dictionary = doc['ds_dictionary']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     if format_paragraph:

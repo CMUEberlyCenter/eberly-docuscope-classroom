@@ -5,6 +5,7 @@
 # system
 import copy
 import io
+import json
 import logging
 import math
 #import os
@@ -23,7 +24,7 @@ from reportlab.platypus import BaseDocTemplate, PageTemplate,\
 from reportlab.platypus import Frame, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-import requests
+#import requests
 
 from flask import current_app
 
@@ -170,18 +171,17 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
     @param bp_data - the data frame of the box plot data."""
     # Get assignment information,
     #  assumes that the corpus is all from a single assignment.
-    assignment_entry = None
+    #assignment_entry = None
     with session_scope() as session:
-        assignment_id = session.query(Filesystem).filter_by(
-            id in [d['id'] for d in corpus]).first().assignment
-        #Filesystem.id.in_([d['id'] for d in corpus])).first().assignment
-        assignment_entry = session.query(Assignment).get(assignment_id)
-    if not assignment_entry:
+        qry = session.query(Assignment.course, Assignment.name, Assignment.instructor).filter(Assignment.id == Filesystem.assignment).filter(Filesystem.id.in_([d['id'] for d in corpus]))
+        #logging.error("%s",qry)
+        assignment_course, assignment_name, assignment_instructor = qry.first()
+    if not assignment_course:
         raise Exception('Could not retrieve Assignment.')
     descriptions = {
-        'course': assignment_entry.course,
-        'assignment': assignment_entry.name,
-        'instructor': assignment_entry.instructor,
+        'course': assignment_course, #assignment_entry.course,
+        'assignment': assignment_name, #assignment_entry.name,
+        'instructor': assignment_instructor, #assignment_entry.instructor,
         'intro': intro,
         'stv_intro': stv_intro
     }
@@ -189,13 +189,19 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
 
 
     def get_cat_descriptions(cats, dict_name):
-        """ From the dictionary 'dict_name', returns a set of cluster definitions for the
-            clusters included in the list 'cats'
+        """ From the dictionary 'dict_name', returns a set of cluster
+        definitions for the clusters included in the list 'cats'
         """
-        req = requests.get("{}/dictionary/{}/clusters".format(
-            current_app.config.get('DICTIONARY_SERVER'),
-            dict_name))
-        clusters = req.json() #json.loads(req.data.decode('utf-8'))
+        #req = requests.get("{}/dictionary/{}/clusters".format(
+        #    current_app.config.get('DICTIONARY_SERVER'),
+        #    dict_name))
+        try:
+            with open("/app/dictionaries/{}_clusters.json".format(dict_name)) as cin:
+                clusters = json.load(cin)
+        except OSError as err:
+            logging.error("While loading %s clusters: %s", dict_name, err)
+            raise
+        #clusters = req.json() #json.loads(req.data.decode('utf-8'))
         return {k:v for (k, v) in clusters.items() if k in cats}
 
     def find_bp(category, bp_data):
