@@ -106,6 +106,7 @@ export class RankDataEntry {
   index: string;
   text: string;
   value: number;
+  ownedby: string;
 }
 export class RankData {
   result: RankDataEntry[];
@@ -116,6 +117,7 @@ export class ScatterplotDataPoint {
   catY: number;
   title: string;
   text_id: string;
+  ownedby: string;
 }
 export class ScatterplotData {
   spdata: ScatterplotDataPoint[];

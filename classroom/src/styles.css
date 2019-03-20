@@ -50,3 +50,13 @@ body {
 .selected_text {
   background-color: pink;
 }
+
+/* scatterplot */
+circle.dot {
+  fill: skyblue;
+  cursor: pointer;
+}
+
+circle.dot.model {
+  fill: pink;
+}

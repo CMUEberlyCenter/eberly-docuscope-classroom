@@ -56,7 +56,7 @@ export class BoxplotGraphComponent implements OnInit {
     return y(value);
   }
 
-  draw() {
+  draw() { //depricated
     // console.log('boxplot-graph.draw', this.boxplot);
     const entry_height = 28;
     const top_margin = 2;

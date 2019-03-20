@@ -55,11 +55,12 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
     graph
       .enter().append('circle')
       .attr('class', 'dot')
+      .classed('model', d => d.ownedby === 'instructor')
       .attr('r', 6)
       .attr('cx', d => x(d.catX))
       .attr('cy', d => y(d.catY))
-      .style('fill', 'skyblue')
-      .style('cursor', 'pointer')
+      //.style('fill', 'skyblue')
+      //.style('cursor', 'pointer')
       .on('mouseover', d => {
         const div = d3.select('div.tooltip');
         div.transition().duration(200).style('opacity', .9);

@@ -27,6 +27,7 @@ def get_ds_stats(documents):
                 ser['total_words'] = doc['ds_num_word_tokens']
                 ser['title'] = fullname if ownedby is 'student' else \
                                '.'.join(filename.split('.')[0:-1])
+                ser['ownedby'] = ownedby
                 stats[str(doc_id)] = ser
                 ds_dictionaries.add(ds_dic)
     if not stats:
@@ -65,6 +66,7 @@ def get_level_frame(stats_frame, level, tones):
     logging.debug(frame)
     frame['total_words'] = stats_frame['total_words']
     frame['title'] = stats_frame['title']
+    frame['ownedby'] = stats_frame['ownedby']
     logging.debug(frame)
     return frame.transpose()
 
@@ -79,7 +81,7 @@ def get_boxplot_data(corpus, level, tones=None):
     logging.info(" number of tones: %d", len(tones.tones))
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
-    frame = frame.drop('title')
+    frame = frame.drop('title').drop('ownedby', errors='ignore')
     frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
     frame = frame.drop('total_words')
     frame = frame.drop('Other', errors='ignore')
@@ -104,7 +106,7 @@ def get_boxplot_data(corpus, level, tones=None):
     lower_inner_fence = (quant2 - 1.5 * iqr).apply(lambda x: 0 if x < 0 else x)
     #lower_outer_fence = (quant2 - 3.0 * iqr).apply(lambda x: 0 if x < 0 else x)
 
-    outliers = []
+    outliers = [] # ownedby is not needed
     for category in frame:
         for point_title, value in frame[category].iteritems():
             if value > upper_inner_fence[category] or value < lower_inner_fence[category]:
@@ -141,19 +143,21 @@ def get_rank_data(corpus, level, sortby):
     logging.info(frame)
 
     title_row = frame.loc['title':]
-    frame = frame.drop('title')
+    owner_row = frame.loc['ownedby':]
+    frame = frame.drop('title').drop('ownedby', errors='ignore')
 
     frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
     frame = frame.drop('total_words')
     frame = frame.drop('Other', errors='ignore')
     frame = frame.append(title_row)
+    frame = frame.append(owner_row)
     frame = frame.transpose()
     frame = frame.fillna(0)
 
     if sortby not in frame:
         logging.error("%s is not in %s", sortby, frame.columns)
         abort(422, message="{} is not in {}".format(sortby, frame.columns.values))
-    frame = frame.loc[:, ['title', sortby]]
+    frame = frame.loc[:, ['title', sortby, 'ownedby']]
 
     frame.reset_index(inplace=True)
     frame.rename(columns={'title': 'text', sortby: 'value'}, inplace=True)
@@ -177,17 +181,18 @@ def get_scatter_data(corpus, level, cat_x, cat_y):
     logging.info(frame)
 
     title_row = frame.loc['title']
-    frame = frame.drop('title')
+    owner_row = frame.loc['ownedby']
+    frame = frame.drop('title').drop('ownedby')
     frame = frame.drop('Other', errors='ignore')
     frame = frame.fillna(0)
     frame = frame.apply(lambda x: x.divide(x['total_words'])*100)
     frame = frame.drop('total_words')
-    frame = frame.append(title_row)
+    frame = frame.append(title_row).append(owner_row)
     frame = frame.transpose()
     if cat_x not in frame or cat_y not in frame:
         abort(422, message="Either '{}' or '{}' is not in {}."\
               .format(cat_x, cat_y, frame.columns.values))
-    frame = frame[[cat_x, cat_y, 'title']]
+    frame = frame[[cat_x, cat_y, 'title', 'ownedby']]
     frame['text_id'] = frame.index
     frame = frame.rename(columns={cat_x: 'catX', cat_y: 'catY'})
     return {'spdata': frame.to_dict('records')}
@@ -203,8 +208,10 @@ def get_pairings(corpus, level, group_size):
     frame = get_level_frame(stat_frame, level, tones)
     logging.info(frame)
 
+    # Use only student files.
+    frame = frame.loc[lambda frame: frame['ownedby'] is 'student']
     title_row = frame.loc['title':]
-    frame = frame.drop('title')
+    frame = frame.drop('title').drop('ownedby')
     frame = frame.apply(lambda x: x.divide(x['total_words']))
     frame = frame.drop('total_words')
     frame = frame.drop('Other', errors='ignore')
