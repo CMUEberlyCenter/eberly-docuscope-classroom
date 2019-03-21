@@ -15,7 +15,7 @@ export class NavComponent implements OnInit {
   }
   is_instructor() {
     const qmap = this._route.snapshot.queryParamMap;
-    return qmap && qmap.has('rolls') && qmap.get('rolls').search(/Instructor/i) >= 0;
+    return qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0;
   }
   ngOnInit() { }
 
