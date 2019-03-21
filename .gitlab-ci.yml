@@ -4,6 +4,7 @@ services:
   - docker:dind
 
 stages:
+  - check
   - build
   - test
   - release
@@ -16,6 +17,12 @@ variables:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
+lint:
+  stage: check
+  script:
+    - cd classroom
+    - npm install
+    - npm lint
 build:
   stage: build
   script:
