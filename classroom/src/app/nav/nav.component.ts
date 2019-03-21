@@ -13,6 +13,10 @@ export class NavComponent implements OnInit {
   is_current(id: string) {
     return id === `/${this._route.snapshot.url.join('/')}`;
   }
+  is_instructor() {
+    const qmap = this._route.snapshot.queryParamMap;
+    return qmap.has('rolls') && qmap.get('rolls').search(/Instructor/i) >= 0;
+  }
   ngOnInit() { }
 
 }
