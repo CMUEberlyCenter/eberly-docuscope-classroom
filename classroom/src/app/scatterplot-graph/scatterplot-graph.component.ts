@@ -59,8 +59,6 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
       .attr('r', 6)
       .attr('cx', d => x(d.catX))
       .attr('cy', d => y(d.catY))
-      //.style('fill', 'skyblue')
-      //.style('cursor', 'pointer')
       .on('mouseover', d => {
         const div = d3.select('div.tooltip');
         div.transition().duration(200).style('opacity', .9);
@@ -77,9 +75,6 @@ export class ScatterplotGraphComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     if (this.points) {
-      /*d3.select(".scatterplot_wait").remove();
-      d3.select(".scatterplot").append('g').attr('class', 'scatterplot_wait')
-        .append('text').attr('y', '50%').attr('x', '50').text('Loading, please wait.');*/
       this.draw();
     }
   }
