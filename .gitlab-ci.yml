@@ -4,7 +4,6 @@ services:
   - docker:dind
 
 stages:
-  - check
   - build
   - test
   - release
@@ -18,7 +17,7 @@ before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 lint:
-  stage: check
+  stage: test
   image: node:latest
   before_script:
     - npm --version
