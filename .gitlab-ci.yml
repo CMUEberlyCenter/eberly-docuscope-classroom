@@ -20,10 +20,13 @@ before_script:
 lint:
   stage: check
   image: node:latest
+  before_script:
+    - npm --version
   script:
     - cd classroom
     - npm install
     - npm lint
+
 build:
   stage: build
   script:
