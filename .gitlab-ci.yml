@@ -25,7 +25,7 @@ lint:
   script:
     - cd classroom
     - npm install
-    - npm lint
+    - npm run lint
 
 build:
   stage: build
