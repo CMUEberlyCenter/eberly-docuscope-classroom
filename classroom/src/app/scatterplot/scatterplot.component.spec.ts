@@ -42,7 +42,7 @@ describe('ScatterplotComponent', () => {
       declarations: [ ScatterplotComponent,
                       NavStubComponent,
                       ScatterplotGraphStubComponent ],
-      imports: [ FormsModule, NgxSpinnerModule ],
+      imports: [ FormsModule ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },

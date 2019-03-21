@@ -19,6 +19,7 @@ describe('TextViewComponent', () => {
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData({html_content: 'stub text', dict: {}}));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
+    const domSanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustHtml']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
 
@@ -26,7 +27,7 @@ describe('TextViewComponent', () => {
       declarations: [ TextViewComponent ],
       imports: [ EasyUIModule ],
       providers: [
-        DomSanitizer,
+        { provide: DomSanitizer, useValue: domSanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },
         { provide: TaggedTextService, useValue: tagged_text_service_spy },

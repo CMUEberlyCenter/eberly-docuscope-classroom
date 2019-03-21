@@ -6,7 +6,7 @@ import { BoxplotComponent } from './boxplot.component';
 import { BoxplotData, RankData } from '../boxplot-data';
 import { CorpusService } from '../corpus.service';
 import { BoxplotDataService} from '../boxplot-data.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({selector: 'app-boxplot-graph', template: ''})
 class BoxplotGraphStubComponent {

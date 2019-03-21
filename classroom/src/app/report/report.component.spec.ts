@@ -18,7 +18,8 @@ describe('ReportComponent', () => {
   beforeEach(async(() => {
     const corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    const report_service_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getRankedList']);
+    const report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);
+    report_service_spy.getReports.and.returnValue(asyncData([]));
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
 
     TestBed.configureTestingModule({
