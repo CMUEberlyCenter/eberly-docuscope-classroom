@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 import * as d3 from 'd3';
+import * as $ from 'jquery';
 
 import { TaggedTextService, TextContent } from '../tagged-text.service';
 
@@ -15,6 +16,7 @@ import { TaggedTextService, TextContent } from '../tagged-text.service';
 export class TextViewComponent implements OnInit {
   tagged_text: TextContent;
   clusters: Set<string>;
+  patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
 
   selection = 'No Selection';
@@ -43,7 +45,6 @@ export class TextViewComponent implements OnInit {
     const id = this._route.snapshot.paramMap.get('doc');
     this._text_service.getTaggedText(id)
       .subscribe(txt => {
-        console.log(txt);
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
@@ -54,6 +55,31 @@ export class TextViewComponent implements OnInit {
         }
         clusters.delete('Other');
         this.clusters = clusters;
+        const pats = new Map<string, Map<string, number>>();
+        clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
+
+        let $html = $(txt.html_content);
+        $html.find('[data-key]').each(function() {
+          const lat = $(this).attr('data-key')
+          const cluster = txt.dict[lat]['cluster'];
+          const example = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
+
+          if (pats.has(cluster)) {
+            if (pats.get(cluster).has(example)) {
+              let p_val = pats.get(cluster).get(example);
+              pats.get(cluster).set(example, p_val+1);
+            } else {
+              pats.get(cluster).set(example, 1);
+            }
+          }
+        });
+        this.patterns = pats;
+        /*for (let clust of this.patterns.keys()) {
+          console.log(clust);
+          for (let pattern of this.patterns.get(clust).entries()) {
+            console.log(` - "${pattern[0]}" (${pattern[1]})`);
+          }
+        }*/
         this._spinner.hide();
       });
   }

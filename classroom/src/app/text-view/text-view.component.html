@@ -5,14 +5,18 @@
                       (resizing)="layout.updatePaddings()">
       <aside>
         <div *ngFor="let c of clusters;">
-          <label><input class="ds-stv-category" type="checkbox" [value]="c" (change)="toggle_category($event)">{{c}}</label>
+          <label><input class="ds-stv-category" type="checkbox" [value]="c"
+                        (change)="toggle_category($event)">{{c}}</label>
         </div>
       </aside>
     </eui-layout-panel>
-    <eui-layout-panel region="center" title="ID: {{tagged_text.text_id}}" style="height:100%">
-      <article class="text_content" [innerHTML]="html_content" (click)="click_select($event)"></article>
+    <eui-layout-panel region="center" title="ID: {{tagged_text.text_id}}"
+                      style="height:100%">
+      <article class="text_content" [innerHTML]="html_content"
+               (click)="click_select($event)"></article>
     </eui-layout-panel>
-    <eui-layout-panel euiResizable region="east" style="width:300px;" split="true"
+    <eui-layout-panel euiResizable region="east" style="width:300px;"
+                      split="true"
                       handles="w" (resizing)="layout.updatePaddings()">
       <eui-panel style="margin-bottom:10px;" title="Selected Pattern">
         <div class="selection">{{selection}}</div>
@@ -22,8 +26,20 @@
           <div class="selection_row"><div class="selection_label">Cluster</div><div class="selection_data">{{selected_cluster}}</div></div>
         </div>
       </eui-panel>
-      <eui-panel title="Text Information" collapsible="true">
+      <eui-panel title="Text Information" collapsible="true" style="margin-bottom:10px;">
         <aside class="text_info">Word Count = {{tagged_text.word_count}}</aside>
+      </eui-panel>
+      <eui-panel title="Patterns Used" collapsible="true">
+        <eui-accordion [multiple]="true" *ngIf="patterns">
+          <eui-accordion-panel *ngFor="let clust of patterns.keys()"
+                               [title]="clust" collapsible="true">
+            <ul>
+              <li *ngFor="let pattern of patterns.get(clust).entries()">
+                {{pattern[0]}} ({{pattern[1]}})
+              </li>
+            </ul>
+          </eui-accordion-panel>
+        </eui-accordion>
       </eui-panel>
     </eui-layout-panel>
   </eui-layout>
