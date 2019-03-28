@@ -58,16 +58,16 @@ export class TextViewComponent implements OnInit {
         const pats = new Map<string, Map<string, number>>();
         clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        let $html = $(txt.html_content);
+        const $html = $(txt.html_content);
         $html.find('[data-key]').each(function() {
-          const lat = $(this).attr('data-key')
+          const lat = $(this).attr('data-key');
           const cluster = txt.dict[lat]['cluster'];
           const example = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
           if (pats.has(cluster)) {
             if (pats.get(cluster).has(example)) {
-              let p_val = pats.get(cluster).get(example);
-              pats.get(cluster).set(example, p_val+1);
+              const p_val = pats.get(cluster).get(example);
+              pats.get(cluster).set(example, p_val + 1);
             } else {
               pats.get(cluster).set(example, 1);
             }
