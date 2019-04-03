@@ -6,7 +6,7 @@
       <aside>
         <div *ngFor="let c of clusters;">
           <label><input class="ds-stv-category" type="checkbox" [value]="c"
-                        (change)="toggle_category($event)">{{c}}</label>
+                        (change)="toggle_category($event)">{{get_cluster_info(c).name}}</label>
         </div>
       </aside>
     </eui-layout-panel>
@@ -21,18 +21,23 @@
       <eui-panel style="margin-bottom:10px;" title="Selected Pattern">
         <div class="selection">{{selection}}</div>
         <div class="selection_table">
-          <div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>
-          <div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>
-          <div class="selection_row"><div class="selection_label">Cluster</div><div class="selection_data">{{selected_cluster}}</div></div>
+          <!--<div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>-->
+          <!--<div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>-->
+          <div class="selection_row"><div class="selection_label">Category</div><div class="selection_data">{{selected_cluster}}</div></div>
         </div>
       </eui-panel>
-      <eui-panel title="Text Information" collapsible="true" style="margin-bottom:10px;">
+      <!--<eui-panel title="Text Information" collapsible="true" style="margin-bottom:10px;">
         <aside class="text_info">Word Count = {{tagged_text.word_count}}</aside>
-      </eui-panel>
+      </eui-panel>-->
       <eui-panel title="Patterns Used" collapsible="true">
         <eui-accordion [multiple]="true" *ngIf="patterns">
           <eui-accordion-panel *ngFor="let clust of patterns.keys()"
-                               [title]="clust" collapsible="true">
+                               [title]="get_cluster_info(clust).name"
+                               collapsible="true">
+            <p *ngIf="get_cluster_info(clust)">
+              {{get_cluster_info(clust).description}}
+            </p>
+
             <ul>
               <li *ngFor="let pattern of patterns.get(clust).entries()">
                 {{pattern[0]}} ({{pattern[1]}})

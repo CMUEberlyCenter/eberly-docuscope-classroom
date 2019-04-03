@@ -6,7 +6,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
 
-import { TaggedTextService, TextContent } from '../tagged-text.service';
+import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
+// import { memoize } from '../memoize';
 
 @Component({
   selector: 'app-text-view',
@@ -20,9 +21,11 @@ export class TextViewComponent implements OnInit {
   html_content: SafeHtml;
 
   selection = 'No Selection';
-  selected_lat: string;
-  selected_dimension: string;
+  // selected_lat: string;
+  // selected_dimension: string;
   selected_cluster: string;
+
+  _cluster_info: Map<string, TextContentDictionaryInformation>;
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -74,12 +77,13 @@ export class TextViewComponent implements OnInit {
           }
         });
         this.patterns = pats;
-        /*for (let clust of this.patterns.keys()) {
+        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
+        /* for (let clust of this.patterns.keys()) {
           console.log(clust);
           for (let pattern of this.patterns.get(clust).entries()) {
             console.log(` - "${pattern[0]}" (${pattern[1]})`);
           }
-        }*/
+          } */
         this._spinner.hide();
       });
   }
@@ -92,10 +96,10 @@ export class TextViewComponent implements OnInit {
     const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
       const lat = parent_key.trim();
-      this.selected_lat = lat;
+      // this.selected_lat = lat;
       const obj = this.tagged_text.dict[lat];
       if (obj) {
-        this.selected_dimension = obj['dimension'];
+        // this.selected_dimension = obj['dimension'];
         this.selected_cluster = obj['cluster'];
         this.selection = $event.target.parentNode.textContent;
         d3.selectAll('.selected_text').classed('selected_text', false);
@@ -103,12 +107,33 @@ export class TextViewComponent implements OnInit {
       }
     }
   }
+
   *get_lats(cluster: string) {
     for (const lat in this.tagged_text.dict) {
       if (this.tagged_text.dict[lat]['cluster'] === cluster) {
         yield lat;
       }
     }
+  }
+
+  get_cluster_info(cluster: string): TextContentDictionaryInformation {
+    if (!this._cluster_info.has(cluster)) {
+      for (const clust of this.tagged_text.dict_info.cluster) {
+        if (clust.id === cluster) {
+          this._cluster_info.set(cluster, clust);
+          break;
+        }
+      }
+    }
+    return this._cluster_info.get(cluster);
+  }
+
+  // get_cluster_info(cluster: string) {
+  //  return this.memo_cluster_info(cluster);
+  // }
+
+  get_cluster_name(cluster: string): string {
+    return this.get_cluster_info(cluster).name;
   }
 
   toggle_category($event) {

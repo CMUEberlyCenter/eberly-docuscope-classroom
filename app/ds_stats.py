@@ -227,12 +227,18 @@ def get_html_string(text_id, format_paragraph=True, tones=None):
         "text_id": text_id,
         "word_count": 0,
         "html_content": "",
-        "dict": {}
+        "dict": {},
+        "dict_info": {}
     }
     ds_dictionary = 'default'
     doc = None
+    dict_info = {}
     with session_scope() as session:
-        doc, filename = session.query(Filesystem.processed, Filesystem.name).filter_by(id=text_id).first()
+        doc, filename = session.query(Filesystem.processed, Filesystem.name)\
+                               .filter_by(id=text_id).first()
+        if doc:
+            dict_info = session.query(DSDictionary.class_info)\
+                                .filter(DSDictionary.name==doc['ds_dictionary']).first()
     if not doc:
         raise Exception('File record not found for {}'.format(text_id))
     html_content = doc['ds_output']
@@ -253,4 +259,5 @@ def get_html_string(text_id, format_paragraph=True, tones=None):
             cats[lat] = {"dimension": tones.get_dimension(lat),
                          "cluster": tones.get_lat_cluster(lat)}
         res['dict'] = cats
+    res['dict_info'] = dict_info[0]
     return res
