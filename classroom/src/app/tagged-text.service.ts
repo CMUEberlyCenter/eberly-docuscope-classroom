@@ -7,11 +7,20 @@ import { AppSettingsService } from './app-settings.service';
 interface TextContentSchema {
   text_id: string;
 }
+export interface TextContentDictionaryInformation {
+  id: string;
+  name: string;
+  description: string;
+}
 export interface TextContent {
   text_id: string;
   word_count: number;
   html_content: string;
   dict: Record<string, {dimension: string, cluster: string}>;
+  dict_info: {
+    cluster?: TextContentDictionaryInformation[],
+    dimension?: TextContentDictionaryInformation[]
+  };
 }
 
 @Injectable({
