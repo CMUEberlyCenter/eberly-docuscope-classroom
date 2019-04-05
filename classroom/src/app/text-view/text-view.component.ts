@@ -100,7 +100,7 @@ export class TextViewComponent implements OnInit {
       const obj = this.tagged_text.dict[lat];
       if (obj) {
         // this.selected_dimension = obj['dimension'];
-        this.selected_cluster = obj['cluster'];
+        this.selected_cluster = this.get_cluster_name(obj['cluster']);
         this.selection = $event.target.parentNode.textContent;
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.select($event.target.parentNode).classed('selected_text', true);
@@ -132,8 +132,14 @@ export class TextViewComponent implements OnInit {
   //  return this.memo_cluster_info(cluster);
   // }
 
+  /**
+   * Tries to retrieve the human readable name of the given cluster.
+   * If the cluster is not in the cluster information, return the cluster id.
+   */
   get_cluster_name(cluster: string): string {
-    return this.get_cluster_info(cluster).name;
+    let cluster_info = this.get_cluster_info(cluster);
+    if (cluster_info) { return cluster_info.name; }
+    return cluster;
   }
 
   toggle_category($event) {
