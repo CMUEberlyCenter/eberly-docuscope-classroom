@@ -34,6 +34,11 @@ export class TextViewComponent implements OnInit {
     'cluster_3',
     'cluster_4',
     'cluster_5'];
+
+  get max_selected_clusters(): number {
+    return 4;
+  }
+
   private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
@@ -145,6 +150,9 @@ export class TextViewComponent implements OnInit {
   toggle_category($event) {
     // console.log($event);
     // console.log($event.target.checked, $event.target.value);
+    if ($($event.target).closest('aside').find(':checkbox:checked').length > this.max_selected_clusters) {
+      $event.target.checked = false;
+    }
     const clust: string = $event.target.value;
     const lats = this.get_lats(clust);
     const css_class = this.get_cluster_class(clust);

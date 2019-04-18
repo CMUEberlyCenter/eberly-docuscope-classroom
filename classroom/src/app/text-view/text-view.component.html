@@ -4,7 +4,8 @@
                       title="Dictionary Categories"  split="true"
                       (resizing)="layout.updatePaddings()">
       <aside>
-        <div *ngFor="let c of clusters;">
+        <p *ngIf="max_selected_clusters > 0" class="ds-stv-clusters-instruction">Select up to {{max_selected_clusters}}.</p>
+        <div *ngFor="let c of clusters;" [class]="'cluster_select'">
           <label><input class="ds-stv-category" type="checkbox" [value]="c"
                         (change)="toggle_category($event)">{{get_cluster_info(c).name}}</label>
         </div>

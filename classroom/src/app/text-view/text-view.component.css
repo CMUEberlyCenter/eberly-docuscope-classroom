@@ -16,6 +16,12 @@ article {
   width: 20ch;
   min-width: 18ch;
 }
+
+.ds-stv-clusters-instruction {
+  font-size: small;
+  margin-left: 7px;
+  margin-right: 7px;
+}
 /*
 .header {
   background: #9F9F9F;
@@ -31,6 +37,7 @@ article {
   font-size: 80%;
   padding: 5px;
   background: #C9C9C9;
+  text-align: center;
 }
 .selection_table {
   display: flex;

@@ -60,3 +60,7 @@ circle.dot {
 circle.dot.model {
   fill: pink;
 }
+
+.patterns .panel-title {
+  font-size: 11px;
+}
