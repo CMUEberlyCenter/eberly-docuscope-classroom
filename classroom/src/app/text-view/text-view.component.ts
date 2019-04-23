@@ -142,7 +142,7 @@ export class TextViewComponent implements OnInit {
    * If the cluster is not in the cluster information, return the cluster id.
    */
   get_cluster_name(cluster: string): string {
-    let cluster_info = this.get_cluster_info(cluster);
+    const cluster_info = this.get_cluster_info(cluster);
     if (cluster_info) { return cluster_info.name; }
     return cluster;
   }
