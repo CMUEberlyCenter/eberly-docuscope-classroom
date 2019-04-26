@@ -56,9 +56,9 @@ export class TextViewComponent implements OnInit {
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        console.log(txt.html_content);
-        console.log(this.html_content);
-        console.log($(txt.html_content));
+        // console.log(txt.html_content);
+        // console.log(this.html_content);
+        // console.log($(txt.html_content));
         this._cluster_info = new Map<string, TextContentDictionaryInformation>();
         const clusters = new Set<string>();
         for (const d of Object.keys(txt.dict)) {
@@ -113,7 +113,7 @@ export class TextViewComponent implements OnInit {
   }
 
   click_select($event) {
-    console.log($event);
+    // console.log($event);
     if ($('.cluster_id').length === 0) {
       const l2c = this.lat_to_cluster.bind(this);
       $('[data-key]').each(function() {
