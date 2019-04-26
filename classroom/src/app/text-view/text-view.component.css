@@ -7,14 +7,14 @@
   width: 100%;
   height: calc(100vh - 64.5px);
 }
-article {
-  padding-left: 12px;
-  padding-right: 12px;
-}
 
 .categories {
-  width: 20ch;
+  width: 28ch;
   min-width: 18ch;
+}
+.categories_panel {
+  padding-left: 9px;
+  padding-right: 9px;
 }
 
 .ds-stv-clusters-instruction {
@@ -22,16 +22,14 @@ article {
   margin-left: 7px;
   margin-right: 7px;
 }
-/*
-.header {
-  background: #9F9F9F;
-  color: white;
-  padding-left: 1ch;
-  font-weight: normal;
-  margin-top: 0px;
-  margin-bottom: 3px;
+
+.text_content {
+  padding-left: 18px;
+  padding-right: 18px;
+  line-height: 175%;
+  max-width: 6.5in;
 }
-*/
+
 .selection {
   font-weight: bold;
   font-size: 80%;

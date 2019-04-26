@@ -19,6 +19,7 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const appInitializerFn = (appConfig: AppSettingsService) => {
   return () => appConfig.loadSettings();
@@ -45,7 +46,8 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
     HttpClientModule,
     NgxSpinnerModule,
     EasyUIModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule
   ],
   providers: [
     AppSettingsService,

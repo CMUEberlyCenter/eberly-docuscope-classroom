@@ -3,7 +3,7 @@
     <eui-layout-panel class="categories" euiResizable handles="e" region="west"
                       title="Dictionary Categories"  split="true"
                       (resizing)="layout.updatePaddings()">
-      <aside>
+      <aside class="categories_panel">
         <p *ngIf="max_selected_clusters > 0" class="ds-stv-clusters-instruction">Select up to {{max_selected_clusters}}.</p>
         <div *ngFor="let c of clusters;" [class]="'cluster_select'">
           <label><input class="ds-stv-category" type="checkbox" [value]="c"
@@ -19,14 +19,14 @@
     <eui-layout-panel euiResizable region="east" style="width:300px;"
                       split="true"
                       handles="w" (resizing)="layout.updatePaddings()">
-      <eui-panel style="margin-bottom:10px;" title="Selected Pattern">
+      <!--<eui-panel style="margin-bottom:10px;" title="Selected Pattern">
         <div class="selection">{{selection}}</div>
-        <div class="selection_table">
+        <div class="selection_table">-->
           <!--<div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>-->
           <!--<div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>-->
-          <div class="selection_row"><div class="selection_label">Category</div><div class="selection_data">{{selected_cluster}}</div></div>
+          <!--<div class="selection_row"><div class="selection_label">Category</div><div class="selection_data">{{selected_cluster}}</div></div>
         </div>
-      </eui-panel>
+      </eui-panel>-->
       <!--<eui-panel title="Text Information" collapsible="true" style="margin-bottom:10px;">
         <aside class="text_info">Word Count = {{tagged_text.word_count}}</aside>
       </eui-panel>-->
@@ -34,7 +34,8 @@
         <eui-accordion [multiple]="true" *ngIf="patterns" [animate]="true"
                        [class]="'patterns'">
           <eui-accordion-panel *ngFor="let clust of patterns.keys()"
-                               [title]="get_cluster_info(clust).name"
+                               [title]="get_cluster_info(clust).name + ' ('+get_pattern_count(clust)+')'"
+                               [selected]="false"
                                collapsible="true">
             <details *ngIf="get_cluster_info(clust)">
               <summary>{{get_cluster_info(clust).description.slice(0,26)}}

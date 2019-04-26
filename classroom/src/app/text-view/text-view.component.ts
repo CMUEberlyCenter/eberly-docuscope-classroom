@@ -56,6 +56,10 @@ export class TextViewComponent implements OnInit {
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
+        console.log(txt.html_content);
+        console.log(this.html_content);
+        console.log($(txt.html_content));
+        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
         const clusters = new Set<string>();
         for (const d of Object.keys(txt.dict)) {
           const cluster = txt.dict[d]['cluster'];
@@ -66,15 +70,21 @@ export class TextViewComponent implements OnInit {
         const pats = new Map<string, Map<string, number>>();
         clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        const $html = $(txt.html_content);
-        $html.find('[data-key]').each(function() {
+        //const $html = $(txt.html_content);
+        /*$html.find('[data-key]').each(function() {
           const lat = $(this).attr('data-key');
           const cluster = txt.dict[lat]['cluster'];
-          const example = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
+        });*/
+        const tv = this;
+        $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
+          const lat: string = $(this).attr('data-key');
+          const cluster: string = txt.dict[lat]['cluster'];
+          const cluster_name: string = tv.get_cluster_name(cluster);
+          const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
           if (pats.has(cluster)) {
             if (pats.get(cluster).has(example)) {
-              const p_val = pats.get(cluster).get(example);
+              const p_val: number = pats.get(cluster).get(example);
               pats.get(cluster).set(example, p_val + 1);
             } else {
               pats.get(cluster).set(example, 1);
@@ -82,13 +92,9 @@ export class TextViewComponent implements OnInit {
           }
         });
         this.patterns = pats;
-        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
-        /* for (let clust of this.patterns.keys()) {
-          console.log(clust);
-          for (let pattern of this.patterns.get(clust).entries()) {
-            console.log(` - "${pattern[0]}" (${pattern[1]})`);
-          }
-          } */
+        //console.log($html);
+        //console.log($html.text());
+        //this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
         this._spinner.hide();
       });
   }
@@ -96,8 +102,28 @@ export class TextViewComponent implements OnInit {
     this.getTaggedText();
   }
 
+  /*ngOnChanges() {
+    const l2c = this.lat_to_cluster;
+    $('[data-key]').each(function() {
+      const lat: string = $(this).attr('data-key');
+      $(this).attr('title', l2c(lat)).addClass('easyui-tooltip');
+    });
+    console.log('titled', $('[title]').length);
+  }*/
+  lat_to_cluster(lat: string): string {
+    return this.get_cluster_name(this.tagged_text.dict[lat]['cluster']);
+  }
+
   click_select($event) {
     console.log($event);
+    if ($('.cluster_id').length === 0) {
+      const l2c = this.lat_to_cluster.bind(this);
+      $('[data-key]').each(function() {
+        const lat: string = $(this).attr('data-key');
+        const cluster_name: string = l2c(lat);
+        $(this).append(`<sup class="cluster_id">{${cluster_name}}</sup>`);
+      });
+    }
     const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
       const lat = parent_key.trim();
@@ -105,10 +131,12 @@ export class TextViewComponent implements OnInit {
       const obj = this.tagged_text.dict[lat];
       if (obj) {
         // this.selected_dimension = obj['dimension'];
-        this.selected_cluster = this.get_cluster_name(obj['cluster']);
-        this.selection = $event.target.parentNode.textContent;
+        //this.selected_cluster = this.get_cluster_name(obj['cluster']);
+        //this.selection = $event.target.parentNode.textContent;
         d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').style('display', 'none');
         d3.select($event.target.parentNode).classed('selected_text', true);
+        d3.select($event.target.parentNode).select('.cluster_id').style('display', 'inline');
       }
     }
   }
@@ -145,6 +173,15 @@ export class TextViewComponent implements OnInit {
     const cluster_info = this.get_cluster_info(cluster);
     if (cluster_info) { return cluster_info.name; }
     return cluster;
+  }
+  get_pattern_count(cluster: string): number {
+    if (this.patterns.has(cluster)) {
+      return Array.from(this.patterns.get(cluster).values()).reduce((a:number, c:number) => a + c, 0);
+    }
+    return 0;
+  }
+  get_cluster_title(cluster: string): string {
+    return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
   toggle_category($event) {
