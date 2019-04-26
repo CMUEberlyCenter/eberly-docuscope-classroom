@@ -70,7 +70,7 @@ export class TextViewComponent implements OnInit {
         const pats = new Map<string, Map<string, number>>();
         clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        //const $html = $(txt.html_content);
+        // const $html = $(txt.html_content);
         /*$html.find('[data-key]').each(function() {
           const lat = $(this).attr('data-key');
           const cluster = txt.dict[lat]['cluster'];
@@ -92,9 +92,7 @@ export class TextViewComponent implements OnInit {
           }
         });
         this.patterns = pats;
-        //console.log($html);
-        //console.log($html.text());
-        //this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
+        // this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
         this._spinner.hide();
       });
   }
@@ -131,8 +129,8 @@ export class TextViewComponent implements OnInit {
       const obj = this.tagged_text.dict[lat];
       if (obj) {
         // this.selected_dimension = obj['dimension'];
-        //this.selected_cluster = this.get_cluster_name(obj['cluster']);
-        //this.selection = $event.target.parentNode.textContent;
+        // this.selected_cluster = this.get_cluster_name(obj['cluster']);
+        // this.selection = $event.target.parentNode.textContent;
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').style('display', 'none');
         d3.select($event.target.parentNode).classed('selected_text', true);
@@ -176,7 +174,7 @@ export class TextViewComponent implements OnInit {
   }
   get_pattern_count(cluster: string): number {
     if (this.patterns.has(cluster)) {
-      return Array.from(this.patterns.get(cluster).values()).reduce((a:number, c:number) => a + c, 0);
+      return Array.from(this.patterns.get(cluster).values()).reduce((a: number, c: number) => a + c, 0);
     }
     return 0;
   }
