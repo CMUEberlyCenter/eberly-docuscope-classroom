@@ -38,7 +38,9 @@ def get_local_tones(dictionary_name="default"):
     #TODO: add checks for file existance and valid tones file.
     #TODO: parameterize dictionary directory.
     try:
-        with gzip.open("/app/dictionaries/{}_tones.json.gz".format(dictionary_name), 'rt') as jin:
+        tone_path = os.path.join(current_app.config.get('DICTIONARY_HOME'),
+                                 "{}_tones.json.gz".format(dictionary_name))
+        with gzip.open(tone_path, 'rt') as jin:
             data = json.loads(jin.read())
     except ValueError as enc_error:
         logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
@@ -48,48 +50,6 @@ def get_local_tones(dictionary_name="default"):
         abort(422, message="Error reading {}_tones.json.gz: {}".format(dictionary_name, os_error))
     try:
         tones, val_errors = DST_SCHEMA.load(data)
-        if val_errors:
-            logging.warning("Parsing errors: %s", val_errors)
-    except ValidationError as err:
-        logging.error("Validation Error rparsing tones for %s", dictionary_name)
-        logging.error(err.messages)
-        tones = err.valid_data
-        abort(422, message="Errors in parsing tones for {}: {}".format(
-            dictionary_name, err.messages))
-    except ValueError as v_err:
-        logging.error("Invalid JSON returned for %s", dictionary_name)
-        logging.error("%s", v_err)
-        tones = None
-        abort(422, message="Errors decoding tones for {}: {}".format(dictionary_name, v_err))
-    if not tones:
-        logging.error("No tones were retrieved for %s.", dictionary_name)
-        abort(422,
-              message="No tones were retrieved for {}.".format(dictionary_name))
-    return tones
-
-#@depricated
-def get_tones(dictionary_name="default"):
-    """Retrieve the DocuScope tones data for a dictionary."""
-    req = requests.get("{}/dictionary/{}/tones".format(
-        current_app.config['DICTIONARY_SERVER'], dictionary_name),
-                       timeout=1)
-    # TODO: Instead of handling errors at this level, re-raise and let caller
-    # deal so that it could potentially be retried.
-    # This also indicates that serving dictionary files is probably the wrong
-    # way to do this at scale and a file server or database should be better.
-    try:
-        req.raise_for_status()
-    except requests.exceptions.HTTPError as h_err:
-        logging.error("Error retrieving %s tones: %s - %s",
-                      dictionary_name, req.status_code, h_err)
-        abort(422, message="Error retrieving {}: {}".format(dictionary_name, h_err))
-    except requests.exceptions.Timeout:
-        logging.error("Dictionary server timed out retrieving tones for %s",
-                      dictionary_name)
-        abort(422, message="Timeout error retrieving tones for {}".format(dictionary_name))
-    #logging.info(req.data.decode('utf-8'))
-    try:
-        tones, val_errors = DST_SCHEMA.load(req.json())
         if val_errors:
             logging.warning("Parsing errors: %s", val_errors)
     except ValidationError as err:

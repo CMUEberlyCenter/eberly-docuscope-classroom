@@ -13,9 +13,11 @@ marshmallow = "*"
 requests = "*"
 mysqlclient = "*"
 sqlalchemy = "*"
+whitenoise = "*"
+fastapi = "*"
 
 [dev-packages]
 pylint = "*"
 
 [requires]
-python_version = "3"
+python_version = "3.7"

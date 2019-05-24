@@ -8,7 +8,7 @@ import io
 import json
 import logging
 import math
-#import os
+import os
 import time
 import zipfile
 
@@ -26,31 +26,33 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 #import requests
 
-from flask import current_app
+#from flask import current_app
 
 from bs4 import BeautifulSoup as bs
 
-from ds_stats import get_boxplot_data, get_html_string, get_ds_stats, get_level_frame
-from ds_tones import DocuScopeTones
-from ds_db import Filesystem, Assignment, session_scope
+#from ds_stats import get_boxplot_data, get_html_string, get_ds_stats, get_level_frame
+from ds_stats import get_html_string
+from default_settings import Config
+#from ds_tones import DocuScopeTones
+#from ds_db import Filesystem, Assignment, session_scope
 
 # debug
 # import pprint
 # pp = pprint.PrettyPrinter(indent=4)
 
-def get_reports(corpus, intro="", stv_intro=""):
-    """Generate and return the reports."""
-    logging.info("get_reports(%s, %s, %s)", corpus, intro, stv_intro)
-    stat_frame, ds_dictionary = get_ds_stats(corpus)
-    logging.info(" get_ds_stats =>")
-    logging.info(stat_frame)
-    tones = DocuScopeTones(ds_dictionary)
-    logging.info(" number of tones: %d", len(tones.tones))
+#def get_reports(corpus, intro="", stv_intro=""):
+#    """Generate and return the reports."""
+#    logging.info("get_reports(%s, %s, %s)", corpus, intro, stv_intro)
+#    stat_frame, ds_dictionary = get_ds_stats(corpus)
+#    logging.info(" get_ds_stats =>")
+#    logging.info(stat_frame)
+#    tones = DocuScopeTones(ds_dictionary)
+#    logging.info(" number of tones: %d", len(tones.tones))
     #TODO refactor so it does not do get_level_frame/get_ds_stats twice
-    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones)
-    frame = get_level_frame(stat_frame, 'Cluster', tones)
-    logging.info(frame)
-    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, intro, stv_intro, bp_data)
+#    bp_data = get_boxplot_data(corpus, 'Cluster', tones=tones)
+#    frame = get_level_frame(stat_frame, 'Cluster', tones)
+#    logging.info(frame)
+#    return generate_pdf_reports(frame, corpus, ds_dictionary, tones, intro, stv_intro, bp_data)
 
 
 class Divider(Flowable):
@@ -159,32 +161,37 @@ class Boxplot(Flowable):
             c.drawCentredString(self.margins['left'] + x*scale/1000,
                                 self.margins['bottom']+5, "{0:.1f}".format(x))
 
-def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data):
+def generate_pdf_reports(df, corpus, dict_name, tones, bp_data, descriptions):
     """Generate all of the pdf reports.
 
     @param df - the data frame for the corpus.
     @param corpus - a list of document ids.
     @param dict_name - the name of the DocuScope dictionary used.
     @param tones - the DocuScopeTones object for the dictionary.
-    @param intro - a string used as the introduction to the reports.
-    @param stv_intro - a string uses as the introduction to the text analysis.
-    @param bp_data - the data frame of the box plot data."""
+    #@param intro - a string used as the introduction to the reports.
+    #@param stv_intro - a string uses as the introduction to the text analysis.
+    @param bp_data - the data frame of the box plot data.
+    #@param assignment_course
+    #@param assignment_name
+    #@param assignment_instructor
+    @param descriptions
+    """
     # Get assignment information,
     #  assumes that the corpus is all from a single assignment.
     #assignment_entry = None
-    with session_scope() as session:
-        qry = session.query(Assignment.course, Assignment.name, Assignment.instructor).filter(Assignment.id == Filesystem.assignment).filter(Filesystem.id.in_([d['id'] for d in corpus]))
+    #with session_scope() as session:
+    #    qry = session.query(Assignment.course, Assignment.name, Assignment.instructor).filter(Assignment.id == Filesystem.assignment).filter(Filesystem.id.in_([d['id'] for d in corpus]))
         #logging.error("%s",qry)
-        assignment_course, assignment_name, assignment_instructor = qry.first()
-    if not assignment_course:
-        raise Exception('Could not retrieve Assignment.')
-    descriptions = {
-        'course': assignment_course, #assignment_entry.course,
-        'assignment': assignment_name, #assignment_entry.name,
-        'instructor': assignment_instructor, #assignment_entry.instructor,
-        'intro': intro,
-        'stv_intro': stv_intro
-    }
+        #assignment_course, assignment_name, assignment_instructor = qry.first()
+    #if not assignment_course:
+    #    raise Exception('Could not retrieve Assignment.')
+    #descriptions = {
+    #    'course': assignment_course, #assignment_entry.course,
+    #    'assignment': assignment_name, #assignment_entry.name,
+    #    'instructor': assignment_instructor, #assignment_entry.instructor,
+    #    'intro': intro,
+    #    'stv_intro': stv_intro
+    #}
     logging.info("%s", descriptions)
 
 
@@ -196,7 +203,8 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
         #    current_app.config.get('DICTIONARY_SERVER'),
         #    dict_name))
         try:
-            with open("/app/dictionaries/{}_clusters.json".format(dict_name)) as cin:
+            with open(os.path.join(Config.DICTIONARY_HOME,
+                                   "{}_clusters.json".format(dict_name))) as cin:
                 clusters = json.load(cin)
         except OSError as err:
             logging.error("While loading %s clusters: %s", dict_name, err)
@@ -272,7 +280,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, intro, stv_intro, bp_data
                     if not child.isspace():
                         s += child
                 except:
-                    current_app.logger.debug(
+                    logging.debug(
                         "debug: html_to_report_string(). name = {}, type = {}"\
                         .format(name, type(child)))
 
