@@ -16,7 +16,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --aot --prod --output-hashing none",
-    "build_dev": "ng build --output-hashing none",
+    "build_dev": "ng build --aot --prod --base-href=/classroom/ --output-hashing none",
     "build_prod": "ng build --aot --prod --base-href=/docuscope/ --output-hashing none",
     "test": "ng test",
     "test_headless": "ng test --watch=false --browsers=ChromeHeadless --code-coverage=true",

@@ -61,8 +61,8 @@ export class TextViewComponent implements OnInit {
         // console.log($(txt.html_content));
         this._cluster_info = new Map<string, TextContentDictionaryInformation>();
         const clusters = new Set<string>();
-        for (const d of Object.keys(txt.dict)) {
-          const cluster = txt.dict[d]['cluster'];
+        for (const d of Object.keys(txt.dictionary)) {
+          const cluster = txt.dictionary[d]['cluster'];
           clusters.add(cluster);
         }
         clusters.delete('Other');
@@ -125,8 +125,8 @@ export class TextViewComponent implements OnInit {
     const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
       const lat = parent_key.trim();
-      // this.selected_lat = lat;
-      const obj = this.tagged_text.dict[lat];
+      //this.selected_lat = lat;
+      const obj = this.tagged_text.dictionary[lat];
       if (obj) {
         // this.selected_dimension = obj['dimension'];
         // this.selected_cluster = this.get_cluster_name(obj['cluster']);
@@ -140,8 +140,8 @@ export class TextViewComponent implements OnInit {
   }
 
   *get_lats(cluster: string) {
-    for (const lat in this.tagged_text.dict) {
-      if (this.tagged_text.dict[lat]['cluster'] === cluster) {
+    for (const lat in this.tagged_text.dictionary) {
+      if (this.tagged_text.dictionary[lat]['cluster'] === cluster) {
         yield lat;
       }
     }

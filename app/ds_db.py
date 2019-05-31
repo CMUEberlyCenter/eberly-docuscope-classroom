@@ -1,7 +1,5 @@
 """Schemas for the SQL DocuScope sidecar database."""
 import uuid
-from contextlib import contextmanager
-from flask import current_app
 from sqlalchemy import Boolean, Column, Enum, Integer, JSON, ForeignKey, \
     LargeBinary, SmallInteger, String, TIMESTAMP, VARBINARY
 from sqlalchemy.ext.declarative import declarative_base
@@ -85,16 +83,3 @@ class Assignment(BASE): #pylint: disable=R0903
     def __repr__(self):
         return "<Assignment(id='{}', name='{}', dictionary='{}', "\
             .format(self.id, self.name, self.oli_id)
-
-@contextmanager
-def session_scope():
-    """Provide a transactional scope around a series of operations."""
-    session = current_app.Session()
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
