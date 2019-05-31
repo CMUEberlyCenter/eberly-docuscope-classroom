@@ -125,7 +125,7 @@ export class TextViewComponent implements OnInit {
     const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
       const lat = parent_key.trim();
-      //this.selected_lat = lat;
+      // this.selected_lat = lat;
       const obj = this.tagged_text.dictionary[lat];
       if (obj) {
         // this.selected_dimension = obj['dimension'];

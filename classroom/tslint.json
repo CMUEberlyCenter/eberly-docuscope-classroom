@@ -118,12 +118,12 @@
       "check-type"
     ],
     "no-output-on-prefix": true,
-    "use-input-property-decorator": false,
-    "use-output-property-decorator": false,
-    "use-host-property-decorator": false,
+    "no-inputs-metadata-property": false,
+    "no-outputs-metadata-property": false,
+    "no-host-metadata-property": false,
     "no-input-rename": true,
     "no-output-rename": true,
-    "use-life-cycle-interface": false,
+    "use-lifecycle-interface": false,
     "use-pipe-transform-interface": true,
     "component-class-suffix": true,
     "directive-class-suffix": true
