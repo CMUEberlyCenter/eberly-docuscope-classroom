@@ -57,7 +57,7 @@ export class BoxplotGraphComponent implements OnInit {
   }
 
   get_outliers(category: string): Outlier[] {
-    return this._boxplot.outliers.filter(out => out.category == category);
+    return this._boxplot.outliers.filter(out => out.category === category);
   }
 
   open(doc_id: string) {
