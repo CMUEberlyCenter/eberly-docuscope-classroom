@@ -111,3 +111,9 @@ dmypy.json
 
 # editor files
 *~
+
+.envrc
+TODO
+/app/ds_patterns.py
+/build.sh
+/test
