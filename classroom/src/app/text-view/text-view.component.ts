@@ -78,7 +78,7 @@ export class TextViewComponent implements OnInit {
         const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
           const lat: string = $(this).attr('data-key');
-          const cluster: string = txt.dict[lat]['cluster'];
+          const cluster: string = txt.dictionary[lat]['cluster'];
           const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
@@ -109,7 +109,7 @@ export class TextViewComponent implements OnInit {
     console.log('titled', $('[title]').length);
   }*/
   lat_to_cluster(lat: string): string {
-    return this.get_cluster_name(this.tagged_text.dict[lat]['cluster']);
+    return this.get_cluster_name(this.tagged_text.dictionary[lat]['cluster']);
   }
 
   click_select($event) {

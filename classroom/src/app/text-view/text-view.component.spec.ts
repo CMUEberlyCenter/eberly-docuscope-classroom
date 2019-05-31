@@ -16,7 +16,7 @@ describe('TextViewComponent', () => {
   beforeEach(async(() => {
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
     const tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
-    tagged_text_service_spy.getTaggedText.and.returnValue(asyncData({html_content: 'stub text', dict: {}}));
+    tagged_text_service_spy.getTaggedText.and.returnValue(asyncData({'text_id': 'stub_id', word_count: 2, html_content: 'stub text', dictionary: {}, dict_info: {}}));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     const domSanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustHtml']);
