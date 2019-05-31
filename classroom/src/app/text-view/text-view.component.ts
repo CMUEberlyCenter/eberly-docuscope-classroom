@@ -48,8 +48,8 @@ export class TextViewComponent implements OnInit {
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
         const clusters = new Set<string>();
-        for (const d of Object.keys(txt.dict)) {
-          const cluster = txt.dict[d]['cluster'];
+        for (const d of Object.keys(txt.dictionary)) {
+          const cluster = txt.dictionary[d]['cluster'];
           clusters.add(cluster);
         }
         clusters.delete('Other');
@@ -67,7 +67,7 @@ export class TextViewComponent implements OnInit {
     if (parent_key) {
       const lat = parent_key.trim();
       this.selected_lat = lat;
-      const obj = this.tagged_text.dict[lat];
+      const obj = this.tagged_text.dictionary[lat];
       if (obj) {
         this.selected_dimension = obj['dimension'];
         this.selected_cluster = obj['cluster'];
@@ -78,8 +78,8 @@ export class TextViewComponent implements OnInit {
     }
   }
   *get_lats(cluster: string) {
-    for (const lat in this.tagged_text.dict) {
-      if (this.tagged_text.dict[lat]['cluster'] === cluster) {
+    for (const lat in this.tagged_text.dictionary) {
+      if (this.tagged_text.dictionary[lat]['cluster'] === cluster) {
         yield lat;
       }
     }

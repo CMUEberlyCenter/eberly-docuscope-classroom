@@ -2,12 +2,26 @@
 import json
 import logging
 import re
-from flask_restful import abort
+from fastapi import HTTPException
 import pandas as pd
 
 from ds_tones import DocuScopeTones
 from ds_groups import *
-from ds_db import Assignment, DSDictionary, Filesystem, session_scope
+from ds_db import Assignment, DSDictionary, Filesystem
+from db import SESSION
+from contextlib import contextmanager
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = SESSION()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 def get_ds_stats(documents):
     """Retrieve tagger statistics for the given documents."""
@@ -31,16 +45,20 @@ def get_ds_stats(documents):
                 stats[str(doc_id)] = ser
                 ds_dictionaries.add(ds_dic)
     if not stats:
-        abort(500, message="ERROR: No tagged documents were submitted, "
-              + "please close this window and wait until all of the selected "
-              + "documents are tagged before submitting again.")
+        raise HTTPException(
+            status_code=500,
+            detail="ERROR: No tagged documents were submitted, "
+            + "please close this window and wait until all of the selected "
+            + "documents are tagged before submitting again.")
     ds_dictionary = 'default'
     if len(ds_dictionaries) == 1:
         ds_dictionary = list(ds_dictionaries)[0]
     else:
         logging.error("Inconsistant dictionaries in corpus!!!")
-        abort(500, message="ERROR: Inconsistant dictionaries used in corpus, "
-              + "documents are not compairable.")
+        raise HTTPException(
+            status_code=500,
+            detail="ERROR: Inconsistant dictionaries used in corpus, "
+            + "documents are not compairable.")
 
     return pd.DataFrame(data=stats).transpose(), ds_dictionary
 
@@ -156,7 +174,7 @@ def get_rank_data(corpus, level, sortby):
 
     if sortby not in frame:
         logging.error("%s is not in %s", sortby, frame.columns)
-        abort(422, message="{} is not in {}".format(sortby, frame.columns.values))
+        raise HTTPException(status_code=422, detail="{} is not in {}".format(sortby, frame.columns.values))
     frame = frame.loc[:, ['title', sortby, 'ownedby']]
 
     frame.reset_index(inplace=True)
@@ -190,8 +208,9 @@ def get_scatter_data(corpus, level, cat_x, cat_y):
     frame = frame.append(title_row).append(owner_row)
     frame = frame.transpose()
     if cat_x not in frame or cat_y not in frame:
-        abort(422, message="Either '{}' or '{}' is not in {}."\
-              .format(cat_x, cat_y, frame.columns.values))
+        raise HTTPException(
+            status_code=422,
+            detail="Either '{}' or '{}' is not in {}.".format(cat_x, cat_y, frame.columns.values))
     frame = frame[[cat_x, cat_y, 'title', 'ownedby']]
     frame['text_id'] = frame.index
     frame = frame.rename(columns={cat_x: 'catX', cat_y: 'catY'})
