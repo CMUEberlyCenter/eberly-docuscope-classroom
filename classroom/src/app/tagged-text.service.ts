@@ -11,7 +11,7 @@ export interface TextContent {
   text_id: string;
   word_count: number;
   html_content: string;
-  dict: Record<string, {dimension: string, cluster: string}>;
+  dictionary: Record<string, {dimension: string, cluster: string}>;
 }
 
 @Injectable({

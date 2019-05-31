@@ -8,9 +8,10 @@ COPY ./classroom .
 #RUN npm run build_prod
 RUN npm run build_dev
 
-FROM tiangolo/meinheld-gunicorn-flask:python3.7
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
 COPY requirements.txt /tmp
 RUN pip install --upgrade pip && pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
-ENV STATIC_INDEX 1
+#ENV STATIC_INDEX 1
 COPY ./app /app
 COPY --from=builder /classroom/dist/classroom /app/static
+#RUN python -m whitenoise.compress /app/static

@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
 
 import * as d3 from 'd3';
 
-import { BoxplotData, BoxplotDataEntry } from '../boxplot-data';
+import { BoxplotData, BoxplotDataEntry, Outlier } from '../boxplot-data';
 
 @Component({
   selector: 'app-boxplot-graph',
@@ -56,6 +56,13 @@ export class BoxplotGraphComponent implements OnInit {
     return y(value);
   }
 
+  get_outliers(category: string): Outlier[] {
+    return this._boxplot.outliers.filter(out => out.category === category);
+  }
+
+  open(doc_id: string) {
+    window.open(doc_id);
+  }
   ngOnInit() {
   }
 }
