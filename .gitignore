@@ -113,7 +113,3 @@ dmypy.json
 *~
 
 .envrc
-TODO
-/app/ds_patterns.py
-/build.sh
-/test
