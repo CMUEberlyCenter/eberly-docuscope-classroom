@@ -309,7 +309,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, bp_data, descriptions):
     df2 = df.copy()
 
     # prepare the dataframe 'df2' which will be used later.
-    df2 = df2.drop('title')
+    df2 = df2.drop('title').drop('ownedby')
     df2 = df2.fillna(0)
     df2 = df2.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df2 = df2.drop('total_words')
@@ -317,7 +317,7 @@ def generate_pdf_reports(df, corpus, dict_name, tones, bp_data, descriptions):
     df2 = df2.append(title_row)
 
     # use df1 to get the boxplot data for this corpus
-    df1 = df1.drop('title')
+    df1 = df1.drop('title').drop('ownedby')
     df1 = df1.fillna(0)
     df1 = df1.apply(lambda x: x.divide(x['total_words']))  # calculate frequencies
     df1 = df1.drop('total_words')
@@ -613,4 +613,5 @@ def generate_pdf_reports(df, corpus, dict_name, tones, bp_data, descriptions):
 
             patterns_doc.build(content)
             zip_file.writestr("_patterns.pdf", fpath.getvalue())
-    return zip_stream.getvalue()
+    zip_stream.seek(0)
+    return zip_stream #.getvalue()
