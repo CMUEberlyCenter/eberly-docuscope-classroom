@@ -37,6 +37,7 @@ export class ScatterplotComponent implements OnInit {
     this._spinner.show();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
+        // if (!data.bpdata) // TODO check for not enough categories
         this.categories = data.bpdata.map(
           (bpd: BoxplotDataEntry): string => bpd.category);
         this.x_categories = new Set<string>(this.categories);

@@ -20,6 +20,7 @@ describe('TextViewComponent', () => {
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     const domSanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustHtml']);
+    domSanitizer.bypassSecurityTrustHtml.and.returnValue({'changingThisBreaksApplicationSecurity': '<span data-key="lat"></span>'});
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
 

@@ -26,6 +26,15 @@ describe('RankComponent', () => {
     const corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     const boxplot_data_service_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getRankedList']);
+    boxplot_data_service_spy.getBoxPlotData.and.returnValue(asyncData({
+      bpdata: [{'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4, 'uifence': .6, 'lifence': 0, 'category': 'STUB_X'},
+               {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
+      outliers: []
+    }));
+    boxplot_data_service_spy.getRankedList.and.returnValue(asyncData({
+      result: [
+        {'index': 'stub_index', 'text': 'stub_text', 'value': 1, 'ownedby': 'stub_owner'}
+      ]}));
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
 
     TestBed.configureTestingModule({

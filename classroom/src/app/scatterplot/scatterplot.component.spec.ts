@@ -33,10 +33,11 @@ describe('ScatterplotComponent', () => {
     }));
     const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getScatterPlotData']);
     dataService_spy.getBoxPlotData.and.returnValue(asyncData({
-      bpdata: [],
+      bpdata: [{'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4, 'uifence': .6, 'lifence': 0, 'category': 'STUB_X'},
+               {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
       outliers: []
     }));
-    dataService_spy.getBoxPlotData.and.returnValue(asyncData({ spdata: [] }));
+    dataService_spy.getScatterPlotData.and.returnValue(asyncData({ spdata: [] }));
 
     TestBed.configureTestingModule({
       declarations: [ ScatterplotComponent,

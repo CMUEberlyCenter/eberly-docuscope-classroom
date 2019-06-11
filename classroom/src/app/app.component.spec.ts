@@ -40,6 +40,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h3').textContent).toContain('DocuScope Classroom @ CMU');
+    expect(compiled.querySelector('h3.title-banner-title').textContent).toContain('DocuScope Classroom @ CMU');
   });
 });
