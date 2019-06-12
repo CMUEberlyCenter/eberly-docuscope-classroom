@@ -28,7 +28,8 @@ export class BoxplotDataService {
 
   private handleError(error: HttpErrorResponse) {
     console.error(error);
-    alert(`${error.error.message}`);
+    this.messageService.add(error.error.message);
+    //alert(`${error.error.message}`);
     return throwError('Something bad happened');
   }
 

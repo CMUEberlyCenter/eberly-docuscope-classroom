@@ -7,6 +7,7 @@ stages:
   - build
   - test
   - release
+  - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -16,15 +17,33 @@ variables:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
-lint:
+classroom_lint:
   stage: test
   image: node:latest
   before_script:
     - npm --version
   script:
     - cd classroom
-    - npm install
+    - npm ci
+    - npm run lint --format json | node ./formatters/codeclimateFormatter.js > gl-codequality.json
     - npm run lint
+  artifacts:
+    reports:
+      codequality: classroom/gl-codequality.json
+
+classroom_test:
+  stage: test
+  image: node:latest
+  before_script:
+    - npm --version
+  script:
+    - cd classroom
+    - npm ci
+    - npm ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true
+    - npm ng e2e
+  artifacts:
+    paths:
+      - classroom/coverage/
 
 build:
   stage: build
@@ -38,5 +57,18 @@ release:
     - docker pull "${REF_CONTAINER}"
     - docker tag "${REF_CONTAINER}" "${RELEASE_CONTAINER}"
     - docker push "${RELEASE_CONTAINER}"
+  only:
+    - master
+
+pages:
+  stage: deploy
+  dependencies:
+    - classroom_test
+  script:
+    - mv classroom/coverage/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
   only:
     - master
