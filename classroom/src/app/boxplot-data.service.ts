@@ -8,6 +8,7 @@ import { Corpus } from './corpus';
 import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema,
          ScatterplotData, makeScatterplotSchema, GroupsData,
          makeGroupsSchema } from './boxplot-data';
+import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,17 +22,24 @@ export class BoxplotDataService {
   private scatterplot_data: Map<string, Map<string, Observable<ScatterplotData>>> =
     new Map<string, Map<string, Observable<ScatterplotData>>>();
   private groups_server = `${this.env.config.backend_server}/groups`;
+  private handleError: HandleError;
 
   constructor(private http: HttpClient,
+              httpErrorHandler: HttpErrorHandlerService,
               private env: AppSettingsService,
-              private messageService: MessageService) { }
-
-  private handleError(error: HttpErrorResponse) {
-    console.error(error);
-    this.messageService.add(error.error.message);
-    //alert(`${error.error.message}`);
-    return throwError('Something bad happened');
+              private messageService: MessageService) {
+    this.handleError = httpErrorHandler.createHandleError('BoxplotDataService');
   }
+
+  /*private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('A client side or network error occurred:',
+                    error.error.message);
+    } else {
+      console.error(`Server error ${error.status}: ${error.error}`);
+    }
+    return throwError('Something bad happened.');
+  }*/
 
   getBoxPlotData(corpus: Corpus): Observable<BoxplotData> {
     if (this.boxplot_data) {
@@ -46,7 +54,8 @@ export class BoxplotDataService {
           publishReplay(1),
           refCount(),
           tap(data => this.messageService.add('Box Plot data retrieval successful.')),
-          catchError(this.handleError)
+          catchError(this.handleError('getBoxPlotData',
+                                      {bpdata: [], outliers: []}))
         );
       return this.boxplot_data;
     }
@@ -55,11 +64,13 @@ export class BoxplotDataService {
   getRankedList(corpus: Corpus, sort_by: string): Observable<RankData> {
     if (!this.rank_data.has(sort_by)) {
       const rank_query = makeRankedListSchema(corpus, sort_by);
-      this.rank_data.set(sort_by, this.http.post<RankData>(this.rank_server, rank_query)
+      this.rank_data.set(sort_by,
+                         this.http.post<RankData>(this.rank_server, rank_query)
                          .pipe(
                            publishReplay(1),
                            refCount(),
-                           catchError(this.handleError)
+                           catchError(this.handleError('getRankedList',
+                                                       <RankData>{}))
                          ));
     }
     return this.rank_data.get(sort_by);
@@ -77,7 +88,7 @@ export class BoxplotDataService {
                 .pipe(
                   publishReplay(1),
                   refCount(),
-                  catchError(this.handleError)
+                  catchError(this.handleError('getScatterPlotData', <ScatterplotData>{}))
                 ));
     }
     return x_map.get(y);
@@ -86,6 +97,6 @@ export class BoxplotDataService {
   getGroupsData(corpus: Corpus, group_size: number): Observable<GroupsData> {
     const groups_query = makeGroupsSchema(corpus, group_size);
     return this.http.post<GroupsData>(this.groups_server, groups_query)
-      .pipe(catchError(this.handleError));
+      .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{})));
   }
 }

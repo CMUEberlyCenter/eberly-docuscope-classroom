@@ -6,6 +6,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { AppSettingsService } from './app-settings.service';
 import { MessageService } from './message.service';
 import { Corpus } from './corpus';
+import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 
 export interface ReportsSchema {
   corpus: {id: string}[];
@@ -26,13 +27,13 @@ function generateReportsSchema(corpus: Corpus): ReportsSchema {
 })
 export class ReportService {
   private _server = `${this.env.config.backend_server}/generate_reports`;
+  private handleError: HandleError;
 
   constructor(private http: HttpClient,
+              httpErrorHandler: HttpErrorHandlerService,
               private env: AppSettingsService,
-              private messageService: MessageService) { }
-
-  handleError(error: HttpErrorResponse) {
-    return throwError(error);
+              private messageService: MessageService) {
+    this.handleError = httpErrorHandler.createHandleError('ReportService');
   }
 
   getReports(corpus: Corpus): Observable<Blob> {
@@ -41,7 +42,7 @@ export class ReportService {
     return this.http.post<Blob>(this._server, query, {responseType: 'blob' as 'json'})
       .pipe(
         tap(() => this.messageService.add('Report Generation Successful!')),
-        catchError(this.handleError)
+        catchError(this.handleError('getReports', <Blob>{}))
       );
   }
 

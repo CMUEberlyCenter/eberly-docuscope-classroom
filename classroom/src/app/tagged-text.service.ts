@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
 import { AppSettingsService } from './app-settings.service';
+import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 
 interface TextContentSchema {
   text_id: string;
@@ -30,13 +31,12 @@ export class TaggedTextService {
   private server = `${this.env.config.backend_server}/text_content`;
   // since this is a new window, caching doesn't seem to be useful.
   private tag_data: Map<string, Observable<TextContent>> = new Map<string, Observable<TextContent>>();
+  private handleError: HandleError;
 
   constructor(private _http: HttpClient,
-              private env: AppSettingsService) { }
-
-  private handleError(error: HttpErrorResponse) {
-    console.log(error);
-    return throwError('Something bad happened');
+              httpErrorHandler: HttpErrorHandlerService,
+              private env: AppSettingsService) {
+    this.handleError = httpErrorHandler.createHandleError('TaggedTextService');
   }
 
   getTaggedText(doc_id: string): Observable<TextContent> {
@@ -48,7 +48,7 @@ export class TaggedTextService {
           .pipe(
             publishReplay(1),
             refCount(),
-            catchError(this.handleError))
+            catchError(this.handleError('getTaggedText', <TextContent>{})))
       );
     }
     return this.tag_data.get(doc_id);
