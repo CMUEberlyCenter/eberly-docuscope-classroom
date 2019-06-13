@@ -1,5 +1,5 @@
 """DocuScope Classroom analysis tools interface."""
-from enum import Enum, auto
+from enum import Enum
 try:
     import ujson as json
 except ImportError:
@@ -8,7 +8,6 @@ import logging
 import re
 import traceback
 from typing import Dict, List
-import os
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -18,17 +17,18 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
+    HTTP_422_UNPROCESSABLE_ENTITY, HTTP_500_INTERNAL_SERVER_ERROR, \
+    HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.orm import Session
-from pandas import DataFrame, Series, read_json
+from pandas import DataFrame, Series
 import memcache
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
 from ds_report import generate_pdf_reports
-from ds_tones import DocuScopeTones, DST_SCHEMA
+from ds_tones import DocuScopeTones
 
 ENGINE = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
@@ -57,6 +57,7 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'],
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
+    """Middleware for adding database sessions to a request."""
     response = Response("Internal server error",
                         status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     try:
@@ -73,9 +74,11 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db.close()
     return response
 
-def get_request(request: Request) -> Request:
-    return request
-def get_db(request: Request) -> Session:
+#def get_request(request: Request) -> Request:
+#    """Get the request from the given request."""
+#    return request
+def get_db_session(request: Request) -> Session:
+    """Get the database session from the given request."""
     return request.state.db
 
 #@app.after_request
@@ -91,15 +94,19 @@ def get_db(request: Request) -> Session:
 #    return response
 
 class LevelEnum(str, Enum):
+    """Enumeration of the possible analysis levels."""
     dimension = "Dimension"
     cluster = "Cluster"
+
 class LevelFrame(BaseModel):
+    """Schema for an analysis level data frame."""
     corpus: List[UUID]
     level: LevelEnum
     ds_dictionary: str
     frame: dict
-    
+
 class DocumentSchema(BaseModel):
+    """Schema for a document."""
     id: UUID = ...
     data: str = None
 class CorpusSchema(BaseModel):
@@ -108,12 +115,15 @@ class CorpusSchema(BaseModel):
     level: LevelEnum = LevelEnum.cluster
 
     def documents(self):
+        """Gets a list of document ids for this corpus."""
         return [d.id for d in self.corpus]
     def corpus_index(self):
+        """Generate the id for this corpus."""
         return "{}_{}".format(
             self.level,
             ",".join(sorted([str(d.id) for d in self.corpus])))
-    def get_stats(self, db: Session):
+    def get_stats(self, db_session: Session): #pylint: disable=R0914
+        """Retrieve or generate the basic statistics for this corpus."""
         try:
             indx = self.corpus_index()
             level_frame = CLIENT.get(indx)
@@ -123,33 +133,41 @@ class CorpusSchema(BaseModel):
                 stats = {}
                 ds_dictionaries = set()
                 for doc, fullname, ownedby, filename, doc_id, ds_dictionary in \
-                    db.query(
-                        Filesystem.processed,
-                        Filesystem.fullname,
-                        Filesystem.ownedby,
-                        Filesystem.name,
-                        Filesystem.id,
-                        DSDictionary.name
-                    ).filter(Filesystem.id.in_(self.documents()))\
-                      .filter(Filesystem.state == 'tagged')\
-                      .filter(Assignment.id == Filesystem.assignment)\
-                      .filter(DSDictionary.id == Assignment.dictionary):
+                    db_session.query(Filesystem.processed,
+                                     Filesystem.fullname,
+                                     Filesystem.ownedby,
+                                     Filesystem.name,
+                                     Filesystem.id,
+                                     DSDictionary.name)\
+                              .filter(Filesystem.id.in_(self.documents()))\
+                              .filter(Filesystem.state == 'tagged')\
+                              .filter(Assignment.id == Filesystem.assignment)\
+                              .filter(DSDictionary.id == Assignment.dictionary):
                     if doc:
-                        ser = Series({key: val['num_tags'] for key, val in doc['ds_tag_dict'].items()})
+                        ser = Series({key: val['num_tags'] for key, val in
+                                      doc['ds_tag_dict'].items()})
                         ser['total_words'] = doc['ds_num_word_tokens']
-                        ser['title'] = fullname if ownedby is 'student' else \
+                        ser['title'] = fullname if ownedby == 'student' else \
                             '.'.join(filename.split('.')[0:-1])
                         ser['ownedby'] = ownedby
                         stats[str(doc_id)] = ser
                         ds_dictionaries.add(ds_dictionary)
                 if not stats:
-                    logging.error("Failed to retrieve stats for corpus: %s", self.documents())
-                    raise HTTPException(detail="Document(s) submitted for analysis are not tagged, please close this window and wait a couple of minutes. If problem persists, please contact technical support.",
-                                        status_code=HTTP_503_SERVICE_UNAVAILABLE)
+                    logging.error("Failed to retrieve stats for corpus: %s",
+                                  self.documents())
+                    raise HTTPException(
+                        detail="Document(s) submitted for analysis are " +
+                        "not tagged, please close this window and wait " +
+                        "a couple of minutes. " +
+                        "If problem persists, please contact technical support.",
+                        status_code=HTTP_503_SERVICE_UNAVAILABLE)
                 if len(ds_dictionaries) != 1:
-                    logging.error("Inconsistant dictioaries in corpus %s", self.documents())
-                    raise HTTPException(detail="Inconsistant dictionaries used in tagging this corpus, documents are not compairable.",
-                                        status_code=HTTP_400_BAD_REQUEST)
+                    logging.error("Inconsistant dictioaries in corpus %s",
+                                  self.documents())
+                    raise HTTPException(
+                        detail="Inconsistant dictionaries used in tagging " +
+                        "this corpus, documents are not compairable.",
+                        status_code=HTTP_400_BAD_REQUEST)
                 ds_dictionary = list(ds_dictionaries)[0]
                 ds_stats = DataFrame(data=stats).transpose()
                 tones = DocuScopeTones(ds_dictionary)
@@ -170,7 +188,10 @@ class CorpusSchema(BaseModel):
                 frame['ownedby'] = ds_stats['ownedby']
                 logging.debug(frame)
                 lframe = frame.transpose()
-                level_frame = LevelFrame(ds_dictionary=ds_dictionary, corpus=self.documents(), frame=lframe.to_dict(), level=self.level).json()
+                level_frame = LevelFrame(ds_dictionary=ds_dictionary,
+                                         corpus=self.documents(),
+                                         frame=lframe.to_dict(),
+                                         level=self.level).json()
                 CLIENT.set(indx, level_frame)#, expire=4*60*60)
             logging.info(level_frame)
             return DataFrame.from_dict(json.loads(level_frame)['frame'])
@@ -179,8 +200,10 @@ class CorpusSchema(BaseModel):
             raise exp
 
 class BoxplotSchema(CorpusSchema):
-    def get_bp_data(self, db: Session):
-        frame = self.get_stats(db)
+    """Schema for 'boxplot_data' requests."""
+    def get_bp_data(self, db_session: Session):
+        """Generate the boxplot data for this request."""
+        frame = self.get_stats(db_session)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
         frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
         frame = frame.drop('total_words').drop('Other', errors='ignore')
@@ -216,8 +239,8 @@ class BoxplotSchema(CorpusSchema):
         logging.info(outliers)
         return {"bpdata": bpdata, "outliers": outliers}
 
-
 class BoxplotDataEntry(BaseModel):
+    """Schema for a boxplot data point."""
     q1: float = ...
     q2: float = ...
     q3: float = ...
@@ -227,25 +250,29 @@ class BoxplotDataEntry(BaseModel):
     lifence: float = ...
     category: str = ...
 class BoxplotDataOutlier(BaseModel):
+    """Schema for boxplot outliers."""
     pointtitle: str = ...
     value: float = ...
     category: str = ...
 class BoxplotData(BaseModel):
+    """Schema for 'boxplot_data' responses."""
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
 
 @app.post('/boxplot_data', response_model=BoxplotData)
-def get_boxplot_data(corpus: BoxplotSchema, db: Session = Depends(get_db)):
+def get_boxplot_data(corpus: BoxplotSchema, db_session: Session = Depends(get_db_session)):
+    """Responds to "boxplot_data" requests."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_bp_data(db)
+    return corpus.get_bp_data(db_session)
 
 class RankListSchema(CorpusSchema):
     """Schema for '/ranked_list' requests."""
     sortby: str = ...
 
     def get_rank_data(self, request: Request):
+        """Generate the rank data for this RankList request."""
         frame = self.get_stats(request)
         logging.info(frame)
         title_row = frame.loc['title']
@@ -267,27 +294,34 @@ class RankListSchema(CorpusSchema):
         frame = frame[frame.value != 0]
         logging.info(frame.to_dict('records'))
         return {'result': frame.to_dict('records')}
+
 class RankDataEntry(BaseModel):
+    """Schema for each entry in RankData."""
     index: str = ...
     text: str = ...
     value: float = ...
     ownedby: str = ...
+
 class RankData(BaseModel):
+    """Schema for "ranked_list" responses."""
     result: List[RankDataEntry] = ...
+
 @app.post('/ranked_list', response_model=RankData)
-def get_rank_list(corpus: RankListSchema, db: Session = Depends(get_db)):
+def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
+    """Responds to "ranked_list" requests."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_rank_data(db)
+    return corpus.get_rank_data(db_session)
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
     catX: str = ...
     catY: str = ...
 
-    def get_plot_data(self, db: Session):
-        frame = self.get_stats(db)
+    def get_plot_data(self, db_session: Session):
+        """Generate the scatterplot data for this corpus."""
+        frame = self.get_stats(db_session)
         title_row = frame.loc['title']
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
@@ -300,35 +334,42 @@ class ScatterplotSchema(CorpusSchema):
             logging.error("Either '%s' or '%s' is not in %s.",
                           self.catX, self.catY, frame.columns.values)
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST,
-                                detail="Either '{}' or '{}' is not in {}.".format(self.catX, self.catY, frame.columns.values))
+                                detail="Either '{}' or '{}' is not in {}.".format(
+                                    self.catX, self.catY, frame.columns.values))
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
         return {'spdata': frame.to_dict('records')}
+
 class ScatterplotDataPoint(BaseModel):
+    """Schema for a point in the ScatterplotData."""
     catX: float
     catY: float
     title: str
     text_id: str
     ownedby: str
+
 class ScatterplotData(BaseModel):
+    """Schema for "scatterplot_data" response."""
     spdata: List[ScatterplotDataPoint] = ...
+
 @app.post('/scatterplot_data', response_model=ScatterplotData)
-def get_scatterplot_data(corpus: ScatterplotSchema, db: Session = Depends(get_db)):
+def get_scatterplot_data(corpus: ScatterplotSchema, db_session: Session = Depends(get_db_session)):
+    """Responds to requests to generate the scatterplot data for a given corpus."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_plot_data(db)
+    return corpus.get_plot_data(db_session)
 
 class GroupsSchema(CorpusSchema):
     """Schema for '/groups' requests."""
     group_size: int = 2
 
-    def get_pairings(self, db: Session):
-        frame = self.get_stats(db)#.transpose()
+    def get_pairings(self, db_session: Session):
+        """Generate the groups for this corpus."""
+        frame = self.get_stats(db_session)#.transpose()
         logging.info(frame)
-        frame.loc[:, list(frame.loc['ownedby'] == 'student')]
-        #TODO: see why instructor files still in
+        frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
         title_row = frame.loc['title':]
         frame = frame.drop('title').drop('ownedby')
         frame = frame.apply(lambda x: x.divide(x['total_words']))
@@ -339,34 +380,68 @@ class GroupsSchema(CorpusSchema):
         return get_best_groups(frame, group_size=self.group_size)
 
 class GroupsData(BaseModel):
+    """Schema for "groups" data."""
     groups: List[List[str]] = ...
     grp_qualities: List[float]
     quality: float
+
 @app.post('/groups', response_model=GroupsData)
-def generate_groups(corpus: GroupsSchema, db: Session = Depends(get_db)):
+def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_session)):
+    """Responds to requests to generate groups."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     if len(corpus.corpus) < corpus.group_size:
         raise HTTPException(detail="Not enough documents to do grouping.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_pairings(db)
+    return corpus.get_pairings(db_session)
 
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""
     intro: str
     stv_intro: str
 
-    def get_reports(self, db: Session):
-        frame = self.get_stats(db)
-        bp_data = self.get_bp_data(db)
+    def get_reports(self, db_session: Session):
+        """Generate the report for this corpus."""
+        frame = self.get_stats(db_session)
+        bp_data = self.get_bp_data(db_session)
         #tones = DST_SCHEMA.load(request.session['tones'])
         ds_dictionary = json.loads(CLIENT.get(self.corpus_index()))['ds_dictionary']
         tones = DocuScopeTones(ds_dictionary)
-        
-        assignment_course, assignment_name, assignment_instructor = db.query(Assignment.course, Assignment.name, Assignment.instructor).filter(Assignment.id == Filesystem.assignment).filter(Filesystem.id.in_(self.documents())).first()
+        documents = {}
+        for (uuid, doc, filename, status) in db_session.query(
+                Filesystem.id, Filesystem.processed, Filesystem.name,
+                Filesystem.state).filter(Filesystem.id.in_(self.documents())):
+            if status == 'error':
+                logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
+                raise HTTPException(
+                    detail="Aborting: there was an error while tagging {}".format(filename),
+                    status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+            if status != 'tagged':
+                logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
+                raise HTTPException(
+                    detail="Aborting because {} is not tagged (state: {})".format(filename, status),
+                    status_code=HTTP_204_NO_CONTENT)
+            tagged = {
+                'html_content': re.sub(r'(\n|\s)+', ' ', doc['ds_output']),
+                'dict': {}
+            }
+            if doc['ds_tag_dict']:
+                tagged['dict'] = {
+                    lat: {"dimension": tones.get_dimension(lat),
+                          "cluster": tones.get_lat_cluster(lat)}
+                    for lat in doc['ds_tag_dict'].keys()
+                }
+            documents[str(uuid)] = tagged
+
+        assignment_course, assignment_name, assignment_instructor = \
+            db_session.query(Assignment.course, Assignment.name,
+                             Assignment.instructor)\
+                      .filter(Assignment.id == Filesystem.assignment)\
+                      .filter(Filesystem.id.in_(self.documents())).first()
         if not assignment_course:
-            logging.error("Could not retrieve Assignment for corpus: %s", self.documents())
+            logging.error("Could not retrieve Assignment for corpus: %s",
+                          self.documents())
             raise HTTPException(detail="Could not retrieve Assignment.",
                                 status_code=HTTP_422_UNPROCESSABLE_ENTITY)
         descriptions = {
@@ -376,9 +451,12 @@ class ReportsSchema(BoxplotSchema):
             'intro': self.intro,
             'stv_intro': self.stv_intro
         }
-        return generate_pdf_reports(frame, self.corpus, ds_dictionary, tones, bp_data, descriptions)
+        return generate_pdf_reports(frame, documents, ds_dictionary, bp_data, descriptions)
+
 @app.post('/generate_reports')
-def generate_reports(corpus: ReportsSchema, db: Session = Depends(get_db)):
+def generate_reports(corpus: ReportsSchema,
+                     db_session: Session = Depends(get_db_session)):
+    """Responds to generate_reports requests by streaming the report zipfile."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
@@ -386,7 +464,7 @@ def generate_reports(corpus: ReportsSchema, db: Session = Depends(get_db)):
         logging.warning("Level is not Cluster, resetting.")
         corpus.level = LevelEnum.cluster
     try:
-        zip_buffer = corpus.get_reports(db)
+        zip_buffer = corpus.get_reports(db_session)
     except Exception as excp: #pylint: disable=W0703
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
@@ -400,17 +478,25 @@ def generate_reports(corpus: ReportsSchema, db: Session = Depends(get_db)):
 class TextSchema(BaseModel):
     """Schema for '/stv' requests."""
     text_id: UUID = ...
+
 class DictionaryEntry(BaseModel):
+    """Schema for dimension->cluster mapping."""
     dimension: str
     cluster: str
+
 class DictionaryInformation(BaseModel):
+    """Schema for dictionary help."""
     id: str = ...
     name: str = ...
     description: str = ...
+
 class DictInfo(BaseModel):
+    """Schema for dictionary information."""
     cluster: List[DictionaryInformation] = None
     dimension: List[DictionaryInformation] = None
+
 class TextContent(BaseModel):
+    """Schema for text_content data."""
     text_id: str = ...
     word_count: int = 0
     html_content: str = ""
@@ -420,11 +506,15 @@ class TextContent(BaseModel):
 #TODO: move to get?
 #TODO: start processing and cache results on corpus load?
 @app.post('/text_content', response_model=TextContent)
-def get_tagged_text(file_id: TextSchema, db: Session = Depends(get_db)):
+def get_tagged_text(file_id: TextSchema,
+                    db_session: Session = Depends(get_db_session)):
+    """Get the tagged text information for the given file."""
     if not file_id.text_id:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    doc, filename, state = db.query(Filesystem.processed, Filesystem.name, Filesystem.state).filter_by(id=file_id.text_id).first()
+    doc, filename, state = db_session.query(Filesystem.processed,
+                                            Filesystem.name, Filesystem.state)\
+                                     .filter_by(id=file_id.text_id).first()
     if state in ('pending', 'submitted'):
         logging.error("%s has state %s", file_id.text_id, state)
         raise HTTPException(detail="Document is still being processed, try again later.",
@@ -440,29 +530,30 @@ def get_tagged_text(file_id: TextSchema, db: Session = Depends(get_db)):
     res = TextContent(
         text_id=filename or file_id.text_id,
         word_count=doc['ds_num_word_tokens'])
-    res.dict_info = db.query(DSDictionary.class_info).filter(DSDictionary.name==doc['ds_dictionary']).first()[0]
+    res.dict_info = db_session.query(DSDictionary.class_info)\
+                              .filter(DSDictionary.name == doc['ds_dictionary'])\
+                              .first()[0]
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
     tag_dict = doc['ds_tag_dict']
     if tag_dict:
         tones = DocuScopeTones(doc['ds_dictionary'])
-            #request.session['tones'] = DST_SCHEMA.dump(tones).data
-            #tones = DST_SCHEMA.load(request.session['tones'])
         for lat in tag_dict.keys():
             res.dictionary[lat] = {"dimension": tones.get_dimension(lat),
                                    "cluster": tones.get_lat_cluster(lat)}
     return res
 
-# Statically serve the web interface
 @app.middleware("http")
 async def add_custom_header(request, call_next):
+    """Serve the classroom web application from static."""
     response = await call_next(request)
     if response.status_code == 404:
         return FileResponse('static/index.html')
     return response
 @app.exception_handler(404)
-def not_found(request, exc):
+def not_found(_request, _exc):
+    """Handler for 404 error which instead returns index.html"""
     return FileResponse('static/index.html')
 app.mount("/classroom", StaticFiles(directory="static", html=True), name="static")
 
