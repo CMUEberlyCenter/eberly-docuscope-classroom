@@ -475,10 +475,6 @@ def generate_reports(corpus: ReportsSchema,
                              headers={'Content-Disposition':
                                       "attachment; filename='report.zip'"})
 
-class TextSchema(BaseModel):
-    """Schema for '/stv' requests."""
-    text_id: UUID = ...
-
 class DictionaryEntry(BaseModel):
     """Schema for dimension->cluster mapping."""
     dimension: str
