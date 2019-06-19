@@ -41,10 +41,10 @@ export class TaggedTextService {
 
   getTaggedText(doc_id: string): Observable<TextContent> {
     if (!this.tag_data.has(doc_id)) {
-      const text_query: TextContentSchema = {'text_id': doc_id};
+      //const text_query: TextContentSchema = {'text_id': doc_id};
       this.tag_data.set(
         doc_id,
-        this._http.post<TextContent>(this.server, text_query)
+        this._http.get<TextContent>(`${this.server}/${doc_id}`)
           .pipe(
             publishReplay(1),
             refCount(),

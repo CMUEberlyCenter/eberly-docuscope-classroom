@@ -503,20 +503,19 @@ class TextContent(BaseModel):
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
 
-#TODO: move to get?
 #TODO: start processing and cache results on corpus load?
-@app.post('/text_content', response_model=TextContent)
-def get_tagged_text(file_id: TextSchema,
+@app.get('/text_content/{file_id}', response_model=TextContent)
+def get_tagged_text(file_id: UUID,
                     db_session: Session = Depends(get_db_session)):
     """Get the tagged text information for the given file."""
-    if not file_id.text_id:
+    if not file_id:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     doc, filename, state = db_session.query(Filesystem.processed,
                                             Filesystem.name, Filesystem.state)\
-                                     .filter_by(id=file_id.text_id).first()
+                                     .filter_by(id=file_id).first()
     if state in ('pending', 'submitted'):
-        logging.error("%s has state %s", file_id.text_id, state)
+        logging.error("%s has state %s", file_id, state)
         raise HTTPException(detail="Document is still being processed, try again later.",
                             status_code=HTTP_204_NO_CONTENT)
     if state == 'error':
@@ -527,12 +526,12 @@ def get_tagged_text(file_id: TextSchema,
         logging.error("File not found %s", file_id.text_id)
         raise HTTPException(detail="File not found %s" % file_id.text_id,
                             status_code=HTTP_400_BAD_REQUEST)
-    res = TextContent(
-        text_id=filename or file_id.text_id,
-        word_count=doc['ds_num_word_tokens'])
-    res.dict_info = db_session.query(DSDictionary.class_info)\
-                              .filter(DSDictionary.name == doc['ds_dictionary'])\
-                              .first()[0]
+    ds_info = db_session\
+        .query(DSDictionary.class_info)\
+        .filter(DSDictionary.name == doc['ds_dictionary']).first()[0]
+    res = TextContent(text_id=filename or file_id.text_id,
+                      word_count=doc['ds_num_word_tokens'],
+                      dict_info=ds_info)
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
