@@ -1,3 +1,20 @@
+.badge {
+  border-radius: 50%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  text-align: center;
+  box-sizing: border-box;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: Roboto,"Helvetica Neue",sans-serif;
+  color: white; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
+  background: #3f51b5;
+  padding: 4px;
+  margin-left: 3px;
+}
+
 .container {
   width: 100%;
   height: calc(100vh - 64.5px);
@@ -61,4 +78,10 @@
 }
 .text_info {
   padding: 4px;
+}
+
+summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -4,6 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData, ActivatedRouteStub } from '../../testing';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule } from '@angular/material';
 
 import { TextViewComponent } from './text-view.component';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -18,7 +19,7 @@ describe('TextViewComponent', () => {
     const tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(
       {'text_id': 'stub_id', word_count: 2, html_content: 'stub text',
-       dictionary: {}, dict_info: {}}));
+       dictionary: {}, dict_info: {cluster: [], dimension: []}}));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     const domSanitizer = jasmine.createSpyObj('DomSanitizer',
@@ -30,7 +31,7 @@ describe('TextViewComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent ],
-      imports: [ EasyUIModule ],
+      imports: [ EasyUIModule, MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule ],
       providers: [
         { provide: DomSanitizer, useValue: domSanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },

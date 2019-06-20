@@ -3,19 +3,14 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { Type } from '@angular/core';
 
 import { DSDictionaryService } from './ds-dictionary.service';
-import { AppSettingsService } from './app-settings.service';
 
 describe('DsDictionaryService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    const app_settings_spy = jasmine.createSpyObj('AppSettingsService', ['loadSettings']);
-    app_settings_spy.config = { backend_server: '' };
-
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ],
-      providers: [ DSDictionaryService,
-                   { provide: AppSettingsService, useValue: app_settings_spy} ]
+      providers: [ DSDictionaryService ]
     });
 
     httpMock = TestBed.get(HttpTestingController as Type<HttpTestingController>);

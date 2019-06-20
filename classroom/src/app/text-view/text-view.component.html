@@ -4,11 +4,10 @@
                       title="Dictionary Categories"  split="true"
                       (resizing)="layout.updatePaddings()">
       <aside class="categories_panel">
-        <p *ngIf="max_selected_clusters > 0" class="ds-stv-clusters-instruction">Select up to {{max_selected_clusters}}.</p>
-        <div *ngFor="let c of clusters;" [class]="'cluster_select'">
-          <label><input class="ds-stv-category" type="checkbox" [value]="c"
-                        (change)="toggle_category($event)">{{get_cluster_info(c).name}}</label>
-        </div>
+        <label *ngIf="max_selected_clusters > 0" class="ds-stv-clusters-instruction">Select up to {{max_selected_clusters}}:</label>
+        <mat-selection-list #cluster_selection (selectionChange)="selection_change($event)">
+          <mat-list-option *ngFor="let c of clusters;" checkboxPosition="before" [value]="c">{{get_cluster_name(c)}}</mat-list-option>
+        </mat-selection-list>
       </aside>
     </eui-layout-panel>
     <eui-layout-panel region="center" title="ID: {{tagged_text.text_id}}"
@@ -18,39 +17,27 @@
     </eui-layout-panel>
     <eui-layout-panel euiResizable region="east" style="width:300px;"
                       split="true"
+                      title="Patterns"
                       handles="w" (resizing)="layout.updatePaddings()">
-      <!--<eui-panel style="margin-bottom:10px;" title="Selected Pattern">
-        <div class="selection">{{selection}}</div>
-        <div class="selection_table">-->
-          <!--<div class="selection_row"><div class="selection_label">LAT</div><div class="selection_data">{{selected_lat}}</div></div>-->
-          <!--<div class="selection_row"><div class="selection_label">Dimension</div><div class="selection_data">{{selected_dimension}}</div></div>-->
-          <!--<div class="selection_row"><div class="selection_label">Category</div><div class="selection_data">{{selected_cluster}}</div></div>
-        </div>
-      </eui-panel>-->
-      <!--<eui-panel title="Text Information" collapsible="true" style="margin-bottom:10px;">
-        <aside class="text_info">Word Count = {{tagged_text.word_count}}</aside>
-      </eui-panel>-->
-      <eui-panel title="Patterns Used" collapsible="true">
-        <eui-accordion [multiple]="true" *ngIf="patterns" [animate]="true"
-                       [class]="'patterns'">
-          <eui-accordion-panel *ngFor="let clust of patterns.keys()"
-                               [title]="get_cluster_info(clust).name + ' ('+get_pattern_count(clust)+')'"
-                               [selected]="false"
-                               collapsible="true">
-            <details *ngIf="get_cluster_info(clust)">
-              <summary>{{get_cluster_info(clust).description.slice(0,26)}}
-                <span *ngIf="get_cluster_info(clust).description.length>26">...</span></summary>
-              <p>{{get_cluster_info(clust).description}}</p>
-            </details>
+      <mat-accordion *ngIf="patterns">
+        <mat-expansion-panel *ngFor="let clust of patterns | keyvalue">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span>{{get_cluster_name(clust.key)}}<span class="badge">{{get_pattern_count(clust.key)}}</span></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <details *ngIf="get_cluster_info(clust.key) as info">
+            <summary>{{info.description}}</summary>
+            <p>{{info.description}}</p>
+          </details>
 
-            <ul>
-              <li *ngFor="let pattern of patterns.get(clust).entries()">
-                {{pattern[0]}} ({{pattern[1]}})
-              </li>
-            </ul>
-          </eui-accordion-panel>
-        </eui-accordion>
-      </eui-panel>
+          <ul>
+            <li *ngFor="let pattern of clust.value | keyvalue">
+              {{pattern.key}} <span class="badge">{{pattern.value}}</span>
+            </li>
+          </ul>
+        </mat-expansion-panel>
+      </mat-accordion>
     </eui-layout-panel>
   </eui-layout>
 </div>

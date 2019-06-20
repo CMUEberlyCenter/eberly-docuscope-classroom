@@ -1,13 +1,14 @@
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AppSettingsService } from './app-settings.service';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { BoxplotGraphComponent } from './boxplot-graph/boxplot-graph.component';
 import { GroupingComponent } from './grouping/grouping.component';
@@ -19,11 +20,6 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-const appInitializerFn = (appConfig: AppSettingsService) => {
-  return () => appConfig.loadSettings();
-};
 
 @NgModule({
   declarations: [
@@ -42,21 +38,18 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
   ],
   imports: [
     BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
     NgxSpinnerModule,
     EasyUIModule,
-    AppRoutingModule,
-    BrowserAnimationsModule
+    MatCheckboxModule,
+    MatBadgeModule,
+    MatExpansionModule,
+    MatListModule
   ],
   providers: [
-    AppSettingsService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: appInitializerFn,
-      multi: true,
-      deps: [AppSettingsService]
-    }
   ],
   bootstrap: [AppComponent]
 })

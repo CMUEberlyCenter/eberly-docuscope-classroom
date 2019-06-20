@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, retry, tap, publishReplay, refCount, take } from 'rxjs/operators';
+import { environment } from './../environments/environment';
 import { MessageService } from './message.service';
-import { AppSettingsService } from './app-settings.service';
 import { Corpus } from './corpus';
 import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema,
          ScatterplotData, makeScatterplotSchema, GroupsData,
@@ -14,19 +14,18 @@ import { HttpErrorHandlerService, HandleError } from './http-error-handler.servi
   providedIn: 'root'
 })
 export class BoxplotDataService {
-  private boxplot_server = `${this.env.config.backend_server}/boxplot_data`;
+  private boxplot_server = `${environment.backend_server}/boxplot_data`;
   private boxplot_data: Observable<BoxplotData>;
-  private rank_server = `${this.env.config.backend_server}/ranked_list`;
+  private rank_server = `${environment.backend_server}/ranked_list`;
   private rank_data: Map<string, Observable<RankData>> = new Map<string, Observable<RankData>>();
-  private scatter_server = `${this.env.config.backend_server}/scatterplot_data`;
+  private scatter_server = `${environment.backend_server}/scatterplot_data`;
   private scatterplot_data: Map<string, Map<string, Observable<ScatterplotData>>> =
     new Map<string, Map<string, Observable<ScatterplotData>>>();
-  private groups_server = `${this.env.config.backend_server}/groups`;
+  private groups_server = `${environment.backend_server}/groups`;
   private handleError: HandleError;
 
   constructor(private http: HttpClient,
               httpErrorHandler: HttpErrorHandlerService,
-              private env: AppSettingsService,
               private messageService: MessageService) {
     this.handleError = httpErrorHandler.createHandleError('BoxplotDataService');
   }

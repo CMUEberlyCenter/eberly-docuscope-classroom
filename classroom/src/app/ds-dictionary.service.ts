@@ -5,17 +5,16 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { MessageService } from './message.service';
-import { AppSettingsService } from './app-settings.service';
+import { environment } from './../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DSDictionaryService {
 
-  private ds_dictionary_server = `${this.env.config.backend_server}/_dictionary`;
+  private ds_dictionary_server = `${environment.backend_server}/_dictionary`;
 
   constructor(private http: HttpClient,
-              private env: AppSettingsService,
               private messageService: MessageService) { }
 
   private handleError(error: HttpErrorResponse) {

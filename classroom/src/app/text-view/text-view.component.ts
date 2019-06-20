@@ -7,7 +7,6 @@ import * as d3 from 'd3';
 import * as $ from 'jquery';
 
 import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
-// import { memoize } from '../memoize';
 
 @Component({
   selector: 'app-text-view',
@@ -51,7 +50,7 @@ export class TextViewComponent implements OnInit {
   getTaggedText() {
     this._spinner.show();
     const id = this._route.snapshot.paramMap.get('doc');
-    this._text_service.getTaggedText(id)
+    return this._text_service.getTaggedText(id)
       .subscribe(txt => {
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
@@ -60,6 +59,11 @@ export class TextViewComponent implements OnInit {
         // console.log(this.html_content);
         // console.log($(txt.html_content));
         this._cluster_info = new Map<string, TextContentDictionaryInformation>();
+        if (this.tagged_text && this.tagged_text.dict_info && this.tagged_text.dict_info.cluster) {
+          for (const clust of this.tagged_text.dict_info.cluster) {
+            this._cluster_info.set(clust.id, clust);
+          }
+        }
         const clusters = new Set<string>();
         for (const d of Object.keys(txt.dictionary)) {
           const cluster = txt.dictionary[d]['cluster'];
@@ -100,14 +104,6 @@ export class TextViewComponent implements OnInit {
     this.getTaggedText();
   }
 
-  /*ngOnChanges() {
-    const l2c = this.lat_to_cluster;
-    $('[data-key]').each(function() {
-      const lat: string = $(this).attr('data-key');
-      $(this).attr('title', l2c(lat)).addClass('easyui-tooltip');
-    });
-    console.log('titled', $('[title]').length);
-  }*/
   lat_to_cluster(lat: string): string {
     return this.get_cluster_name(this.tagged_text.dictionary[lat]['cluster']);
   }
@@ -148,20 +144,8 @@ export class TextViewComponent implements OnInit {
   }
 
   get_cluster_info(cluster: string): TextContentDictionaryInformation {
-    if (!this._cluster_info.has(cluster)) {
-      for (const clust of this.tagged_text.dict_info.cluster) {
-        if (clust.id === cluster) {
-          this._cluster_info.set(cluster, clust);
-          break;
-        }
-      }
-    }
     return this._cluster_info.get(cluster);
   }
-
-  // get_cluster_info(cluster: string) {
-  //  return this.memo_cluster_info(cluster);
-  // }
 
   /**
    * Tries to retrieve the human readable name of the given cluster.
@@ -182,24 +166,22 @@ export class TextViewComponent implements OnInit {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
-  toggle_category($event) {
-    // console.log($event);
-    // console.log($event.target.checked, $event.target.value);
-    if ($($event.target).closest('aside').find(':checkbox:checked').length > this.max_selected_clusters) {
-      $event.target.checked = false;
+  selection_change($event) {
+    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
+      $event.option.selected = false;
     }
-    const clust: string = $event.target.value;
+    const clust: string = $event.option.value;
     const lats = this.get_lats(clust);
     const css_class = this.get_cluster_class(clust);
-    if (!$event.target.checked && this._selected_clusters.has(clust)) {
+    if (!$event.option.selected && this._selected_clusters.has(clust)) {
       this._css_classes.unshift(this._selected_clusters.get(clust));
       this._selected_clusters.delete(clust);
     }
-    d3.select($event.target.parentNode).classed(css_class, $event.target.checked);
+    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
     let lat = lats.next();
     while (!lat.done) {
       d3.selectAll(`[data-key=${lat.value}]`)
-        .classed(css_class, $event.target.checked);
+        .classed(css_class, $event.option.selected);
       lat = lats.next();
     }
   }
