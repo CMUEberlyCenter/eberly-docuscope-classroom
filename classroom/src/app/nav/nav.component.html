@@ -1,15 +1,50 @@
-<nav>
+<nav mat-tab-nav-bar>
+  <a mat-tab-link
+     routerLink="/boxplot"
+     queryParamsHandling="preserve"
+     routerLinkActive #bprla="routerLinkActive"
+     [active]="bprla.isActive"
+     matTooltip="Show Box Plot Graph">Box Plot</a>
+  <a mat-tab-link
+     routerLink="/ranking"
+     queryParamsHandling="preserve"
+     routerLinkActive #rrla="routerLinkActive"
+     [active]="rrla.isActive"
+     matTooltip="Show Ranking Lists">Rankings</a>
+  <a mat-tab-link
+     routerLink="/scatterplot"
+     queryParamsHandling="preserve"
+     routerLinkActive #sprla="routerLinkActive"
+     [active]="sprla.isActive"
+     matTooltip="Show Scatter Plot Graph">Scatter Plot</a>
+  <a mat-tab-link
+     routerLink="/grouping"
+     queryParamsHandling="preserve"
+     routerLinkActive #grla="routerLinkActive"
+     [active]="grla.isActive"
+     matTooltip="Generate Groups">Groups</a>
+  <a mat-tab-link
+     *ngIf="is_instructor()"
+     routerLink="/report"
+     queryParamsHandling="preserve"
+     routerLinkActive #rla="routerLinkActive"
+     [active]="rla.isActive"
+     matTooltip="Generate Reports">Reports</a>
+</nav>
+
+<!--<nav>-->
   <!--<eui-linkbutton [selected]="is_current('/corpus')"
                   [title]="'Go to corpus details.'"
                   routerLink="/corpus">Corpus</eui-linkbutton>-->
-  <eui-linkbutton [selected]="is_current('/boxplot')"
+<!--  <eui-linkbutton [selected]="is_current('/boxplot')"
                   [title]="'Go to Box Plot display.'"
                   routerLink="/boxplot"
                   queryParamsHandling="preserve">Box Plot</eui-linkbutton>
   <eui-linkbutton [selected]="is_current('/ranking')"
                   [title]="'Go to rankings list.'"
                   routerLink="/ranking"
-                  queryParamsHandling="preserve">Rankings</eui-linkbutton>
+                  queryParamsHandling="preserve"
+>Rankings</eui-linkbutton>
   <eui-linkbutton [selected]="is_current('/scatterplot')"
                   [title]="'Go to scatter plot display.'"
                   routerLink="/scatterplot"
@@ -25,3 +60,4 @@
                   routerLink="/report"
                   queryParamsHandling="preserve">Reports</eui-linkbutton>
 </nav>
+-->

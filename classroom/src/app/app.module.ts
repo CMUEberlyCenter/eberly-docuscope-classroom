@@ -5,11 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+//import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -46,6 +51,7 @@ import { TextViewComponent } from './text-view/text-view.component';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    DragDropModule,
     FormsModule,
     HttpClientModule,
     NgxSpinnerModule,
@@ -54,7 +60,11 @@ import { TextViewComponent } from './text-view/text-view.component';
     MatCardModule,
     MatCheckboxModule,
     MatExpansionModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatListModule,
+    //MatRadioModule,
+    MatSidenavModule,
     MatTabsModule,
     MatTooltipModule
   ],

@@ -1,3 +1,6 @@
+.container {
+  margin: 5px;
+}
 .graph_container {
   display: flex;
   flex-direction: row;

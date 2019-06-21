@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
+import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -13,16 +14,10 @@ import { GroupsData } from '../boxplot-data';
 })
 export class GroupingComponent implements OnInit {
   corpus: Corpus;
-  group_sizes: number[] = [2, 3, 4];
-  group_size = '2';
+  //group_sizes: number[] = ['2', '3', '4'];
+  group_size: number = 2; //string = '2';
   groups: GroupsData;
-  students: [string, boolean][] = [
-    ['John', true],
-    ['Mike', true],
-    ['Alex', true],
-    ['Kate', true],
-    ['Sarah', true],
-  ];
+  absent: string[] = [];
 
   constructor(private corpus_service: CorpusService,
               private _spinner: NgxSpinnerService,
@@ -42,6 +37,7 @@ export class GroupingComponent implements OnInit {
     this.data_service.getGroupsData(this.corpus, +this.group_size)
       .subscribe(data => {
         this.groups = data;
+        this.absent = [];
         this._spinner.hide();
       });
   }
@@ -58,4 +54,16 @@ export class GroupingComponent implements OnInit {
     }
   }
 
+  drop(event: CdkDragDrop<string[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data,
+                      event.previousIndex,
+                      event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+                        event.container.data,
+                        event.previousIndex,
+                        event.currentIndex);
+    }
+  }
 }

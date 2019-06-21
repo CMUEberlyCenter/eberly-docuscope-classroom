@@ -1,11 +1,19 @@
 .container {
-  margin-left: 20px;
-  margin-right: 20px;
+  margin: 5px;
 }
 
+.options {
+  padding-right: 1em;
+}
+
+.groups_content {
+  padding-left: 1em;
+  padding-right: 2em;
+}
 .groups_container {
   display: flex;
   flex-flow: column;
+  padding-left: 1em;
 }
 
 .group {
@@ -15,6 +23,9 @@
   border-bottom: 1px solid grey;
 }
 
+.group_label {
+  width: 10em;
+}
 .group_member {
   width: 38em;
 }
