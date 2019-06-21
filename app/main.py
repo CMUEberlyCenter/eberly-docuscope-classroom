@@ -52,8 +52,12 @@ app = FastAPI( #pylint: disable=C0103
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
 #app.add_middleware(SessionMiddleware, secret_key=secret_key, max_age=24*60*60)
-app.add_middleware(CORSMiddleware, allow_origins=['*'],
-                   allow_methods=['GET', 'POST'])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['GET', 'POST'],
+    allow_headers=['*'])
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
