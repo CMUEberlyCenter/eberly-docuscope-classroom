@@ -5,7 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
-import { MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule } from '@angular/material';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -44,10 +50,13 @@ import { TextViewComponent } from './text-view/text-view.component';
     HttpClientModule,
     NgxSpinnerModule,
     EasyUIModule,
-    MatCheckboxModule,
     MatBadgeModule,
+    MatCardModule,
+    MatCheckboxModule,
     MatExpansionModule,
-    MatListModule
+    MatListModule,
+    MatTabsModule,
+    MatTooltipModule
   ],
   providers: [
   ],

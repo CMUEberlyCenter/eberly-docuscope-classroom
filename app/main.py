@@ -123,9 +123,10 @@ class CorpusSchema(BaseModel):
         return [d.id for d in self.corpus]
     def corpus_index(self):
         """Generate the id for this corpus."""
-        return "{}_{}".format(
-            self.level,
-            ",".join(sorted([str(d.id) for d in self.corpus])))
+        # key limit of 250 characters for memcached
+        key = [str(self.level)]
+        key.extend(sorted([str(d.id) for d in self.corpus]))
+        return str(hash(tuple(key)))
     def get_stats(self, db_session: Session): #pylint: disable=R0914
         """Retrieve or generate the basic statistics for this corpus."""
         try:
