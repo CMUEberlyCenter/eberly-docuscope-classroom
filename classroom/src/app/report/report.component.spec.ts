@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { ReportComponent } from './report.component';
 import { CorpusService } from '../corpus.service';
@@ -25,7 +27,7 @@ describe('ReportComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ ReportComponent,
                       NavStubComponent ],
-      imports: [ FormsModule ],
+      imports: [ FormsModule, MatCardModule, MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },

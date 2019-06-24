@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
+import { MatCardModule } from '@angular/material/card';
 
 import { RankComponent } from './rank.component';
 import { RankData } from '../boxplot-data';
@@ -41,7 +42,7 @@ describe('RankComponent', () => {
       declarations: [ RankComponent,
                       NavStubComponent,
                       RankGraphStubComponent ],
-      imports: [ FormsModule ],
+      imports: [ FormsModule, MatCardModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },

@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing';
 
@@ -43,7 +44,7 @@ describe('ScatterplotComponent', () => {
       declarations: [ ScatterplotComponent,
                       NavStubComponent,
                       ScatterplotGraphStubComponent ],
-      imports: [ FormsModule ],
+      imports: [ FormsModule, MatCardModule ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },
