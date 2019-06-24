@@ -21,6 +21,7 @@ pylint:
   stage: test
   image: python:latest
   before_script:
+    - pip install --no-cache-dir --upgrade -r requirements.txt
     - pip install pylint --quiet
   script:
     - pylint app
@@ -49,8 +50,8 @@ classroom_test:
   script:
     - cd classroom
     - npm ci
-    - npm ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true
-    - npm ng e2e
+    - npm run ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true
+    - npm run ng e2e
   artifacts:
     paths:
       - classroom/coverage/
