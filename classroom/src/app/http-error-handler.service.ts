@@ -25,7 +25,7 @@ export class HttpErrorHandlerService {
       console.error(error);
       const message = (error.error instanceof ErrorEvent)
         ? error.error.message
-        : `Server response ${error.status} with message "${error.error}"`;
+        : `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e=>e.msg).join(', ')}"`;
       this.messageService.add(`${serviceName}: ${operation} failed: ${message}`);
       return of(result);
     };

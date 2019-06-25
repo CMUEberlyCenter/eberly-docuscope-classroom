@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -21,20 +21,20 @@ export class ScatterplotComponent implements OnInit {
   y_axis: string;
 
   constructor(private corpusService: CorpusService,
-              private _spinner: NgxSpinnerService,
+              private _spinner: NgxUiLoaderService,
               private dataService: BoxplotDataService) {}
 
   getCorpus(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.hide();
+        this._spinner.stop();
         this.getCategories();
       });
   }
   getCategories(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         // if (!data.bpdata) // TODO check for not enough categories
@@ -46,18 +46,18 @@ export class ScatterplotComponent implements OnInit {
         this.y_axis = this.categories[1];
         this.x_categories.delete(this.y_axis);
         this.y_categories.delete(this.x_axis);
-        this._spinner.hide();
+        this._spinner.stop();
         this.getData();
       });
   }
   getData(): void {
     // make sure that there are valid axis before getting data.
     if (this.x_axis && this.y_axis && this.x_axis !== this.y_axis) {
-      this._spinner.show();
+      this._spinner.start();
       this.dataService.getScatterPlotData(this.corpus, this.x_axis, this.y_axis)
         .subscribe(data => {
           this.data = data;
-          this._spinner.hide();
+          this._spinner.stop();
         });
     }
     // TODO: add messages for failures.

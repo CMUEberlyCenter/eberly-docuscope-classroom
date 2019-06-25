@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import * as d3 from 'd3';
 import * as $ from 'jquery';
@@ -42,13 +42,13 @@ export class TextViewComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
-    private _spinner: NgxSpinnerService,
+    private _spinner: NgxUiLoaderService,
     private _text_service: TaggedTextService,
     private _sanitizer: DomSanitizer
   ) { }
 
   getTaggedText() {
-    this._spinner.show();
+    this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
     return this._text_service.getTaggedText(id)
       .subscribe(txt => {
@@ -97,7 +97,7 @@ export class TextViewComponent implements OnInit {
         });
         this.patterns = pats;
         // this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
-        this._spinner.hide();
+        this._spinner.stop();
       });
   }
   ngOnInit() {

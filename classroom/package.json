@@ -40,7 +40,7 @@
     "hammerjs": "^2.0.8",
     "jquery": "^3.4.1",
     "ng-easyui": "^1.2.6",
-    "ngx-spinner": "^7.1.4",
+    "ngx-ui-loader": "^8.0.0",
     "rxjs": "^6.5.2",
     "rxjs-compat": "^6.5.2",
     "rxjs-tslint": "^0.1.7",
@@ -48,8 +48,8 @@
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.800.3",
-    "@angular/cli": "^8.0.3",
+    "@angular-devkit/build-angular": "~0.800.4",
+    "@angular/cli": "^8.0.4",
     "@angular/compiler-cli": "^8.0.2",
     "@angular/language-service": "^8.0.2",
     "@types/d3": "^5.7.2",

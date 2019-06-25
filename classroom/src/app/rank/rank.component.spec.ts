@@ -8,7 +8,7 @@ import { RankComponent } from './rank.component';
 import { RankData } from '../boxplot-data';
 import { CorpusService } from '../corpus.service';
 import { BoxplotDataService } from '../boxplot-data.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({selector: 'app-rank-graph', template: ''})
 class RankGraphStubComponent {
@@ -36,7 +36,7 @@ describe('RankComponent', () => {
       result: [
         {'index': 'stub_index', 'text': 'stub_text', 'value': 1, 'ownedby': 'stub_owner'}
       ]}));
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
+    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
 
     TestBed.configureTestingModule({
       declarations: [ RankComponent,
@@ -45,7 +45,7 @@ describe('RankComponent', () => {
       imports: [ FormsModule, MatCardModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
-        { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },
+        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: BoxplotDataService, useValue: boxplot_data_service_spy }
       ]
     })

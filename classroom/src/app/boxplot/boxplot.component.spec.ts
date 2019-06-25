@@ -7,7 +7,7 @@ import { BoxplotComponent } from './boxplot.component';
 import { BoxplotData, RankData } from '../boxplot-data';
 import { CorpusService } from '../corpus.service';
 import { BoxplotDataService} from '../boxplot-data.service';
-import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
 
 @Component({selector: 'app-boxplot-graph', template: ''})
 class BoxplotGraphStubComponent {
@@ -29,7 +29,7 @@ describe('BoxplotComponent', () => {
   let fixture: ComponentFixture<BoxplotComponent>;
 
   beforeEach(async(() => {
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
+    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['start', 'stop']);
     const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpusService_spy.getCorpus.and.returnValue(asyncData({
       course: 'stub',
@@ -54,7 +54,7 @@ describe('BoxplotComponent', () => {
       providers: [
         { provide: BoxplotDataService, useValue: dataService_spy },
         { provide: CorpusService, useValue: corpusService_spy },
-        { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy }
+        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }
       ]
     })
     .compileComponents();

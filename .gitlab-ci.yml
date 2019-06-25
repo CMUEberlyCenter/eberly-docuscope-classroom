@@ -21,7 +21,7 @@ pylint:
   stage: test
   image: python:latest
   before_script:
-    - pip install --no-cache-dir --upgrade -r requirements.txt
+    - pip install --no-cache-dir --upgrade --quiet -r requirements.txt
     - pip install pylint --quiet
   script:
     - pylint app

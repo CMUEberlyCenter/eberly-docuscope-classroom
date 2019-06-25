@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReportComponent } from './report.component';
 import { CorpusService } from '../corpus.service';
 import { ReportService } from '../report.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
@@ -22,7 +22,7 @@ describe('ReportComponent', () => {
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     const report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);
     report_service_spy.getReports.and.returnValue(asyncData([]));
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['show', 'hide']);
+    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
 
     TestBed.configureTestingModule({
       declarations: [ ReportComponent,
@@ -30,7 +30,7 @@ describe('ReportComponent', () => {
       imports: [ FormsModule, MatCardModule, MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
-        { provide: NgxSpinnerService, useValue: ngx_spinner_service_spy },
+        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: ReportService, useValue: report_service_spy }
       ]
     })

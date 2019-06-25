@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
-import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -14,31 +14,30 @@ import { GroupsData } from '../boxplot-data';
 })
 export class GroupingComponent implements OnInit {
   corpus: Corpus;
-  //group_sizes: number[] = ['2', '3', '4'];
   group_size: number = 2; //string = '2';
   groups: GroupsData;
   absent: string[] = [];
 
   constructor(private corpus_service: CorpusService,
-              private _spinner: NgxSpinnerService,
+              private _spinner: NgxUiLoaderService,
               private data_service: BoxplotDataService) { }
 
   getCorpus(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.corpus_service.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.hide();
+        this._spinner.stop();
       });
   }
 
   getGroupsData(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.data_service.getGroupsData(this.corpus, +this.group_size)
       .subscribe(data => {
         this.groups = data;
         this.absent = [];
-        this._spinner.hide();
+        this._spinner.stop();
       });
   }
 
