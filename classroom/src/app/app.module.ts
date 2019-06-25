@@ -4,7 +4,6 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
-//import { NgxSpinnerModule } from 'ngx-spinner';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -17,7 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-//import { MatRadioModule } from '@angular/material/radio';
+// import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -36,12 +35,12 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
-import { AboutDialog } from './about/about.component';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AboutDialog,
+    AboutComponent,
     MessagesComponent,
     BoxplotComponent,
     BoxplotGraphComponent,
@@ -55,7 +54,7 @@ import { AboutDialog } from './about/about.component';
     NavComponent,
   ],
   entryComponents: [
-    AboutDialog,
+    AboutComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,7 +64,6 @@ import { AboutDialog } from './about/about.component';
     FormsModule,
     HttpClientModule,
     NgxUiLoaderModule,
-    //NgxSpinnerModule,
     EasyUIModule,
     MatBadgeModule,
     MatButtonModule,
@@ -77,7 +75,7 @@ import { AboutDialog } from './about/about.component';
     MatIconModule,
     MatInputModule,
     MatListModule,
-    //MatRadioModule,
+    // MatRadioModule,
     MatSidenavModule,
     MatTabsModule,
     MatToolbarModule,

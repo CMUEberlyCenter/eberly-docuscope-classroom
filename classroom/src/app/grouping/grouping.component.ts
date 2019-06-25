@@ -14,7 +14,7 @@ import { GroupsData } from '../boxplot-data';
 })
 export class GroupingComponent implements OnInit {
   corpus: Corpus;
-  group_size: number = 2; //string = '2';
+  group_size = 2;
   groups: GroupsData;
   absent: string[] = [];
 

@@ -6,10 +6,10 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.css']
 })
-export class AboutDialog implements OnInit {
+export class AboutComponent implements OnInit {
 
   constructor(
-    public dialogRef: MatDialogRef<AboutDialog>) { }
+    public dialogRef: MatDialogRef<AboutComponent>) { }
 
   ngOnInit() {
   }

@@ -2,17 +2,17 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule, MatIconModule } from '@angular/material';
 import { MatDialogRef } from '@angular/material/dialog';
 
-import { AboutDialog } from './about.component';
+import { AboutComponent } from './about.component';
 
-describe('AboutDialog', () => {
-  let component: AboutDialog;
-  let fixture: ComponentFixture<AboutDialog>;
+describe('AboutComponent', () => {
+  let component: AboutComponent;
+  let fixture: ComponentFixture<AboutComponent>;
 
   beforeEach(async(() => {
     const mat_dialog_spy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
     TestBed.configureTestingModule({
-      declarations: [ AboutDialog ],
+      declarations: [ AboutComponent ],
       imports: [ MatDialogModule, MatIconModule ],
       providers: [
         { provide: MatDialogRef, useValue: mat_dialog_spy }
@@ -22,7 +22,7 @@ describe('AboutDialog', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AboutDialog);
+    fixture = TestBed.createComponent(AboutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
