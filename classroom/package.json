@@ -19,7 +19,7 @@
     "build_dev": "ng build --aot --prod --base-href=/classroom/ --output-hashing none",
     "build_prod": "ng build --aot --prod --base-href=/docuscope/ --output-hashing none",
     "test": "ng test",
-    "test_headless": "ng test --karmaConfig=src/karma.conf.headless.js --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true",
+    "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true",
     "lint": "ng lint",
     "codeclimate": "ng lint --format=json | node ./formatters/codeclimateFormatter.js > gl-codequality.json",
     "e2e": "ng e2e"

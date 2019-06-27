@@ -36,7 +36,7 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('DocuScope Classroom @ CMU');
   });
 
-  it('should render title in a h3 tag', () => {
+  it('should render title in the toolbar', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
