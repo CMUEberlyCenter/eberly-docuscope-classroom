@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Observable, of } from 'rxjs';
 
@@ -13,7 +14,8 @@ export type HandleError = <T> (operation?: string, result?: T) =>
 })
 export class HttpErrorHandlerService {
 
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService,
+              private _snackBar: MatSnackBar) { }
 
   createHandleError = (serviceName = '') =>
     <T> (operation = 'operation', result = {} as T) =>
@@ -27,6 +29,7 @@ export class HttpErrorHandlerService {
         ? error.error.message
         : `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
       this.messageService.add(`${serviceName}: ${operation} failed: ${message}`);
+      this._snackBar.open(message);
       return of(result);
     };
   }

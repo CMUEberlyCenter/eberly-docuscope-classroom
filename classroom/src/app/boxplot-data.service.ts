@@ -43,16 +43,16 @@ export class BoxplotDataService {
   getBoxPlotData(corpus: Corpus): Observable<BoxplotData> {
     if (this.boxplot_data) {
       console.log(this.boxplot_data);
-      this.messageService.add('Retrieved Box Plot data from cache.');
+      // this.messageService.add('Retrieved Box Plot data from cache.');
       return this.boxplot_data;
     } else {
-      this.messageService.add('Going to retrieve Box Plot data from server, please wait.');
+      // this.messageService.add('Going to retrieve Box Plot data from server, please wait.');
       const bp_query = makeBoxplotSchema(corpus);
       this.boxplot_data = this.http.post<BoxplotData>(this.boxplot_server, bp_query)
         .pipe(
           publishReplay(1),
           refCount(),
-          tap(data => this.messageService.add('Box Plot data retrieval successful.')),
+          // tap(data => this.messageService.add('Box Plot data retrieval successful.')),
           catchError(this.handleError('getBoxPlotData',
                                       {bpdata: [], outliers: []}))
         );
