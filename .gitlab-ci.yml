@@ -35,7 +35,7 @@ classroom_lint:
   script:
     - cd classroom
     - npm ci
-    - npm run lint --format json | node ./formatters/codeclimateFormatter.js > gl-codequality.json
+    - npm run codeclimate
     - npm run lint
   artifacts:
     reports:

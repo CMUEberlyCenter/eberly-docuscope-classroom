@@ -21,6 +21,7 @@
     "test": "ng test",
     "test_headless": "ng test --watch=false --browsers=ChromeHeadless --code-coverage=true",
     "lint": "ng lint",
+    "codeclimate": "ng lint --format=json | node ./formatters/codeclimateFormatter.js > gl-codequality.json",
     "e2e": "ng e2e"
   },
   "private": true,
