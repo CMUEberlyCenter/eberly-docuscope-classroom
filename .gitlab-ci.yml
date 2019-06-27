@@ -50,8 +50,8 @@ classroom_test:
   script:
     - cd classroom
     - npm ci
-    - npm run ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true
-    - npm run ng e2e
+    - npm run test_headless
+    - npm run e2e
   artifacts:
     paths:
       - classroom/coverage/
