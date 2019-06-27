@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -12,18 +12,18 @@ import { ReportService } from '../report.service';
 })
 export class ReportComponent implements OnInit {
   corpus: Corpus;
-  @ViewChild('download_link') private download_link: ElementRef;
+  @ViewChild('download_link', { static: false }) private download_link: ElementRef;
 
   constructor(private corpusService: CorpusService,
-              private _spinner: NgxSpinnerService,
+              private _spinner: NgxUiLoaderService,
               private reportService: ReportService) { }
 
   getCorpus(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.hide();
+        this._spinner.stop();
       });
   }
 
@@ -32,13 +32,13 @@ export class ReportComponent implements OnInit {
   }
 
   generate_report($event): void {
-    this._spinner.show();
+    this._spinner.start();
     this.reportService.getReports(this.corpus).subscribe(data => {
       const url = window.URL.createObjectURL(data);
       const link = this.download_link.nativeElement;
       link.href = url;
       link.download = 'reports.zip';
-      this._spinner.hide();
+      this._spinner.stop();
       link.click();
       window.URL.revokeObjectURL(url);
     });

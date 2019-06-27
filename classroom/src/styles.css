@@ -1,17 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+/*@import url('https://fonts.googleapis.com/icon?family=Material+Icons');*/
 
 /* easy-ui */
 @import '~ng-easyui/themes/material/easyui.css';
 @import '~ng-easyui/themes/angular.css';
 @import '~ng-easyui/themes/icon.css';
 
-
+/* angular material */
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
 body {
   /*box-sizing: border-box;*/
   margin: 0;
 }
 
+.cluster_id {
+  display: none;
+  background: lightgrey;
+  border: 1px solid grey;
+  padding: 3px;
+}
 .cluster_default {
   border-bottom-style: solid;
   border-bottom-width: 3px;
@@ -20,32 +27,32 @@ body {
 .cluster_0 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(255,0,32);
+  border-bottom-color: rgba(255,0,32,0.7);
 }
 .cluster_1 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(255,172,0);
+  border-bottom-color: rgba(255,172,0,0.7);
 }
 .cluster_2 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(119,189,11);
+  border-bottom-color: rgba(119,189,11,0.7);
 }
 .cluster_3 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(49,117,230);
+  border-bottom-color: rgba(49,117,230,0.7);
 }
 .cluster_4 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(137,80,224);
+  border-bottom-color: rgba(137,80,224,0.7);
 }
 .cluster_5 {
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgb(220,10,169);
+  border-bottom-color: rgba(220,10,169,0.7);
 }
 .selected_text {
   background-color: pink;
@@ -54,9 +61,17 @@ body {
 /* scatterplot */
 circle.dot {
   fill: skyblue;
+  filter: opacity(60%);
   cursor: pointer;
 }
 
 circle.dot.model {
   fill: pink;
 }
+
+.patterns .panel-title {
+  font-size: 11px;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

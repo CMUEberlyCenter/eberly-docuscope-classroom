@@ -13,10 +13,8 @@ export class MessageService {
   add(message: string) {
     if (this.debug) {
       console.log(message);
-      if (this.debug_msg) {
-        this.messages.push(message);
-      }
     }
+    this.messages.push(message);
   }
 
   clear() {

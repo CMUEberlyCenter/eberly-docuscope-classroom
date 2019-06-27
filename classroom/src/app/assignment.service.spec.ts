@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { Type } from '@angular/core';
 
 import { AssignmentService, AssignmentData } from './assignment.service';
 
@@ -12,7 +13,7 @@ describe('AssignmentService', () => {
       providers: [ AssignmentService ]
     });
 
-    httpMock = TestBed.get(HttpTestingController);
+    httpMock = TestBed.get(HttpTestingController as Type<HttpTestingController>);
   });
 
   afterEach(() => httpMock.verify());

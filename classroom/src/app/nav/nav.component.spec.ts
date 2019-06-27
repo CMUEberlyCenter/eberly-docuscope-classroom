@@ -1,7 +1,10 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { NavComponent } from './nav.component';
 
@@ -14,7 +17,8 @@ describe('NavComponent', () => {
     activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activated_route_spy.snapshot.url = ['stub'];
     TestBed.configureTestingModule({
-      imports: [ EasyUIModule ],
+      imports: [ FormsModule, RouterTestingModule,
+                 MatTabsModule, MatTooltipModule ],
       declarations: [ NavComponent ],
       providers: [
         { provide: ActivatedRoute, useValue: activated_route_spy }

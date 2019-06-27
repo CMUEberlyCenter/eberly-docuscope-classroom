@@ -45,5 +45,4 @@ export class AssignmentService {
         catchError(err => of(DefaultAssignmentData))
       );
   }
-
 }

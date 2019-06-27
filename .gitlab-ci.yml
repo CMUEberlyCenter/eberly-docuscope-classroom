@@ -7,6 +7,7 @@ stages:
   - build
   - test
   - release
+  - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -16,15 +17,44 @@ variables:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
-lint:
+pylint:
+  stage: test
+  image: python:latest
+  before_script:
+    - pip install --no-cache-dir --upgrade --quiet -r requirements.txt
+    - pip install pylint --quiet
+  script:
+    - pylint app
+  allow_failure: true
+
+classroom_lint:
   stage: test
   image: node:latest
   before_script:
     - npm --version
   script:
     - cd classroom
-    - npm install
+    - npm ci
+    - npm run codeclimate
     - npm run lint
+  artifacts:
+    reports:
+      codequality: classroom/gl-codequality.json
+  allow_failure: true
+
+classroom_test:
+  stage: test
+  image: zenika/alpine-chrome:with-node
+  before_script:
+    - npm --version
+  script:
+    - cd classroom
+    - npm ci
+    - npm run test_headless
+    #- npm run e2e
+  artifacts:
+    paths:
+      - classroom/coverage/
 
 build:
   stage: build
@@ -38,5 +68,18 @@ release:
     - docker pull "${REF_CONTAINER}"
     - docker tag "${REF_CONTAINER}" "${RELEASE_CONTAINER}"
     - docker push "${RELEASE_CONTAINER}"
+  only:
+    - master
+
+pages:
+  stage: deploy
+  dependencies:
+    - classroom_test
+  script:
+    - mv classroom/coverage/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
   only:
     - master

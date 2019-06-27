@@ -2,8 +2,8 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { NgxUiLoaderModule } from 'ngx-ui-loader';
+import { MatDialogModule, MatIconModule, MatToolbarModule } from '@angular/material';
 
 @Component({selector: 'app-messages', template: ''})
 class MessagesStubComponent {}
@@ -20,7 +20,7 @@ describe('AppComponent', () => {
         MessagesStubComponent,
         RouterOutletStubComponent
       ],
-      imports: [ EasyUIModule, NgxSpinnerModule ]
+      imports: [ MatDialogModule, MatIconModule, MatToolbarModule, NgxUiLoaderModule ]
     }).compileComponents();
   }));
 
@@ -36,10 +36,10 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('DocuScope Classroom @ CMU');
   });
 
-  it('should render title in a h3 tag', () => {
+  it('should render title in the toolbar', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h3').textContent).toContain('DocuScope Classroom @ CMU');
+    expect(compiled.querySelector('mat-toolbar > span').textContent).toContain('DocuScope Classroom @ CMU');
   });
 });

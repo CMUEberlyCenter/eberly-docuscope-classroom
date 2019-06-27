@@ -1,19 +1,21 @@
 <app-nav></app-nav>
 <!-- TODO: spinner for "Generating Reports..."? -->
-<div *ngIf="corpus" class="container">
-  <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Reports</h2>-->
-  <h2>Reports</h2>
-  <div>
-    <h3>Introduction Text:</h3>
-    <p>Customize the introductory text used in the report:</p>
-    <textarea [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
-  </div>
-  <div>
-    <h3>STV Introduction Text:</h3>
-    <p>Customize the introduction to the text analysis section:</p>
-    <textarea [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
-  </div>
-  <!-- Absentee list -->
-  <button (click)="generate_report($event)">Generate Report</button>
-  <a #download_link></a>
-</div>
+<mat-card *ngIf="corpus" class="container">
+  <mat-card-title>Reports</mat-card-title>
+  <mat-card-subtitle>Generate reports using the below text for each document.</mat-card-subtitle>
+  <mat-card-content>
+    <!--<h3>Introduction Text:</h3>-->
+      <!--<p>Customize the introductory text used in the report:</p>-->
+    <mat-form-field class="edit_textarea">
+      <textarea matInput placeholder="Customize the introduction text:" [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
+      </mat-form-field>
+    <!--<h3>Text Analysis Introduction Text:</h3>-->
+      <!--<p>Customize the introduction to the text analysis section:</p>-->
+    <mat-form-field class="edit_textarea">
+      <textarea matInput placeholder="Customize the introduction to the text analysis section" [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
+    </mat-form-field>
+
+    <button (click)="generate_report($event)">Generate Report</button>
+    <a #download_link></a>
+  </mat-card-content>
+</mat-card>

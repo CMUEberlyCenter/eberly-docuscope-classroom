@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { BoxplotComponent } from './boxplot/boxplot.component';
-// import { CorpusDetailComponent } from './corpus-detail/corpus-detail.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { GroupingComponent } from './grouping/grouping.component';
 import { RankComponent } from './rank/rank.component';
@@ -11,7 +10,6 @@ import { TextViewComponent } from './text-view/text-view.component';
 
 const routes: Routes = [
   { path: 'boxplot', component: BoxplotComponent },
-  // { path: 'corpus', component: CorpusDetailComponent },
   { path: 'grouping', component: GroupingComponent },
   { path: 'ranking', component: RankComponent },
   { path: 'report', component: ReportComponent },
