@@ -43,7 +43,7 @@ CLIENT = memcache.Client(['memcached:11211'])
 #logging.basicConfig(level=logging.DEBUG)
 #logger = logging.getLogger(__name__)
 
-app = FastAPI( #pylint: disable=C0103
+app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
     version="2.1.0")
@@ -68,7 +68,7 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db = SESSION()
         response = await call_next(request)
         request.state.db.commit()
-    except Exception as exp: #pylint: disable=W0703
+    except Exception as exp: #pylint: disable=broad-except
         traceback.print_exc()
         logging.error(exp)
         response = Response("Internal server error: %s" % exp,
@@ -127,7 +127,7 @@ class CorpusSchema(BaseModel):
         key = [str(self.level)]
         key.extend(sorted([str(d.id) for d in self.corpus]))
         return str(hash(tuple(key)))
-    def get_stats(self, db_session: Session): #pylint: disable=R0914
+    def get_stats(self, db_session: Session): #pylint: disable=too-many-locals
         """Retrieve or generate the basic statistics for this corpus."""
         try:
             indx = self.corpus_index()
@@ -408,9 +408,6 @@ class ReportsSchema(BoxplotSchema):
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
-        frame = self.get_stats(db_session)
-        bp_data = self.get_bp_data(db_session)
-        #tones = DST_SCHEMA.load(request.session['tones'])
         ds_dictionary = json.loads(CLIENT.get(self.corpus_index()))['ds_dictionary']
         tones = DocuScopeTones(ds_dictionary)
         documents = {}
@@ -456,7 +453,11 @@ class ReportsSchema(BoxplotSchema):
             'intro': self.intro,
             'stv_intro': self.stv_intro
         }
-        return generate_pdf_reports(frame, documents, ds_dictionary, bp_data, descriptions)
+        return generate_pdf_reports(self.get_stats(db_session),
+                                    documents,
+                                    ds_dictionary,
+                                    self.get_bp_data(db_session),
+                                    descriptions)
 
 @app.post('/generate_reports')
 def generate_reports(corpus: ReportsSchema,
@@ -470,7 +471,7 @@ def generate_reports(corpus: ReportsSchema,
         corpus.level = LevelEnum.cluster
     try:
         zip_buffer = corpus.get_reports(db_session)
-    except Exception as excp: #pylint: disable=W0703
+    except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
         raise HTTPException(detail={"message": "ERROR in report generation.",
@@ -504,7 +505,6 @@ class TextContent(BaseModel):
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
 
-#TODO: start processing and cache results on corpus load?
 @app.get('/text_content/{file_id}', response_model=TextContent)
 def get_tagged_text(file_id: UUID,
                     db_session: Session = Depends(get_db_session)):

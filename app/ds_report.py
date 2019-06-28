@@ -48,33 +48,37 @@ class Boxplot(Flowable):
     Line flowable --- draws a line in a flowable
     http://two.pairlist.net/pipermail/reportlab-users/2005-February/003695.html
     """
-    def __init__(self, data=None, outliers=None,
+    def __init__(self, data=None, outliers=None, #pylint: disable=too-many-arguments
                  val=-1, max_val=1.0,
                  wd=5.0*inch, ht=0.6*inch,
                  ml=1*pica, mr=1*pica, mt=1*pica, mb=1*pica,
                  rh=1.10*pica,
                  whisker=.125*inch, radius=2):
-
         super().__init__()
         self.data = data or {}
         self.outliers = outliers or []
         self.value = val
         self.max_val = max_val
-        self.width = wd
-        self.height = ht
+        self.measurements = {'width': wd, 'height': ht, 'ruler_hight': rh,
+                             'whisker': whisker, 'radius': radius}
+        #self.width = wd
+        #self.height = ht
         self.margins = {'left': ml, 'right': mr, 'top': mt, 'bottom': mb}
-        self.ruler_ht = rh
-        self.whisker = whisker
-        self.radius = radius
+        #self.ruler_ht = rh
+        #self.whisker = whisker
+        #self.radius = radius
 
     def draw(self):
         """
         draw the line
         """
-        scale = (self.width - self.margins['left'] - self.margins['right'])/self.max_val
+        scale = (self.measurements['width'] - self.margins['left']
+                 - self.margins['right'])/self.max_val
 
-        box_height = self.height-(self.margins['top']+self.margins['bottom']+self.ruler_ht)
-        box_v_center = box_height/2 + self.margins['bottom']+self.ruler_ht
+        box_height = self.measurements['height']-(self.margins['top']+
+                                                  self.margins['bottom']+
+                                                  self.measurements['ruler_height'])
+        box_v_center = box_height/2 + self.margins['bottom']+self.measurements['ruler_height']
 
         box_left = self.margins['left'] + (self.data['q1'] * scale)
         box_h_center = self.margins['left'] + (self.data['q2'] * scale)
@@ -101,27 +105,27 @@ class Boxplot(Flowable):
                        box_v_center+box_height/2+3)
 
         # min/max
-        self.canv.line(line_left, box_v_center-self.whisker/2,
-                       line_left, box_v_center+self.whisker/2)
-        self.canv.line(line_right, box_v_center-self.whisker/2,
-                       line_right, box_v_center+self.whisker/2)
+        self.canv.line(line_left, box_v_center-self.measurements['whisker']/2,
+                       line_left, box_v_center+self.measurements['whisker']/2)
+        self.canv.line(line_right, box_v_center-self.measurements['whisker']/2,
+                       line_right, box_v_center+self.measurements['whisker']/2)
 
         # inner fences
         self.canv.setStrokeColor(red)
-        self.canv.line(uifence_x, box_v_center-self.whisker/4,
-                       uifence_x, box_v_center+self.whisker/4)
-        self.canv.line(lifence_x, box_v_center-self.whisker/4,
-                       lifence_x, box_v_center+self.whisker/4)
+        self.canv.line(uifence_x, box_v_center-self.measurements['whisker']/4,
+                       uifence_x, box_v_center+self.measurements['whisker']/4)
+        self.canv.line(lifence_x, box_v_center-self.measurements['whisker']/4,
+                       lifence_x, box_v_center+self.measurements['whisker']/4)
 
         self.canv.setStrokeColor(black)
         if self.value >= 0.0:
-            self.canv.circle(dot_x, box_v_center, self.radius, fill=1)
+            self.canv.circle(dot_x, box_v_center, self.measurements['radius'], fill=1)
 
         # The following draws outliers; but we don't use them. So, let's comment them out.
         # We draw fences, so students can tell if they are outliers or not :-)
         # for o in self.outliers:
         #     x = self.margins['left'] + (o['value'] * scale)
-        #     self.canv.circle(x, box_v_center, self.radius, fill=0)
+        #     self.canv.circle(x, box_v_center, self.measurements['radius'], fill=0)
 
         self.canv.setStrokeColor(black)
 
@@ -129,8 +133,10 @@ class Boxplot(Flowable):
         self.canv.setFont("Helvetica", 6)
         msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words"\
                  .format(self.value*1000)
-        self.canv.circle(self.margins['left'], self.margins['bottom']-6, self.radius, fill=1)
-        self.canv.drawString(self.margins['left']+3, self.margins['bottom']-8, msg)
+        self.canv.circle(self.margins['left'], self.margins['bottom']-6,
+                         self.measurements['radius'], fill=1)
+        self.canv.drawString(self.margins['left']+3, self.margins['bottom']-8,
+                             msg)
         for tick in range(0, math.ceil(self.max_val*1000), 10):
             self.canv.line(self.margins['left'] + tick*scale/1000,
                            self.margins['bottom'],
@@ -157,10 +163,6 @@ def find_bp(category, bp_data):
     """ Returns the boxplot data. """
     return next((bp for bp in bp_data['bpdata'] if bp['category'] == category),
                 None)
-    #for boxp in bp_data['bpdata']:
-    #    if bp['category'] == category:
-    #        return boxp
-    #return None
 
 def find_outliers(category, bp_data):
     """ Return a list of outliers for the boxplot of the given category. """
@@ -239,7 +241,42 @@ MARGINS = {
     "top": 0.5*inch,
     "bottom": 0.5*inch
 }
+def generate_paragraph_styles():
+    """Generate the styles object used for paragraphs in the report."""
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='DS_MetaData',
+                              fontSize=9, fontName='Helvetica',
+                              leading=12, alignment=TA_LEFT))
+    styles.add(ParagraphStyle(name='DS_Intro',
+                              fontSize=9, fontName='Helvetica',
+                              leading=16, alignment=TA_LEFT, spaceBefore=9))
+    styles.add(ParagraphStyle(name='DS_Body',
+                              fontSize=10, fontName='Times-Roman',
+                              leading=16, alignment=TA_LEFT, spaceAfter=6))
+    styles.add(ParagraphStyle(name='DS_Pattern',
+                              fontSize=10, fontName='Times-Roman',
+                              leading=12, alignment=TA_LEFT, spaceAfter=6))
+    styles.add(ParagraphStyle(name='DS_Help',
+                              fontSize=9, fontName='Helvetica',
+                              leading=12, alignment=TA_LEFT))
+    styles.add(ParagraphStyle(name='DS_Heading1',
+                              fontSize=10, fontName='Helvetica-Bold',
+                              leading=16, alignment=TA_LEFT, spaceBefore=16))
+    styles.add(ParagraphStyle(name='DS_Title',
+                              fontSize=16, fontName='Times-Bold',
+                              leading=16, alignment=TA_LEFT, spaceAfter=2*pica))
+    styles.add(ParagraphStyle(name='DS_Student',
+                              fontSize=14, fontName='Times-Italic',
+                              leading=16, alignment=TA_LEFT, spaceAfter=pica))
+    styles.add(ParagraphStyle(name='DS_Date',
+                              fontSize=8, fontName='Helvetica',
+                              spaceAfter=0, leading=12, alignment=TA_LEFT))
+    styles.add(ParagraphStyle(name='DS_CoverText',
+                              fontSize=10, fontName='Helvetica',
+                              spaceAfter=0, leading=12, alignment=TA_LEFT))
+    return styles
 
+#pylint: disable=too-many-locals, too-many-statements
 def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
     """Generate all of the pdf reports.
 
@@ -297,8 +334,10 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
     with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
          io.BytesIO() as all_reports:
         doc = BaseDocTemplate(all_reports, pagesize=letter,
-                              rightMargin=MARGINS["right"], leftMargin=MARGINS["left"],
-                              topMargin=MARGINS["top"], bottomMargin=MARGINS["bottom"])
+                              rightMargin=MARGINS["right"],
+                              leftMargin=MARGINS["left"],
+                              topMargin=MARGINS["top"],
+                              bottomMargin=MARGINS["bottom"])
 
         gutter = 1*pica
         one_column_template = PageTemplate(
@@ -383,40 +422,10 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
             ]
         )
 
-        doc.addPageTemplates([one_column_template, three_column_template, three_column_hd_template])
+        doc.addPageTemplates([one_column_template, three_column_template,
+                              three_column_hd_template])
 
-        # define paragraph styles
-        styles = getSampleStyleSheet()
-        styles.add(ParagraphStyle(name='DS_MetaData',
-                                  fontSize=9, fontName='Helvetica',
-                                  leading=12, alignment=TA_LEFT))
-        styles.add(ParagraphStyle(name='DS_Intro',
-                                  fontSize=9, fontName='Helvetica',
-                                  leading=16, alignment=TA_LEFT, spaceBefore=9))
-        styles.add(ParagraphStyle(name='DS_Body',
-                                  fontSize=10, fontName='Times-Roman',
-                                  leading=16, alignment=TA_LEFT, spaceAfter=6))
-        styles.add(ParagraphStyle(name='DS_Pattern',
-                                  fontSize=10, fontName='Times-Roman',
-                                  leading=12, alignment=TA_LEFT, spaceAfter=6))
-        styles.add(ParagraphStyle(name='DS_Help',
-                                  fontSize=9, fontName='Helvetica',
-                                  leading=12, alignment=TA_LEFT))
-        styles.add(ParagraphStyle(name='DS_Heading1',
-                                  fontSize=10, fontName='Helvetica-Bold',
-                                  leading=16, alignment=TA_LEFT, spaceBefore=16))
-        styles.add(ParagraphStyle(name='DS_Title',
-                                  fontSize=16, fontName='Times-Bold',
-                                  leading=16, alignment=TA_LEFT, spaceAfter=2*pica))
-        styles.add(ParagraphStyle(name='DS_Student',
-                                  fontSize=14, fontName='Times-Italic',
-                                  leading=16, alignment=TA_LEFT, spaceAfter=pica))
-        styles.add(ParagraphStyle(name='DS_Date',
-                                  fontSize=8, fontName='Helvetica',
-                                  spaceAfter=0, leading=12, alignment=TA_LEFT))
-        styles.add(ParagraphStyle(name='DS_CoverText',
-                                  fontSize=10, fontName='Helvetica',
-                                  spaceAfter=0, leading=12, alignment=TA_LEFT))
+        styles = generate_paragraph_styles()
 
         combined_content = []   # list of flowables
         # we'll use the one column layout first.
@@ -486,11 +495,9 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
                 # draw boxplots for each category (cluster)
                 for cat in categories:
-                    boxp = find_bp(cat, bp_data)
-                    outl = find_outliers(cat, bp_data)
-                    vals = df2[text_id][cat]
-
-                    bp_item = Boxplot(boxp, outliers=outl, val=vals, max_val=max_val)
+                    bp_item = Boxplot(find_bp(cat, bp_data),
+                                      outliers=find_outliers(cat, bp_data),
+                                      val=df2[text_id][cat], max_val=max_val)
                     content.append(Paragraph(cat_descriptions[cat]['name'],
                                              styles["DS_Heading1"]))
                     content.append(Paragraph(
