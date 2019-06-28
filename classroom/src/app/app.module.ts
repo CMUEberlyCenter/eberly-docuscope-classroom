@@ -1,19 +1,34 @@
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { NgxSpinnerModule } from 'ngx-spinner';
+import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+// import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AppSettingsService } from './app-settings.service';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { BoxplotGraphComponent } from './boxplot-graph/boxplot-graph.component';
-import { CorpusDetailComponent } from './corpus-detail/corpus-detail.component';
 import { GroupingComponent } from './grouping/grouping.component';
 import { MessagesComponent } from './messages/messages.component';
-import { ModalComponent } from './modal/modal.component';
 import { NavComponent } from './nav/nav.component';
 import { RankComponent } from './rank/rank.component';
 import { RankGraphComponent } from './rank-graph/rank-graph.component';
@@ -21,15 +36,12 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
-
-const appInitializerFn = (appConfig: AppSettingsService) => {
-  return () => appConfig.loadSettings();
-};
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CorpusDetailComponent,
+    AboutComponent,
     MessagesComponent,
     BoxplotComponent,
     BoxplotGraphComponent,
@@ -41,24 +53,37 @@ const appInitializerFn = (appConfig: AppSettingsService) => {
     RankGraphComponent,
     RankComponent,
     NavComponent,
-    ModalComponent
+  ],
+  entryComponents: [
+    AboutComponent,
   ],
   imports: [
     BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    DragDropModule,
     FormsModule,
     HttpClientModule,
-    NgxSpinnerModule,
+    NgxUiLoaderModule,
     EasyUIModule,
-    AppRoutingModule
+    MatBadgeModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    // MatRadioModule,
+    MatSidenavModule,
+    MatSnackBarModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule
   ],
   providers: [
-    AppSettingsService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: appInitializerFn,
-      multi: true,
-      deps: [AppSettingsService]
-    }
   ],
   bootstrap: [AppComponent]
 })

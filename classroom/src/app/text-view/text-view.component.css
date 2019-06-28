@@ -1,3 +1,20 @@
+.badge {
+  border-radius: 50%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  text-align: center;
+  box-sizing: border-box;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: Roboto,"Helvetica Neue",sans-serif;
+  color: white; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
+  background: #3f51b5;
+  padding: 4px;
+  margin-left: 3px;
+}
+
 .container {
   width: 100%;
   height: calc(100vh - 64.5px);
@@ -7,30 +24,35 @@
   width: 100%;
   height: calc(100vh - 64.5px);
 }
-article {
-  padding-left: 12px;
-  padding-right: 12px;
-}
 
 .categories {
-  width: 20ch;
+  width: 28ch;
   min-width: 18ch;
 }
-/*
-.header {
-  background: #9F9F9F;
-  color: white;
-  padding-left: 1ch;
-  font-weight: normal;
-  margin-top: 0px;
-  margin-bottom: 3px;
+.categories_panel {
+  padding-left: 9px;
+  padding-right: 9px;
 }
-*/
+
+.ds-stv-clusters-instruction {
+  font-size: small;
+  margin-left: 7px;
+  margin-right: 7px;
+}
+
+.text_content {
+  padding-left: 18px;
+  padding-right: 18px;
+  line-height: 175%;
+  max-width: 6.5in;
+}
+
 .selection {
   font-weight: bold;
   font-size: 80%;
   padding: 5px;
   background: #C9C9C9;
+  text-align: center;
 }
 .selection_table {
   display: flex;
@@ -56,4 +78,10 @@ article {
 }
 .text_info {
   padding: 4px;
+}
+
+summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

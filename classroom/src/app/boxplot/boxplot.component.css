@@ -1,6 +1,5 @@
-.boxplot_container {
-  margin-left: 20px;
-  margin-right: 20px;
+.container {
+  margin: 5px;
 }
 .graph_container {
   display: flex;

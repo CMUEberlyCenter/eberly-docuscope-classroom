@@ -1,4 +1,6 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 
 import { RankGraphComponent } from './rank-graph.component';
 
@@ -8,7 +10,9 @@ describe('RankGraphComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RankGraphComponent ]
+      declarations: [ RankGraphComponent ],
+      imports: [ EasyUIModule ],
+      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
     })
     .compileComponents();
   }));

@@ -1,10 +1,11 @@
 <app-nav></app-nav>
-<div *ngIf="corpus" class="rank_container">
+<mat-card *ngIf="corpus" class="container">
   <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Rankings</h2>-->
-  <h2>Rankings</h2>
-  <ng-container *ngIf="categories">
-    <aside>
-      <label for="select_category">Category:</label>
+  <mat-card-title>Rankings</mat-card-title>
+  <mat-card-subtitle>Ordered by frequency of the selected category.</mat-card-subtitle>
+  <mat-card-content *ngIf="categories">
+    <aside class="select_category_box">
+      <label for="select_category" class="select_category_label">Category:</label>
       <select id="select_category" [(ngModel)]="category" (ngModelChange)="on_select($event)">
         <option *ngFor="let c of categories" [value]="c">{{c}}</option>
       </select>
@@ -12,5 +13,5 @@
     <article>
       <app-rank-graph [rank_data]="data" [max_value]="max_value"></app-rank-graph>
     </article>
-  </ng-container>
-</div>
+  </mat-card-content>
+</mat-card>

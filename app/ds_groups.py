@@ -6,9 +6,12 @@ For Suguru: group selector
 
 @author: hseltman
 """
+import random
+import copy
+import pandas
 
-def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
-                    randomize=True, verbose=False):
+def get_best_groups(dtf, group_size=2, min_group_size=2, #pylint: disable=R0913
+                    nsim=10000, randomize=True, verbose=False):
     """ Get the best set student groups of size 'group_size' among 'nsim'
         random groupings.  Each run, left-over students are in a group of
         their own or added to other groups based on 'min_group_size'.
@@ -42,25 +45,23 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
             'qualities': the qualities of the individual groups
             'quality': the quality of the worst group in the grouping
     """
-    import pandas
-
     # Verify input
-    if type(dtf) is not pandas.core.frame.DataFrame:
+    if not isinstance(dtf, pandas.core.frame.DataFrame):
         raise Exception("'dtf' is not a pandas DataFrame")
-    if type(group_size) is not int:
+    if not isinstance(group_size, int):
         raise Exception("'group_size' is not an integer")
-    if type(min_group_size) is not int:
+    if not isinstance(min_group_size, int):
         raise Exception("'min_group_size' is not an integer")
-    if type(nsim) is not int:
+    if not isinstance(nsim, int):
         raise Exception("'nsim' is not an integer")
 
-    n = dtf.shape[0]
+    num = dtf.shape[0]
     k = dtf.shape[1]
     if k < 2:
         raise Exception("need at least two DocuScope categories")
-    if n < 4:
+    if num < 4:
         raise Exception("need at least four students in a class")
-    if group_size < 2 or group_size > n/2:
+    if group_size < 2 or group_size > num/2:
         raise Exception("'group_size' must be between 2 and half the number" +\
                         " of students")
     if min_group_size < 2 or min_group_size > group_size:
@@ -77,33 +78,30 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, nsim=10000,
                           min_group_size=min_group_size, nsim=nsim,
                           randomize=randomize, verbose=verbose)
 
-def max_abs_diff(x, y):
+def max_abs_diff(x_values, y_values):
     """ Given two commensurate lists of k numbers, return the maximum
         of the k differences.
     """
-    d = [abs(a-b) for (a, b) in zip(x, y)]
-    return max(d)
+    diffs = [abs(a-b) for (a, b) in zip(x_values, y_values)]
+    return max(diffs)
 
-def order(v, small=0.01):
+def order(vals, small=0.01):
     """ Given a list of values, return a list of the indices of the largest
         value, next to largest, etc.
         Uses 'small' to add random values of that order of magnitude to
         resolve ties (if needed)
     """
-    import copy
-    import random
-    cpy = [v.count(i) for i in v]
-    max_cpy = max(cpy)
-    s = copy.copy(v)
-    s.sort(reverse=True)
+    max_cpy = max([vals.count(i) for i in vals])
+    slav = copy.copy(vals)
+    slav.sort(reverse=True)
     if max_cpy > 1:
-        v = [i + random.uniform(-small, small) for i in v]
-        s = copy.copy(v)
-        s.sort(reverse=True)
-    return [v.index(i) for i in s]
+        vals = [i + random.uniform(-small, small) for i in vals]
+        slav = copy.copy(vals)
+        slav.sort(reverse=True)
+    return [vals.index(i) for i in slav]
 
 
-def make_pairs(data, ids, group_size, min_group_size, randomize=True):
+def make_pairs(data, ids, group_size, min_group_size, randomize=True): #pylint: disable=R0914
     """
     This is the core function.  It takes classroom information in the form of:
         'data': a list containing one element per student, where each element
@@ -133,25 +131,22 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
             grouping as the minumum in each group of the k maximums.
         'quality': the maximum of the 'qualities'
     """
-    import random
-    import copy
-    n = len(data)
-    ng = n // group_size
+    num_students = len(data)
+    num_groups = num_students // group_size
     grps = []
     qualities = []
 
     # Loop to create each complete group
-    for grp in range(ng):
+    for grp in range(num_groups):
         # Last group may be deterministic
-        if grp == ng - 1 and n == group_size:
+        if grp == num_groups - 1 and num_students == group_size:
             grps.append(ids)
             ids = []
-            q = [max_abs_diff(data[0], b) for b in data[1:]]
-            qualities.append(max(q))
+            qualities.append(max([max_abs_diff(data[0], b) for b in data[1:]]))
         else:
             if randomize:
                 # Swap first student with a random student ('data' and 'ids')
-                sel = random.sample(range(n), 1)[0]
+                sel = random.sample(range(num_students), 1)[0]
                 if sel != 0:
                     temp = copy.copy(data[sel])
                     data[sel] = data[0]
@@ -167,25 +162,25 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True):
                                   if i in others]))
             # Store student ids in 'grp'
             this_group = [0] + [i + 1 for i in others]
-            grps.append([ids[i] for i in range(n) if i in this_group])
+            grps.append([ids[i] for i in range(num_students) if i in this_group])
             # Clean up for next iteration.
-            ids = [ids[i] for i in range(n) if i not in this_group]
-            data = [data[i] for i in range(n) if i not in this_group]
-            n -= group_size
+            ids = [ids[i] for i in range(num_students) if i not in this_group]
+            data = [data[i] for i in range(num_students) if i not in this_group]
+            num_students -= group_size
 
     n_left = len(ids)
     if n_left > 0 and n_left >= min_group_size:
         grps.append(ids)
         extra = []
-        q = [max_abs_diff(data[0], b) for b in data[1:]]
-        qualities.append(min(q))
+        qualities.append(min([max_abs_diff(data[0], b) for b in data[1:]]))
     else:
         extra = ids
 
     return {'groups': grps, 'extra': extra, 'qualities': qualities,
             'quality': min(qualities)}
 
-def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
+def make_pairs_all(data, ids, group_size, #pylint: disable=R0913
+                   min_group_size=2, nsim=10000,
                    randomize=True, verbose=False):
     """
     Generate 'nsim' random groupings of students, returning the best one.
@@ -201,8 +196,7 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
                 only if there are ties)
     Return value is a dictionary like from make_pairs(), but without 'extra'.
     """
-    import copy
-    best_group = None
+    best_group = {'quality': float('-inf')}
     for i_sim in range(nsim):
         # generate a grouping, possibly with left-over students
         trial = make_pairs(data=data, ids=ids, group_size=group_size,
@@ -210,10 +204,10 @@ def make_pairs_all(data, ids, group_size, min_group_size=2, nsim=10000,
                            randomize=randomize)
         # Adjust for left-over students (may have improved quality)
         n_left = len(trial['extra'])
-        if n_left > 0 and n_left < min_group_size:
-            ng = len(trial['groups'])
+        if 0 < n_left < min_group_size:
+            num_groups = len(trial['groups'])
             for left_index in range(n_left):
-                index = left_index % ng
+                index = left_index % num_groups
                 trial['groups'][index].append(trial['extra'][left_index])
                 this_quality = max_dist_one_to_many(data, ids,
                                                     trial['groups'][index])
@@ -243,12 +237,12 @@ def max_dist_one_to_many(data, all_ids, group_ids):
         just added and needs to be compared to the rest.
     """
     max_diff = 0.0
-    n = len(group_ids)
+    num_ids = len(group_ids)
     indices = [all_ids.index(i) for i in group_ids]
-    for i in range(n-1):
-        m = max_abs_diff(data[indices[n-1]], data[indices[i]])
-        if m > max_diff:
-            max_diff = m
+    for i in range(num_ids-1):
+        mad = max_abs_diff(data[indices[num_ids-1]], data[indices[i]])
+        if mad > max_diff:
+            max_diff = mad
     return max_diff
 
 

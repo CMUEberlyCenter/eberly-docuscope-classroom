@@ -2,19 +2,22 @@
 Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
-
+import gzip
+import json
 import logging
-from flask import current_app
-from flask_restful import abort
+import os
+from typing import List
+from fastapi import HTTPException
 from marshmallow import Schema, fields, post_load, ValidationError
-import requests
+from pydantic import BaseModel
+from default_settings import Config
 
-class DocuScopeTone():
+class DocuScopeTone(BaseModel): #pylint: disable=R0903
     """A DocuScope Tone entry."""
-    def __init__(self, cluster, dimension, lats):
-        self.cluster = cluster or '***NO CLUSTER***'
-        self.dimension = dimension or '***NO DIMENSION***'
-        self.lats = lats or ['***NO CLASS***']
+    cluster: str = '***NO CLUSTER***'
+    dimension: str = '***NO DIMENSION***'
+    lats: List[str] = ['***NO CLASS***']
+
     @property
     def lat(self):
         """Returns the index lat (first one) in the lats."""
@@ -27,50 +30,53 @@ class DocuScopeToneSchema(Schema):
     lats = fields.List(fields.String())
 
     @post_load
-    def make_lat(self, data):
+    def make_lat(self, data): #pylint: disable=R0201
         """Convert json data to a DocuScopeTone object."""
         return DocuScopeTone(**data)
 DST_SCHEMA = DocuScopeToneSchema(many=True)
 
-def get_tones(dictionary_name="default"):
-    """Retrieve the DocuScope tones data for a dictionary."""
-    req = requests.get("{}/dictionary/{}/tones".format(
-        current_app.config['DICTIONARY_SERVER'], dictionary_name),
-                       timeout=1)
-    # TODO: Instead of handling errors at this level, re-raise and let caller
-    # deal so that it could potentially be retried.
-    # This also indicates that serving dictionary files is probably the wrong
-    # way to do this at scale and a file server or database should be better.
+def get_local_tones(dictionary_name="default"):
+    """Retrieve the DocuScope tones data for a dictionary from a local file."""
     try:
-        req.raise_for_status()
-    except requests.exceptions.HTTPError as h_err:
-        logging.error("Error retrieving %s tones: %s - %s",
-                      dictionary_name, req.status_code, h_err)
-        abort(422, message="Error retrieving {}: {}".format(dictionary_name, h_err))
-    except requests.exceptions.Timeout:
-        logging.error("Dictionary server timed out retrieving tones for %s",
-                      dictionary_name)
-        abort(422, message="Timeout error retrieving tones for {}".format(dictionary_name))
-    #logging.info(req.data.decode('utf-8'))
+        tone_path = os.path.join(Config.DICTIONARY_HOME,
+                                 "{}_tones.json.gz".format(dictionary_name))
+        with gzip.open(tone_path, 'rt') as jin:
+            data = json.loads(jin.read())
+    except ValueError as enc_error:
+        logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
+        raise HTTPException(status_code=422,
+                            detail="Error reading {}_tones.json.gz: {}".format(
+                                dictionary_name, enc_error))
+    except OSError as os_error:
+        logging.error("Error reading %s tones: %s", dictionary_name, os_error)
+        raise HTTPException(status_code=422,
+                            detail="Error reading {}_tones.json.gz: {}".format(
+                                dictionary_name, os_error))
     try:
-        tones, val_errors = DST_SCHEMA.load(req.json())
+        tones, val_errors = DST_SCHEMA.load(data)
         if val_errors:
             logging.warning("Parsing errors: %s", val_errors)
     except ValidationError as err:
         logging.error("Validation Error rparsing tones for %s", dictionary_name)
         logging.error(err.messages)
-        tones = err.valid_data
-        abort(422, message="Errors in parsing tones for {}: {}".format(
-            dictionary_name, err.messages))
+        # disable no-member check because it is a false negative
+        # likely due to changes in marshmallow
+        tones = err.valid_data #pylint: disable=E1101
+        raise HTTPException(
+            status_code=422,
+            detail="Errors in parsing tones for {}: {}".format(dictionary_name, err.messages))
     except ValueError as v_err:
         logging.error("Invalid JSON returned for %s", dictionary_name)
         logging.error("%s", v_err)
         tones = None
-        abort(422, message="Errors decoding tones for {}: {}".format(dictionary_name, v_err))
+        raise HTTPException(status_code=422,
+                            detail="Errors decoding tones for {}: {}".format(
+                                dictionary_name, v_err))
     if not tones:
         logging.error("No tones were retrieved for %s.", dictionary_name)
-        abort(422,
-              message="No tones were retrieved for {}.".format(dictionary_name))
+        raise HTTPException(
+            status_code=422,
+            detail="No tones were retrieved for {}.".format(dictionary_name))
     return tones
 
 class DocuScopeTones():
@@ -79,13 +85,12 @@ class DocuScopeTones():
         self.dictionary_name = dictionary_name
         self._tones = None
         self._lats = None
-        self._dim_to_clust = None # TODO: remove as currently unused
 
     @property
     def tones(self):
         """Retrieve the tones."""
         if not self._tones:
-            self._tones = get_tones(self.dictionary_name)
+            self._tones = get_local_tones(self.dictionary_name)
         return self._tones
 
     @property
@@ -126,9 +131,9 @@ class DocuScopeTones():
             clust_dict[tone.cluster].update(tone.dimension)
         return clust_dict
 
-    def map_dimension_to_cluster(self):
-        """Maps dimension -> cluster."""
-        return {tone.dimension: tone.cluster for tone in self.tones}
+    #def map_dimension_to_cluster(self):
+    #    """Maps dimension -> cluster."""
+    #    return {tone.dimension: tone.cluster for tone in self.tones}
 
     def get_lat_cluster(self, lat):
         """Returns the cluster for the given lat."""
@@ -148,8 +153,8 @@ class DocuScopeTones():
             logging.error("Dimension lookup: %s is not in LATS", lat)
         return dim
 
-    def get_cluster(self, dimension):
-        """Returns the cluster for the given dimension."""
-        if not self._dim_to_clust:
-            self._dim_to_clust = self.map_dimension_to_cluster()
-        return self._dim_to_clust[dimension]
+#    def get_cluster(self, dimension):
+#        """Returns the cluster for the given dimension."""
+#        if not self._dim_to_clust:
+#            self._dim_to_clust = self.map_dimension_to_cluster()
+#        return self._dim_to_clust[dimension]

@@ -4,18 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
-flask-restful = "*"
 reportlab = "*"
 pandas = "*"
 marshmallow = "*"
 "beautifulsoup4" = "*"
-flask-sqlalchemy = "*"
-requests = "*"
 mysqlclient = "*"
+sqlalchemy = "*"
+fastapi = "*"
+itsdangerous = "*"
+aiofiles = "*"
+email-validator = "*"
+ujson = "*"
+python-memcached = "*"
 
 [dev-packages]
 pylint = "*"
 
 [requires]
-python_version = "3"
+python_version = "3.7"

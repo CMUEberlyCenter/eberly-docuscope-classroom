@@ -1,25 +1,11 @@
 <!-- Title Banner -->
-<div class="title-banner">
-  <h3>{{ title }}</h3>
-  <i (click)="about_modal.open()" class="material-icons pointer">info</i>
-</div>
+<mat-toolbar color="warn"><!-- color="primary" -->
+  <span>{{title}}</span><span class="spacer"></span>
+  <button mat-icon-button (click)="openAbout()"><mat-icon>info</mat-icon></button>
+</mat-toolbar>
 <!-- Loading screen cover -->
-<ngx-spinner type="ball-pulse">
-  <span class="spinner_text">Loading...</span>
-</ngx-spinner>
+<ngx-ui-loader></ngx-ui-loader>
 <!-- content -->
 <router-outlet></router-outlet>
 <!-- message runner -->
 <app-messages></app-messages>
-<!-- about popup modal dialog window -->
-<eui-dialog #about_modal
-            [title]="'About'"
-            [panelStyle]="{width:'60%'}"
-            [closed]="true"
-            [modal]="true">
-  <h1 class="dialog">DocuScope Project</h1>
-  <p class="dialog">DocuScope is a text analysis environment with a suite of interactive visualization tools for corpus-based rhetorical analysis. The <a href="https://www.cmu.edu/dietrich/english/research/docuscope.html">DocuScope Project</a> began in 1998 as a result of collaboration between David Kaufer and Suguru Ishizaki at <a href="http://www.cmu.edu/">Carnegie Mellon University</a>. David created what we call the generic (default) dictionary, consisting of over 40 million linguistic patterns of English classified into over 100 categories of rhetorical effects. Suguru designed and implemented the analysis and visualization software, which can annotate a corpus of text against any dictionary of regular strings that are classified into a hierarchy of rhetorical effects. While we designed DocuScope as a tool for rhetorical analysis, we also found that it was extremely effective for developing the dictionary in a systematic fashion.</p>
-  <div class="dialog-button">
-    <eui-linkbutton iconCls="icon-ok" (click)="about_modal.close()">Ok</eui-linkbutton>
-  </div>
-</eui-dialog>

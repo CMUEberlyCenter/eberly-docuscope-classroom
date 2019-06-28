@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -21,42 +21,43 @@ export class ScatterplotComponent implements OnInit {
   y_axis: string;
 
   constructor(private corpusService: CorpusService,
-              private _spinner: NgxSpinnerService,
+              private _spinner: NgxUiLoaderService,
               private dataService: BoxplotDataService) {}
 
   getCorpus(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.hide();
+        this._spinner.stop();
         this.getCategories();
       });
   }
   getCategories(): void {
-    this._spinner.show();
+    this._spinner.start();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
+        // if (!data.bpdata) // TODO check for not enough categories
         this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry):string => { return bpd.category; });
+          (bpd: BoxplotDataEntry): string => bpd.category);
         this.x_categories = new Set<string>(this.categories);
         this.y_categories = new Set<string>(this.categories);
         this.x_axis = this.categories[0];
         this.y_axis = this.categories[1];
         this.x_categories.delete(this.y_axis);
         this.y_categories.delete(this.x_axis);
-        this._spinner.hide();
+        this._spinner.stop();
         this.getData();
       });
   }
   getData(): void {
     // make sure that there are valid axis before getting data.
     if (this.x_axis && this.y_axis && this.x_axis !== this.y_axis) {
-      this._spinner.show();
+      this._spinner.start();
       this.dataService.getScatterPlotData(this.corpus, this.x_axis, this.y_axis)
         .subscribe(data => {
           this.data = data;
-          this._spinner.hide();
+          this._spinner.stop();
         });
     }
     // TODO: add messages for failures.
@@ -65,12 +66,12 @@ export class ScatterplotComponent implements OnInit {
   ngOnInit() {
     this.getCorpus();
   }
-  on_select(event):void {
+  on_select(event): void {
     console.log(this.x_axis, this.y_axis);
-    let x_cat:Set<string> = new Set<string>(this.categories);
+    const x_cat: Set<string> = new Set<string>(this.categories);
     x_cat.delete(this.y_axis);
     this.x_categories = x_cat;
-    let y_cat:Set<string> = new Set<string>(this.categories);
+    const y_cat: Set<string> = new Set<string>(this.categories);
     y_cat.delete(this.x_axis);
     this.y_categories = y_cat;
     this.getData();

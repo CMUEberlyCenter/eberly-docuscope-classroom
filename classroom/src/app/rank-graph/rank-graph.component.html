@@ -6,7 +6,8 @@
   </eui-grid-column>
   <eui-grid-column field="text" title="Student" width="10ch">
     <ng-template euiCellTemplate let-row>
-      <span><a (click)="open('stv/'+row.index)" [style.cursor]="pointer">{{row.text}}</a></span>
+      <span><a [ngClass]="{'student_col': true, 'model_entry': row.ownedby === 'instructor'}"
+               (click)="open('stv/'+row.index)">{{row.text}}</a></span>
     </ng-template>
   </eui-grid-column>
   <eui-grid-column field="value" title="Value" width="6ch">

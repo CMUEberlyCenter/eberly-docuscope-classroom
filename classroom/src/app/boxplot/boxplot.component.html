@@ -1,9 +1,10 @@
 <app-nav></app-nav>
-<div *ngIf="corpus" class="boxplot_container">
-  <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Box Plot</h2>-->
-  <h2>Box Plot</h2>
-  <div class="graph_container">
+<mat-card *ngIf="corpus" class="container">
+  <mat-card-title>Box Plot</mat-card-title>
+  <mat-card-subtitle>Shows the distribution of various pattern types.</mat-card-subtitle>
+  <mat-card-subtitle>Units are average number of instances per 1000 words.</mat-card-subtitle>
+  <mat-card-content class="graph_container">
     <app-boxplot-graph [boxplot]="data" [max_value]="max_value" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
     <app-rank-graph [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>

@@ -1,20 +1,63 @@
-<nav>
+<nav mat-tab-nav-bar>
+  <a mat-tab-link
+     routerLink="/boxplot"
+     queryParamsHandling="preserve"
+     routerLinkActive #bprla="routerLinkActive"
+     [active]="bprla.isActive"
+     matTooltip="Show Box Plot Graph">Box Plot</a>
+  <a mat-tab-link
+     routerLink="/ranking"
+     queryParamsHandling="preserve"
+     routerLinkActive #rrla="routerLinkActive"
+     [active]="rrla.isActive"
+     matTooltip="Show Ranking Lists">Rankings</a>
+  <a mat-tab-link
+     routerLink="/scatterplot"
+     queryParamsHandling="preserve"
+     routerLinkActive #sprla="routerLinkActive"
+     [active]="sprla.isActive"
+     matTooltip="Show Scatter Plot Graph">Scatter Plot</a>
+  <a mat-tab-link
+     routerLink="/grouping"
+     queryParamsHandling="preserve"
+     routerLinkActive #grla="routerLinkActive"
+     [active]="grla.isActive"
+     matTooltip="Generate Groups">Groups</a>
+  <a mat-tab-link
+     *ngIf="is_instructor()"
+     routerLink="/report"
+     queryParamsHandling="preserve"
+     routerLinkActive #rla="routerLinkActive"
+     [active]="rla.isActive"
+     matTooltip="Generate Reports">Reports</a>
+</nav>
+
+<!--<nav>-->
   <!--<eui-linkbutton [selected]="is_current('/corpus')"
                   [title]="'Go to corpus details.'"
                   routerLink="/corpus">Corpus</eui-linkbutton>-->
-  <eui-linkbutton [selected]="is_current('/boxplot')"
+<!--  <eui-linkbutton [selected]="is_current('/boxplot')"
                   [title]="'Go to Box Plot display.'"
-                  routerLink="/boxplot">Box Plot</eui-linkbutton>
+                  routerLink="/boxplot"
+                  queryParamsHandling="preserve">Box Plot</eui-linkbutton>
   <eui-linkbutton [selected]="is_current('/ranking')"
                   [title]="'Go to rankings list.'"
-                  routerLink="/ranking">Rankings</eui-linkbutton>
+                  routerLink="/ranking"
+                  queryParamsHandling="preserve"
+>Rankings</eui-linkbutton>
   <eui-linkbutton [selected]="is_current('/scatterplot')"
                   [title]="'Go to scatter plot display.'"
-                  routerLink="/scatterplot">Scatter Plot</eui-linkbutton>
-  <eui-linkbutton [selected]="is_current('/grouping')"
+                  routerLink="/scatterplot"
+                  queryParamsHandling="preserve">Scatter Plot</eui-linkbutton>
+  <eui-linkbutton *ngIf="is_instructor()"
+                  [selected]="is_current('/grouping')"
                   [title]="'Go to group generator.'"
-                  routerLink="/grouping">Groups</eui-linkbutton>
-  <eui-linkbutton [selected]="is_current('/report')"
+                  routerLink="/grouping"
+                  queryParamsHandling="preserve">Groups</eui-linkbutton>
+  <eui-linkbutton *ngIf="is_instructor()"
+                  [selected]="is_current('/report')"
                   [title]="'Go to report generator.'"
-                  routerLink="/report">Reports</eui-linkbutton>
+                  routerLink="/report"
+                  queryParamsHandling="preserve">Reports</eui-linkbutton>
 </nav>
+-->

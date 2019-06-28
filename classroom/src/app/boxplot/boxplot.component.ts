@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { Component, OnInit } from '@angular/core';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -19,52 +19,43 @@ export class BoxplotComponent implements OnInit {
   max_value: number;
 
   constructor(private corpusService: CorpusService,
-              private spinner: NgxSpinnerService,
+              private spinner: NgxUiLoaderService,
               private dataService: BoxplotDataService) { }
 
   getCorpus(): void {
-    //const id = +this.route.snapshot.paramMap.get('id');
-    this.spinner.show();
+    this.spinner.start();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this.spinner.hide();
+        this.spinner.stop();
         this.getData();
       });
   }
-  getData():void {
-    this.spinner.show();
+  getData(): void {
+    this.spinner.start();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.data = data;
         this.max_value = max_boxplot_value(data);
-        this.spinner.hide();
+        this.spinner.stop();
       });
   }
-  getRankData(selected_category:string):void {
+  getRankData(selected_category: string): void {
     if (selected_category) {
-      this.spinner.show();
+      this.spinner.start();
       this.dataService.getRankedList(this.corpus, selected_category)
         .subscribe(data => {
           this.rank_data = data;
-          this.spinner.hide();
+          this.spinner.stop();
         });
     }
   }
+
   ngOnInit() {
-    console.log("boxplot.component ngOnInit()");
     this.getCorpus();
   }
-  ngAfterViewCheck() {
-    //this.getCorpus();
-  }
-  ngAfterViewInit() {
-    //this.getCorpus();
-  }
-  ngOnDestroy() {
-    //this.data = null;
-  }
-  onSelectCategory(category:string) {
+
+  onSelectCategory(category: string) {
     this.selected_category = category;
     this.getRankData(category);
   }

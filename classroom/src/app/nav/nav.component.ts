@@ -10,8 +10,12 @@ export class NavComponent implements OnInit {
 
   constructor(private _route: ActivatedRoute) { }
 
-  is_current(id:string) {
+  is_current(id: string) {
     return id === `/${this._route.snapshot.url.join('/')}`;
+  }
+  is_instructor() {
+    const qmap = this._route.snapshot.queryParamMap;
+    return qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0;
   }
   ngOnInit() { }
 

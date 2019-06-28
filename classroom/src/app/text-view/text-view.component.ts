@@ -1,11 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import * as d3 from 'd3';
+import * as $ from 'jquery';
 
-import { TaggedTextService, TextContent } from '../tagged-text.service';
+import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
 
 @Component({
   selector: 'app-text-view',
@@ -15,94 +16,176 @@ import { TaggedTextService, TextContent } from '../tagged-text.service';
 export class TextViewComponent implements OnInit {
   tagged_text: TextContent;
   clusters: Set<string>;
+  patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
 
-  selection: string = 'No Selection';
-  selected_lat: string;
-  selected_dimension: string;
+  selection = 'No Selection';
+  // selected_lat: string;
+  // selected_dimension: string;
   selected_cluster: string;
+
+  _cluster_info: Map<string, TextContentDictionaryInformation>;
+
+  private _css_classes: string[] = [
+    'cluster_0',
+    'cluster_1',
+    'cluster_2',
+    'cluster_3',
+    'cluster_4',
+    'cluster_5'];
+
+  get max_selected_clusters(): number {
+    return 4;
+  }
+
+  private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
     private _route: ActivatedRoute,
-    private _spinner: NgxSpinnerService,
+    private _spinner: NgxUiLoaderService,
     private _text_service: TaggedTextService,
     private _sanitizer: DomSanitizer
   ) { }
 
   getTaggedText() {
-    this._spinner.show();
+    this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
-    this._text_service.getTaggedText(id)
+    return this._text_service.getTaggedText(id)
       .subscribe(txt => {
-        console.log(txt);
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        let clusters = new Set<string>();
-        for (let d in txt.dict) {
-          let cluster = txt.dict[d]['cluster'];
+        // console.log(txt.html_content);
+        // console.log(this.html_content);
+        // console.log($(txt.html_content));
+        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
+        if (this.tagged_text && this.tagged_text.dict_info && this.tagged_text.dict_info.cluster) {
+          for (const clust of this.tagged_text.dict_info.cluster) {
+            this._cluster_info.set(clust.id, clust);
+          }
+        }
+        const clusters = new Set<string>();
+        for (const d of Object.keys(txt.dictionary)) {
+          const cluster = txt.dictionary[d]['cluster'];
           clusters.add(cluster);
         }
         clusters.delete('Other');
         this.clusters = clusters;
-        this._spinner.hide();
+        const pats = new Map<string, Map<string, number>>();
+        clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
+
+        // const $html = $(txt.html_content);
+        /*$html.find('[data-key]').each(function() {
+          const lat = $(this).attr('data-key');
+          const cluster = txt.dict[lat]['cluster'];
+        });*/
+        const tv = this;
+        $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
+          const lat: string = $(this).attr('data-key');
+          const cluster: string = txt.dictionary[lat]['cluster'];
+          const cluster_name: string = tv.get_cluster_name(cluster);
+          const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
+
+          if (pats.has(cluster)) {
+            if (pats.get(cluster).has(example)) {
+              const p_val: number = pats.get(cluster).get(example);
+              pats.get(cluster).set(example, p_val + 1);
+            } else {
+              pats.get(cluster).set(example, 1);
+            }
+          }
+        });
+        this.patterns = pats;
+        // this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
+        this._spinner.stop();
       });
   }
   ngOnInit() {
     this.getTaggedText();
   }
 
+  lat_to_cluster(lat: string): string {
+    return this.get_cluster_name(this.tagged_text.dictionary[lat]['cluster']);
+  }
+
   click_select($event) {
-    console.log($event);
-    let parent_key = $event.target.parentNode.getAttribute('data-key');
+    // console.log($event);
+    if ($('.cluster_id').length === 0) {
+      const l2c = this.lat_to_cluster.bind(this);
+      $('[data-key]').each(function() {
+        const lat: string = $(this).attr('data-key');
+        const cluster_name: string = l2c(lat);
+        $(this).append(`<sup class="cluster_id">{${cluster_name}}</sup>`);
+      });
+    }
+    const parent_key = $event.target.parentNode.getAttribute('data-key');
     if (parent_key) {
-      let lat = parent_key.trim();
-      this.selected_lat = lat;
-      let obj = this.tagged_text.dict[lat];
+      const lat = parent_key.trim();
+      // this.selected_lat = lat;
+      const obj = this.tagged_text.dictionary[lat];
       if (obj) {
-        this.selected_dimension = obj['dimension'];
-        this.selected_cluster = obj['cluster'];
-        this.selection = $event.target.parentNode.textContent;
+        // this.selected_dimension = obj['dimension'];
+        // this.selected_cluster = this.get_cluster_name(obj['cluster']);
+        // this.selection = $event.target.parentNode.textContent;
         d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').style('display', 'none');
         d3.select($event.target.parentNode).classed('selected_text', true);
+        d3.select($event.target.parentNode).select('.cluster_id').style('display', 'inline');
       }
     }
   }
-  *get_lats(cluster:string) {
-    for (let lat in this.tagged_text.dict) {
-      if (this.tagged_text.dict[lat]['cluster'] === cluster) {
+
+  *get_lats(cluster: string) {
+    for (const lat in this.tagged_text.dictionary) {
+      if (this.tagged_text.dictionary[lat]['cluster'] === cluster) {
         yield lat;
       }
     }
   }
 
-  toggle_category($event) {
-    console.log($event);
-    console.log($event.target.checked, $event.target.value);
-    let clust: string = $event.target.value;
-    //let lats = this.tagged_text.dict
-    //console.log(`[data-key=${clust}]`);
-    //d3.select($event.target).style('color','pink');
-    //d3.select($event.target).style('color', 'black')
-    let lats = this.get_lats(clust);
-    let css_class = this.get_cluster_class(clust);
-    if (!$event.target.checked && this._selected_clusters.has(clust)) {
+  get_cluster_info(cluster: string): TextContentDictionaryInformation {
+    return this._cluster_info.get(cluster);
+  }
+
+  /**
+   * Tries to retrieve the human readable name of the given cluster.
+   * If the cluster is not in the cluster information, return the cluster id.
+   */
+  get_cluster_name(cluster: string): string {
+    const cluster_info = this.get_cluster_info(cluster);
+    if (cluster_info) { return cluster_info.name; }
+    return cluster;
+  }
+  get_pattern_count(cluster: string): number {
+    if (this.patterns.has(cluster)) {
+      return Array.from(this.patterns.get(cluster).values()).reduce((a: number, c: number) => a + c, 0);
+    }
+    return 0;
+  }
+  get_cluster_title(cluster: string): string {
+    return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
+  }
+
+  selection_change($event) {
+    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
+      $event.option.selected = false;
+    }
+    const clust: string = $event.option.value;
+    const lats = this.get_lats(clust);
+    const css_class = this.get_cluster_class(clust);
+    if (!$event.option.selected && this._selected_clusters.has(clust)) {
       this._css_classes.unshift(this._selected_clusters.get(clust));
       this._selected_clusters.delete(clust);
     }
-    d3.select($event.target.parentNode).classed(css_class, $event.target.checked);
-    //console.log(css_class, this._selected_clusters, this._css_classes);
-    let lat =  lats.next();
+    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
+    let lat = lats.next();
     while (!lat.done) {
-      //console.log(lat.value);
       d3.selectAll(`[data-key=${lat.value}]`)
-        .classed(css_class, $event.target.checked);
+        .classed(css_class, $event.option.selected);
       lat = lats.next();
     }
   }
 
-  private _css_classes: string[] = ["cluster_0","cluster_1","cluster_2","cluster_3","cluster_4","cluster_5"];
-  private _selected_clusters: Map<string,string> = new Map<string,string>();
   get_cluster_class(cluster: string): string {
     if (this._selected_clusters.has(cluster)) {
       return this._selected_clusters.get(cluster);

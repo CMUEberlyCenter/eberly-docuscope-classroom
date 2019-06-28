@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { AppSettingsService } from './app-settings.service';
+import { MatDialog } from '@angular/material/dialog';
+
+import { AboutComponent } from './about/about.component';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +12,9 @@ import { AppSettingsService } from './app-settings.service';
 export class AppComponent {
   title = 'DocuScope Classroom @ CMU';
 
-  constructor() { }
+  constructor(public about: MatDialog) { }
 
+  openAbout(): void {
+    this.about.open(AboutComponent);
+  }
 }

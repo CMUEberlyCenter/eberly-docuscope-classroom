@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -19,43 +19,43 @@ export class RankComponent implements OnInit {
   max_value: number;
 
   constructor(private _corpus_service: CorpusService,
-              private _spinner: NgxSpinnerService,
+              private _spinner: NgxUiLoaderService,
               private _data_service: BoxplotDataService) { }
 
   getCorpus(): void {
-    this._spinner.show();
+    this._spinner.start();
     this._corpus_service.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.hide();
+        this._spinner.stop();
         this.getCategories();
       });
   }
   getCategories(): void {
-    this._spinner.show();
+    this._spinner.start();
     this._data_service.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry):string => { return bpd.category; });
+          (bpd: BoxplotDataEntry): string => bpd.category);
         this.max_value = max_boxplot_value(data);
         this.category = this.categories[0];
-        this._spinner.hide();
+        this._spinner.stop();
         this.getData();
       });
   }
   getData(): void {
-    this._spinner.show();
+    this._spinner.start();
     this._data_service.getRankedList(this.corpus, this.category)
       .subscribe(data => {
         this.data = data;
-        this._spinner.hide();
+        this._spinner.stop();
       });
   }
   ngOnInit() {
     this.getCorpus();
   }
-  on_select(event):void {
-    console.log(this.category);
+  on_select(event): void {
+    // console.log(this.category);
     this.getData();
   }
 }
