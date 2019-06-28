@@ -13,7 +13,6 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
-#from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
@@ -34,14 +33,6 @@ ENGINE = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 CLIENT = memcache.Client(['memcached:11211'])
-#import schema
-
-#import ds_stats
-#from ds_stats import get_boxplot_data, get_rank_data, get_scatter_data, \
-#    get_pairings, get_html_string
-
-#logging.basicConfig(level=logging.DEBUG)
-#logger = logging.getLogger(__name__)
 
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
@@ -51,7 +42,6 @@ app = FastAPI( #pylint: disable=invalid-name
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
-#app.add_middleware(SessionMiddleware, secret_key=secret_key, max_age=24*60*60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -78,24 +68,9 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db.close()
     return response
 
-#def get_request(request: Request) -> Request:
-#    """Get the request from the given request."""
-#    return request
 def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""
     return request.state.db
-
-#@app.after_request
-#def after_request(response):
-#    """Adds extra headers to deal with cross-origin issues."""
-#    response.headers.add('Access-Control-Allow-Origin', '*')
-#    response.headers.add('Access-Control-Allow-Headers',
-#                         ','.join(['Access-Control-Allow-Headers',
-#                                   'Access-Control-Allow-Origin',
-#                                   'Access-Control-Allow-Methods',
-#                                   'Content-Type']))
-#    response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
-#    return response
 
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
@@ -113,6 +88,7 @@ class DocumentSchema(BaseModel):
     """Schema for a document."""
     id: UUID = ...
     data: str = None
+
 class CorpusSchema(BaseModel):
     """Schema for '/boxplot_data' requests."""
     corpus: List[DocumentSchema] = ...
