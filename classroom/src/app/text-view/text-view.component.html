@@ -1,43 +1,45 @@
-<div class="container" *ngIf="tagged_text">
-  <eui-layout #layout class="layout" fit="true">
-    <eui-layout-panel class="categories" euiResizable handles="e" region="west"
-                      title="Dictionary Categories"  split="true"
-                      (resizing)="layout.updatePaddings()">
-      <aside class="categories_panel">
-        <label *ngIf="max_selected_clusters > 0" class="ds-stv-clusters-instruction">Select up to {{max_selected_clusters}}:</label>
+<mat-drawer-container *ngIf="tagged_text" class="container">
+  <mat-drawer mode="side" opened disableClose position="start">
+    <mat-card [style.height]="'100%'">
+      <mat-card-title>Dictionary Categories</mat-card-title>
+      <mat-card-subtitle>Select up to {{max_selected_clusters}}:</mat-card-subtitle>
+      <mat-card-content>
         <mat-selection-list #cluster_selection (selectionChange)="selection_change($event)">
           <mat-list-option *ngFor="let c of clusters;" checkboxPosition="before" [value]="c">{{get_cluster_name(c)}}</mat-list-option>
         </mat-selection-list>
-      </aside>
-    </eui-layout-panel>
-    <eui-layout-panel region="center" title="ID: {{tagged_text.text_id}}"
-                      style="height:100%">
-      <article class="text_content" [innerHTML]="html_content"
-               (click)="click_select($event)"></article>
-    </eui-layout-panel>
-    <eui-layout-panel euiResizable region="east" style="width:300px;"
-                      split="true"
-                      title="Patterns"
-                      handles="w" (resizing)="layout.updatePaddings()">
-      <mat-accordion *ngIf="patterns">
-        <mat-expansion-panel *ngFor="let clust of patterns | keyvalue">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span>{{get_cluster_name(clust.key)}}<span class="badge">{{get_pattern_count(clust.key)}}</span></span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <details *ngIf="get_cluster_info(clust.key) as info">
-            <summary>{{info.description}}</summary>
-            <p>{{info.description}}</p>
-          </details>
-
-          <ul>
-            <li *ngFor="let pattern of clust.value | keyvalue">
-              {{pattern.key}} <span class="badge">{{pattern.value}}</span>
-            </li>
-          </ul>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </eui-layout-panel>
-  </eui-layout>
-</div>
+  </mat-card-content></mat-card></mat-drawer>
+  <mat-drawer-content>
+    <mat-card>
+      <mat-card-title>ID: {{tagged_text.text_id}}</mat-card-title>
+      <mat-card-content>
+        <article class="text_content" [innerHTML]="html_content"
+                 (click)="click_select($event)"></article>
+      </mat-card-content>
+    </mat-card>
+  </mat-drawer-content>
+  <mat-drawer mode="side" opened disableClose position="end" [style.maxWidth]="'22em'">
+    <mat-card [style.height]="'100%'">
+      <mat-card-title>Patterns</mat-card-title>
+      <mat-card-content>
+        <mat-accordion *ngIf="patterns">
+          <mat-expansion-panel *ngFor="let clust of patterns | keyvalue">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span>{{get_cluster_name(clust.key)}} <span class="badge" style="font-size:xx-small;">{{get_pattern_count(clust.key)}}</span></span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <details *ngIf="get_cluster_info(clust.key) as info">
+              <summary>{{info.description}}</summary>
+              <p>{{info.description}}</p>
+            </details>
+            <ul>
+              <li *ngFor="let pattern of clust.value | keyvalue">
+                {{pattern.key}} <span class="badge">{{pattern.value}}</span>
+              </li>
+            </ul>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
+  </mat-drawer>
+</mat-drawer-container>

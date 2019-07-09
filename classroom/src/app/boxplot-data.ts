@@ -109,6 +109,7 @@ export class RankDataEntry {
   ownedby: string;
 }
 export class RankData {
+  category: string;
   result: RankDataEntry[];
 }
 
@@ -120,11 +121,13 @@ export class ScatterplotDataPoint {
   ownedby: string;
 }
 export class ScatterplotData {
+  axisX: string;
+  axisY: string;
   spdata: ScatterplotDataPoint[];
 }
 
 export class GroupsData {
-  groups: string[][] ;
+  groups: string[][];
   grp_qualities: number[];
   quality: number;
 }

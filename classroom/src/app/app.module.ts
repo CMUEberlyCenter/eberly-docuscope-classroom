@@ -19,6 +19,7 @@ import { MatListModule } from '@angular/material/list';
 // import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -37,6 +38,7 @@ import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
 import { AboutComponent } from './about/about.component';
+import { PatternsComponent } from './patterns/patterns.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +55,7 @@ import { AboutComponent } from './about/about.component';
     RankGraphComponent,
     RankComponent,
     NavComponent,
+    PatternsComponent,
   ],
   entryComponents: [
     AboutComponent,
@@ -79,6 +82,7 @@ import { AboutComponent } from './about/about.component';
     // MatRadioModule,
     MatSidenavModule,
     MatSnackBarModule,
+    MatTableModule,
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule

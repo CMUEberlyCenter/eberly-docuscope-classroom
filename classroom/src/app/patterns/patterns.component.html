@@ -1,0 +1,26 @@
+<app-nav></app-nav>
+<mat-card *ngIf="corpus" class="container">
+  <mat-card-title>Patterns</mat-card-title>
+  <mat-card-subtitle>Number of instances of each pattern across all documents.</mat-card-subtitle>
+  <mat-card-content>
+    <mat-accordion *ngIf="patterns_data" multi="true">
+      <mat-expansion-panel *ngFor="let clust of patterns_data" expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span>{{clust.category}}</span> <span class="badge">{{get_pattern_count(clust)}}</span>
+
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <details *ngIf="clust.description">
+          <summary>{{clust.description}}</summary>
+          <p>{{clust.description}}</p>
+        </details>
+        <ul>
+          <li *ngFor="let pattern of clust.patterns">
+            {{pattern.pattern}} <span class="badge">{{pattern.count}}</span>
+          </li>
+        </ul>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+</mat-card>

@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
 import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
-import { MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule } from '@angular/material';
+import { MatBadgeModule, MatCardModule, MatCheckboxModule, MatExpansionModule, MatListModule, MatSidenavModule } from '@angular/material';
 
 import { TextViewComponent } from './text-view.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -31,7 +31,7 @@ describe('TextViewComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent ],
-      imports: [ EasyUIModule, MatBadgeModule, MatCheckboxModule, MatExpansionModule, MatListModule ],
+      imports: [ EasyUIModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatExpansionModule, MatListModule, MatSidenavModule ],
       providers: [
         { provide: DomSanitizer, useValue: domSanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },

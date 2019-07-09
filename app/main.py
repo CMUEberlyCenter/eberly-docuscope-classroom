@@ -283,7 +283,7 @@ class RankListSchema(CorpusSchema):
         frame = frame.head(50)
         frame = frame[frame.value != 0]
         logging.info(frame.to_dict('records'))
-        return {'result': frame.to_dict('records')}
+        return {'category': self.sortby, 'result': frame.to_dict('records')}
 
 class RankDataEntry(BaseModel):
     """Schema for each entry in RankData."""
@@ -294,9 +294,10 @@ class RankDataEntry(BaseModel):
 
 class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
-    result: List[RankDataEntry] = ...
+    category: str
+    result: List[RankDataEntry]
 
-@app.post('/ranked_list', response_model=RankData)
+@app.post('/ranked_list') # , response_model=RankDataEntry) # pydantic rejects
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests."""
     if not corpus.corpus:
@@ -329,7 +330,8 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
-        return {'spdata': frame.to_dict('records')}
+        return { 'axisX': self.catX, 'axisY': self.catY,
+                 'spdata': frame.to_dict('records') }
 
 class ScatterplotDataPoint(BaseModel):
     """Schema for a point in the ScatterplotData."""
@@ -341,6 +343,8 @@ class ScatterplotDataPoint(BaseModel):
 
 class ScatterplotData(BaseModel):
     """Schema for "scatterplot_data" response."""
+    axisX: str
+    axisY: str
     spdata: List[ScatterplotDataPoint] = ...
 
 @app.post('/scatterplot_data', response_model=ScatterplotData)
@@ -385,6 +389,37 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
         raise HTTPException(detail="Not enough documents to do grouping.",
                             status_code=HTTP_400_BAD_REQUEST)
     return corpus.get_pairings(db_session)
+
+class PatternData(BaseModel):
+    pattern: str = ...
+    count: int = 0
+
+class CategoryPatternData(BaseModel):
+    category: str = ...
+    description: str = None
+    patterns: List[PatternData] = None
+    
+@app.post('/patterns', response_model=List[CategoryPatternData])
+def patterns(corpus:  CorpusSchema,
+             db_session: Session = Depends(get_db_session)):
+    if not corpus.corpus:
+        raise HTTPException(detail="No documents specified.",
+                            status_code=HTTP_400_BAD_REQUEST)
+    patterns = defaultdict(Counter)
+    for (uuid, doc, filename, status) in db_session.query(
+            Filesystem.id, Filesystem.processed, Filesystem.name,
+            Filesystem.state).filter(Filesystem.id.in_(self.documents())):
+        if status == 'error':
+            logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
+            raise HTTPException(
+                detail="Aborting: there was an error while tagging {}".format(filename),
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        if status != 'tagged':
+            logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
+            raise HTTPException(
+                detail="Aborting because {} is not tagged (state: {})".format(filename, status),
+                status_code=HTTP_204_NO_CONTENT)
+
 
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""

@@ -17,15 +17,8 @@
 }
 
 .container {
-  width: 100%;
-  height: calc(100vh - 64.5px);
-}
-
-.text_content {
-  padding-left: 18px;
-  padding-right: 18px;
-  line-height: 175%;
-  max-width: 6.5in;
+  height: calc(100vh - 64.5px - 49px - 10px);
+  margin: 5px;
 }
 
 summary {
