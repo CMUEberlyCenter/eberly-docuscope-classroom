@@ -113,17 +113,27 @@ class CorpusSchema(BaseModel):
                 logging.info('Retrieving stats from database')
                 stats = {}
                 ds_dictionaries = set()
-                for doc, fullname, ownedby, filename, doc_id, ds_dictionary in \
+                for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
                     db_session.query(Filesystem.processed,
                                      Filesystem.fullname,
                                      Filesystem.ownedby,
                                      Filesystem.name,
                                      Filesystem.id,
+                                     Filesystem.state,
                                      DSDictionary.name)\
                               .filter(Filesystem.id.in_(self.documents()))\
                               .filter(Filesystem.state == 'tagged')\
                               .filter(Assignment.id == Filesystem.assignment)\
                               .filter(DSDictionary.id == Assignment.dictionary):
+                    if state == 'error':
+                        raise HTTPException(
+                            detail="There was an error tagging %s" % filename,
+                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+                    if state != 'tagged':
+                        raise HTTPException(
+                            detail="Some of the documents are not yet tagged,"
+                            + " please try again in a couple of minutes.",
+                            status_code=HTTP_503_SERVICE_UNAVAILABLE)
                     if doc:
                         ser = Series({key: val['num_tags'] for key, val in
                                       doc['ds_tag_dict'].items()})
@@ -143,26 +153,25 @@ class CorpusSchema(BaseModel):
                         "If problem persists, please contact technical support.",
                         status_code=HTTP_503_SERVICE_UNAVAILABLE)
                 if len(ds_dictionaries) != 1:
-                    logging.error("Inconsistant dictioaries in corpus %s",
+                    logging.error("Inconsistant dictionaries in corpus %s",
                                   self.documents())
                     raise HTTPException(
                         detail="Inconsistant dictionaries used in tagging " +
-                        "this corpus, documents are not compairable.",
+                        "this corpus, documents are not comparable.",
                         status_code=HTTP_400_BAD_REQUEST)
                 ds_dictionary = list(ds_dictionaries)[0]
                 ds_stats = DataFrame(data=stats).transpose()
                 tones = DocuScopeTones(ds_dictionary)
                 data = {}
+                tone_lats = []
                 if self.level == LevelEnum.dimension:
-                    for dim, lats in tones.map_dimension_to_lats().items():
-                        sumframe = ds_stats.filter(lats)
-                        if not sumframe.empty:
-                            data[dim] = sumframe.transpose().sum()
+                    tone_lats = tones.map_dimension_to_lats().items()
                 elif self.level == LevelEnum.cluster:
-                    for cluster, clats in tones.map_cluster_to_lats().items():
-                        sumframe = ds_stats.filter(clats)
-                        if not sumframe.empty:
-                            data[cluster] = sumframe.transpose().sum()
+                    tone_lats = tones.map_cluster_to_lats().items()
+                for category, lats in tone_lats:
+                    sumframe = ds_stats.filter(lats)
+                    if not sumframe.empty:
+                        data[category] = sumframe.transpose().sum()
                 frame = DataFrame(data)
                 frame['total_words'] = ds_stats['total_words']
                 frame['title'] = ds_stats['title']

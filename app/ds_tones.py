@@ -8,8 +8,9 @@ import logging
 import os
 from typing import List
 from fastapi import HTTPException
-from marshmallow import Schema, fields, post_load, ValidationError
-from pydantic import BaseModel
+#from marshmallow import Schema, fields, post_load, ValidationError
+from pydantic import BaseModel, ValidationError
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from default_settings import Config
 
 class DocuScopeTone(BaseModel): #pylint: disable=R0903
@@ -23,17 +24,17 @@ class DocuScopeTone(BaseModel): #pylint: disable=R0903
         """Returns the index lat (first one) in the lats."""
         return self.lats[0]
 
-class DocuScopeToneSchema(Schema):
-    """A Schema for validating tones."""
-    cluster = fields.String()
-    dimension = fields.String()
-    lats = fields.List(fields.String())
+#class DocuScopeToneSchema(Schema):
+#    """A Schema for validating tones."""
+#    cluster = fields.String()
+#    dimension = fields.String()
+#    lats = fields.List(fields.String())
 
-    @post_load
-    def make_lat(self, data): #pylint: disable=R0201
-        """Convert json data to a DocuScopeTone object."""
-        return DocuScopeTone(**data)
-DST_SCHEMA = DocuScopeToneSchema(many=True)
+#    @post_load
+#    def make_lat(self, data): #pylint: disable=R0201
+#        """Convert json data to a DocuScopeTone object."""
+#        return DocuScopeTone(**data)
+#DST_SCHEMA = DocuScopeToneSchema(many=True)
 
 def get_local_tones(dictionary_name="default"):
     """Retrieve the DocuScope tones data for a dictionary from a local file."""
@@ -44,38 +45,32 @@ def get_local_tones(dictionary_name="default"):
             data = json.loads(jin.read())
     except ValueError as enc_error:
         logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
-        raise HTTPException(status_code=422,
+        raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Error reading {}_tones.json.gz: {}".format(
                                 dictionary_name, enc_error))
     except OSError as os_error:
         logging.error("Error reading %s tones: %s", dictionary_name, os_error)
-        raise HTTPException(status_code=422,
+        raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Error reading {}_tones.json.gz: {}".format(
                                 dictionary_name, os_error))
     try:
-        tones, val_errors = DST_SCHEMA.load(data)
-        if val_errors:
-            logging.warning("Parsing errors: %s", val_errors)
+        tones = [DocuScopeTone(**d) for d in data]
     except ValidationError as err:
-        logging.error("Validation Error rparsing tones for %s", dictionary_name)
-        logging.error(err.messages)
-        # disable no-member check because it is a false negative
-        # likely due to changes in marshmallow
-        tones = err.valid_data #pylint: disable=E1101
+        logging.error("Validation Error parsing tones for %s", dictionary_name)
         raise HTTPException(
-            status_code=422,
-            detail="Errors in parsing tones for {}: {}".format(dictionary_name, err.messages))
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Errors in parsing tones for {}: {}".format(dictionary_name,
+                                                               err))
     except ValueError as v_err:
         logging.error("Invalid JSON returned for %s", dictionary_name)
         logging.error("%s", v_err)
-        tones = None
-        raise HTTPException(status_code=422,
+        raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Errors decoding tones for {}: {}".format(
                                 dictionary_name, v_err))
     if not tones:
         logging.error("No tones were retrieved for %s.", dictionary_name)
         raise HTTPException(
-            status_code=422,
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
             detail="No tones were retrieved for {}.".format(dictionary_name))
     return tones
 
