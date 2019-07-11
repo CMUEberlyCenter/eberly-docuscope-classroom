@@ -6,13 +6,13 @@
     <aside class="aside aside-y">
       <label for="select_y">Y Axis:</label>
       <select id="select_y" [(ngModel)]="y_axis" (ngModelChange)="on_select($event)" ngOptions>
-        <option *ngFor="let y of y_categories" [value]="y">{{y}}</option>
+        <option *ngFor="let y of y_categories" [value]="y.category">{{y.category_label}}</option>
       </select>
     </aside>
     <footer class="aside aside-x">
       <label for="select_x">X Axis:</label>
       <select id="select_x" [(ngModel)]="x_axis" (ngModelChange)="on_select($event)">
-        <option *ngFor="let x of x_categories" [value]="x">{{x}}</option>
+        <option *ngFor="let x of x_categories" [value]="x.category">{{x.category_label}}</option>
       </select>
     </footer>
     <article class="main">

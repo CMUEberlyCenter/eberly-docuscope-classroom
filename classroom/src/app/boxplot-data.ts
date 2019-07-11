@@ -79,6 +79,7 @@ export class BoxplotDataEntry {
   uifence: number;
   lifence: number;
   category: string;
+  category_label: string;
 }
 export class Outlier {
   pointtitle: string;

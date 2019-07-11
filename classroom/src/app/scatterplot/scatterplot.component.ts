@@ -14,10 +14,10 @@ import { BoxplotDataService } from '../boxplot-data.service';
 export class ScatterplotComponent implements OnInit {
   corpus: Corpus;
   data: ScatterplotData;
-  categories: string[];
-  x_categories: Set<string>;
+  categories: BoxplotDataEntry[];
+  x_categories: Set<BoxplotDataEntry>;
   x_axis: string;
-  y_categories: Set<string>;
+  y_categories: Set<BoxplotDataEntry>;
   y_axis: string;
 
   constructor(private corpusService: CorpusService,
@@ -38,14 +38,13 @@ export class ScatterplotComponent implements OnInit {
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         // if (!data.bpdata) // TODO check for not enough categories
-        this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry): string => bpd.category);
-        this.x_categories = new Set<string>(this.categories);
-        this.y_categories = new Set<string>(this.categories);
-        this.x_axis = this.categories[0];
-        this.y_axis = this.categories[1];
-        this.x_categories.delete(this.y_axis);
-        this.y_categories.delete(this.x_axis);
+        this.categories = data.bpdata;
+        this.x_categories = new Set<BoxplotDataEntry>(this.categories);
+        this.y_categories = new Set<BoxplotDataEntry>(this.categories);
+        this.x_axis = this.categories[0].category;
+        this.y_axis = this.categories[1].category;
+        this.x_categories.delete(this.categories.find(c => c.category === this.y_axis));
+        this.y_categories.delete(this.categories.find(c => c.category === this.x_axis));
         this._spinner.stop();
         this.getData();
       });
@@ -68,11 +67,11 @@ export class ScatterplotComponent implements OnInit {
   }
   on_select(event): void {
     console.log(this.x_axis, this.y_axis);
-    const x_cat: Set<string> = new Set<string>(this.categories);
-    x_cat.delete(this.y_axis);
+    const x_cat: Set<BoxplotDataEntry> = new Set<BoxplotDataEntry>(this.categories);
+    x_cat.delete(this.categories.find(c => c.category === this.y_axis));
     this.x_categories = x_cat;
-    const y_cat: Set<string> = new Set<string>(this.categories);
-    y_cat.delete(this.x_axis);
+    const y_cat: Set<BoxplotDataEntry> = new Set<BoxplotDataEntry>(this.categories);
+    y_cat.delete(this.categories.find(c => c.category === this.x_axis));
     this.y_categories = y_cat;
     this.getData();
   }

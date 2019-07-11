@@ -1,7 +1,7 @@
 <eui-datagrid *ngIf="boxplot" [data]="boxplot.bpdata" [style.width]="'500px'"
               [(selection)]="selection" selectionMode="single"
               (selectionChange)="handle_selection()">
-  <eui-grid-column field="category" title="Category" width="20ch">
+  <eui-grid-column field="category_label" title="Category" width="20ch">
   </eui-grid-column>
   <eui-grid-column width="300px">
     <ng-template euiHeaderTemplate>

@@ -72,6 +72,15 @@ def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""
     return request.state.db
 
+def get_ds_info(ds_dict: str, db_session: Session):
+    """Get the dictionary of DocuScope Dictionary information."""
+    return db_session\
+        .query(DSDictionary.class_info)\
+        .filter(DSDictionary.name == ds_dict).one_or_none()[0]
+
+def get_ds_info_map(ds_info):
+    return { i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension'] }
+
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
     dimension = "Dimension"
@@ -79,10 +88,10 @@ class LevelEnum(str, Enum):
 
 class LevelFrame(BaseModel):
     """Schema for an analysis level data frame."""
-    corpus: List[UUID]
-    level: LevelEnum
-    ds_dictionary: str
-    frame: dict
+    corpus: List[UUID] = []
+    level: LevelEnum = LevelEnum.cluster
+    ds_dictionary: str = ...
+    frame: dict = None
 
 class DocumentSchema(BaseModel):
     """Schema for a document."""
@@ -199,6 +208,8 @@ class BoxplotSchema(CorpusSchema):
         frame = frame.drop('total_words').drop('Other', errors='ignore')
         frame = frame.transpose()
         frame = frame.fillna(0)
+        lfrm = json.loads(CLIENT.get(self.corpus_index()))
+        ds_info = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
         categories = frame.columns
         quantiles = frame.quantile(q=[0, 0.25, 0.5, 0.75, 1])
         iqr = quantiles.loc[0.75] - quantiles.loc[0.25]
@@ -222,6 +233,8 @@ class BoxplotSchema(CorpusSchema):
             "uifence": upper_inner_fence,
             "lifence": lower_inner_fence
         }).fillna(0)
+        quants['category_label'] = categories
+        quants.replace(ds_info, inplace=True)
         quants['category'] = categories
         bpdata = quants.to_dict('records')
         bpdata.reverse()
@@ -239,6 +252,7 @@ class BoxplotDataEntry(BaseModel):
     uifence: float = ...
     lifence: float = ...
     category: str = ...
+    category_label: str = None
 class BoxplotDataOutlier(BaseModel):
     """Schema for boxplot outliers."""
     pointtitle: str = ...
@@ -294,10 +308,10 @@ class RankDataEntry(BaseModel):
 
 class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
-    category: str
-    result: List[RankDataEntry]
+    category: str = None
+    result: List[RankDataEntry] = []
 
-@app.post('/ranked_list') # , response_model=RankDataEntry) # pydantic rejects
+@app.post('/ranked_list') #, response_model=RankDataEntry) # pydantic rejects
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests."""
     if not corpus.corpus:
@@ -335,17 +349,17 @@ class ScatterplotSchema(CorpusSchema):
 
 class ScatterplotDataPoint(BaseModel):
     """Schema for a point in the ScatterplotData."""
-    catX: float
-    catY: float
-    title: str
-    text_id: str
-    ownedby: str
+    catX: float = ...
+    catY: float = ...
+    title: str = ...
+    text_id: str = ...
+    ownedby: str = ...
 
 class ScatterplotData(BaseModel):
     """Schema for "scatterplot_data" response."""
-    axisX: str
-    axisY: str
-    spdata: List[ScatterplotDataPoint] = ...
+    axisX: str = None
+    axisY: str = None
+    spdata: List[ScatterplotDataPoint] = []
 
 @app.post('/scatterplot_data', response_model=ScatterplotData)
 def get_scatterplot_data(corpus: ScatterplotSchema, db_session: Session = Depends(get_db_session)):
@@ -376,8 +390,8 @@ class GroupsSchema(CorpusSchema):
 class GroupsData(BaseModel):
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
-    grp_qualities: List[float]
-    quality: float
+    grp_qualities: List[float] = None
+    quality: float = None
 
 @app.post('/groups', response_model=GroupsData)
 def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_session)):
@@ -423,8 +437,8 @@ def patterns(corpus:  CorpusSchema,
 
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""
-    intro: str
-    stv_intro: str
+    intro: str = None
+    stv_intro: str = None
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
@@ -503,8 +517,8 @@ def generate_reports(corpus: ReportsSchema,
 
 class DictionaryEntry(BaseModel):
     """Schema for dimension->cluster mapping."""
-    dimension: str
-    cluster: str
+    dimension: str = ...
+    cluster: str = ...
 
 class DictionaryInformation(BaseModel):
     """Schema for dictionary help."""
@@ -514,8 +528,8 @@ class DictionaryInformation(BaseModel):
 
 class DictInfo(BaseModel):
     """Schema for dictionary information."""
-    cluster: List[DictionaryInformation] = None
-    dimension: List[DictionaryInformation] = None
+    cluster: List[DictionaryInformation] = []
+    dimension: List[DictionaryInformation] = []
 
 class TextContent(BaseModel):
     """Schema for text_content data."""
@@ -547,9 +561,7 @@ def get_tagged_text(file_id: UUID,
         logging.error("File not found %s", file_id.text_id)
         raise HTTPException(detail="File not found %s" % file_id.text_id,
                             status_code=HTTP_400_BAD_REQUEST)
-    ds_info = db_session\
-        .query(DSDictionary.class_info)\
-        .filter(DSDictionary.name == doc['ds_dictionary']).first()[0]
+    ds_info = get_ds_info(doc['ds_dictionary'], db_session)
     res = TextContent(text_id=filename or file_id.text_id,
                       word_count=doc['ds_num_word_tokens'],
                       dict_info=ds_info)

@@ -7,7 +7,7 @@
     <aside class="select_category_box">
       <label for="select_category" class="select_category_label">Category:</label>
       <select id="select_category" [(ngModel)]="category" (ngModelChange)="on_select($event)">
-        <option *ngFor="let c of categories" [value]="c">{{c}}</option>
+        <option *ngFor="let c of categories" [value]="c.category">{{c.category_label}}</option>
       </select>
     </aside>
     <article>
