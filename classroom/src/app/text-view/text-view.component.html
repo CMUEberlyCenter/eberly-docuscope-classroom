@@ -1,6 +1,6 @@
 <mat-drawer-container *ngIf="tagged_text" class="container">
   <mat-drawer mode="side" opened disableClose position="start">
-    <mat-card [style.height]="'100%'">
+    <mat-card class="sidebar">
       <mat-card-title>Dictionary Categories</mat-card-title>
       <mat-card-subtitle>Select up to {{max_selected_clusters}}:</mat-card-subtitle>
       <mat-card-content>
@@ -17,8 +17,8 @@
       </mat-card-content>
     </mat-card>
   </mat-drawer-content>
-  <mat-drawer mode="side" opened disableClose position="end" [style.maxWidth]="'22em'">
-    <mat-card [style.height]="'100%'">
+  <mat-drawer mode="side" opened disableClose position="end" [style.maxWidth]="'22em'" [style.height]="'100%'">
+    <mat-card class="sidebar">
       <mat-card-title>Patterns</mat-card-title>
       <mat-card-content>
         <mat-accordion *ngIf="patterns">

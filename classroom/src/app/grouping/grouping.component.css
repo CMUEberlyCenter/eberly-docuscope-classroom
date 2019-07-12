@@ -1,6 +1,7 @@
 .container {
   margin: 5px;
   height: calc(100vh - 64.5px - 49px - 10px);
+  overflow: auto;
 }
 
 .options {

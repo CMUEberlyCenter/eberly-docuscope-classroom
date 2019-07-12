@@ -33,3 +33,8 @@ summary {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.sidebar {
+  overflow: auto;
+  height: 100%;
+}

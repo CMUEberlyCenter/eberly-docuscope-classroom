@@ -1,5 +1,7 @@
 """DocuScope Classroom analysis tools interface."""
+from collections import defaultdict, Counter
 from enum import Enum
+from functools import partial
 try:
     import ujson as json
 except ImportError:
@@ -10,6 +12,7 @@ import traceback
 from typing import Dict, List
 from uuid import UUID
 
+from bs4 import BeautifulSoup as bs
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
@@ -79,7 +82,8 @@ def get_ds_info(ds_dict: str, db_session: Session):
         .filter(DSDictionary.name == ds_dict).one_or_none()[0]
 
 def get_ds_info_map(ds_info):
-    return { i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension'] }
+    """Transforms ds_info into a simple id->name map."""
+    return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
@@ -200,7 +204,7 @@ class CorpusSchema(BaseModel):
 
 class BoxplotSchema(CorpusSchema):
     """Schema for 'boxplot_data' requests."""
-    def get_bp_data(self, db_session: Session):
+    def get_bp_data(self, db_session: Session): #pylint: disable=too-many-locals
         """Generate the boxplot data for this request."""
         frame = self.get_stats(db_session)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
@@ -208,8 +212,6 @@ class BoxplotSchema(CorpusSchema):
         frame = frame.drop('total_words').drop('Other', errors='ignore')
         frame = frame.transpose()
         frame = frame.fillna(0)
-        lfrm = json.loads(CLIENT.get(self.corpus_index()))
-        ds_info = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
         categories = frame.columns
         quantiles = frame.quantile(q=[0, 0.25, 0.5, 0.75, 1])
         iqr = quantiles.loc[0.75] - quantiles.loc[0.25]
@@ -234,7 +236,9 @@ class BoxplotSchema(CorpusSchema):
             "lifence": lower_inner_fence
         }).fillna(0)
         quants['category_label'] = categories
-        quants.replace(ds_info, inplace=True)
+        lfrm = json.loads(CLIENT.get(self.corpus_index()))
+        quants.replace(get_ds_info_map(get_ds_info(lfrm['ds_dictionary'],
+                                                   db_session)), inplace=True)
         quants['category'] = categories
         bpdata = quants.to_dict('records')
         bpdata.reverse()
@@ -344,8 +348,7 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
-        return { 'axisX': self.catX, 'axisY': self.catY,
-                 'spdata': frame.to_dict('records') }
+        return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
 
 class ScatterplotDataPoint(BaseModel):
     """Schema for a point in the ScatterplotData."""
@@ -404,25 +407,60 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
                             status_code=HTTP_400_BAD_REQUEST)
     return corpus.get_pairings(db_session)
 
+class DictionaryInformation(BaseModel):
+    """Schema for dictionary help."""
+    id: str = ...
+    name: str = ...
+    description: str = None
+
 class PatternData(BaseModel):
+    """Schema for pattern data."""
     pattern: str = ...
     count: int = 0
 
 class CategoryPatternData(BaseModel):
-    category: str = ...
-    description: str = None
-    patterns: List[PatternData] = None
-    
+    """Schema for pattern data for each category."""
+    category: DictionaryInformation = ...
+    patterns: List[PatternData] = []
+
+def count_patterns(node, ds_dict, patterns_all):
+    """Accumulate patterns for each category into patterns_all."""
+    content = ''
+    for child in node.children:
+        if getattr(child, 'name', None):
+            if 'class' in child.attrs and 'tag' in child.attrs['class']:
+                words = count_patterns(child, ds_dict, patterns_all)
+                key = ' '.join(words).lower().strip()
+                content += ' ' + key
+                cluster = ds_dict[child.attrs['data-key']].get('cluster', '?')
+                if cluster != 'Other':
+                    patterns_all[cluster].update([key])
+            elif 'token' in child.attrs['class']:
+                if child.text.isspace():
+                    content += child.text
+                else:
+                    content += child.text.strip()
+        else:
+            try:
+                if not child.isspace():
+                    content += child
+            except (AttributeError, TypeError) as exc:
+                logging.error("Node: %s, Error: %s", child, exc)
+    return content.split('PZPZPZ')
+
 @app.post('/patterns', response_model=List[CategoryPatternData])
-def patterns(corpus:  CorpusSchema,
+def patterns(corpus: CorpusSchema,
              db_session: Session = Depends(get_db_session)):
+    """Generate the list of categorized patterns in the given corpus."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    patterns = defaultdict(Counter)
+    pats = defaultdict(Counter)
+    tones = None
+    ds_dictionary = ''
     for (uuid, doc, filename, status) in db_session.query(
             Filesystem.id, Filesystem.processed, Filesystem.name,
-            Filesystem.state).filter(Filesystem.id.in_(self.documents())):
+            Filesystem.state).filter(Filesystem.id.in_(corpus.documents())):
         if status == 'error':
             logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
             raise HTTPException(
@@ -433,6 +471,26 @@ def patterns(corpus:  CorpusSchema,
             raise HTTPException(
                 detail="Aborting because {} is not tagged (state: {})".format(filename, status),
                 status_code=HTTP_204_NO_CONTENT)
+        ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
+        if not tones or tones.dictionary_name != ds_dictionary:
+            tones = DocuScopeTones(ds_dictionary)
+        if doc and doc['ds_tag_dict']:
+            lats = {
+                lat: {"dimension": tones.get_dimension(lat),
+                      "cluster": tones.get_lat_cluster(lat)}
+                for lat in doc['ds_tag_dict'].keys()
+            }
+            count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
+    ds_info = get_ds_info(ds_dictionary, db_session)
+    dsi = ds_info['cluster'] + ds_info['dimension']
+    return [
+        {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
+                          {'id': cat, 'name': cat.capitalize()}),
+         'patterns': sorted([{'pattern': word, 'count': count} for (word, count) in cpats.items()],
+                            key=lambda pat: (-pat['count'], pat['pattern']))}
+        for (cat, cpats) in pats.items()
+    ]
+
 
 
 class ReportsSchema(BoxplotSchema):
@@ -519,12 +577,6 @@ class DictionaryEntry(BaseModel):
     """Schema for dimension->cluster mapping."""
     dimension: str = ...
     cluster: str = ...
-
-class DictionaryInformation(BaseModel):
-    """Schema for dictionary help."""
-    id: str = ...
-    name: str = ...
-    description: str = ...
 
 class DictInfo(BaseModel):
     """Schema for dictionary information."""

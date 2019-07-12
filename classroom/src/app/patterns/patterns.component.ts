@@ -1,20 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
-
-class PatternData {
-  pattern: string;
-  count: number;
-}
-class CategoryPatternData {
-  category: string;
-  description?: string;
-  patterns?: PatternData[];
-}
-class PatternsData {
-  categories: CategoryPatternData[];
-}
+import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
 
 @Component({
   selector: 'app-patterns',
@@ -23,32 +12,21 @@ class PatternsData {
 })
 export class PatternsComponent implements OnInit {
   corpus: Corpus;
-  patterns_data: CategoryPatternData[] =
-    [
-      {
-        category: 'Future',
-        description: 'To the future and beyond!!!!',
-        patterns: [
-          { pattern: 'i will', count: 4 },
-          { pattern: 'future of', count: 1 },
-          { pattern: 'potential', count: 1 }
-        ]
-      },
-      {
-        category: 'Facilitate',
-        patterns: [
-          { pattern: 'allowed me', count: 2 },
-          { pattern: 'assisted', count: 2 }
-        ]
-      }
-    ];
+  patterns_data: CategoryPatternData[];
 
-  constructor(private corpusService: CorpusService) { }
+  constructor(private corpusService: CorpusService,
+              private dataService: PatternsService,
+              private spinner: NgxUiLoaderService) { }
 
   ngOnInit() {
-    // this.spinner.start()
-    this.corpusService.getCorpus().subscribe(corpus => this.corpus = corpus);
-    // get patterns
+    this.spinner.start();
+    this.corpusService.getCorpus().subscribe(corpus => {
+      this.corpus = corpus;
+      this.dataService.getPatterns(corpus).subscribe(data => {
+        this.patterns_data = data;
+        this.spinner.stop();
+      });
+    });
   }
 
   get_pattern_count(category: CategoryPatternData): number {

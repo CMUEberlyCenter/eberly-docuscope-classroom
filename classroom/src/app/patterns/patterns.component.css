@@ -19,6 +19,7 @@
 .container {
   height: calc(100vh - 64.5px - 49px - 10px);
   margin: 5px;
+  overflow: auto;
 }
 
 summary {

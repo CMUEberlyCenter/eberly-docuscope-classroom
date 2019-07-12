@@ -8,7 +8,7 @@ import { HttpErrorHandlerService, HandleError } from './http-error-handler.servi
 export interface TextContentDictionaryInformation {
   id: string;
   name: string;
-  description: string;
+  description?: string;
 }
 export interface TextContent {
   text_id: string;

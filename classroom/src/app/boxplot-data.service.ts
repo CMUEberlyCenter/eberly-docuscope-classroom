@@ -42,7 +42,7 @@ export class BoxplotDataService {
 
   getBoxPlotData(corpus: Corpus): Observable<BoxplotData> {
     if (this.boxplot_data) {
-      console.log(this.boxplot_data);
+      // console.log(this.boxplot_data);
       // this.messageService.add('Retrieved Box Plot data from cache.');
       return this.boxplot_data;
     } else {

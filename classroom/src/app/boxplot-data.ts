@@ -17,7 +17,7 @@ export class CorpusSchema {
   corpus: DocumentSchema[];
   level: Level;
 }
-function makeCorpusSchema(corpus: Corpus): CorpusSchema {
+export function makeCorpusSchema(corpus: Corpus): CorpusSchema {
   return {
     corpus: makeDocumentSchema(corpus),
     level: Level.Cluster
