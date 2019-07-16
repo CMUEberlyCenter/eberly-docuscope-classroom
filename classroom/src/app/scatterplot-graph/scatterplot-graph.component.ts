@@ -12,7 +12,7 @@ import { ScatterplotData, ScatterplotDataPoint } from '../boxplot-data';
 export class ScatterplotGraphComponent implements OnInit, OnChanges {
   @Input() points: ScatterplotData;
 
-  private _options: {width, height} = { width: 400, height: 400 };
+  private _options: {width, height} = { width: 300, height: 300 };
 
   get options(): { width, height } {
     return this._options;

@@ -1,5 +1,7 @@
 """DocuScope Classroom analysis tools interface."""
+from collections import defaultdict, Counter
 from enum import Enum
+from functools import partial
 try:
     import ujson as json
 except ImportError:
@@ -10,10 +12,10 @@ import traceback
 from typing import Dict, List
 from uuid import UUID
 
+from bs4 import BeautifulSoup as bs
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
-#from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
@@ -34,14 +36,6 @@ ENGINE = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 CLIENT = memcache.Client(['memcached:11211'])
-#import schema
-
-#import ds_stats
-#from ds_stats import get_boxplot_data, get_rank_data, get_scatter_data, \
-#    get_pairings, get_html_string
-
-#logging.basicConfig(level=logging.DEBUG)
-#logger = logging.getLogger(__name__)
 
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
@@ -51,7 +45,6 @@ app = FastAPI( #pylint: disable=invalid-name
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
-#app.add_middleware(SessionMiddleware, secret_key=secret_key, max_age=24*60*60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -78,24 +71,19 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db.close()
     return response
 
-#def get_request(request: Request) -> Request:
-#    """Get the request from the given request."""
-#    return request
 def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""
     return request.state.db
 
-#@app.after_request
-#def after_request(response):
-#    """Adds extra headers to deal with cross-origin issues."""
-#    response.headers.add('Access-Control-Allow-Origin', '*')
-#    response.headers.add('Access-Control-Allow-Headers',
-#                         ','.join(['Access-Control-Allow-Headers',
-#                                   'Access-Control-Allow-Origin',
-#                                   'Access-Control-Allow-Methods',
-#                                   'Content-Type']))
-#    response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
-#    return response
+def get_ds_info(ds_dict: str, db_session: Session):
+    """Get the dictionary of DocuScope Dictionary information."""
+    return db_session\
+        .query(DSDictionary.class_info)\
+        .filter(DSDictionary.name == ds_dict).one_or_none()[0]
+
+def get_ds_info_map(ds_info):
+    """Transforms ds_info into a simple id->name map."""
+    return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
@@ -104,15 +92,16 @@ class LevelEnum(str, Enum):
 
 class LevelFrame(BaseModel):
     """Schema for an analysis level data frame."""
-    corpus: List[UUID]
-    level: LevelEnum
-    ds_dictionary: str
-    frame: dict
+    corpus: List[UUID] = []
+    level: LevelEnum = LevelEnum.cluster
+    ds_dictionary: str = ...
+    frame: dict = None
 
 class DocumentSchema(BaseModel):
     """Schema for a document."""
     id: UUID = ...
     data: str = None
+
 class CorpusSchema(BaseModel):
     """Schema for '/boxplot_data' requests."""
     corpus: List[DocumentSchema] = ...
@@ -137,17 +126,27 @@ class CorpusSchema(BaseModel):
                 logging.info('Retrieving stats from database')
                 stats = {}
                 ds_dictionaries = set()
-                for doc, fullname, ownedby, filename, doc_id, ds_dictionary in \
+                for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
                     db_session.query(Filesystem.processed,
                                      Filesystem.fullname,
                                      Filesystem.ownedby,
                                      Filesystem.name,
                                      Filesystem.id,
+                                     Filesystem.state,
                                      DSDictionary.name)\
                               .filter(Filesystem.id.in_(self.documents()))\
                               .filter(Filesystem.state == 'tagged')\
                               .filter(Assignment.id == Filesystem.assignment)\
                               .filter(DSDictionary.id == Assignment.dictionary):
+                    if state == 'error':
+                        raise HTTPException(
+                            detail="There was an error tagging %s" % filename,
+                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+                    if state != 'tagged':
+                        raise HTTPException(
+                            detail="Some of the documents are not yet tagged,"
+                            + " please try again in a couple of minutes.",
+                            status_code=HTTP_503_SERVICE_UNAVAILABLE)
                     if doc:
                         ser = Series({key: val['num_tags'] for key, val in
                                       doc['ds_tag_dict'].items()})
@@ -167,26 +166,25 @@ class CorpusSchema(BaseModel):
                         "If problem persists, please contact technical support.",
                         status_code=HTTP_503_SERVICE_UNAVAILABLE)
                 if len(ds_dictionaries) != 1:
-                    logging.error("Inconsistant dictioaries in corpus %s",
+                    logging.error("Inconsistant dictionaries in corpus %s",
                                   self.documents())
                     raise HTTPException(
                         detail="Inconsistant dictionaries used in tagging " +
-                        "this corpus, documents are not compairable.",
+                        "this corpus, documents are not comparable.",
                         status_code=HTTP_400_BAD_REQUEST)
                 ds_dictionary = list(ds_dictionaries)[0]
                 ds_stats = DataFrame(data=stats).transpose()
                 tones = DocuScopeTones(ds_dictionary)
                 data = {}
+                tone_lats = []
                 if self.level == LevelEnum.dimension:
-                    for dim, lats in tones.map_dimension_to_lats().items():
-                        sumframe = ds_stats.filter(lats)
-                        if not sumframe.empty:
-                            data[dim] = sumframe.transpose().sum()
+                    tone_lats = tones.map_dimension_to_lats().items()
                 elif self.level == LevelEnum.cluster:
-                    for cluster, clats in tones.map_cluster_to_lats().items():
-                        sumframe = ds_stats.filter(clats)
-                        if not sumframe.empty:
-                            data[cluster] = sumframe.transpose().sum()
+                    tone_lats = tones.map_cluster_to_lats().items()
+                for category, lats in tone_lats:
+                    sumframe = ds_stats.filter(lats)
+                    if not sumframe.empty:
+                        data[category] = sumframe.transpose().sum()
                 frame = DataFrame(data)
                 frame['total_words'] = ds_stats['total_words']
                 frame['title'] = ds_stats['title']
@@ -206,7 +204,7 @@ class CorpusSchema(BaseModel):
 
 class BoxplotSchema(CorpusSchema):
     """Schema for 'boxplot_data' requests."""
-    def get_bp_data(self, db_session: Session):
+    def get_bp_data(self, db_session: Session): #pylint: disable=too-many-locals
         """Generate the boxplot data for this request."""
         frame = self.get_stats(db_session)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
@@ -237,6 +235,10 @@ class BoxplotSchema(CorpusSchema):
             "uifence": upper_inner_fence,
             "lifence": lower_inner_fence
         }).fillna(0)
+        quants['category_label'] = categories
+        lfrm = json.loads(CLIENT.get(self.corpus_index()))
+        quants.replace(get_ds_info_map(get_ds_info(lfrm['ds_dictionary'],
+                                                   db_session)), inplace=True)
         quants['category'] = categories
         bpdata = quants.to_dict('records')
         bpdata.reverse()
@@ -254,6 +256,7 @@ class BoxplotDataEntry(BaseModel):
     uifence: float = ...
     lifence: float = ...
     category: str = ...
+    category_label: str = None
 class BoxplotDataOutlier(BaseModel):
     """Schema for boxplot outliers."""
     pointtitle: str = ...
@@ -298,7 +301,7 @@ class RankListSchema(CorpusSchema):
         frame = frame.head(50)
         frame = frame[frame.value != 0]
         logging.info(frame.to_dict('records'))
-        return {'result': frame.to_dict('records')}
+        return {'category': self.sortby, 'result': frame.to_dict('records')}
 
 class RankDataEntry(BaseModel):
     """Schema for each entry in RankData."""
@@ -309,9 +312,10 @@ class RankDataEntry(BaseModel):
 
 class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
-    result: List[RankDataEntry] = ...
+    category: str = None
+    result: List[RankDataEntry] = []
 
-@app.post('/ranked_list', response_model=RankData)
+@app.post('/ranked_list') #, response_model=RankDataEntry) # pydantic rejects
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests."""
     if not corpus.corpus:
@@ -344,19 +348,21 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
-        return {'spdata': frame.to_dict('records')}
+        return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
 
 class ScatterplotDataPoint(BaseModel):
     """Schema for a point in the ScatterplotData."""
-    catX: float
-    catY: float
-    title: str
-    text_id: str
-    ownedby: str
+    catX: float = ...
+    catY: float = ...
+    title: str = ...
+    text_id: str = ...
+    ownedby: str = ...
 
 class ScatterplotData(BaseModel):
     """Schema for "scatterplot_data" response."""
-    spdata: List[ScatterplotDataPoint] = ...
+    axisX: str = None
+    axisY: str = None
+    spdata: List[ScatterplotDataPoint] = []
 
 @app.post('/scatterplot_data', response_model=ScatterplotData)
 def get_scatterplot_data(corpus: ScatterplotSchema, db_session: Session = Depends(get_db_session)):
@@ -387,8 +393,8 @@ class GroupsSchema(CorpusSchema):
 class GroupsData(BaseModel):
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
-    grp_qualities: List[float]
-    quality: float
+    grp_qualities: List[float] = None
+    quality: float = None
 
 @app.post('/groups', response_model=GroupsData)
 def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_session)):
@@ -401,10 +407,96 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
                             status_code=HTTP_400_BAD_REQUEST)
     return corpus.get_pairings(db_session)
 
+class DictionaryInformation(BaseModel):
+    """Schema for dictionary help."""
+    id: str = ...
+    name: str = ...
+    description: str = None
+
+class PatternData(BaseModel):
+    """Schema for pattern data."""
+    pattern: str = ...
+    count: int = 0
+
+class CategoryPatternData(BaseModel):
+    """Schema for pattern data for each category."""
+    category: DictionaryInformation = ...
+    patterns: List[PatternData] = []
+
+def count_patterns(node, ds_dict, patterns_all):
+    """Accumulate patterns for each category into patterns_all."""
+    content = ''
+    for child in node.children:
+        if getattr(child, 'name', None):
+            if 'class' in child.attrs and 'tag' in child.attrs['class']:
+                words = count_patterns(child, ds_dict, patterns_all)
+                key = ' '.join(words).lower().strip()
+                content += ' ' + key
+                cluster = ds_dict[child.attrs['data-key']].get('cluster', '?')
+                if cluster != 'Other':
+                    patterns_all[cluster].update([key])
+            elif 'token' in child.attrs['class']:
+                if child.text.isspace():
+                    content += child.text
+                else:
+                    content += child.text.strip()
+        else:
+            try:
+                if not child.isspace():
+                    content += child
+            except (AttributeError, TypeError) as exc:
+                logging.error("Node: %s, Error: %s", child, exc)
+    return content.split('PZPZPZ')
+
+@app.post('/patterns', response_model=List[CategoryPatternData])
+def patterns(corpus: CorpusSchema,
+             db_session: Session = Depends(get_db_session)):
+    """Generate the list of categorized patterns in the given corpus."""
+    if not corpus.corpus:
+        raise HTTPException(detail="No documents specified.",
+                            status_code=HTTP_400_BAD_REQUEST)
+    pats = defaultdict(Counter)
+    tones = None
+    ds_dictionary = ''
+    for (uuid, doc, filename, status) in db_session.query(
+            Filesystem.id, Filesystem.processed, Filesystem.name,
+            Filesystem.state).filter(Filesystem.id.in_(corpus.documents())):
+        if status == 'error':
+            logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
+            raise HTTPException(
+                detail="Aborting: there was an error while tagging {}".format(filename),
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        if status != 'tagged':
+            logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
+            raise HTTPException(
+                detail="Aborting because {} is not tagged (state: {})".format(filename, status),
+                status_code=HTTP_204_NO_CONTENT)
+        ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
+        if not tones or tones.dictionary_name != ds_dictionary:
+            tones = DocuScopeTones(ds_dictionary)
+        if doc and doc['ds_tag_dict']:
+            lats = {
+                lat: {"dimension": tones.get_dimension(lat),
+                      "cluster": tones.get_lat_cluster(lat)}
+                for lat in doc['ds_tag_dict'].keys()
+            }
+            count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
+    ds_info = get_ds_info(ds_dictionary, db_session)
+    dsi = ds_info['cluster'] + ds_info['dimension']
+    return [
+        {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
+                          {'id': cat, 'name': cat.capitalize()}),
+         'patterns': sorted([{'pattern': word, 'count': count} for (word, count) in cpats.items()],
+                            key=lambda pat: (-pat['count'], pat['pattern']))}
+        for (cat, cpats) in pats.items()
+    ]
+
+
+
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""
-    intro: str
-    stv_intro: str
+    intro: str = None
+    stv_intro: str = None
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
@@ -483,19 +575,13 @@ def generate_reports(corpus: ReportsSchema,
 
 class DictionaryEntry(BaseModel):
     """Schema for dimension->cluster mapping."""
-    dimension: str
-    cluster: str
-
-class DictionaryInformation(BaseModel):
-    """Schema for dictionary help."""
-    id: str = ...
-    name: str = ...
-    description: str = ...
+    dimension: str = ...
+    cluster: str = ...
 
 class DictInfo(BaseModel):
     """Schema for dictionary information."""
-    cluster: List[DictionaryInformation] = None
-    dimension: List[DictionaryInformation] = None
+    cluster: List[DictionaryInformation] = []
+    dimension: List[DictionaryInformation] = []
 
 class TextContent(BaseModel):
     """Schema for text_content data."""
@@ -527,9 +613,7 @@ def get_tagged_text(file_id: UUID,
         logging.error("File not found %s", file_id.text_id)
         raise HTTPException(detail="File not found %s" % file_id.text_id,
                             status_code=HTTP_400_BAD_REQUEST)
-    ds_info = db_session\
-        .query(DSDictionary.class_info)\
-        .filter(DSDictionary.name == doc['ds_dictionary']).first()[0]
+    ds_info = get_ds_info(doc['ds_dictionary'], db_session)
     res = TextContent(text_id=filename or file_id.text_id,
                       word_count=doc['ds_num_word_tokens'],
                       dict_info=ds_info)

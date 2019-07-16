@@ -6,6 +6,11 @@ import { CorpusService } from '../corpus.service';
 import { RankData, BoxplotDataEntry, max_boxplot_value } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
 
+interface Category {
+  category: string;
+  category_label: string;
+}
+
 @Component({
   selector: 'app-rank',
   templateUrl: './rank.component.html',
@@ -14,7 +19,7 @@ import { BoxplotDataService } from '../boxplot-data.service';
 export class RankComponent implements OnInit {
   corpus: Corpus;
   data: RankData;
-  categories: string[];
+  categories: Category[];
   category: string;
   max_value: number;
 
@@ -36,9 +41,9 @@ export class RankComponent implements OnInit {
     this._data_service.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry): string => bpd.category);
+          (bpd: BoxplotDataEntry): Category => bpd as Category);
         this.max_value = max_boxplot_value(data);
-        this.category = this.categories[0];
+        this.category = this.categories[0].category;
         this._spinner.stop();
         this.getData();
       });

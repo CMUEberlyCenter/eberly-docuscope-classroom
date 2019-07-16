@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 reportlab = "*"
 pandas = "*"
-marshmallow = "*"
 "beautifulsoup4" = "*"
 mysqlclient = "*"
 sqlalchemy = "*"

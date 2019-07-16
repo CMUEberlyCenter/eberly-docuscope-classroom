@@ -1,7 +1,7 @@
 <eui-datagrid *ngIf="boxplot" [data]="boxplot.bpdata" [style.width]="'500px'"
               [(selection)]="selection" selectionMode="single"
               (selectionChange)="handle_selection()">
-  <eui-grid-column field="category" title="Category" width="20ch">
+  <eui-grid-column field="category_label" title="Category" width="20ch">
   </eui-grid-column>
   <eui-grid-column width="300px">
     <ng-template euiHeaderTemplate>
@@ -19,7 +19,7 @@
       </svg>
     </ng-template>
     <ng-template euiCellTemplate let-row>
-      <div euiTooltip="Min={{percent(row.min)}};  Q1={{percent(row.q1)}};  Mean={{percent(row.q2)}};  Q3={{percent(row.q3)}};  Max={{percent(row.max)}}">
+      <div euiTooltip="Minimum={{percent(row.min)}};  First Quantile={{percent(row.q1)}};  Mean={{percent(row.q2)}};  Third Quantile={{percent(row.q3)}};  Maximum={{percent(row.max)}}">
         <svg class="box_plot_item" [attr.width]="'300px'" [attr.height]="'30px'"
              [attr.data-min]="row.lifence" [attr.data-max]="row.uifence"
              [attr.data-q1]="row.q1" [attr.data-q2]="row.q1" [attr.data-q3]="row.q3">

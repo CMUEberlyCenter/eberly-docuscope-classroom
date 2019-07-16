@@ -5,3 +5,17 @@
 .model_entry {
   color: pink;
 }
+
+.rank {
+  flex: 0 1 60px;
+}
+.name {
+  /*flex: 0 1 auto;*/
+  text-overflow: ellipsis;
+}
+.value {
+  flex: 0 1 60px;
+}
+.bar {
+  flex: 0 2 270px;
+}

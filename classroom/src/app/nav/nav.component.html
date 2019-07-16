@@ -18,7 +18,14 @@
      [active]="sprla.isActive"
      matTooltip="Show Scatter Plot Graph">Scatter Plot</a>
   <a mat-tab-link
-     routerLink="/grouping"
+     routerLink="/patterns"
+     queryParamsHandling="preserve"
+     routerLinkActive #prla="routerLinkActive"
+     [active]="prla.isActive"
+     matTooltip="Show Categorized Patterns">Patterns</a>
+  <a mat-tab-link
+     *ngIf="is_instructor()"
+     routerLink="/groups"
      queryParamsHandling="preserve"
      routerLinkActive #grla="routerLinkActive"
      [active]="grla.isActive"

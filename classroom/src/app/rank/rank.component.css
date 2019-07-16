@@ -1,5 +1,7 @@
 .container {
   margin: 5px;
+  height: calc(100vh - 64.5px - 49px - 10px);
+  overflow: auto;
 }
 .select_category_box {
   margin-bottom: 18px;

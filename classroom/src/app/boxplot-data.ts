@@ -17,7 +17,7 @@ export class CorpusSchema {
   corpus: DocumentSchema[];
   level: Level;
 }
-function makeCorpusSchema(corpus: Corpus): CorpusSchema {
+export function makeCorpusSchema(corpus: Corpus): CorpusSchema {
   return {
     corpus: makeDocumentSchema(corpus),
     level: Level.Cluster
@@ -79,6 +79,7 @@ export class BoxplotDataEntry {
   uifence: number;
   lifence: number;
   category: string;
+  category_label: string;
 }
 export class Outlier {
   pointtitle: string;
@@ -109,6 +110,7 @@ export class RankDataEntry {
   ownedby: string;
 }
 export class RankData {
+  category: string;
   result: RankDataEntry[];
 }
 
@@ -120,11 +122,13 @@ export class ScatterplotDataPoint {
   ownedby: string;
 }
 export class ScatterplotData {
+  axisX: string;
+  axisY: string;
   spdata: ScatterplotDataPoint[];
 }
 
 export class GroupsData {
-  groups: string[][] ;
+  groups: string[][];
   grp_qualities: number[];
   quality: number;
 }

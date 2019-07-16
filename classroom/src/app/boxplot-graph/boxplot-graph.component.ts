@@ -37,7 +37,7 @@ export class BoxplotGraphComponent implements OnInit {
   constructor() { }
 
   percent(value: number): string {
-    return `${(100 * value).toFixed(2)}%`;
+    return `${(100 * value).toFixed(2)}`;
   }
   get x() {
     return d3.scaleLinear().domain([0, this.max_value * 100])
