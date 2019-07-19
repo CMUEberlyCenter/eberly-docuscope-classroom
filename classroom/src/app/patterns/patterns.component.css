@@ -27,3 +27,7 @@ summary {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.patterns_container {
+  max-width: 5.5in;
+}

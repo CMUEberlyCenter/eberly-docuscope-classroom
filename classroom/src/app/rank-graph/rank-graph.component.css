@@ -3,7 +3,8 @@
 }
 
 .model_entry {
-  color: pink;
+  color: blue;
+  opacity: 0.4;
 }
 
 .rank {
