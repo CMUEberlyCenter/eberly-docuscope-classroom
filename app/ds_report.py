@@ -59,7 +59,7 @@ class Boxplot(Flowable):
         self.outliers = outliers or []
         self.value = val
         self.max_val = max_val
-        self.measurements = {'width': wd, 'height': ht, 'ruler_hight': rh,
+        self.measurements = {'width': wd, 'height': ht, 'ruler_height': rh,
                              'whisker': whisker, 'radius': radius}
         #self.width = wd
         #self.height = ht

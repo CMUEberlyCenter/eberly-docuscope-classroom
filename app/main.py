@@ -85,6 +85,10 @@ def get_ds_info_map(ds_info):
     """Transforms ds_info into a simple id->name map."""
     return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
+class ErrorResponse(BaeModel):
+    """Schema for error response."""
+    detail: str
+
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
     dimension = "Dimension"
@@ -267,7 +271,18 @@ class BoxplotData(BaseModel):
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
 
-@app.post('/boxplot_data', response_model=BoxplotData)
+@app.post('/boxplot_data', response_model=BoxplotData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def get_boxplot_data(corpus: BoxplotSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "boxplot_data" requests."""
     if not corpus.corpus:
@@ -315,7 +330,20 @@ class RankData(BaseModel):
     category: str = None
     result: List[RankDataEntry] = []
 
-@app.post('/ranked_list') #, response_model=RankDataEntry) # pydantic rejects
+@app.post('/ranked_list', # response_model=RankDataEntry) # pydantic rejects
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests."""
     if not corpus.corpus:
@@ -364,7 +392,20 @@ class ScatterplotData(BaseModel):
     axisY: str = None
     spdata: List[ScatterplotDataPoint] = []
 
-@app.post('/scatterplot_data', response_model=ScatterplotData)
+@app.post('/scatterplot_data', response_model=ScatterplotData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def get_scatterplot_data(corpus: ScatterplotSchema, db_session: Session = Depends(get_db_session)):
     """Responds to requests to generate the scatterplot data for a given corpus."""
     if not corpus.corpus:
@@ -396,7 +437,20 @@ class GroupsData(BaseModel):
     grp_qualities: List[float] = None
     quality: float = None
 
-@app.post('/groups', response_model=GroupsData)
+@app.post('/groups', response_model=GroupsData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_session)):
     """Responds to requests to generate groups."""
     if not corpus.corpus:
@@ -448,7 +502,21 @@ def count_patterns(node, ds_dict, patterns_all):
                 logging.error("Node: %s, Error: %s", child, exc)
     return content.split('PZPZPZ')
 
-@app.post('/patterns', response_model=List[CategoryPatternData])
+@app.post('/patterns', response_model=List[CategoryPatternData],
+          responses={
+              HTTP_204_NO_CONTENT:{
+                  "model": ErrorResponse,
+                  "description": "No content (untagged documents)"},
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def patterns(corpus: CorpusSchema,
              db_session: Session = Depends(get_db_session)):
     """Generate the list of categorized patterns in the given corpus."""
@@ -490,8 +558,6 @@ def patterns(corpus: CorpusSchema,
                             key=lambda pat: (-pat['count'], pat['pattern']))}
         for (cat, cpats) in pats.items()
     ]
-
-
 
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""
@@ -551,7 +617,18 @@ class ReportsSchema(BoxplotSchema):
                                     self.get_bp_data(db_session),
                                     descriptions)
 
-@app.post('/generate_reports')
+@app.post('/generate_reports',
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def generate_reports(corpus: ReportsSchema,
                      db_session: Session = Depends(get_db_session)):
     """Responds to generate_reports requests by streaming the report zipfile."""
@@ -566,8 +643,7 @@ def generate_reports(corpus: ReportsSchema,
     except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
-        raise HTTPException(detail={"message": "ERROR in report generation.",
-                                    "error": "{}".format(excp)},
+        raise HTTPException(detail="ERROR in report generation.",
                             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     return StreamingResponse(zip_buffer, media_type='application/zip',
                              headers={'Content-Disposition':
@@ -591,7 +667,21 @@ class TextContent(BaseModel):
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
 
-@app.get('/text_content/{file_id}', response_model=TextContent)
+@app.get('/text_content/{file_id}', response_model=TextContent,
+          responses={
+              HTTP_204_NO_CONTENT: {
+                  "model": ErrorResponse,
+                  "description": "No content (untagged document)"},
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def get_tagged_text(file_id: UUID,
                     db_session: Session = Depends(get_db_session)):
     """Get the tagged text information for the given file."""
