@@ -38,7 +38,6 @@ import { RankComponent } from './rank/rank.component';
 import { RankGraphComponent } from './rank-graph/rank-graph.component';
 import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
-import { ScatterplotGraphComponent } from './scatterplot-graph/scatterplot-graph.component';
 import { TextViewComponent } from './text-view/text-view.component';
 import { AboutComponent } from './about/about.component';
 import { PatternsComponent } from './patterns/patterns.component';
@@ -54,7 +53,6 @@ import { PatternsComponent } from './patterns/patterns.component';
     GroupingComponent,
     ReportComponent,
     TextViewComponent,
-    ScatterplotGraphComponent,
     RankGraphComponent,
     RankComponent,
     NavComponent,
