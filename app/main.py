@@ -85,7 +85,7 @@ def get_ds_info_map(ds_info):
     """Transforms ds_info into a simple id->name map."""
     return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
-class ErrorResponse(BaeModel):
+class ErrorResponse(BaseModel):
     """Schema for error response."""
     detail: str
 
@@ -294,30 +294,6 @@ class RankListSchema(CorpusSchema):
     """Schema for '/ranked_list' requests."""
     sortby: str = ...
 
-    def get_rank_data(self, request: Request):
-        """Generate the rank data for this RankList request."""
-        frame = self.get_stats(request)
-        logging.info(frame)
-        title_row = frame.loc['title']
-        owner_row = frame.loc['ownedby']
-        frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
-        frame = frame.apply(lambda x: x.divide(x['total_words']))
-        frame = frame.drop('total_words').append(title_row).append(owner_row)
-        frame = frame.transpose()
-        frame = frame.fillna(0)
-        if self.sortby not in frame:
-            logging.error("%s is not in %s", self.sortby, frame.columns)
-            raise HTTPException(detail="{} is not in {}".format(self.sortby, frame.columns.values),
-                                status_code=HTTP_422_UNPROCESSABLE_ENTITY)
-        frame = frame.loc[:, ['title', self.sortby, 'ownedby']]
-        frame.reset_index(inplace=True)
-        frame.rename(columns={'title': 'text', self.sortby: 'value'}, inplace=True)
-        frame.sort_values('value', ascending=False, inplace=True)
-        frame = frame.head(50)
-        frame = frame[frame.value != 0]
-        logging.info(frame.to_dict('records'))
-        return {'category': self.sortby, 'result': frame.to_dict('records')}
-
 class RankDataEntry(BaseModel):
     """Schema for each entry in RankData."""
     index: str = ...
@@ -328,9 +304,9 @@ class RankDataEntry(BaseModel):
 class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
     category: str = None
-    result: List[RankDataEntry] = []
+    result: List[RankDataEntry] = ...
 
-@app.post('/ranked_list', # response_model=RankDataEntry) # pydantic rejects
+@app.post('/ranked_list', response_model=RankData,
           responses={
               HTTP_400_BAD_REQUEST: {
                   "model": ErrorResponse,
@@ -345,11 +321,38 @@ class RankData(BaseModel):
               }
           })
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
-    """Responds to "ranked_list" requests."""
+    """Responds to "ranked_list" requests.
+
+    This constructs the rankings of the documents in the given corpus by
+    comparing the frequencies of the corpus.sortby category/dimension
+    limited to the first 50 documents.
+    """
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_rank_data(db_session)
+    frame = corpus.get_stats(db_session)
+    logging.info(frame)
+    title_row = frame.loc['title']
+    owner_row = frame.loc['ownedby']
+    frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
+    frame = frame.apply(lambda x: x.divide(x['total_words']))
+    frame = frame.drop('total_words').append(title_row).append(owner_row)
+    frame = frame.transpose()
+    frame = frame.fillna(0)
+    if corpus.sortby not in frame:
+        logging.error("%s is not in %s", corpus.sortby, frame.columns)
+        raise HTTPException(
+            detail="{} is not in {}".format(corpus.sortby,
+                                            frame.columns.values),
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+    frame = frame.loc[:, ['title', corpus.sortby, 'ownedby']]
+    frame.reset_index(inplace=True)
+    frame.rename(columns={'title': 'text', corpus.sortby: 'value'}, inplace=True)
+    frame.sort_values('value', ascending=False, inplace=True)
+    frame = frame.head(50)
+    frame = frame[frame.value != 0]
+    #logging.info(frame.to_dict('records'))
+    return {'category': corpus.sortby, 'result': frame.to_dict('records')}
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
@@ -420,7 +423,7 @@ class GroupsSchema(CorpusSchema):
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
         frame = self.get_stats(db_session)#.transpose()
-        logging.info(frame)
+        # logging.info(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
         title_row = frame.loc['title':]
         frame = frame.drop('title').drop('ownedby')
@@ -551,12 +554,13 @@ def patterns(corpus: CorpusSchema,
             count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
     ds_info = get_ds_info(ds_dictionary, db_session)
     dsi = ds_info['cluster'] + ds_info['dimension']
+    #logging.error(" ".join(["{}[{}]".format(ecat, sum(c for (_, c) in ecatp.items())) for (ecat, ecatp) in sorted(pats.items(), key=lambda pat: (-(len(list(pat[1].elements()))), pat[0]))]))
     return [
         {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
                           {'id': cat, 'name': cat.capitalize()}),
          'patterns': sorted([{'pattern': word, 'count': count} for (word, count) in cpats.items()],
                             key=lambda pat: (-pat['count'], pat['pattern']))}
-        for (cat, cpats) in pats.items()
+        for (cat, cpats) in sorted(pats.items(), key=lambda pat: (-sum(c for (_, c) in pat[1].items()), pat[0]))
     ]
 
 class ReportsSchema(BoxplotSchema):

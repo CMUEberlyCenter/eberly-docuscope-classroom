@@ -25,18 +25,18 @@
           <mat-expansion-panel *ngFor="let clust of clusters">
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <span>({{get_pattern_count(clust)}}) - {{get_cluster_name(clust)}}</span>
+                <span><span class="badge">{{get_pattern_count(clust)}}</span> {{get_cluster_name(clust)}}</span>
               </mat-panel-title>
             </mat-expansion-panel-header>
             <details *ngIf="get_cluster_info(clust) as info">
               <summary>{{info.description}}</summary>
               <p>{{info.description}}</p>
             </details>
-            <mat-list role="list">
-              <mat-list-item role="listitem" *ngFor="let pattern of patterns[clust] | keyvalue">
-                ({{pattern.value}}) - {{pattern.key}}
-              </mat-list-item>
-            </mat-list>
+            <ul role="list" [style.listStyle]="'none'">
+              <li role="listitem" *ngFor="let pattern of patterns.get(clust) | keyvalue">
+                <span class="badge mat-small">{{pattern.value}}</span><span class="pattern mat-body">{{pattern.key}}</span>
+              </li>
+            </ul>
           </mat-expansion-panel>
         </mat-accordion>
       </mat-card-content>

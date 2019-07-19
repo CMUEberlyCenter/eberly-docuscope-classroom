@@ -7,16 +7,17 @@
       <mat-expansion-panel *ngFor="let clust of patterns_data">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <span>{{clust.category.name}}</span> <span class="badge">{{get_pattern_count(clust)}}</span>
+            <span><span class="badge">{{get_pattern_count(clust)}}</span> {{clust.category.name}}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <details *ngIf="clust.category.description">
           <summary>{{clust.category.description}}</summary>
           <p>{{clust.category.description}}</p>
         </details>
-        <ul>
+        <ul [style.listStyle]="'none'">
           <li *ngFor="let pattern of clust.patterns">
-            {{pattern.pattern}} <span class="badge">{{pattern.count}}</span>
+            <span class="badge mat-small">{{pattern.count}}</span>
+            {{pattern.pattern}}
           </li>
         </ul>
       </mat-expansion-panel>

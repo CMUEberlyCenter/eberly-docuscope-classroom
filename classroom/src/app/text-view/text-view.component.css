@@ -1,19 +1,28 @@
 .badge {
-  border-radius: 5px;
+  /*border-radius: 5px;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;*/
   pointer-events: none;
   text-align: center;
   box-sizing: border-box;
-  font-weight: 600;
-  font-size: x-small;
-  color: white; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
-  background: #3f51b5;
-  padding-top: 2px;
+  /*font-weight: 600;*/
+  /*font-size: x-small;*/
+  color: navy; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
+  /*background: #3f51b5;*/
+  /*padding-top: 2px;
   padding-left: 3px;
   padding-right: 3px;
-  margin-left: 5px;
+  margin-left: 5px;*/
+}
+.badge::before {
+  content: "[";
+}
+.badge::after {
+  content: "]";
+  margin-right: .5em;
+}
+.pattern {
 }
 
 .container {
