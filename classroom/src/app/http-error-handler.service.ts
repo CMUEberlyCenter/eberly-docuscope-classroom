@@ -25,7 +25,7 @@ export class HttpErrorHandlerService {
     return (error: HttpErrorResponse):
     Observable<T> => {
       console.error(error);
-      let message = "";
+      let message = '';
       if (error.error instanceof ErrorEvent) {
         message = error.error.message;
       } else if ('detail' in error.error) {

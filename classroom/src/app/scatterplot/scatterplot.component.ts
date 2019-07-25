@@ -14,7 +14,7 @@ import { BoxplotDataService } from '../boxplot-data.service';
 export class ScatterplotComponent implements OnInit {
   corpus: Corpus;
   data: ScatterplotData;
-  scatter_data: [number,number,string,string,string][];
+  scatter_data: [number, number, string, string, string][];
   categories: BoxplotDataEntry[];
   x_categories: Set<BoxplotDataEntry>;
   x_axis: string;
@@ -86,10 +86,10 @@ export class ScatterplotComponent implements OnInit {
           this.options.hAxis.maxValue = max_val;
           this.options.vAxis.title = y_label;
           this.options.vAxis.maxValue = max_val;
-          const model: string = 'point {fill-color: blue; dataOpacity:0.4}';
+          const model = 'point {fill-color: blue; dataOpacity:0.4}';
           this.scatter_data = data.spdata.map(p => [
             p.catX, p.catY, p.text_id,
-            p.ownedby==='instructor'?model:null,
+            p.ownedby === 'instructor' ? model : null,
             `${p.title}\n${x_label}: ${p.catX.toFixed(2)}\n${y_label}: ${p.catY.toFixed(2)}`
           ]);
           this._spinner.stop();
