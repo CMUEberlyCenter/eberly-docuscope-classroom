@@ -1,4 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -6,23 +9,55 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
 
+import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
+import { PatternData, pattern_compare } from '../patterns.service';
 import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
+
+class TextClusterData implements ClusterData {
+  id: string;
+  name: string;
+  description?: string;
+  patterns: PatternData[];
+  get count(): number { return instance_count(this.patterns); }
+  get pattern_count(): number { return this.patterns.length; }
+  // expand: boolean = false; // to be used for multiple expansion.
+
+  constructor(di: TextContentDictionaryInformation, patterns: Map<string, number>) {
+    this.id = di.id;
+    this.name = di.name;
+    this.description = di.description;
+    const pats: PatternData[] = Array.from(patterns.entries()).map(
+      (pc): PatternData => ({pattern: pc[0], count: pc[1]} as PatternData));
+    pats.sort(pattern_compare);
+    this.patterns = pats;
+  }
+}
 
 @Component({
   selector: 'app-text-view',
   templateUrl: './text-view.component.html',
-  styleUrls: ['./text-view.component.css']
+  styleUrls: ['./text-view.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed, void', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed',
+                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      transition('expanded <=> void',
+                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990
+    ]),
+  ],
 })
 export class TextViewComponent implements OnInit {
   tagged_text: TextContent;
-  clusters: Set<string>;
+  cluster_columns = ['name', 'details', 'count', 'expand'];
+  clusters: MatTableDataSource<TextClusterData>;
+  expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
 
-  selection = 'No Selection';
-  // selected_lat: string;
-  // selected_dimension: string;
-  selected_cluster: string;
+  @ViewChild('TableSort', {static: true}) sort: MatSort;
 
   _cluster_info: Map<string, TextContentDictionaryInformation>;
 
@@ -35,17 +70,28 @@ export class TextViewComponent implements OnInit {
     'cluster_5'];
 
   get max_selected_clusters(): number {
-    return 4;
+    return 4; // maximum of the total number of _css_classes.
   }
 
   private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
     private _route: ActivatedRoute,
+    private _sanitizer: DomSanitizer,
     private _spinner: NgxUiLoaderService,
-    private _text_service: TaggedTextService,
-    private _sanitizer: DomSanitizer
+    private _text_service: TaggedTextService
   ) { }
+
+  show_expanded(clust: TextClusterData|null) {
+    if (this.expanded && clust && clust.id === this.expanded.id) {
+      return 'expanded';
+    }
+    return 'collapsed';
+  }
+  expand_handler($event, cluster) {
+    this.expanded = this.expanded === cluster ? null : cluster;
+    $event.stopPropagation();
+  }
 
   getTaggedText() {
     this._spinner.start();
@@ -64,15 +110,15 @@ export class TextViewComponent implements OnInit {
             this._cluster_info.set(clust.id, clust);
           }
         }
-        const clusters = new Set<string>();
+        const cluster_ids = new Set<string>();
         for (const d of Object.keys(txt.dictionary)) {
           const cluster = txt.dictionary[d]['cluster'];
-          clusters.add(cluster);
+          cluster_ids.add(cluster);
         }
-        clusters.delete('Other');
-        this.clusters = clusters;
+        cluster_ids.delete('Other');
+
         const pats = new Map<string, Map<string, number>>();
-        clusters.forEach((cl) => pats.set(cl, new Map<string, number>()));
+        cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
         // const $html = $(txt.html_content);
         /*$html.find('[data-key]').each(function() {
@@ -96,6 +142,12 @@ export class TextViewComponent implements OnInit {
           }
         });
         this.patterns = pats;
+        const clusters: TextClusterData[] = Array.from(cluster_ids)
+          .map((cid: string): TextClusterData =>
+               new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
+        clusters.sort(cluster_compare);
+        this.clusters = new MatTableDataSource(clusters);
+        if (this.sort) { this.clusters.sort = this.sort; }
         // this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
         this._spinner.stop();
       });
@@ -167,6 +219,7 @@ export class TextViewComponent implements OnInit {
   }
 
   selection_change($event) {
+    console.log($event.source.selectedOptions.selected.length, this.max_selected_clusters);
     if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
       $event.option.selected = false;
     }

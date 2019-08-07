@@ -1,15 +1,108 @@
-<mat-drawer-container *ngIf="tagged_text" class="container">
+<mat-drawer-container class="container">
   <mat-drawer mode="side" opened disableClose position="start">
     <mat-card class="sidebar">
       <mat-card-title>Dictionary Categories</mat-card-title>
       <mat-card-subtitle>Select up to {{max_selected_clusters}}:</mat-card-subtitle>
       <mat-card-content>
-        <mat-selection-list #cluster_selection (selectionChange)="selection_change($event)">
-          <mat-list-option *ngFor="let c of clusters;" checkboxPosition="before" [value]="c">{{get_cluster_name(c)}}</mat-list-option>
+        <mat-selection-list #cluster_selection
+                            (selectionChange)="selection_change($event)">
+          <table mat-table matSort #clusterTable
+                 #TableSort=matSort  [dataSource]="clusters"
+                 matSortDisableClear multiTemplateDataRows>
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+              <td mat-cell *matCellDef="let clust;">
+                <mat-list-option
+                  checkboxPosition="before"
+                  [value]="clust.id" (click)="$event.stopPropagation();">
+                  {{clust.name}}</mat-list-option>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="details">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let clust;">
+                <button mat-icon-button matTooltip="{{clust.description}}"
+                        matTooltipPosition="after">
+                  <mat-icon class="tooltip-icon">speaker_notes</mat-icon>
+                </button>
+            </ng-container>
+            <ng-container matColumnDef="count">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
+              <td mat-cell *matCellDef="let clust;">{{clust.count}}</td>
+            </ng-container>
+            <ng-container matColumnDef="expand">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let clust;">
+                <button mat-icon-button (click)="expand_handler($event, clust)">
+                  <mat-icon>expand_more</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expandedDetail">
+              <td mat-cell *matCellDef="let clust"
+                  [attr.colspan]="cluster_columns.length">
+                <div class="cluster-detail" [style.height]="0"
+                     [@detailExpand]="show_expanded(clust)">
+                  <div class="pattern-table">
+                    <app-patterns-table [patterns]="clust.patterns"></app-patterns-table>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="cluster_columns"></tr>
+            <tr mat-row *matRowDef="let clust; columns: cluster_columns;"
+                class="cluster-row"
+                [class.cluster-expanded-row]="clust === expanded"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+                class="cluster-detail-row"></tr>
+          </table>
         </mat-selection-list>
-  </mat-card-content></mat-card></mat-drawer>
+      </mat-card-content>
+        <!--<mat-accordion>
+          <mat-selection-list #cluster_selection (selectionChange)="selection_change($event)">
+            <mat-expansion-panel *ngFor="let c of clusters;">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-list-option
+                    checkboxPosition="before"
+                    [value]="c" (click)="$event.stopPropagation();">
+                    <span>
+                      <span class="badge mat-small">
+                        {{get_pattern_count(c)}}
+                      </span>
+                      {{get_cluster_name(c)}}</span>
+                  </mat-list-option>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <details *ngIf="get_cluster_info(c) as info">
+                <summary>{{info.description}}</summary>
+                <p>{{info.description}}</p>
+              </details>
+              <table matSort (matSortChange)="sortPatterns($event)">
+                <tr>
+                  <th mat-sort-header="pattern">Pattern</th>
+                  <th mat-sort-header="count">Count</th>
+                </tr>
+                <tr *ngFor="let pattern of patterns.get(c) | keyvalue">
+                  <td>{{pattern.key}}</td>
+                  <td>{{pattern.value}}</td>
+                </tr>
+              </table>-->
+              <!--<ul role="list" [style.listStyle]="'none'">
+                <li role="listitem" *ngFor="let pattern of patterns.get(c) | keyvalue">
+                  <span class="badge mat-small">{{pattern.value}}</span>
+                  <span class="pattern mat-body">{{pattern.key}}</span>
+                </li>
+              </ul>-->
+            <!--</mat-expansion-panel>
+        </mat-accordion>
+          </mat-selection-list>-->
+    </mat-card>
+  </mat-drawer>
   <mat-drawer-content>
-    <mat-card>
+    <mat-card *ngIf="tagged_text">
       <mat-card-title>ID: {{tagged_text.text_id}}</mat-card-title>
       <mat-card-content>
         <article class="text_content" [innerHTML]="html_content"
@@ -17,7 +110,7 @@
       </mat-card-content>
     </mat-card>
   </mat-drawer-content>
-  <mat-drawer mode="side" opened disableClose position="end" [style.maxWidth]="'22em'" [style.height]="'100%'">
+  <!--<mat-drawer mode="side" opened disableClose position="end" [style.maxWidth]="'22em'" [style.height]="'100%'">
     <mat-card class="sidebar">
       <mat-card-title>Patterns</mat-card-title>
       <mat-card-content>
@@ -41,5 +134,5 @@
         </mat-accordion>
       </mat-card-content>
     </mat-card>
-  </mat-drawer>
+  </mat-drawer>-->
 </mat-drawer-container>
