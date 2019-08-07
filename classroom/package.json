@@ -46,7 +46,7 @@
     "rxjs-compat": "^6.5.2",
     "rxjs-tslint": "^0.1.7",
     "tslib": "^1.10.0",
-    "zone.js": "~0.9.1"
+    "zone.js": "^0.10.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.802.0",
@@ -54,9 +54,9 @@
     "@angular/compiler-cli": "^8.2.0",
     "@angular/language-service": "^8.2.0",
     "@types/d3": "^5.7.2",
-    "@types/jasmine": "^3.3.14",
+    "@types/jasmine": "^3.3.16",
     "@types/jasminewd2": "^2.0.6",
-    "@types/node": "^12.6.8",
+    "@types/node": "^12.7.0",
     "ajv": "^6.10.2",
     "ajv-keywords": "^3.4.1",
     "angular-google-charts": "^0.1.6",
@@ -65,7 +65,7 @@
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "^4.2.0",
     "karma-chrome-launcher": "^3.0.0",
-    "karma-coverage-istanbul-reporter": "^2.0.5",
+    "karma-coverage-istanbul-reporter": "^2.1.0",
     "karma-jasmine": "~2.0.1",
     "karma-jasmine-html-reporter": "^1.4.2",
     "memoizee": "^0.4.14",
