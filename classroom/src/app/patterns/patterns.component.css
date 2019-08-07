@@ -1,27 +1,46 @@
-.badge {
-  text-align: center;
-  color: navy; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
-}
-.badge:before {
-  content: '[';
-}
-.badge:after {
-  content: ']';
-  margin-right: .5em;
-}
-
 .container {
   height: calc(100vh - 64.5px - 49px - 10px);
   margin: 5px;
   overflow: auto;
 }
 
-summary {
+.tooltip-icon {
+  font-size: small;
+}
+.cluster-detail {
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+.cluster-row td {
+  border-bottom-width: 0;
+}
+/*tr.cluster-row:not(.cluster-expanded-row):hover {
+  background: #777;
+}
+tr.cluster-row:not(.cluster-expanded-row):active {
+  background: #efefef;
+}*/
+tr.cluster-detail-row {
+  height: 0;
 }
 
 .patterns_container {
   max-width: 5.5in;
+}
+
+.pattern-table {
+  overflow: auto;
+  max-height: calc(30vh);
+}
+
+.mat-column-pattern_count {
+  text-align: right;
+}
+.mat-column-count {
+  text-align: right;
+}
+
+summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

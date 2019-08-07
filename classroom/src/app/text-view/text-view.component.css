@@ -7,6 +7,9 @@
   height: 100%;
 }
 
+.cluster-name {
+  white-space: nowrap;
+}
 .tooltip-icon {
   font-size: small;
 }

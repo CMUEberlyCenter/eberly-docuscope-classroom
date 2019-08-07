@@ -41,17 +41,21 @@ class TextClusterData implements ClusterData {
     trigger('detailExpand', [
       state('collapsed, void', style({height: '0px', minHeight: '0'})),
       state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed',
+      transition('expanded <=> collapsed, void => collapsed',
                  animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-      transition('expanded <=> void',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
-      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990
+      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
     ]),
-  ],
+    trigger('indicatorRotate', [
+      state('collapsed, void', style({transform: 'rotate(0deg)'})),
+      state('expanded', style({transform: 'rotate(180deg)'})),
+      transition('expanded <=> collapsed, void => collapsed',
+                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+    ]),
+  ]
 })
 export class TextViewComponent implements OnInit {
   tagged_text: TextContent;
-  cluster_columns = ['name', 'details', 'count', 'expand'];
+  cluster_columns = ['name', 'count', 'expand'];
   clusters: MatTableDataSource<TextClusterData>;
   expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;

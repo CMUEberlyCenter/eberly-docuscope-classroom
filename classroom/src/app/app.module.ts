@@ -22,6 +22,7 @@ import { MatListModule } from '@angular/material/list';
 // import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -41,6 +42,7 @@ import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
 import { AboutComponent } from './about/about.component';
 import { PatternsComponent } from './patterns/patterns.component';
+import { PatternsTableComponent } from './patterns-table/patterns-table.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +59,7 @@ import { PatternsComponent } from './patterns/patterns.component';
     RankComponent,
     NavComponent,
     PatternsComponent,
+    PatternsTableComponent,
   ],
   entryComponents: [
     AboutComponent,
@@ -86,6 +89,7 @@ import { PatternsComponent } from './patterns/patterns.component';
     // MatRadioModule,
     MatSidenavModule,
     MatSnackBarModule,
+    MatSortModule,
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
