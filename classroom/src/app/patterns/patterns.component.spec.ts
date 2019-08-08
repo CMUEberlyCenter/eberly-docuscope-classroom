@@ -1,15 +1,25 @@
-import { Component } from '@angular/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule, MatExpansionModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
 import { asyncData } from '../../testing';
 
 import { CorpusService } from '../corpus.service';
 import { PatternsComponent } from './patterns.component';
-import { PatternsService } from '../patterns.service';
+import { PatternData, PatternsService } from '../patterns.service';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
+
+@Component({selector: 'app-patterns-table', template: ''})
+class PatternsTableStubComponent {
+  @Input() patterns: PatternData[];
+}
 
 describe('PatternsComponent', () => {
   let component: PatternsComponent;
@@ -48,8 +58,16 @@ describe('PatternsComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ PatternsComponent,
+                      PatternsTableStubComponent,
                       NavStubComponent ],
-      imports: [ MatCardModule, MatExpansionModule ],
+      imports: [
+        NoopAnimationsModule,
+        MatCardModule,
+        MatIconModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule
+      ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: PatternsService, useValue: patternsService_spy },
