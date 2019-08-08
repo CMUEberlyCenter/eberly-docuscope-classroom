@@ -4,7 +4,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
-//import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { MatCardModule, MatCheckboxModule, MatListModule, MatSidenavModule } from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -44,11 +43,8 @@ describe('TextViewComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent, PatternsTableStubComponent ],
       imports: [
-        //EasyUIModule,
-        //MatBadgeModule,
         MatCardModule,
         MatCheckboxModule,
-        //MatExpansionModule,
         MatIconModule,
         MatListModule,
         MatSidenavModule,

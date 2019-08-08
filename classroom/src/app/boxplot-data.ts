@@ -112,7 +112,7 @@ export class RankDataEntry {
 export class RankData {
   category?: string;
   category_name?: string;
-  average?: number;
+  median?: number;
   result: RankDataEntry[];
 }
 

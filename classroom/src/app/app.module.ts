@@ -27,6 +27,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TagCloudModule } from 'angular-tag-cloud-module';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -93,7 +94,8 @@ import { PatternsTableComponent } from './patterns-table/patterns-table.componen
     MatTableModule,
     MatTabsModule,
     MatToolbarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    TagCloudModule
   ],
   providers: [
   ],

@@ -18,7 +18,7 @@ describe('PatternsTableComponent', () => {
       declarations: [ PatternsTableComponent ],
       imports: [
         NoopAnimationsModule,
-        //EasyUIModule,
+        // EasyUIModule,
         MatCardModule,
         MatIconModule,
         MatSortModule,

@@ -47,21 +47,21 @@ export class RankGraphComponent implements OnChanges, OnInit {
   }
 
   mean_start(value: number) {
-    return Math.min(value, this.rank_data.average);
+    return Math.min(value, this.rank_data.median);
   }
   /* mean_end(value: number) {
-    return Math.max(value, this.rank_data.average);
+    return Math.max(value, this.rank_data.median);
   } */
   mean_width(value: number) {
-    return Math.abs(value - this.rank_data.average);
+    return Math.abs(value - this.rank_data.median);
   }
   bar_tip(value: number) {
-    const diff = value - this.rank_data.average;
+    const diff = value - this.rank_data.median;
     const val: string = (value * 100).toFixed(2);
-    const avg: string = (this.rank_data.average * 100).toFixed(2);
+    const avg: string = (this.rank_data.median * 100).toFixed(2);
     const d: string = Math.abs(diff * 100).toFixed(2);
     const sign: string = diff >= 0 ? 'more' : 'less';
-    return `${val} which is ${d} ${sign} than the average of ${avg}.`;
+    return `${val} which is ${d} ${sign} than the median of ${avg}.`;
   }
   get scale() {
     return d3.scaleLinear().domain([0, this.max_value])
@@ -76,7 +76,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
   }*/
 
   open(doc_id: string) {
-    if (doc_id != '') {
+    if (doc_id !== '') {
       window.open(`stv/${doc_id}`);
     }
   }

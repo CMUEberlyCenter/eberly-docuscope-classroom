@@ -18,7 +18,7 @@
         <h2>Generated Groups</h2>
         <p *ngIf="!groups">Click on the "Group Students" button.</p>
         <ng-container *ngIf="groups">
-          <p>Groups can be adjusted by draging and dropping individual names.</p>
+          <p>Groups can be adjusted by dragging and dropping individual names.</p>
           <div class="groups_container" cdkDropListGroup>
             <div class="group" *ngFor="let group of groups.groups; index as i">
               <em class="group_label">Group {{i+1}}:</em>

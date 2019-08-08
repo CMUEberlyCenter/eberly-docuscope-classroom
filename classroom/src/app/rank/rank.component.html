@@ -1,8 +1,9 @@
 <app-nav></app-nav>
 <mat-card *ngIf="corpus" class="container">
   <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Rankings</h2>-->
-  <mat-card-title>Rankings</mat-card-title>
-  <mat-card-subtitle>Ordered by frequency of the selected category.</mat-card-subtitle>
+  <mat-card-title>Frequency</mat-card-title>
+  <mat-card-subtitle>Frequency of the selected category for each document.</mat-card-subtitle>
+  <mat-card-subtitle>The bar represents the difference from the median value and is the average number of instances per 100 words.</mat-card-subtitle>
   <mat-card-content *ngIf="categories">
     <aside class="select_category_box">
       <label for="select_category" class="select_category_label">Category:</label>

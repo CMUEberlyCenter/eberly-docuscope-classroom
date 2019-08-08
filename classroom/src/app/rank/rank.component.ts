@@ -53,7 +53,7 @@ export class RankComponent implements OnInit {
         this.categories = data.bpdata.map(
           (bpd: BoxplotDataEntry): Category => bpd as Category);
         this.max_value = max_boxplot_value(data);
-        this.options.hAxis.viewWindow.max = this.max_value*100;
+        this.options.hAxis.viewWindow.max = this.max_value * 100;
         this.category = this.categories[0].category;
         this._spinner.stop();
         this.getData();

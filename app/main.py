@@ -306,7 +306,7 @@ class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
     category: str = None
     category_name: str = None
-    average: float = None
+    median: float = None
     result: List[RankDataEntry] = ...
 
 @app.post('/ranked_list', response_model=RankData,
@@ -353,7 +353,7 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
     frame.rename(columns={'title': 'text', corpus.sortby: 'value'},
                  inplace=True)
     frame.sort_values('value', ascending=False, inplace=True)
-    v_avg = frame['value'].mean()
+    v_avg = frame['value'].quantile()
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
@@ -361,7 +361,7 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
     ds_map = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
     return {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
-            'average': v_avg,
+            'median': v_avg,
             'result': frame.to_dict('records')}
 
 class ScatterplotSchema(CorpusSchema):
