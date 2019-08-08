@@ -350,11 +350,10 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
             status_code=HTTP_422_UNPROCESSABLE_ENTITY)
     frame = frame.loc[:, ['title', corpus.sortby, 'ownedby']]
     frame.reset_index(inplace=True)
-    frame.rename(columns={'title': 'text', corpus.sortby: 'value'}, inplace=True)
+    frame.rename(columns={'title': 'text', corpus.sortby: 'value'},
+                 inplace=True)
     frame.sort_values('value', ascending=False, inplace=True)
-    logging.warning(frame)
-    logging.warning(frame.mean())
-    v_avg = frame.mean()['value']
+    v_avg = frame['value'].mean()
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))

@@ -49,11 +49,19 @@ export class RankGraphComponent implements OnChanges, OnInit {
   mean_start(value: number) {
     return Math.min(value, this.rank_data.average);
   }
-  mean_end(value: number) {
+  /* mean_end(value: number) {
     return Math.max(value, this.rank_data.average);
-  }
+  } */
   mean_width(value: number) {
     return Math.abs(value - this.rank_data.average);
+  }
+  bar_tip(value: number) {
+    const diff = value - this.rank_data.average;
+    const val: string = (value * 100).toFixed(2);
+    const avg: string = (this.rank_data.average * 100).toFixed(2);
+    const d: string = Math.abs(diff * 100).toFixed(2);
+    const sign: string = diff >= 0 ? 'more' : 'less';
+    return `${val} which is ${d} ${sign} than the average of ${avg}.`;
   }
   get scale() {
     return d3.scaleLinear().domain([0, this.max_value])

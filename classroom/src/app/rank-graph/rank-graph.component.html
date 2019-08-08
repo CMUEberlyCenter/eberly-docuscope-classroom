@@ -64,9 +64,10 @@
       </svg>
     </mat-header-cell>
     <mat-cell *matCellDef="let element" class="bar">
+      <div [euiTooltip]="bar_tip(element.value)">
       <svg [attr.width]="options.width+'px'" [attr.height]="options.height+'px'"
            [attr.data-value]="element.value*100">
-        <desc>A bar representing a value of {{element.value*100}}</desc>
+        <desc>A bar that shows the difference of {{element.value*100}} from the average of {{rank_data.average*100}}</desc>
         <line [attr.x1]="scale(rank_data.average)" [attr.x2]="scale(rank_data.average)"
               [attr.y1]="0" [attr.y2]="'100%'"
               [style.stroke]="'black'" [style.stroke-width]="'1px'"/>
@@ -77,6 +78,7 @@
               [attr.fill]="element.ownedby === 'instructor' ? 'rgba(0,0,255,.4)' :'#EEEEEEEE'"
               [attr.stroke]="'#3C3C3C'" [attr.stroke-width]="1"/>
       </svg>
+      </div>
     </mat-cell>
   </ng-container>
   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
