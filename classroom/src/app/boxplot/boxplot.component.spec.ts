@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
+import { TagCloudModule } from 'angular-tag-cloud-module';
 import { asyncData } from '../../testing';
 
 import { BoxplotComponent } from './boxplot.component';
@@ -50,7 +51,7 @@ describe('BoxplotComponent', () => {
                       BoxplotGraphStubComponent,
                       NavStubComponent,
                       RankGraphStubComponent ],
-      imports: [ MatCardModule ],
+      imports: [ MatCardModule, TagCloudModule],
       providers: [
         { provide: BoxplotDataService, useValue: dataService_spy },
         { provide: CorpusService, useValue: corpusService_spy },
