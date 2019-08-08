@@ -7,6 +7,7 @@ try:
 except ImportError:
     import json
 import logging
+from operator import itemgetter
 import re
 import traceback
 from typing import Dict, List
@@ -296,14 +297,16 @@ class RankListSchema(CorpusSchema):
 
 class RankDataEntry(BaseModel):
     """Schema for each entry in RankData."""
-    index: str = ...
-    text: str = ...
-    value: float = ...
-    ownedby: str = ...
+    index: str = ... # internal document id
+    text: str = ... # reference id (student name or document name)
+    value: float = ... # instances/words
+    ownedby: str = ... # 'student' or 'instructor'
 
 class RankData(BaseModel):
     """Schema for "ranked_list" responses."""
     category: str = None
+    category_name: str = None
+    average: float = None
     result: List[RankDataEntry] = ...
 
 @app.post('/ranked_list', response_model=RankData,
@@ -349,10 +352,18 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
     frame.reset_index(inplace=True)
     frame.rename(columns={'title': 'text', corpus.sortby: 'value'}, inplace=True)
     frame.sort_values('value', ascending=False, inplace=True)
+    logging.warning(frame)
+    logging.warning(frame.mean())
+    v_avg = frame.mean()['value']
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
-    return {'category': corpus.sortby, 'result': frame.to_dict('records')}
+    lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
+    ds_map = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
+    return {'category': corpus.sortby,
+            'category_name': ds_map[corpus.sortby],
+            'average': v_avg,
+            'result': frame.to_dict('records')}
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
@@ -423,15 +434,17 @@ class GroupsSchema(CorpusSchema):
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
         frame = self.get_stats(db_session)#.transpose()
-        # logging.info(frame)
+        # logging.warning(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
-        title_row = frame.loc['title':]
-        frame = frame.drop('title').drop('ownedby')
+        title_row = frame.loc['title']
+        frame = frame.drop('title')
+        frame = frame.drop('ownedby')
         frame = frame.apply(lambda x: x.divide(x['total_words']))
         frame = frame.drop('total_words')
         frame = frame.drop('Other', errors='ignore')
         frame = frame.append(title_row)
         frame = frame.transpose().fillna(0).set_index('title')
+        # logging.warning(frame)
         return get_best_groups(frame, group_size=self.group_size)
 
 class GroupsData(BaseModel):
@@ -554,13 +567,18 @@ def patterns(corpus: CorpusSchema,
             count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
     ds_info = get_ds_info(ds_dictionary, db_session)
     dsi = ds_info['cluster'] + ds_info['dimension']
-    #logging.error(" ".join(["{}[{}]".format(ecat, sum(c for (_, c) in ecatp.items())) for (ecat, ecatp) in sorted(pats.items(), key=lambda pat: (-(len(list(pat[1].elements()))), pat[0]))]))
     return [
         {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
                           {'id': cat, 'name': cat.capitalize()}),
-         'patterns': sorted([{'pattern': word, 'count': count} for (word, count) in cpats.items()],
-                            key=lambda pat: (-pat['count'], pat['pattern']))}
-        for (cat, cpats) in sorted(pats.items(), key=lambda pat: (-sum(c for (_, c) in pat[1].items()), pat[0]))
+         'patterns': sorted(
+             sorted([{'pattern': word, 'count': count}
+                     for (word, count) in cpats.items()],
+                    key=itemgetter('pattern')),
+             key=itemgetter('count'), reverse=True)}
+        for (cat, cpats) in sorted(
+                sorted(pats.items(), key=itemgetter(0)),
+                key=lambda pat: -sum(c for (_, c) in pat[1].items()),
+                reverse=False)
     ]
 
 class ReportsSchema(BoxplotSchema):

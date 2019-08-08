@@ -12,6 +12,17 @@
     </aside>
     <article>
       <app-rank-graph [rank_data]="data" [max_value]="max_value"></app-rank-graph>
+      <!--<google-chart #rankTable *ngIf="rank_data"
+                    [type]="'Table'"
+                    [columnNames]="['Name', 'Frequency']"
+                    [data]="rank_data"
+                    ></google-chart>--><!--(select)=""-->
+      <!--<google-chart #rank *ngIf="rank_data"
+                    [title]="'Ranking by '+get_label(category)"
+                    [type]="'BarChart'"
+                    [columnNames]="['Name', 'Frequency']"
+                    [data]="rank_data"
+                    [options]="options"></google-chart>-->
     </article>
   </mat-card-content>
 </mat-card>
