@@ -575,9 +575,9 @@ def patterns(corpus: CorpusSchema,
                     key=itemgetter('pattern')),
              key=itemgetter('count'), reverse=True)}
         for (cat, cpats) in sorted(
-                sorted(pats.items(), key=itemgetter(0)),
-                key=lambda pat: -sum(c for (_, c) in pat[1].items()),
-                reverse=False)
+            sorted(pats.items(), key=itemgetter(0)),
+            key=lambda pat: -sum(c for (_, c) in pat[1].items()),
+            reverse=False)
     ]
 
 class ReportsSchema(BoxplotSchema):
@@ -689,20 +689,20 @@ class TextContent(BaseModel):
     dict_info: DictInfo = ...
 
 @app.get('/text_content/{file_id}', response_model=TextContent,
-          responses={
-              HTTP_204_NO_CONTENT: {
-                  "model": ErrorResponse,
-                  "description": "No content (untagged document)"},
-              HTTP_400_BAD_REQUEST: {
-                  "model": ErrorResponse,
-                  "description": "Bad Request"},
-              HTTP_500_INTERNAL_SERVER_ERROR: {
-                  "model": ErrorResponse,
-                  "description": "Internal Server Error"},
-              HTTP_503_SERVICE_UNAVAILABLE: {
-                  "model": ErrorResponse,
-                  "description": "Service Unavailable (untagged documents)"}
-          })
+         responses={
+             HTTP_204_NO_CONTENT: {
+                 "model": ErrorResponse,
+                 "description": "No content (untagged document)"},
+             HTTP_400_BAD_REQUEST: {
+                 "model": ErrorResponse,
+                 "description": "Bad Request"},
+             HTTP_500_INTERNAL_SERVER_ERROR: {
+                 "model": ErrorResponse,
+                 "description": "Internal Server Error"},
+             HTTP_503_SERVICE_UNAVAILABLE: {
+                 "model": ErrorResponse,
+                 "description": "Service Unavailable (untagged documents)"}
+         })
 def get_tagged_text(file_id: UUID,
                     db_session: Session = Depends(get_db_session)):
     """Get the tagged text information for the given file."""
