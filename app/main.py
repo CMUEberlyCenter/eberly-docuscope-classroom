@@ -86,7 +86,7 @@ def get_ds_info_map(ds_info):
     """Transforms ds_info into a simple id->name map."""
     return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
-class ErrorResponse(BaseModel):
+class ErrorResponse(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for error response."""
     detail: str
 
@@ -95,14 +95,14 @@ class LevelEnum(str, Enum):
     dimension = "Dimension"
     cluster = "Cluster"
 
-class LevelFrame(BaseModel):
+class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for an analysis level data frame."""
     corpus: List[UUID] = []
     level: LevelEnum = LevelEnum.cluster
     ds_dictionary: str = ...
     frame: dict = None
 
-class DocumentSchema(BaseModel):
+class DocumentSchema(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a document."""
     id: UUID = ...
     data: str = None
@@ -251,7 +251,7 @@ class BoxplotSchema(CorpusSchema):
         logging.info(outliers)
         return {"bpdata": bpdata, "outliers": outliers}
 
-class BoxplotDataEntry(BaseModel):
+class BoxplotDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a boxplot data point."""
     q1: float = ...
     q2: float = ...
@@ -262,12 +262,12 @@ class BoxplotDataEntry(BaseModel):
     lifence: float = ...
     category: str = ...
     category_label: str = None
-class BoxplotDataOutlier(BaseModel):
+class BoxplotDataOutlier(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for boxplot outliers."""
     pointtitle: str = ...
     value: float = ...
     category: str = ...
-class BoxplotData(BaseModel):
+class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for 'boxplot_data' responses."""
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
@@ -295,14 +295,14 @@ class RankListSchema(CorpusSchema):
     """Schema for '/ranked_list' requests."""
     sortby: str = ...
 
-class RankDataEntry(BaseModel):
+class RankDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for each entry in RankData."""
     index: str = ... # internal document id
     text: str = ... # reference id (student name or document name)
     value: float = ... # instances/words
     ownedby: str = ... # 'student' or 'instructor'
 
-class RankData(BaseModel):
+class RankData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "ranked_list" responses."""
     category: str = None
     category_name: str = None
@@ -391,7 +391,7 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
         return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
 
-class ScatterplotDataPoint(BaseModel):
+class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a point in the ScatterplotData."""
     catX: float = ...
     catY: float = ...
@@ -399,7 +399,7 @@ class ScatterplotDataPoint(BaseModel):
     text_id: str = ...
     ownedby: str = ...
 
-class ScatterplotData(BaseModel):
+class ScatterplotData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "scatterplot_data" response."""
     axisX: str = None
     axisY: str = None
@@ -446,7 +446,7 @@ class GroupsSchema(CorpusSchema):
         # logging.warning(frame)
         return get_best_groups(frame, group_size=self.group_size)
 
-class GroupsData(BaseModel):
+class GroupsData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
     grp_qualities: List[float] = None
@@ -476,18 +476,18 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
                             status_code=HTTP_400_BAD_REQUEST)
     return corpus.get_pairings(db_session)
 
-class DictionaryInformation(BaseModel):
+class DictionaryInformation(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dictionary help."""
     id: str = ...
     name: str = ...
     description: str = None
 
-class PatternData(BaseModel):
+class PatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data."""
     pattern: str = ...
     count: int = 0
 
-class CategoryPatternData(BaseModel):
+class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data for each category."""
     category: DictionaryInformation = ...
     patterns: List[PatternData] = []
@@ -670,17 +670,17 @@ def generate_reports(corpus: ReportsSchema,
                              headers={'Content-Disposition':
                                       "attachment; filename='report.zip'"})
 
-class DictionaryEntry(BaseModel):
+class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dimension->cluster mapping."""
     dimension: str = ...
     cluster: str = ...
 
-class DictInfo(BaseModel):
+class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dictionary information."""
     cluster: List[DictionaryInformation] = []
     dimension: List[DictionaryInformation] = []
 
-class TextContent(BaseModel):
+class TextContent(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for text_content data."""
     text_id: str = ...
     word_count: int = 0
