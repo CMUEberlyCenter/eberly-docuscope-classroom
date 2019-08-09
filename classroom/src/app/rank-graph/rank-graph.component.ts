@@ -61,7 +61,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
     const avg: string = (this.rank_data.median * 100).toFixed(2);
     const d: string = Math.abs(diff * 100).toFixed(2);
     const sign: string = diff >= 0 ? 'more' : 'less';
-    return `${val} which is ${d} ${sign} than the median of ${avg}.`;
+    return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
   }
   get scale() {
     return d3.scaleLinear().domain([0, this.max_value])

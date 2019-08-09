@@ -4,10 +4,10 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+// import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { MatBadgeModule } from '@angular/material/badge';
+// import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -74,8 +74,8 @@ import { PatternsTableComponent } from './patterns-table/patterns-table.componen
     GoogleChartsModule,
     HttpClientModule,
     NgxUiLoaderModule,
-    EasyUIModule,
-    MatBadgeModule,
+    // EasyUIModule,
+    // MatBadgeModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,

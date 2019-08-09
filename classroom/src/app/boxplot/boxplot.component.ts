@@ -53,6 +53,8 @@ export class BoxplotComponent implements OnInit {
           this.rank_data = data;
           this.spinner.stop();
         });
+    } else {
+      this.rank_data = null;
     }
   }
 

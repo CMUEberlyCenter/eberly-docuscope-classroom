@@ -7,7 +7,7 @@
     <app-boxplot-graph [boxplot]="data" [max_value]="max_value" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
     <div>
       <angular-tag-cloud *ngIf="cloud_data" [data]="cloud_data"></angular-tag-cloud>
-      <app-rank-graph [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
+      <app-rank-graph *ngIf="rank_data" [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
     </div>
   </mat-card-content>
 </mat-card>

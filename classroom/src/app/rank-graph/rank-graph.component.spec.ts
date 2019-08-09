@@ -1,9 +1,10 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+// import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { MatCardModule } from '@angular/material/card';
 import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RankGraphComponent } from './rank-graph.component';
 
@@ -14,7 +15,12 @@ describe('RankGraphComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ RankGraphComponent ],
-      imports: [ EasyUIModule, MatCardModule, MatSortModule, MatTableModule ],
+      imports: [
+        MatCardModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule
+      ],
       schemas: [ /*NO_ERRORS_SCHEMA*/ ]
     })
     .compileComponents();

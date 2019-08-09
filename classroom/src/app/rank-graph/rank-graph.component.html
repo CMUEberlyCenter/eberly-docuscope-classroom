@@ -64,7 +64,7 @@
       </svg>
     </mat-header-cell>
     <mat-cell *matCellDef="let element" class="bar">
-      <div [euiTooltip]="bar_tip(element.value)">
+      <div [matTooltip]="bar_tip(element.value)">
       <svg [attr.width]="options.width+'px'" [attr.height]="options.height+'px'"
            [attr.data-value]="element.value*100">
         <desc>A bar that shows the difference of {{element.value*100}} from the median of {{rank_data.median*100}}</desc>
