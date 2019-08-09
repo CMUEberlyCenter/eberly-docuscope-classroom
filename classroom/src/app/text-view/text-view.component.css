@@ -1,6 +1,8 @@
 .container {
   width: 100%;
   height: calc(100vh - 64.5px);
+  display: flex;
+  flex-direction: row;
 }
 .sidebar {
   overflow: auto;
@@ -34,6 +36,14 @@ tr.cluster-detail-row {
   text-align: right;
 }
 
+.text_card {
+  height: 100%;
+  overflow: auto;
+}
+.text_head {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .text_content {
   padding-left: 18px;
   padding-right: 18px;
