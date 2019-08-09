@@ -1,25 +1,37 @@
-<mat-table *ngIf="rank_data" [dataSource]="rank_data.result" [style.width]="'500px'">
+<mat-card *ngIf="rank_data">
+  <mat-card-title *ngIf="rank_data.category_name">
+    Category: {{rank_data.category_name}}
+  </mat-card-title>
+  <mat-card-content>
+    <mat-table matSort #rankSort=matSort matSortDisableClear
+           [dataSource]="ranking"
+           [style.width]="'500px'">
   <ng-container matColumnDef="position">
-    <mat-header-cell *matHeaderCellDef class="rank">Rank</mat-header-cell>
+    <mat-header-cell *matHeaderCellDef mat-sort-header class="rank">Rank</mat-header-cell>
     <mat-cell *matCellDef="let element; let rowIndex = index;" class="rank">{{rowIndex+1}}</mat-cell>
   </ng-container>
-  <ng-container matColumnDef="name">
-    <mat-header-cell *matHeaderCellDef class="name">Name</mat-header-cell>
-    <mat-cell *matCellDef="let element" class="name"><a [ngClass]="{'student_col': true, 'model_entry': element.ownedby === 'instructor'}" (click)="open('stv/'+element.index)"> {{element.text}}</a></mat-cell>
+  <ng-container matColumnDef="text">
+    <mat-header-cell *matHeaderCellDef mat-sort-header class="name">Name</mat-header-cell>
+    <mat-cell *matCellDef="let element" class="name"><a [ngClass]="{'student_col': true, 'model_entry': element.ownedby === 'instructor'}" (click)="open(element.index)"> {{element.text}}</a></mat-cell>
   </ng-container>
   <ng-container matColumnDef="value">
-    <mat-header-cell *matHeaderCellDef class="value">Value</mat-header-cell>
-    <mat-cell *matCellDef="let element" class="value">{{(100*element.value).toFixed(2)}}%</mat-cell>
+    <mat-header-cell *matHeaderCellDef mat-sort-header class="value">Value</mat-header-cell>
+    <mat-cell *matCellDef="let element" class="value">{{(100*element.value).toFixed(2)}}</mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="meter">
+    <mat-header-cell *matHeaderCellDef></mat-header-cell>
+    <mat-cell *matCellDef="let element">
+      <meter [max]="max_value*100" [value]="element.value*100">{{element.value*100}}</meter>
+    </mat-cell>
   </ng-container>
   <ng-container matColumnDef="bar">
     <mat-header-cell *matHeaderCellDef class="bar">
       <svg [attr.width]="options.width+'px'" height="30px">
         <desc>Linear scale ruler from 0 to {{x.tickFormat(10)(x.ticks(10)[10])}}.</desc>
         <g fill="none" font-size="10" font-family="sans-serif" font-weight="normal" text-anchor="middle">
-          <line stroke="currentColor" [attr.x1]="x(0)" [attr.x2]="x(max_value*100)"
+          <line stroke="currentColor" [attr.x1]="x(0)" [attr.x2]="scale(max_value)"
                 [attr.y1]="20" [attr.y2]="20"/>
           <g class="tick" *ngFor="let tick of x.ticks(10); index as i;">
-
             <line stroke="currentColor" [attr.x1]="x(tick)" [attr.x2]="x(tick)" y1="15" y2="20"/>
             <text [attr.x]="x(tick)" [attr.y]="14" fill="currentColor">{{x.tickFormat(10)(tick)}}</text>
           </g>
@@ -27,72 +39,50 @@
       </svg>
     </mat-header-cell>
     <mat-cell *matCellDef="let element" class="bar">
-      <!--<meter [max]="max_value*100" [value]="element.value*100">{{element.value*100}}</meter>-->
       <svg [attr.width]="options.width+'px'" [attr.height]="options.height+'px'"
            [attr.data-value]="element.value*100">
         <desc>A bar representing a value of {{element.value*100}}</desc>
         <rect [attr.x]="x(0)" [attr.y]="options.margins.top"
-              [attr.height]="options.height-(options.margins.top+options.margins.bottom)" [attr.width]="x(element.value*100)-x(0)"
-              [attr.fill]="'#EEEEEEEE'"
+              [attr.height]="options.height-(options.margins.top+options.margins.bottom)" [attr.width]="scale(element.value)-x(0)"
+              [attr.fill]="element.ownedby === 'instructor' ? 'rgba(0,0,255,.4)' :'#EEEEEEEE'"
               [attr.stroke]="'#3C3C3C'" [attr.stroke-width]="1"/>
       </svg>
+    </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="meanbar">
+    <mat-header-cell *matHeaderCellDef class="bar">
+      <svg [attr.width]="options.width+'px'" height="30px">
+        <desc>Linear scale ruler from 0 to {{x.tickFormat(10)(x.ticks(10)[10])}}.</desc>
+        <g fill="none" font-size="10" font-family="sans-serif" font-weight="normal" text-anchor="middle">
+          <line stroke="currentColor" [attr.x1]="x(0)" [attr.x2]="scale(max_value)"
+                [attr.y1]="20" [attr.y2]="20"/>
+          <g class="tick" *ngFor="let tick of x.ticks(10); index as i;">
+            <line stroke="currentColor" [attr.x1]="x(tick)" [attr.x2]="x(tick)" y1="15" y2="20"/>
+            <text [attr.x]="x(tick)" [attr.y]="14" fill="currentColor">{{x.tickFormat(10)(tick)}}</text>
+          </g>
+        </g>
+      </svg>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" class="bar">
+      <div [matTooltip]="bar_tip(element.value)">
+      <svg [attr.width]="options.width+'px'" [attr.height]="options.height+'px'"
+           [attr.data-value]="element.value*100">
+        <desc>A bar that shows the difference of {{element.value*100}} from the median of {{rank_data.median*100}}</desc>
+        <line [attr.x1]="scale(rank_data.median)" [attr.x2]="scale(rank_data.median)"
+              [attr.y1]="0" [attr.y2]="'100%'"
+              [style.stroke]="'black'" [style.stroke-width]="'1px'"/>
+        <rect [attr.x]="scale(mean_start(element.value))"
+              [attr.y]="options.margins.top"
+              [attr.height]="options.height-(options.margins.top+options.margins.bottom)"
+              [attr.width]="scale(mean_width(element.value))-x(0)"
+              [attr.fill]="element.ownedby === 'instructor' ? 'rgba(0,0,255,.4)' :'#EEEEEEEE'"
+              [attr.stroke]="'#3C3C3C'" [attr.stroke-width]="1"/>
+      </svg>
+      </div>
     </mat-cell>
   </ng-container>
   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
   <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 </mat-table>
-<!--<eui-datagrid *ngIf="rank_data" [data]="rank_data.result" [style.width]="'500px'">
-  <eui-grid-column title="Rank" width="6ch" align="center">
-    <ng-template euiCellTemplate let-rowIndex="rowIndex">
-      {{rowIndex+1}}
-    </ng-template>
-  </eui-grid-column>
-  <eui-grid-column field="text" title="Student" width="10ch">
-    <ng-template euiCellTemplate let-row>
-      <span><a [ngClass]="{'student_col': true, 'model_entry': row.ownedby === 'instructor'}"
-               (click)="open('stv/'+row.index)">{{row.text}}</a></span>
-    </ng-template>
-  </eui-grid-column>
-  <eui-grid-column field="value" title="Value" width="6ch">
-    <ng-template euiCellTemplate let-row>
-      <span>{{(100*row.value).toFixed(2)}}%</span>
-    </ng-template>
-  </eui-grid-column>
-  <eui-grid-column field="value" width="300px">
-    <ng-template euiHeaderTemplate let-col>
-      <svg width="300px" height="30px">
-        <desc>Linear scale ruler from 0 to {{x.tickFormat(10)(x.ticks(10)[10])}}.</desc>
-        <g fill="none" font-size="10" font-family="sans-serif" font-weight="normal" text-anchor="middle">
-          <line stroke="currentColor" [attr.x1]="x(0)" [attr.x2]="x(max_value*100)"
-                [attr.y1]="17" [attr.y2]="17"/>
-          <g class="tick" *ngFor="let tick of x.ticks(10); index as i;">
-
-            <line stroke="currentColor" [attr.x1]="x(tick)" [attr.x2]="x(tick)" y1="12" y2="17"/>
-            <text [attr.x]="x(tick)" [attr.y]="11" fill="black">{{x.tickFormat(10)(tick)}}</text>
-          </g>
-        </g>
-      </svg>
-    </ng-template>
-    <ng-template euiCellTemplate let-row>
-      <svg [attr.width]="'300px'" [attr.height]="'30px'"
-           [attr.data-value]="row.value*100">
-        <desc>A bar representing a value of {{row.value*100}}</desc>
-        <rect [attr.x]="x(0)" [attr.y]="5"
-              [attr.height]="20" [attr.width]="x(row.value*100)-x(0)"
-              [attr.fill]="'#EEEEEEEE'"
-              [attr.stroke]="'#3C3C3C'" [attr.stroke-width]="1"/>
-        </svg>-->
-      <!--<hr [style.height]="'20px'"
-          [style.margin-left]="0"
-          [style.border-width]="'100%'"
-          [style.width]="scale(row.value) + '%'"
-          [style.background-color]="'grey'">-->
-<!--    </ng-template>
-  </eui-grid-column>-->
-<!--</eui-datagrid>
-<svg class="rank_graph">
-  <g class="rank_wait">-->
-    <!--<text y="50%" x="20">Loading, please wait...</text>-->
-  <!--</g>
-  <g class="rank_data"></g>
-</svg>-->
+  </mat-card-content>
+</mat-card>

@@ -1,26 +1,54 @@
 <app-nav></app-nav>
-<mat-card *ngIf="corpus" class="container">
+<mat-card class="container">
   <mat-card-title>Patterns</mat-card-title>
-  <mat-card-subtitle>Number of instances of each pattern across all documents.</mat-card-subtitle>
-  <mat-card-content>
-    <mat-accordion *ngIf="patterns_data" multi="true">
-      <mat-expansion-panel *ngFor="let clust of patterns_data" expanded="true">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span>{{clust.category.name}}</span> <span class="badge">{{get_pattern_count(clust)}}</span>
+  <mat-card-subtitle>Number of instances of each category across all documents.</mat-card-subtitle>
+  <mat-card-subtitle>Click on a row to get a breakdown of the patterns in each cluster.</mat-card-subtitle>
+  <mat-card-content class="patterns_container">
+    <table mat-table matSort #cluster_table
+           #clusterTableSort=matSort matSortDisableClear
+           [dataSource]="patterns_data" multiTemplateDataRows>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+        <td mat-cell *matCellDef="let clust">
+          {{clust.name}}
+          <button mat-icon-button matTooltip="{{clust.description}}" matTooltipPosition="after"><mat-icon class="tooltip-icon">comment</mat-icon>
+        </button></td>
+      </ng-container>
+      <ng-container matColumnDef="pattern_count">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header># Patterns</th>
+        <td mat-cell *matCellDef="let clust">{{clust.pattern_count}}</td>
+      </ng-container>
+      <ng-container matColumnDef="count">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
+        <td mat-cell *matCellDef="let clust">{{clust.count}}</td>
+      </ng-container>
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let clust;">
+          <button mat-icon-button (click)="expanded = expanded===clust?null:clust">
+            <mat-icon [@indicatorRotate]="clust == expanded ? 'expanded' : 'collapsed'">expand_more</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <details *ngIf="clust.category.description">
-          <summary>{{clust.category.description}}</summary>
-          <p>{{clust.category.description}}</p>
-        </details>
-        <ul>
-          <li *ngFor="let pattern of clust.patterns">
-            {{pattern.pattern}} <span class="badge">{{pattern.count}}</span>
-          </li>
-        </ul>
-      </mat-expansion-panel>
-    </mat-accordion>
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let clust"
+            [attr.colspan]="cluster_columns.length">
+          <div class="cluster-detail"
+               [@detailExpand]="clust == expanded ? 'expanded' : 'collapsed'">
+            <div class="pattern-table">
+              <app-patterns-table [patterns]="clust.patterns"></app-patterns-table>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="cluster_columns"></tr>
+      <tr mat-row *matRowDef="let clust; columns:cluster_columns;"
+          class="cluster-row"
+          [class.cluster-expanded-row]="clust === expanded"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+          class="cluster-detail-row"></tr>
+    </table>
   </mat-card-content>
 </mat-card>

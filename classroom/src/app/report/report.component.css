@@ -4,7 +4,15 @@
   overflow: auto;
 }
 
+.report_form {
+  max-width: 5.5in;
+}
 .edit_textarea {
   width: 100%;
   padding: 2em;
+}
+
+button {
+  margin: 0 auto 15px;
+  display: block;
 }

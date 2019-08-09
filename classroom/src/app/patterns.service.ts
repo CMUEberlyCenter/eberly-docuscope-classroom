@@ -11,6 +11,19 @@ export class PatternData {
   pattern: string;
   count: number;
 }
+export function pattern_compare(a: PatternData, b: PatternData): number {
+  if (a.count === b.count) {
+    if (a.pattern < b.pattern) {
+      return -1;
+    }
+    if (a.pattern > b.pattern) {
+      return 1;
+    }
+    return 0;
+  }
+  return b.count - a.count;
+}
+
 export class DictionaryInformation {
   id: string;
   name: string;

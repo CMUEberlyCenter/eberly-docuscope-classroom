@@ -5,6 +5,9 @@
   <mat-card-subtitle>Units are average number of instances per 100 words.</mat-card-subtitle>
   <mat-card-content class="graph_container">
     <app-boxplot-graph [boxplot]="data" [max_value]="max_value" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
-    <app-rank-graph [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
+    <div>
+      <angular-tag-cloud *ngIf="cloud_data" [data]="cloud_data"></angular-tag-cloud>
+      <app-rank-graph *ngIf="rank_data" [rank_data]="rank_data" [max_value]="max_value"></app-rank-graph>
+    </div>
   </mat-card-content>
 </mat-card>

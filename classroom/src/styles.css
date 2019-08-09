@@ -8,10 +8,6 @@
 
 /* angular material */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
-body {
-  /*box-sizing: border-box;*/
-  margin: 0;
-}
 
 .cluster_id {
   display: none;
@@ -60,17 +56,14 @@ body {
 
 /* scatterplot */
 circle.dot {
-  fill: skyblue;
+  fill: black;
   filter: opacity(60%);
   cursor: pointer;
 }
 
 circle.dot.model {
-  fill: pink;
-}
-
-.patterns .panel-title {
-  font-size: 11px;
+  fill: blue;
+  filter: opacity(40%);
 }
 
 html, body { height: 100%; }

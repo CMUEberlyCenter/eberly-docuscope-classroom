@@ -110,7 +110,9 @@ export class RankDataEntry {
   ownedby: string;
 }
 export class RankData {
-  category: string;
+  category?: string;
+  category_name?: string;
+  median?: number;
   result: RankDataEntry[];
 }
 

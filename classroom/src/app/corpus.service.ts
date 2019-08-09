@@ -32,7 +32,7 @@ export class CorpusService {
     if (this._corpus) {
       return of(this._corpus);
     } else {
-      return zip(this.assignment.getAssignment('270CoverLetter'),
+      return zip(this.assignment.getAssignment('default'),
                  this.getDocumentIds())
         .pipe(
           map(([assign, doc_ids]) => ({

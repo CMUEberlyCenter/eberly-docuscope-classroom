@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { GoogleChartsModule } from 'angular-google-charts';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing';
 
@@ -44,7 +46,10 @@ describe('ScatterplotComponent', () => {
       declarations: [ ScatterplotComponent,
                       NavStubComponent,
                       ScatterplotGraphStubComponent ],
-      imports: [ FormsModule, MatCardModule ],
+      imports: [ FormsModule,
+                 GoogleChartsModule,
+                 MatCardModule,
+                 MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

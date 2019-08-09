@@ -11,24 +11,34 @@
             <input matInput type="number" placeholder="Desired Group Sizes" [(ngModel)]="group_size" min="2" max="4">
           </mat-form-field>
         </div>
-        <button (click)="generate_groups(event$)">Group Students</button>
+        <button mat-raised-button color="primary" class="go_button"
+                (click)="generate_groups(event$)">Group Students</button>
       </mat-drawer>
       <mat-drawer-content class="groups_content">
         <h2>Generated Groups</h2>
         <p *ngIf="!groups">Click on the "Group Students" button.</p>
         <ng-container *ngIf="groups">
-          <p>Groups can be adjusted by draging and dropping individual names.</p>
+          <p>Groups can be adjusted by dragging and dropping individual names.</p>
           <div class="groups_container" cdkDropListGroup>
-            <div class="group" *ngFor="let group of groups.groups; index as i"
-                 cdkDropList (cdkDropListDropped)="drop($event)"
-                 [cdkDropListData]="group">
+            <div class="group" *ngFor="let group of groups.groups; index as i">
               <em class="group_label">Group {{i+1}}:</em>
-              <div class="group_member" *ngFor="let ind of group" cdkDrag>{{ind}}</div>
+              <div aria-orientation="horizontal"
+                class="group_list" cdkDropListOrientation="horizontal"
+                cdkDropListSortingDisabled
+                cdkDropList (cdkDropListDropped)="drop($event)"
+                [cdkDropListData]="group"> <!-- aria-label="Group {{i+1}} members">-->
+                <div class="group_member" *ngFor="let ind of group" cdkDrag>{{ind}}</div>
+              </div>
             </div>
-            <div class="group" cdkDropList (cdkDropListDropped)="drop($event)"
-                 [cdkDropListData]="absent">
+            <div class="group">
               <em class="group_label">Absent:</em>
-              <div class="group_member" *ngFor="let a of absent" cdkDrag>{{a}}</div>
+              <div
+                class="group_list" cdkDropListOrientation="horizontal"
+                cdkDropListSortingDisabled
+                cdkDropList (cdkDropListDropped)="drop($event)"
+                [cdkDropListData]="absent">
+                <div class="group_member" *ngFor="let a of absent" cdkDrag>{{a}}</div>
+              </div>
             </div>
           </div>
         </ng-container>

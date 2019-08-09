@@ -1,0 +1,9 @@
+.mat-header-row {
+  height: 1em;
+}
+.mat-row {
+  height: 1em;
+}
+.mat-column-count {
+  text-align: right;
+}

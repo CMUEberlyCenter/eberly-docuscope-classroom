@@ -1,8 +1,9 @@
 <app-nav></app-nav>
 <mat-card *ngIf="corpus" class="container">
   <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Rankings</h2>-->
-  <mat-card-title>Rankings</mat-card-title>
-  <mat-card-subtitle>Ordered by frequency of the selected category.</mat-card-subtitle>
+  <mat-card-title>Frequency</mat-card-title>
+  <mat-card-subtitle>Frequency of the selected category for each document.</mat-card-subtitle>
+  <mat-card-subtitle>The bar represents the difference from the median value and is the average number of instances per 100 words.</mat-card-subtitle>
   <mat-card-content *ngIf="categories">
     <aside class="select_category_box">
       <label for="select_category" class="select_category_label">Category:</label>
@@ -12,6 +13,17 @@
     </aside>
     <article>
       <app-rank-graph [rank_data]="data" [max_value]="max_value"></app-rank-graph>
+      <!--<google-chart #rankTable *ngIf="rank_data"
+                    [type]="'Table'"
+                    [columnNames]="['Name', 'Frequency']"
+                    [data]="rank_data"
+                    ></google-chart>--><!--(select)=""-->
+      <!--<google-chart #rank *ngIf="rank_data"
+                    [title]="'Ranking by '+get_label(category)"
+                    [type]="'BarChart'"
+                    [columnNames]="['Name', 'Frequency']"
+                    [data]="rank_data"
+                    [options]="options"></google-chart>-->
     </article>
   </mat-card-content>
 </mat-card>

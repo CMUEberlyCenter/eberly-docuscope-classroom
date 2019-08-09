@@ -1,6 +1,8 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+// import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { BoxplotGraphComponent } from './boxplot-graph.component';
 
@@ -10,7 +12,11 @@ describe('BoxplotGraphComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ EasyUIModule ],
+      imports: [
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule
+      ],
       declarations: [ BoxplotGraphComponent ],
       schemas: [ /*NO_ERRORS_SCHEMA*/ ]
     })

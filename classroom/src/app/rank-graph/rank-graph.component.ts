@@ -1,4 +1,6 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 
 import * as d3 from 'd3';
 
@@ -20,29 +22,62 @@ interface Options {
   templateUrl: './rank-graph.component.html',
   styleUrls: ['./rank-graph.component.css']
 })
-export class RankGraphComponent implements OnInit, OnChanges {
+export class RankGraphComponent implements OnChanges, OnInit {
   @Input() rank_data: RankData;
   @Input() max_value: number;
+  @ViewChild('rankSort', {static: false}) sort: MatSort;
+  ranking: MatTableDataSource<RankDataEntry>;
 
   options: Options = { width: 250, height: 30, margins: { left: 10, top: 5, bottom: 5, right: 10 }};
-  displayedColumns: string[] = ['position', 'name', 'value', 'bar'];
+  displayedColumns: string[] = [/*'position',*/ 'text', 'value', 'meanbar'/*, 'bar'*/];
 
   constructor() { }
 
   ngOnInit() {
   }
+  ngOnChanges() {
+    if (this.rank_data) {
+      this.ranking = new MatTableDataSource(this.rank_data.result);
+    }
+  }
+  ngAfterViewChecked() {
+    if (this.rank_data) {
+      this.ranking.sort = this.sort;
+    }
+  }
 
+  mean_start(value: number) {
+    return Math.min(value, this.rank_data.median);
+  }
+  /* mean_end(value: number) {
+    return Math.max(value, this.rank_data.median);
+  } */
+  mean_width(value: number) {
+    return Math.abs(value - this.rank_data.median);
+  }
+  bar_tip(value: number) {
+    const diff = value - this.rank_data.median;
+    const val: string = (value * 100).toFixed(2);
+    const avg: string = (this.rank_data.median * 100).toFixed(2);
+    const d: string = Math.abs(diff * 100).toFixed(2);
+    const sign: string = diff >= 0 ? 'more' : 'less';
+    return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
+  }
+  get scale() {
+    return d3.scaleLinear().domain([0, this.max_value])
+      .range([this.options.margins.left, this.options.width - this.options.margins.right]).nice().clamp(true);
+  }
   get x() {
     return d3.scaleLinear().domain([0, this.max_value * 100])
       .range([this.options.margins.left, this.options.width - this.options.margins.right]).nice().clamp(true);
   }
-  scale(value: number): number {
+  /*scale(value: number): number {
     return 100 * value / this.max_value;
-  }
+  }*/
 
   open(doc_id: string) {
-    window.open(doc_id);
-  }
-  ngOnChanges() {
+    if (doc_id !== '') {
+      window.open(`stv/${doc_id}`);
+    }
   }
 }

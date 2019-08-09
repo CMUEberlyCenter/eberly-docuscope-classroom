@@ -1,25 +1,42 @@
-.badge {
-  border-radius: 5px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  pointer-events: none;
-  text-align: center;
-  box-sizing: border-box;
-  font-weight: 600;
-  font-size: x-small;
-  color: white; /* color should be from theme as per https://material.angular.io/guide/theming-your-components */
-  background: #3f51b5;
-  padding-top: 2px;
-  padding-left: 3px;
-  padding-right: 3px;
-  margin-left: 5px;
-}
-
 .container {
   height: calc(100vh - 64.5px - 49px - 10px);
   margin: 5px;
   overflow: auto;
+}
+
+.tooltip-icon {
+  font-size: small;
+}
+.cluster-detail {
+  overflow: hidden;
+}
+.cluster-row td {
+  border-bottom-width: 0;
+}
+/*tr.cluster-row:not(.cluster-expanded-row):hover {
+  background: #777;
+}
+tr.cluster-row:not(.cluster-expanded-row):active {
+  background: #efefef;
+}*/
+tr.cluster-detail-row {
+  height: 0;
+}
+
+.patterns_container {
+  max-width: 5.5in;
+}
+
+.pattern-table {
+  overflow: auto;
+  max-height: calc(30vh);
+}
+
+.mat-column-pattern_count {
+  text-align: right;
+}
+.mat-column-count {
+  text-align: right;
 }
 
 summary {

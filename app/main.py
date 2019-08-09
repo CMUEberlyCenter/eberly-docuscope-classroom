@@ -7,6 +7,7 @@ try:
 except ImportError:
     import json
 import logging
+from operator import itemgetter
 import re
 import traceback
 from typing import Dict, List
@@ -85,19 +86,23 @@ def get_ds_info_map(ds_info):
     """Transforms ds_info into a simple id->name map."""
     return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
+class ErrorResponse(BaseModel): #pylint: disable=too-few-public-methods
+    """Schema for error response."""
+    detail: str
+
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
     dimension = "Dimension"
     cluster = "Cluster"
 
-class LevelFrame(BaseModel):
+class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for an analysis level data frame."""
     corpus: List[UUID] = []
     level: LevelEnum = LevelEnum.cluster
     ds_dictionary: str = ...
     frame: dict = None
 
-class DocumentSchema(BaseModel):
+class DocumentSchema(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a document."""
     id: UUID = ...
     data: str = None
@@ -246,7 +251,7 @@ class BoxplotSchema(CorpusSchema):
         logging.info(outliers)
         return {"bpdata": bpdata, "outliers": outliers}
 
-class BoxplotDataEntry(BaseModel):
+class BoxplotDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a boxplot data point."""
     q1: float = ...
     q2: float = ...
@@ -257,17 +262,28 @@ class BoxplotDataEntry(BaseModel):
     lifence: float = ...
     category: str = ...
     category_label: str = None
-class BoxplotDataOutlier(BaseModel):
+class BoxplotDataOutlier(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for boxplot outliers."""
     pointtitle: str = ...
     value: float = ...
     category: str = ...
-class BoxplotData(BaseModel):
+class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for 'boxplot_data' responses."""
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
 
-@app.post('/boxplot_data', response_model=BoxplotData)
+@app.post('/boxplot_data', response_model=BoxplotData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def get_boxplot_data(corpus: BoxplotSchema, db_session: Session = Depends(get_db_session)):
     """Responds to "boxplot_data" requests."""
     if not corpus.corpus:
@@ -279,49 +295,74 @@ class RankListSchema(CorpusSchema):
     """Schema for '/ranked_list' requests."""
     sortby: str = ...
 
-    def get_rank_data(self, request: Request):
-        """Generate the rank data for this RankList request."""
-        frame = self.get_stats(request)
-        logging.info(frame)
-        title_row = frame.loc['title']
-        owner_row = frame.loc['ownedby']
-        frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
-        frame = frame.apply(lambda x: x.divide(x['total_words']))
-        frame = frame.drop('total_words').append(title_row).append(owner_row)
-        frame = frame.transpose()
-        frame = frame.fillna(0)
-        if self.sortby not in frame:
-            logging.error("%s is not in %s", self.sortby, frame.columns)
-            raise HTTPException(detail="{} is not in {}".format(self.sortby, frame.columns.values),
-                                status_code=HTTP_422_UNPROCESSABLE_ENTITY)
-        frame = frame.loc[:, ['title', self.sortby, 'ownedby']]
-        frame.reset_index(inplace=True)
-        frame.rename(columns={'title': 'text', self.sortby: 'value'}, inplace=True)
-        frame.sort_values('value', ascending=False, inplace=True)
-        frame = frame.head(50)
-        frame = frame[frame.value != 0]
-        logging.info(frame.to_dict('records'))
-        return {'category': self.sortby, 'result': frame.to_dict('records')}
-
-class RankDataEntry(BaseModel):
+class RankDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for each entry in RankData."""
-    index: str = ...
-    text: str = ...
-    value: float = ...
-    ownedby: str = ...
+    index: str = ... # internal document id
+    text: str = ... # reference id (student name or document name)
+    value: float = ... # instances/words
+    ownedby: str = ... # 'student' or 'instructor'
 
-class RankData(BaseModel):
+class RankData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "ranked_list" responses."""
     category: str = None
-    result: List[RankDataEntry] = []
+    category_name: str = None
+    median: float = None
+    result: List[RankDataEntry] = ...
 
-@app.post('/ranked_list') #, response_model=RankDataEntry) # pydantic rejects
+@app.post('/ranked_list', response_model=RankData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
-    """Responds to "ranked_list" requests."""
+    """Responds to "ranked_list" requests.
+
+    This constructs the rankings of the documents in the given corpus by
+    comparing the frequencies of the corpus.sortby category/dimension
+    limited to the first 50 documents.
+    """
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_rank_data(db_session)
+    frame = corpus.get_stats(db_session)
+    logging.info(frame)
+    title_row = frame.loc['title']
+    owner_row = frame.loc['ownedby']
+    frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
+    frame = frame.apply(lambda x: x.divide(x['total_words']))
+    frame = frame.drop('total_words').append(title_row).append(owner_row)
+    frame = frame.transpose()
+    frame = frame.fillna(0)
+    if corpus.sortby not in frame:
+        logging.error("%s is not in %s", corpus.sortby, frame.columns)
+        raise HTTPException(
+            detail="{} is not in {}".format(corpus.sortby,
+                                            frame.columns.values),
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY)
+    frame = frame.loc[:, ['title', corpus.sortby, 'ownedby']]
+    frame.reset_index(inplace=True)
+    frame.rename(columns={'title': 'text', corpus.sortby: 'value'},
+                 inplace=True)
+    frame.sort_values('value', ascending=False, inplace=True)
+    v_avg = frame['value'].quantile()
+    frame = frame.head(50)
+    frame = frame[frame.value != 0]
+    #logging.info(frame.to_dict('records'))
+    lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
+    ds_map = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
+    return {'category': corpus.sortby,
+            'category_name': ds_map[corpus.sortby],
+            'median': v_avg,
+            'result': frame.to_dict('records')}
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
@@ -350,7 +391,7 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
         return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
 
-class ScatterplotDataPoint(BaseModel):
+class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a point in the ScatterplotData."""
     catX: float = ...
     catY: float = ...
@@ -358,13 +399,26 @@ class ScatterplotDataPoint(BaseModel):
     text_id: str = ...
     ownedby: str = ...
 
-class ScatterplotData(BaseModel):
+class ScatterplotData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "scatterplot_data" response."""
     axisX: str = None
     axisY: str = None
     spdata: List[ScatterplotDataPoint] = []
 
-@app.post('/scatterplot_data', response_model=ScatterplotData)
+@app.post('/scatterplot_data', response_model=ScatterplotData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def get_scatterplot_data(corpus: ScatterplotSchema, db_session: Session = Depends(get_db_session)):
     """Responds to requests to generate the scatterplot data for a given corpus."""
     if not corpus.corpus:
@@ -379,24 +433,39 @@ class GroupsSchema(CorpusSchema):
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
         frame = self.get_stats(db_session)#.transpose()
-        logging.info(frame)
+        # logging.warning(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
-        title_row = frame.loc['title':]
-        frame = frame.drop('title').drop('ownedby')
+        title_row = frame.loc['title']
+        frame = frame.drop('title')
+        frame = frame.drop('ownedby')
         frame = frame.apply(lambda x: x.divide(x['total_words']))
         frame = frame.drop('total_words')
         frame = frame.drop('Other', errors='ignore')
         frame = frame.append(title_row)
         frame = frame.transpose().fillna(0).set_index('title')
+        # logging.warning(frame)
         return get_best_groups(frame, group_size=self.group_size)
 
-class GroupsData(BaseModel):
+class GroupsData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
     grp_qualities: List[float] = None
     quality: float = None
 
-@app.post('/groups', response_model=GroupsData)
+@app.post('/groups', response_model=GroupsData,
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"
+              },
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"
+              }
+          })
 def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_session)):
     """Responds to requests to generate groups."""
     if not corpus.corpus:
@@ -407,18 +476,18 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
                             status_code=HTTP_400_BAD_REQUEST)
     return corpus.get_pairings(db_session)
 
-class DictionaryInformation(BaseModel):
+class DictionaryInformation(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dictionary help."""
     id: str = ...
     name: str = ...
     description: str = None
 
-class PatternData(BaseModel):
+class PatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data."""
     pattern: str = ...
     count: int = 0
 
-class CategoryPatternData(BaseModel):
+class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data for each category."""
     category: DictionaryInformation = ...
     patterns: List[PatternData] = []
@@ -448,7 +517,21 @@ def count_patterns(node, ds_dict, patterns_all):
                 logging.error("Node: %s, Error: %s", child, exc)
     return content.split('PZPZPZ')
 
-@app.post('/patterns', response_model=List[CategoryPatternData])
+@app.post('/patterns', response_model=List[CategoryPatternData],
+          responses={
+              HTTP_204_NO_CONTENT:{
+                  "model": ErrorResponse,
+                  "description": "No content (untagged documents)"},
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def patterns(corpus: CorpusSchema,
              db_session: Session = Depends(get_db_session)):
     """Generate the list of categorized patterns in the given corpus."""
@@ -486,12 +569,16 @@ def patterns(corpus: CorpusSchema,
     return [
         {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
                           {'id': cat, 'name': cat.capitalize()}),
-         'patterns': sorted([{'pattern': word, 'count': count} for (word, count) in cpats.items()],
-                            key=lambda pat: (-pat['count'], pat['pattern']))}
-        for (cat, cpats) in pats.items()
+         'patterns': sorted(
+             sorted([{'pattern': word, 'count': count}
+                     for (word, count) in cpats.items()],
+                    key=itemgetter('pattern')),
+             key=itemgetter('count'), reverse=True)}
+        for (cat, cpats) in sorted(
+            sorted(pats.items(), key=itemgetter(0)),
+            key=lambda pat: -sum(c for (_, c) in pat[1].items()),
+            reverse=False)
     ]
-
-
 
 class ReportsSchema(BoxplotSchema):
     """Schema for '/report' requests."""
@@ -551,7 +638,18 @@ class ReportsSchema(BoxplotSchema):
                                     self.get_bp_data(db_session),
                                     descriptions)
 
-@app.post('/generate_reports')
+@app.post('/generate_reports',
+          responses={
+              HTTP_400_BAD_REQUEST: {
+                  "model": ErrorResponse,
+                  "description": "Bad Request"},
+              HTTP_500_INTERNAL_SERVER_ERROR: {
+                  "model": ErrorResponse,
+                  "description": "Internal Server Error"},
+              HTTP_503_SERVICE_UNAVAILABLE: {
+                  "model": ErrorResponse,
+                  "description": "Service Unavailable (untagged documents)"}
+          })
 def generate_reports(corpus: ReportsSchema,
                      db_session: Session = Depends(get_db_session)):
     """Responds to generate_reports requests by streaming the report zipfile."""
@@ -566,24 +664,23 @@ def generate_reports(corpus: ReportsSchema,
     except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
-        raise HTTPException(detail={"message": "ERROR in report generation.",
-                                    "error": "{}".format(excp)},
+        raise HTTPException(detail="ERROR in report generation.",
                             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     return StreamingResponse(zip_buffer, media_type='application/zip',
                              headers={'Content-Disposition':
                                       "attachment; filename='report.zip'"})
 
-class DictionaryEntry(BaseModel):
+class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dimension->cluster mapping."""
     dimension: str = ...
     cluster: str = ...
 
-class DictInfo(BaseModel):
+class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dictionary information."""
     cluster: List[DictionaryInformation] = []
     dimension: List[DictionaryInformation] = []
 
-class TextContent(BaseModel):
+class TextContent(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for text_content data."""
     text_id: str = ...
     word_count: int = 0
@@ -591,7 +688,21 @@ class TextContent(BaseModel):
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
 
-@app.get('/text_content/{file_id}', response_model=TextContent)
+@app.get('/text_content/{file_id}', response_model=TextContent,
+         responses={
+             HTTP_204_NO_CONTENT: {
+                 "model": ErrorResponse,
+                 "description": "No content (untagged document)"},
+             HTTP_400_BAD_REQUEST: {
+                 "model": ErrorResponse,
+                 "description": "Bad Request"},
+             HTTP_500_INTERNAL_SERVER_ERROR: {
+                 "model": ErrorResponse,
+                 "description": "Internal Server Error"},
+             HTTP_503_SERVICE_UNAVAILABLE: {
+                 "model": ErrorResponse,
+                 "description": "Service Unavailable (untagged documents)"}
+         })
 def get_tagged_text(file_id: UUID,
                     db_session: Session = Depends(get_db_session)):
     """Get the tagged text information for the given file."""

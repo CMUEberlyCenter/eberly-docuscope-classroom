@@ -13,7 +13,7 @@ const routes: Routes = [
   { path: 'boxplot', component: BoxplotComponent },
   { path: 'groups', component: GroupingComponent },
   { path: 'patterns', component: PatternsComponent },
-  { path: 'ranking', component: RankComponent },
+  { path: 'frequency', component: RankComponent },
   { path: 'report', component: ReportComponent },
   { path: 'scatterplot', component: ScatterplotComponent },
   { path: 'stv/:doc', component: TextViewComponent },

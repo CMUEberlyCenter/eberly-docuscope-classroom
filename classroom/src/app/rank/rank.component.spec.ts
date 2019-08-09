@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
+import { GoogleChartsModule } from 'angular-google-charts';
 import { MatCardModule } from '@angular/material/card';
 
 import { RankComponent } from './rank.component';
@@ -42,7 +43,7 @@ describe('RankComponent', () => {
       declarations: [ RankComponent,
                       NavStubComponent,
                       RankGraphStubComponent ],
-      imports: [ FormsModule, MatCardModule ],
+      imports: [ FormsModule, GoogleChartsModule, MatCardModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

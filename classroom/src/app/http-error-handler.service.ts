@@ -25,9 +25,14 @@ export class HttpErrorHandlerService {
     return (error: HttpErrorResponse):
     Observable<T> => {
       console.error(error);
-      const message = (error.error instanceof ErrorEvent)
-        ? error.error.message
-        : `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
+      let message = '';
+      if (error.error instanceof ErrorEvent) {
+        message = error.error.message;
+      } else if ('detail' in error.error) {
+        message = `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
+      } else {
+        message = error.message;
+      }
       this.messageService.add(`${serviceName}: ${operation} failed: ${message}`);
       this._snackBar.open(message);
       return of(result);

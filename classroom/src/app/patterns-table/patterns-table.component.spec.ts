@@ -1,33 +1,35 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-// import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
+import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { RankGraphComponent } from './rank-graph.component';
+import { PatternsTableComponent } from './patterns-table.component';
 
-describe('RankGraphComponent', () => {
-  let component: RankGraphComponent;
-  let fixture: ComponentFixture<RankGraphComponent>;
+describe('PatternsTableComponent', () => {
+  let component: PatternsTableComponent;
+  let fixture: ComponentFixture<PatternsTableComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RankGraphComponent ],
+      declarations: [ PatternsTableComponent ],
       imports: [
+        NoopAnimationsModule,
+        // EasyUIModule,
         MatCardModule,
+        MatIconModule,
         MatSortModule,
         MatTableModule,
-        MatTooltipModule
-      ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+        MatTooltipModule ],
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RankGraphComponent);
+    fixture = TestBed.createComponent(PatternsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

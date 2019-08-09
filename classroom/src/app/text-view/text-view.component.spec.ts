@@ -1,14 +1,24 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { /*NO_ERRORS_SCHEMA,*/ Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
-import { MatBadgeModule, MatCardModule, MatCheckboxModule, MatExpansionModule, MatListModule, MatSidenavModule } from '@angular/material';
+import { MatCardModule, MatCheckboxModule, MatListModule, MatSidenavModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TextViewComponent } from './text-view.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { PatternData } from '../patterns.service';
 import { TaggedTextService } from '../tagged-text.service';
+
+@Component({selector: 'app-patterns-table', template: ''})
+class PatternsTableStubComponent {
+  @Input() patterns: PatternData[];
+}
 
 describe('TextViewComponent', () => {
   let component: TextViewComponent;
@@ -23,15 +33,26 @@ describe('TextViewComponent', () => {
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     const domSanitizer = jasmine.createSpyObj('DomSanitizer',
-                                              ['bypassSecurityTrustHtml']);
+                                              ['bypassSecurityTrustHtml',
+                                               'sanitize']);
     domSanitizer.bypassSecurityTrustHtml.and.returnValue({
       'changingThisBreaksApplicationSecurity': '<span data-key="lat"></span>'});
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
 
     TestBed.configureTestingModule({
-      declarations: [ TextViewComponent ],
-      imports: [ EasyUIModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatExpansionModule, MatListModule, MatSidenavModule ],
+      declarations: [ TextViewComponent, PatternsTableStubComponent ],
+      imports: [
+        MatCardModule,
+        MatCheckboxModule,
+        MatIconModule,
+        MatListModule,
+        MatSidenavModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule,
+        NoopAnimationsModule
+      ],
       providers: [
         { provide: DomSanitizer, useValue: domSanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },
