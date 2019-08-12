@@ -2,6 +2,10 @@
   text-align: center;
 }
 
+.contrib {
+  list-style-type: none;
+}
+
 .actions {
   display: flex;
   flex-direction: row-reverse;
