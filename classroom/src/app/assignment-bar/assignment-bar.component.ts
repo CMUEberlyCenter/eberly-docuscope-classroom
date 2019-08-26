@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AssignmentData } from '../boxplot-data';
+import { AssignmentData } from '../assignment.service';
 
 @Component({
   selector: 'app-assignment-bar',
