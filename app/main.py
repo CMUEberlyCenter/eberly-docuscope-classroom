@@ -589,7 +589,7 @@ class ReportsSchema(BoxplotSchema):
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
-        level_frame = self.get_stats(db_session) # make sure frame exists.
+        self.get_stats(db_session) # make sure frame exists.
         ds_dictionary = json.loads(CLIENT.get(self.corpus_index()))['ds_dictionary']
         tones = DocuScopeTones(ds_dictionary)
         documents = {}

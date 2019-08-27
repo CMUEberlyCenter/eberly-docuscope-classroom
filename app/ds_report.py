@@ -43,7 +43,7 @@ class Divider(Flowable):
         self.canv.setStrokeColor(self.color)
         self.canv.line(0, 0, self.width, 0)
 
-class Boxplot(Flowable):
+class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
     """
     Line flowable --- draws a line in a flowable
     http://two.pairlist.net/pipermail/reportlab-users/2005-February/003695.html
@@ -59,7 +59,7 @@ class Boxplot(Flowable):
         self.outliers = outliers or []
         self.value = val
         self.max_val = max_val
-        self.measurements = {'height': ht, 'ruler_height': rh,
+        self.measurements = {'ruler_height': rh,
                              'whisker': whisker, 'radius': radius}
         self.width = wd
         self.height = ht
