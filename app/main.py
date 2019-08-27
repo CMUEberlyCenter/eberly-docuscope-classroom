@@ -206,6 +206,8 @@ class CorpusSchema(BaseModel):
         except Exception as exp:
             traceback.print_exc()
             raise exp
+    #def get_frame(self, db_session: Session):
+    #    return DataFrame.from_dict(self.get_stats(db_session)['frame'])
 
 class BoxplotSchema(CorpusSchema):
     """Schema for 'boxplot_data' requests."""
@@ -587,6 +589,7 @@ class ReportsSchema(BoxplotSchema):
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
+        level_frame = self.get_stats(db_session) # make sure frame exists.
         ds_dictionary = json.loads(CLIENT.get(self.corpus_index()))['ds_dictionary']
         tones = DocuScopeTones(ds_dictionary)
         documents = {}
