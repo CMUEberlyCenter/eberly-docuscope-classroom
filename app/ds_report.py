@@ -59,10 +59,10 @@ class Boxplot(Flowable):
         self.outliers = outliers or []
         self.value = val
         self.max_val = max_val
-        self.measurements = {'width': wd, 'height': ht, 'ruler_height': rh,
+        self.measurements = {'height': ht, 'ruler_height': rh,
                              'whisker': whisker, 'radius': radius}
-        #self.width = wd
-        #self.height = ht
+        self.width = wd
+        self.height = ht
         self.margins = {'left': ml, 'right': mr, 'top': mt, 'bottom': mb}
         #self.ruler_ht = rh
         #self.whisker = whisker
@@ -72,13 +72,13 @@ class Boxplot(Flowable):
         """
         draw the line
         """
-        scale = (self.measurements['width'] - self.margins['left']
+        scale = (self.width - self.margins['left']
                  - self.margins['right'])/self.max_val
 
-        box_height = self.measurements['height']-(self.margins['top']+
-                                                  self.margins['bottom']+
-                                                  self.measurements['ruler_height'])
-        box_v_center = box_height/2 + self.margins['bottom']+self.measurements['ruler_height']
+        box_height = self.height-(self.margins['top']+
+                                  self.margins['bottom']+
+                                  self.measurements['ruler_height'])
+        box_v_center = box_height/2 + self.margins['bottom'] + self.measurements['ruler_height']
 
         box_left = self.margins['left'] + (self.data['q1'] * scale)
         box_h_center = self.margins['left'] + (self.data['q2'] * scale)
