@@ -31,6 +31,7 @@ import { TagCloudModule } from 'angular-tag-cloud-module';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { AssignmentBarComponent } from './assignment-bar/assignment-bar.component';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { BoxplotGraphComponent } from './boxplot-graph/boxplot-graph.component';
 import { GroupingComponent } from './grouping/grouping.component';
@@ -49,6 +50,7 @@ import { PatternsTableComponent } from './patterns-table/patterns-table.componen
   declarations: [
     AppComponent,
     AboutComponent,
+    AssignmentBarComponent,
     MessagesComponent,
     BoxplotComponent,
     BoxplotGraphComponent,
