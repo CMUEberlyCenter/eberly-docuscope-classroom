@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup as bs
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
@@ -26,18 +27,42 @@ from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pandas import DataFrame, Series
-import memcache
+from pymemcache.client.base import Client
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
 from ds_report import generate_pdf_reports
 from ds_tones import DocuScopeTones
 
+# Setup database sesson manager
 ENGINE = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
-CLIENT = memcache.Client(['memcached:11211'])
+# Setup memcached
+def json_serializer(_key, value):
+    """Serialize strings to strings, BaseModels to json, and objects to json.
+    This is used by the memcached client.
+    """
+    if isinstance(value, str):
+        return value, 1
+    if isinstance(value, BaseModel):
+        return value.json(), 2
+    return json.dumps(value), 2
+def json_deserializer(_key, value, flags):
+    """Deserialize json.
+    This is used by the memcached client.
+    """
+    if flags == 1:
+        return value.decode('utf-8')
+    if flags == 2:
+        return json.loads(value.decode('utf-8'))
+    raise Exception("Unknown serialization format")
 
+CLIENT = Client(('memcached', 11211),
+                serializer=json_serializer,
+                deserializer=json_deserializer)
+
+# Setup API service.
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
@@ -46,6 +71,7 @@ app = FastAPI( #pylint: disable=invalid-name
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
+## Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -53,6 +79,15 @@ app.add_middleware(
     allow_methods=['GET', 'POST'],
     allow_headers=['*'])
 
+## Add Sessions Middleware
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="docuscopeclassroom",
+    same_site="lax",
+    https_only=False
+)
+
+## Add custom middleware for database connection.
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
     """Middleware for adding database sessions to a request."""
@@ -75,6 +110,11 @@ async def db_session_middleware(request: Request, call_next):
 def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""
     return request.state.db
+
+def get_http_session(request: Request) -> dict:
+    """Get the http session from the given request."""
+    #logging.warning("type: %s", type(request.session))
+    return request.session
 
 def get_ds_info(ds_dict: str, db_session: Session):
     """Get the dictionary of DocuScope Dictionary information."""
@@ -115,105 +155,117 @@ class CorpusSchema(BaseModel):
     def documents(self):
         """Gets a list of document ids for this corpus."""
         return [d.id for d in self.corpus]
-    def corpus_index(self):
+    def corpus_index(self) -> str:
         """Generate the id for this corpus."""
         # key limit of 250 characters for memcached
         key = [str(self.level)]
         key.extend(sorted([str(d.id) for d in self.corpus]))
         return str(hash(tuple(key)))
-    def get_stats(self, db_session: Session): #pylint: disable=too-many-locals
+    def make_level_frame(self, db_session: Session) -> LevelFrame:  #pylint: disable=too-many-locals
+        """Make the LevelFrame for the corpus."""
+        logging.info('Generating Level Frame')
+        logging.info('Retrieving stats from database')
+        stats = {}
+        ds_dictionaries = set()
+        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
+            db_session.query(Filesystem.processed,
+                             Filesystem.fullname,
+                             Filesystem.ownedby,
+                             Filesystem.name,
+                             Filesystem.id,
+                             Filesystem.state,
+                             DSDictionary.name)\
+                      .filter(Filesystem.id.in_(self.documents()))\
+                      .filter(Filesystem.state == 'tagged')\
+                      .filter(Assignment.id == Filesystem.assignment)\
+                      .filter(DSDictionary.id == Assignment.dictionary):
+            if state == 'error':
+                raise HTTPException(
+                    detail="There was an error tagging %s" % filename,
+                    status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+            if state != 'tagged':
+                raise HTTPException(
+                    detail="Some of the documents are not yet tagged,"
+                    + " please try again in a couple of minutes.",
+                    status_code=HTTP_503_SERVICE_UNAVAILABLE)
+            if doc:
+                ser = Series({key: val['num_tags'] for key, val in
+                              doc['ds_tag_dict'].items()})
+                ser['total_words'] = doc['ds_num_word_tokens']
+                ser['title'] = fullname if ownedby == 'student' else \
+                    '.'.join(filename.split('.')[0:-1])
+                ser['ownedby'] = ownedby
+                stats[str(doc_id)] = ser
+                ds_dictionaries.add(ds_dictionary)
+        if not stats:
+            logging.error("Failed to retrieve stats for corpus: %s",
+                          self.documents())
+            raise HTTPException(
+                detail="Document(s) submitted for analysis are " +
+                "not tagged, please close this window and wait " +
+                "a couple of minutes. " +
+                "If problem persists, please contact technical support.",
+                status_code=HTTP_503_SERVICE_UNAVAILABLE)
+        if len(ds_dictionaries) != 1:
+            logging.error("Inconsistant dictionaries in corpus %s",
+                          self.documents())
+            raise HTTPException(
+                detail="Inconsistant dictionaries used in tagging " +
+                "this corpus, documents are not comparable.",
+                status_code=HTTP_400_BAD_REQUEST)
+        ds_dictionary = list(ds_dictionaries)[0]
+        ds_stats = DataFrame(data=stats).transpose()
+        tones = DocuScopeTones(ds_dictionary)
+        data = {}
+        tone_lats = []
+        if self.level == LevelEnum.dimension:
+            tone_lats = tones.map_dimension_to_lats().items()
+        elif self.level == LevelEnum.cluster:
+            tone_lats = tones.map_cluster_to_lats().items()
+        for category, lats in tone_lats:
+            sumframe = ds_stats.filter(lats)
+            if not sumframe.empty:
+                data[category] = sumframe.transpose().sum()
+        frame = DataFrame(data)
+        frame['total_words'] = ds_stats['total_words']
+        frame['title'] = ds_stats['title']
+        frame['ownedby'] = ds_stats['ownedby']
+        logging.debug(frame)
+        lframe = frame.transpose()
+        return LevelFrame(ds_dictionary=ds_dictionary,
+                          corpus=self.documents(),
+                          frame=lframe.to_dict(),
+                          level=self.level)
+    def get_stats(self, db_session: Session):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
             indx = self.corpus_index()
             level_frame = CLIENT.get(indx)
             if not level_frame:
-                logging.info('Generating Level Frame')
-                logging.info('Retrieving stats from database')
-                stats = {}
-                ds_dictionaries = set()
-                for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
-                    db_session.query(Filesystem.processed,
-                                     Filesystem.fullname,
-                                     Filesystem.ownedby,
-                                     Filesystem.name,
-                                     Filesystem.id,
-                                     Filesystem.state,
-                                     DSDictionary.name)\
-                              .filter(Filesystem.id.in_(self.documents()))\
-                              .filter(Filesystem.state == 'tagged')\
-                              .filter(Assignment.id == Filesystem.assignment)\
-                              .filter(DSDictionary.id == Assignment.dictionary):
-                    if state == 'error':
-                        raise HTTPException(
-                            detail="There was an error tagging %s" % filename,
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
-                    if state != 'tagged':
-                        raise HTTPException(
-                            detail="Some of the documents are not yet tagged,"
-                            + " please try again in a couple of minutes.",
-                            status_code=HTTP_503_SERVICE_UNAVAILABLE)
-                    if doc:
-                        ser = Series({key: val['num_tags'] for key, val in
-                                      doc['ds_tag_dict'].items()})
-                        ser['total_words'] = doc['ds_num_word_tokens']
-                        ser['title'] = fullname if ownedby == 'student' else \
-                            '.'.join(filename.split('.')[0:-1])
-                        ser['ownedby'] = ownedby
-                        stats[str(doc_id)] = ser
-                        ds_dictionaries.add(ds_dictionary)
-                if not stats:
-                    logging.error("Failed to retrieve stats for corpus: %s",
-                                  self.documents())
-                    raise HTTPException(
-                        detail="Document(s) submitted for analysis are " +
-                        "not tagged, please close this window and wait " +
-                        "a couple of minutes. " +
-                        "If problem persists, please contact technical support.",
-                        status_code=HTTP_503_SERVICE_UNAVAILABLE)
-                if len(ds_dictionaries) != 1:
-                    logging.error("Inconsistant dictionaries in corpus %s",
-                                  self.documents())
-                    raise HTTPException(
-                        detail="Inconsistant dictionaries used in tagging " +
-                        "this corpus, documents are not comparable.",
-                        status_code=HTTP_400_BAD_REQUEST)
-                ds_dictionary = list(ds_dictionaries)[0]
-                ds_stats = DataFrame(data=stats).transpose()
-                tones = DocuScopeTones(ds_dictionary)
-                data = {}
-                tone_lats = []
-                if self.level == LevelEnum.dimension:
-                    tone_lats = tones.map_dimension_to_lats().items()
-                elif self.level == LevelEnum.cluster:
-                    tone_lats = tones.map_cluster_to_lats().items()
-                for category, lats in tone_lats:
-                    sumframe = ds_stats.filter(lats)
-                    if not sumframe.empty:
-                        data[category] = sumframe.transpose().sum()
-                frame = DataFrame(data)
-                frame['total_words'] = ds_stats['total_words']
-                frame['title'] = ds_stats['title']
-                frame['ownedby'] = ds_stats['ownedby']
-                logging.debug(frame)
-                lframe = frame.transpose()
-                level_frame = LevelFrame(ds_dictionary=ds_dictionary,
-                                         corpus=self.documents(),
-                                         frame=lframe.to_dict(),
-                                         level=self.level).json()
-                CLIENT.set(indx, level_frame)#, expire=4*60*60)
+                #logging.warning("CACHE miss for %s, generating", indx)
+                level_frame = self.make_level_frame(db_session)
+                if level_frame:
+                    #CLIENT.set(indx, level_frame, expire=5*60) # cache for 5m
+                    level_frame = dict(level_frame)
+            else:
+                logging.warning("CACHE hit for %s", indx)
             logging.info(level_frame)
-            return DataFrame.from_dict(json.loads(level_frame)['frame'])
+            #return DataFrame.from_dict(level_frame['frame'])
+            return LevelFrame(**level_frame)
         except Exception as exp:
             traceback.print_exc()
             raise exp
-    #def get_frame(self, db_session: Session):
-    #    return DataFrame.from_dict(self.get_stats(db_session)['frame'])
+    def get_frame(self, db_session: Session) -> DataFrame:
+        """Get the dataframe for the corpus."""
+        stats = self.get_stats(db_session)
+        return DataFrame.from_dict(stats.frame)
 
 class BoxplotSchema(CorpusSchema):
     """Schema for 'boxplot_data' requests."""
     def get_bp_data(self, db_session: Session): #pylint: disable=too-many-locals
         """Generate the boxplot data for this request."""
-        frame = self.get_stats(db_session)
+        stats = self.get_stats(db_session)
+        frame = DataFrame.from_dict(stats.frame)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
         frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
         frame = frame.drop('total_words').drop('Other', errors='ignore')
@@ -243,8 +295,7 @@ class BoxplotSchema(CorpusSchema):
             "lifence": lower_inner_fence
         }).fillna(0)
         quants['category_label'] = categories
-        lfrm = json.loads(CLIENT.get(self.corpus_index()))
-        quants.replace(get_ds_info_map(get_ds_info(lfrm['ds_dictionary'],
+        quants.replace(get_ds_info_map(get_ds_info(stats.ds_dictionary,
                                                    db_session)), inplace=True)
         quants['category'] = categories
         bpdata = quants.to_dict('records')
@@ -286,11 +337,16 @@ class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
                   "model": ErrorResponse,
                   "description": "Service Unavailable (untagged documents)"}
           })
-def get_boxplot_data(corpus: BoxplotSchema, db_session: Session = Depends(get_db_session)):
+def get_boxplot_data(corpus: BoxplotSchema,
+                     #session: dict = Depends(get_http_session),
+                     db_session: Session = Depends(get_db_session)):
     """Responds to "boxplot_data" requests."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
+    #logging.warning("session: %s", session)
+    #session.update({'corpus': corpus.corpus_index()})
+    #logging.warning("session: %s", session)
     return corpus.get_bp_data(db_session)
 
 class RankListSchema(CorpusSchema):
@@ -325,7 +381,9 @@ class RankData(BaseModel): #pylint: disable=too-few-public-methods
                   "description": "Service Unavailable (untagged documents)"
               }
           })
-def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_session)):
+def get_rank_list(corpus: RankListSchema,
+                  #session: dict = Depends(get_http_session),
+                  db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests.
 
     This constructs the rankings of the documents in the given corpus by
@@ -335,7 +393,9 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    frame = corpus.get_stats(db_session)
+    #logging.warning("session %s", session)
+    stats = corpus.get_stats(db_session)
+    frame = DataFrame.from_dict(stats.frame)
     logging.info(frame)
     title_row = frame.loc['title']
     owner_row = frame.loc['ownedby']
@@ -359,8 +419,8 @@ def get_rank_list(corpus: RankListSchema, db_session: Session = Depends(get_db_s
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
-    lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
-    ds_map = get_ds_info_map(get_ds_info(lfrm['ds_dictionary'], db_session))
+    #lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
+    ds_map = get_ds_info_map(get_ds_info(stats.ds_dictionary, db_session))
     return {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
             'median': v_avg,
@@ -373,7 +433,7 @@ class ScatterplotSchema(CorpusSchema):
 
     def get_plot_data(self, db_session: Session):
         """Generate the scatterplot data for this corpus."""
-        frame = self.get_stats(db_session)
+        frame = self.get_frame(db_session)
         title_row = frame.loc['title']
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
@@ -434,7 +494,7 @@ class GroupsSchema(CorpusSchema):
 
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
-        frame = self.get_stats(db_session)#.transpose()
+        frame = self.get_frame(db_session)#.transpose()
         # logging.warning(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
         title_row = frame.loc['title']
@@ -589,9 +649,8 @@ class ReportsSchema(BoxplotSchema):
 
     def get_reports(self, db_session: Session):
         """Generate the report for this corpus."""
-        self.get_stats(db_session) # make sure frame exists.
-        ds_dictionary = json.loads(CLIENT.get(self.corpus_index()))['ds_dictionary']
-        tones = DocuScopeTones(ds_dictionary)
+        stats = self.get_stats(db_session)
+        tones = DocuScopeTones(stats.ds_dictionary)
         documents = {}
         for (uuid, doc, filename, status) in db_session.query(
                 Filesystem.id, Filesystem.processed, Filesystem.name,
@@ -635,9 +694,9 @@ class ReportsSchema(BoxplotSchema):
             'intro': self.intro,
             'stv_intro': self.stv_intro
         }
-        return generate_pdf_reports(self.get_stats(db_session),
+        return generate_pdf_reports(DataFrame.from_dict(stats.frame),
                                     documents,
-                                    ds_dictionary,
+                                    stats.ds_dictionary,
                                     self.get_bp_data(db_session),
                                     descriptions)
 
@@ -742,6 +801,7 @@ def get_tagged_text(file_id: UUID,
                                    "cluster": tones.get_lat_cluster(lat)}
     return res
 
+## Serve static files.
 @app.middleware("http")
 async def add_custom_header(request, call_next):
     """Serve the classroom web application from static."""
