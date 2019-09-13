@@ -538,7 +538,14 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
                 combined_content += copy.deepcopy(content)
                 # create an individual PDF (pe student)
                 individual_doc.build(content)
-                zip_file.writestr(f"{title}.pdf", fpath.getvalue())
+                # Uses the fullname or the filename as the name to use,
+                # add and increment a postfix to prevent collisions.
+                zip_file_name = f"{title}.pdf"
+                i = 0
+                while zip_file_name in zip_file.namelist():
+                    zip_file_name = f"{title}_{i}.pdf"
+                    i += 1
+                zip_file.writestr(zip_file_name, fpath.getvalue())
 
         # ########################################
         # Create a PDF that includes all the PDF reports.
