@@ -35,7 +35,10 @@ from ds_report import generate_pdf_reports
 from ds_tones import DocuScopeTones
 
 # Setup database sesson manager
-ENGINE = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+ENGINE = create_engine(
+    Config.SQLALCHEMY_DATABASE_URI,
+    pool_pre_ping=True,
+    pool_recycle=3600)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 # Setup memcached
@@ -95,6 +98,7 @@ async def db_session_middleware(request: Request, call_next):
                         status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     try:
         request.state.db = SESSION()
+        request.state.db.flush()
         response = await call_next(request)
         request.state.db.commit()
     except Exception as exp: #pylint: disable=broad-except
@@ -111,10 +115,10 @@ def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""
     return request.state.db
 
-def get_http_session(request: Request) -> dict:
-    """Get the http session from the given request."""
+def get_request(request: Request) -> Request:
+    """Get the Request."""
     #logging.warning("type: %s", type(request.session))
-    return request.session
+    return request
 
 def get_ds_info(ds_dict: str, db_session: Session):
     """Get the dictionary of DocuScope Dictionary information."""
@@ -122,7 +126,7 @@ def get_ds_info(ds_dict: str, db_session: Session):
         .query(DSDictionary.class_info)\
         .filter(DSDictionary.name == ds_dict).one_or_none()[0]
 
-def get_ds_info_map(ds_info):
+def get_ds_info_map(ds_info) -> dict:
     """Transforms ds_info into a simple id->name map."""
     return {i['id']: i['name'] for i in ds_info['cluster'] + ds_info['dimension']}
 
@@ -192,8 +196,8 @@ class CorpusSchema(BaseModel):
                 ser = Series({key: val['num_tags'] for key, val in
                               doc['ds_tag_dict'].items()})
                 ser['total_words'] = doc['ds_num_word_tokens']
-                ser['title'] = fullname if ownedby == 'student' else \
-                    '.'.join(filename.split('.')[0:-1])
+                ser['title'] = fullname if ownedby == 'student' and fullname \
+                    else '.'.join(filename.split('.')[0:-1])
                 ser['ownedby'] = ownedby
                 stats[str(doc_id)] = ser
                 ds_dictionaries.add(ds_dictionary)
@@ -338,15 +342,16 @@ class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
                   "description": "Service Unavailable (untagged documents)"}
           })
 def get_boxplot_data(corpus: BoxplotSchema,
-                     #session: dict = Depends(get_http_session),
+                     # session: dict = Depends(get_http_session),
+                     # request: Request = Depends(get_request),
                      db_session: Session = Depends(get_db_session)):
     """Responds to "boxplot_data" requests."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    #logging.warning("session: %s", session)
-    #session.update({'corpus': corpus.corpus_index()})
-    #logging.warning("session: %s", session)
+    # logging.warning("session: %s", request.session)
+    # request.session.update({'corpus': corpus.corpus_index()})
+    # logging.warning("session: %s", request.session)
     return corpus.get_bp_data(db_session)
 
 class RankListSchema(CorpusSchema):
@@ -382,7 +387,8 @@ class RankData(BaseModel): #pylint: disable=too-few-public-methods
               }
           })
 def get_rank_list(corpus: RankListSchema,
-                  #session: dict = Depends(get_http_session),
+                  # session: dict = Depends(get_http_session),
+                  # request: Request = Depends(get_request),
                   db_session: Session = Depends(get_db_session)):
     """Responds to "ranked_list" requests.
 
@@ -393,7 +399,7 @@ def get_rank_list(corpus: RankListSchema,
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    #logging.warning("session %s", session)
+    # logging.warning("session %s", request.session)
     stats = corpus.get_stats(db_session)
     frame = DataFrame.from_dict(stats.frame)
     logging.info(frame)
