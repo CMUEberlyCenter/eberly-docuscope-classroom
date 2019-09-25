@@ -45,9 +45,7 @@ classroom_lint:
 
 classroom_test:
   stage: test
-  image:
-    name: zenika/alpine-chrome:with-node
-    entrypoint: ["chromium-browser", "--headless", "--disable-gpu", "--no-sandbox"]
+  image: zenika/alpine-chrome:with-node
   before_script:
     - npm --version
   script:
