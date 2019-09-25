@@ -324,7 +324,7 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
                   max([o['value'] for o in bp_data['outliers']], default=0.0))
 
     # let's extract the cluster names (i.e., categories)
-    categories = [c for c in df1][::-1]
+    categories = list(df1)[::-1]
 
     # load human-readable names and descriptions for each category (cluster) from _help.txt
     cat_descriptions = get_cat_descriptions(categories, dict_name)
