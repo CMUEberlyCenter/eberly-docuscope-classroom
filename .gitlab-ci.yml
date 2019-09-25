@@ -54,11 +54,12 @@ classroom_test:
     - apt-get update
     - apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf --no-install-recommends
     - rm -rf /var/lib/apt/lists/*
-    - addgroup -S luser && adduser -S -g luser luser && mkdir -p /home/luser/Downloads
+    - groupadd -r luser && useradd -r -g luser -G audio,video luser && mkdir -p /home/luser/Downloads
+    - chown -R luser:luser classroom
+    - su luser
   script:
     - cd classroom
     - npm ci
-    - su luser
     - npm run test_headless
     #- npm run e2e
   artifacts:
