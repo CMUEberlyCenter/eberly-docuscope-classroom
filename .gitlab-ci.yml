@@ -47,7 +47,9 @@ classroom_test:
   stage: test
   image: zenika/alpine-chrome:with-node
   before_script:
+    - apt add --no-cache freetype-dev@edge ca-certificates@edge
     - npm --version
+    - node -v
   script:
     - cd classroom
     - npm ci
