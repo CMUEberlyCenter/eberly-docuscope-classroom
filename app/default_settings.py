@@ -14,10 +14,12 @@ class Config(): #pylint: disable=R0903
     """Configuration object used as part of initializing this Flask app."""
     DICTIONARY_HOME = os.getenv('DICTIONARY_HOME', os.path.join('/app', 'dictionaries'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = "{prot}://{user}:{passwd}@{host}:{port}/{database}".format(
-        prot='mysql+mysqldb',
-        user=get_secret('MYSQL_USER', 'root'),
-        passwd=get_secret('MYSQL_PASSWORD', 'rootpw'),
-        host=os.getenv('DB_HOST', 'mysql'),
-        port=os.getenv('DB_PORT', '3306'),
-        database=os.getenv('MYSQL_DATABASE', 'docuscope'))
+    SQLALCHEMY_DATABASE_URI = \
+        "{prot}://{user}:{passwd}@{host}:{port}/{database}?charset=utf8mb4"\
+        .format(
+            prot='mysql+mysqldb',
+            user=get_secret('MYSQL_USER', 'root'),
+            passwd=get_secret('MYSQL_PASSWORD', 'rootpw'),
+            host=os.getenv('DB_HOST', 'mysql'),
+            port=os.getenv('DB_PORT', '3306'),
+            database=os.getenv('MYSQL_DATABASE', 'docuscope'))
