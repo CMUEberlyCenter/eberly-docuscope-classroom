@@ -71,7 +71,7 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, #pylint: disable=R0913
 
     # Format data as a list of lists and an index list
     lst = [dtf.iloc[i, :].tolist() for i in range(dtf.shape[0])]
-    labels = [di for di in dtf.index]
+    labels = list(dtf.index)
 
     # Find best grouping
     return make_pairs_all(lst, labels, group_size=group_size,

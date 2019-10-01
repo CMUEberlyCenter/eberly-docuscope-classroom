@@ -1,6 +1,6 @@
 {
   "name": "docuscope-classroom",
-  "version": "2.0.1",
+  "version": "2.1.1",
   "description": "Visualization of DocuScope analytics of a set of documents.",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "build_dev": "ng build --aot --prod --base-href=/classroom/ --output-hashing none",
     "build_prod": "ng build --aot --base-href=/docuscope/classroom/ --output-hashing none --configuration=deploy",
     "test": "ng test",
-    "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadless --code-coverage=true",
+    "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage=true",
     "lint": "ng lint",
     "codeclimate": "ng lint --format=json | node ./formatters/codeclimateFormatter.js > gl-codequality.json",
     "e2e": "ng e2e"
