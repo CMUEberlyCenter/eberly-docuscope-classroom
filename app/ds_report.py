@@ -5,6 +5,7 @@
 # system
 from collections import defaultdict, Counter
 import copy
+import html
 import io
 import json
 import logging
@@ -194,26 +195,9 @@ def html_to_report_string(node, ds_dict, patterns_all):
                         .format(inner_str.strip(), cluster)
 
                     # collect all the patterns
-                    #if patterns.get(cluster, None) is None:
-                    #    patterns[cluster] = defaultdict(Counter)
-
                     key = inner_str.lower()
                     patterns[cluster].update([key])
-                    #patterns[cluster][key] = patterns[cluster].get(key,0) + 1
-                    #if patterns[cluster].get(key, None) is not None:
-                    #    patterns[cluster][key] += 1
-                    #else:
-                    #    patterns[cluster][key] = 1
-
-                    #if patterns_all.get(cluster, None) is None:
-                    #    patterns_all[cluster] = defaultdict(Counter)
                     patterns_all[cluster].update([key])
-
-                    #if patterns_all[cluster].get(key, None) is not None:
-                    #    patterns_all[cluster][key] += 1
-                    #else:
-                    #    patterns_all[cluster][key] = 1
-
                 else:
                     paragraphs += inner_str
 
@@ -221,9 +205,7 @@ def html_to_report_string(node, ds_dict, patterns_all):
                 if child.text == " ":
                     paragraphs += child.text
                 else:
-                    paragraphs += child.text.strip()
-            # elif not child.isspace():
-            #     paragraphs += child
+                    paragraphs += html.escape(child.text.strip())
         else:
             try:
                 if not child.isspace():
@@ -519,7 +501,11 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
                 para_list, patterns = html_to_report_string(soup, tagged_str['dict'], patterns_all)
                 for para in para_list:
-                    content.append(Paragraph(para, styles['DS_Body']))
+                    try:
+                        content.append(Paragraph(para, styles['DS_Body']))
+                    except ValueError as v_err:
+                        logging.error(v_err)
+                        content.append(Paragraph("ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT. The text will not display properly, however the analysis is not affected.", styles['DS_Body']))
 
                 content.append(NextPageTemplate('three_column_w_header'))
                 content.append(PageBreak())
