@@ -505,7 +505,10 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
                         content.append(Paragraph(para, styles['DS_Body']))
                     except ValueError as v_err:
                         logging.error(v_err)
-                        content.append(Paragraph("ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT. The text will not display properly, however the analysis is not affected.", styles['DS_Body']))
+                        content.append(Paragraph(
+                            """ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT.
+The text will not display properly, however the analysis is not affected.""",
+                            styles['DS_Body']))
 
                 content.append(NextPageTemplate('three_column_w_header'))
                 content.append(PageBreak())
