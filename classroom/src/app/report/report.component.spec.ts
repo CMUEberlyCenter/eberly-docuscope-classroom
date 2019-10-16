@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
@@ -16,13 +16,18 @@ class NavStubComponent {}
 describe('ReportComponent', () => {
   let component: ReportComponent;
   let fixture: ComponentFixture<ReportComponent>;
+  let corpus_service_spy;
+  let report_service_spy;
+  let ngx_spinner_service_spy;
+  let child_spy;
 
   beforeEach(async(() => {
-    const corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+    corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    const report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);
-    report_service_spy.getReports.and.returnValue(asyncData([]));
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
+    report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);
+    report_service_spy.getReports.and.returnValue(asyncData(''));
+    ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService',
+                                                   ['start', 'stop']);
 
     TestBed.configureTestingModule({
       declarations: [ ReportComponent,
@@ -31,7 +36,7 @@ describe('ReportComponent', () => {
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: ReportService, useValue: report_service_spy }
+        { provide: ReportService, useValue: report_service_spy },
       ]
     })
     .compileComponents();
@@ -46,4 +51,14 @@ describe('ReportComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('generate_report', () => {
+    component.generate_report({});
+    return fixture.whenStable().then(() => {
+      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+      expect(report_service_spy.getReports).toHaveBeenCalled();
+      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+    });
+  });
+
 });

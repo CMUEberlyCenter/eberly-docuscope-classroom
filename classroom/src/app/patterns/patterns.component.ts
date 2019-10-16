@@ -9,7 +9,7 @@ import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
 import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
 
-class PatternClusterData implements ClusterData {
+export class PatternClusterData implements ClusterData {
   id: string;
   name: string;
   description?: string;

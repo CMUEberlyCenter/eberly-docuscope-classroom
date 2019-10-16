@@ -10,7 +10,7 @@ import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
 import { asyncData } from '../../testing';
 
 import { CorpusService } from '../corpus.service';
-import { PatternsComponent } from './patterns.component';
+import { PatternsComponent, PatternClusterData } from './patterns.component';
 import { PatternData, PatternsService } from '../patterns.service';
 
 @Component({selector: 'app-nav', template: ''})
@@ -85,5 +85,31 @@ describe('PatternsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('count', () => {
+    const pat_data = new PatternClusterData({
+      category: { id: 'future', name: 'Future',
+                  description: 'To the future and beyond!!!!'},
+      patterns: [
+        { pattern: 'i will', count: 4 },
+        { pattern: 'future of', count: 1 },
+        { pattern: 'potential', count: 1 }
+      ]
+    });
+    expect(pat_data.count).toBe(6);
+  });
+
+  it('pattern_count', () => {
+    const pat_data = new PatternClusterData({
+      category: { id: 'future', name: 'Future',
+                  description: 'To the future and beyond!!!!'},
+      patterns: [
+        { pattern: 'i will', count: 4 },
+        { pattern: 'future of', count: 1 },
+        { pattern: 'potential', count: 1 }
+      ]
+    });
+    expect(pat_data.pattern_count).toBe(3);
   });
 });

@@ -1,11 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ReportService } from './report.service';
 import { MessageService } from './message.service';
+import { environment } from './../environments/environment';
 
 describe('ReportService', () => {
+  let service: ReportService;
+  let httpMock: HttpTestingController;
+  let message_service_spy;
+
   beforeEach(() => {
     const message_service_spy = jasmine.createSpyObj('MessageService', ['add']);
     TestBed.configureTestingModule({
@@ -13,10 +18,25 @@ describe('ReportService', () => {
       providers: [ ReportService,
                    { provide: MessageService, useValue: message_service_spy } ]
     });
+    service = TestBed.get(ReportService);
+    httpMock = TestBed.get(HttpTestingController);
   });
 
+  afterEach(() => httpMock.verify());
+
   it('should be created', () => {
-    const service: ReportService = TestBed.get(ReportService);
     expect(service).toBeTruthy();
+  });
+
+  it('getReports', () => {
+    const corpus = {course: 'Test Course', assignment: 'Test Assignment',
+                    intro: 'my intro', stv_intro: 'my other intro',
+                    documents: ['a','b','c']};
+    service.getReports(corpus).subscribe(data => {
+      expect(data).toBeTruthy();
+    });
+    const req = httpMock.expectOne(`${environment.backend_server}/generate_reports`);
+    expect(req.request.method).toBe('POST');
+    req.flush(new Blob(['report']));
   });
 });
