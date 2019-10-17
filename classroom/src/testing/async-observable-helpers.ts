@@ -20,9 +20,9 @@ export function asyncData<T>(data: T) {
 
 /** Create async observable error that errors
  *  after a JS engine turn */
-export function asyncError<T>(errorObject: any) {
+/*export function asyncError<T>(errorObject: any) {
   return defer(() => Promise.reject(errorObject));
-}
+}*/ // unused
 
 
 /*

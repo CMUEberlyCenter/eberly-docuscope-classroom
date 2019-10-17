@@ -40,7 +40,13 @@ describe('ScatterplotComponent', () => {
                {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
       outliers: []
     }));
-    dataService_spy.getScatterPlotData.and.returnValue(asyncData({ spdata: [] }));
+    dataService_spy.getScatterPlotData.and.returnValue(asyncData({
+      spdata: [{
+        catX: 1, catY: 2, title: 'Name', text_id: '123', ownedby: 'student'
+      }, {
+        catX: 2, catY: 1, title: 'model', text_id: '456', ownedby: 'instructor'
+      }]
+    }));
 
     TestBed.configureTestingModule({
       declarations: [ ScatterplotComponent,
@@ -67,5 +73,26 @@ describe('ScatterplotComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('getData', async () => {
+    component.getData();
+    await fixture.whenStable().then(() => expect(component.data).toBeDefined());
+    component.x_axis = '';
+    await fixture.whenStable().then(() => expect(component.data).toBeDefined());
+  });
+
+  it('on_select', () => fixture.whenStable().then(() => {
+    expect(() => component.on_select({})).not.toThrow();
+  }));
+
+  it('select_point', () => {
+    window.open = jasmine.createSpy('open');
+    component.select_point({
+      dataTable: {
+        getValue: () => '123'
+      }
+    }, [{row: 'row'}]);
+    expect(window.open).toHaveBeenCalledWith('stv/123');
   });
 });
