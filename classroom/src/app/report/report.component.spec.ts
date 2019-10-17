@@ -4,6 +4,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ReportComponent } from './report.component';
 import { CorpusService } from '../corpus.service';
@@ -32,7 +34,13 @@ describe('ReportComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ ReportComponent,
                       NavStubComponent ],
-      imports: [ FormsModule, MatCardModule, MatFormFieldModule ],
+      imports: [
+        FormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        NoopAnimationsModule
+      ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
@@ -53,15 +61,16 @@ describe('ReportComponent', () => {
   });
 
   it('generate_report', () => fixture.whenStable().then(() => {
-    component.generate_report({});
+    fixture.detectChanges();
     spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
     spyOn(window.URL, 'revokeObjectURL');
-    //window.URL.createObjectURL = jasmine.createSpy('createObjectURL')
-    return fixture.whenStable().then(() => {
-      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      expect(report_service_spy.getReports).toHaveBeenCalled();
-      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-    });
+    component.download_link.nativeElement.click = jasmine.createSpy('click');
+    component.generate_report({});
+    fixture.detectChanges();
+
+    expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+    expect(report_service_spy.getReports).toHaveBeenCalled();
+    expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
   }));
 
 });

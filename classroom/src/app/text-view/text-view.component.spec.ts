@@ -1,7 +1,7 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { /*NO_ERRORS_SCHEMA,*/ Component, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
 import { MatCardModule, MatCheckboxModule, MatListModule, MatSidenavModule } from '@angular/material';
@@ -20,6 +20,22 @@ class PatternsTableStubComponent {
   @Input() patterns: PatternData[];
 }
 
+const test_html = `
+<p>
+<span id="tag_0" data-key="bogus" class="tag">
+ <span id="w1" class="token">stub</span>
+ <span id="w2" class="token">text</span>
+</span>
+<span id="tag_1" data-key="bogus" class="tag">
+ <span id="w3" class="token">stub</span>
+ <span id="w4" class="token">text</span>
+</span>
+<span id="tag_2" data-key="total_bogus" class="tag">
+ <span id="w5" class="token">total</span>
+ <span id="w6" class="token">bogus</span>
+</span>
+</p>`;
+
 describe('TextViewComponent', () => {
   let component: TextViewComponent;
   let fixture: ComponentFixture<TextViewComponent>;
@@ -31,7 +47,7 @@ describe('TextViewComponent', () => {
     tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(
       {'text_id': 'stub_id', word_count: 2,
-       html_content: '<p><span id="tag_0" data-key="bogus" class="tag"><span id="w1" class="token">stub</span> <span id="w2" class="token">text</span></span></p>',
+       html_content: test_html,
        dictionary: {
          bogus: {dimension: 'bogus_dimension', cluster: 'bogus_cluster'},
          no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
@@ -55,22 +71,12 @@ describe('TextViewComponent', () => {
     const domSanitizer = jasmine.createSpyObj('DomSanitizer',
                                               ['bypassSecurityTrustHtml',
                                                'sanitize']);
+    domSanitizer.sanitize.and.callThrough();
+    //domSanitizer.bypassSecurityTrustHtml.and.callThrough();
     domSanitizer.bypassSecurityTrustHtml.and.returnValue({
-      'changingThisBreaksApplicationSecurity':
-      `<p>
-<span id="tag_0" data-key="bogus" class="tag">
- <span id="w1" class="token">stub</span>
- <span id="w2" class="token">text</span>
-</span>
-<span id="tag_1" data-key="bogus" class="tag">
- <span id="w3" class="token">stub</span>
- <span id="w4" class="token">text</span>
-</span>
-<span id="tag_2" data-key="total_bogus" class="tag">
- <span id="w5" class="token">total</span>
- <span id="w6" class="token">bogus</span>
-</span>
-</p>`});
+      'changingThisBreaksApplicationSecurity': test_html
+    });
+
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
 
@@ -137,8 +143,15 @@ describe('TextViewComponent', () => {
 
   it('getTaggedText', async () => {
     component.getTaggedText();
+    //await fixture.detectChanges();
     await fixture.whenStable().then((a) => {
+      fixture.detectChanges();
       expect(component.clusters.data[0]).toBeDefined();
+      expect(component.tagged_text).toBeDefined();
+      expect(component.html_content).toBeDefined();
+      //const article: HTMLElement = fixture.nativeElement.querySelector('.text_content');
+      //expect(article.textContent).toMatch(/stub\w+text/);
+      //expect(article.innerHTML).toMatch(/stub\w+text/);
     });
     /*tagged_text_service_spy.getTaggedText.and.stub();
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(null));
@@ -154,7 +167,8 @@ describe('TextViewComponent', () => {
     });
   });
 
-  it('click_select', () => fixture.whenStable().then(() => {
+  it('click_select', () => fixture.whenStable().then(async () => {
+    fixture.detectChanges();
     const evt = {
       target: {
         parentNode: {
@@ -165,10 +179,13 @@ describe('TextViewComponent', () => {
       }
     };
     expect(()=>component.click_select(evt)).not.toThrow();
+    await fixture.detectChanges();
     evt.target.parentNode.getAttribute = () => null;
     expect(()=>component.click_select(evt)).not.toThrow();
-    //evt.target.parentNode.getAttribute = () => 'bogus'; // problems with d3
+    await fixture.detectChanges();
+    evt.target.parentNode.getAttribute = () => 'bogus'; // problems with d3
     //expect(()=>component.click_select(evt)).not.toThrow();
+    fixture.detectChanges();
   }));
 
   it('get_lats', () => fixture.whenStable().then(() => {
