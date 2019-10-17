@@ -20,14 +20,13 @@ describe('PatternsService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    const service: PatternsService = TestBed.get(PatternsService);
     expect(service).toBeTruthy();
   });
 
   it('getPatterns', () => {
     const corpus = {course: 'Test Course', assignment: 'Test Assignment',
                     intro: 'my intro', stv_intro: 'my other intro',
-                    documents: ['a','b','c']};
+                    documents: ['a', 'b', 'c']};
     const pattern_data = [
       {
         category: {id: 'test', name: 'Test Pattern', description: 'rrrgggbbb'},

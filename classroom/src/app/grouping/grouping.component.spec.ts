@@ -54,9 +54,9 @@ class DragDropEventFactory<T> {
 }
 
 interface ContainerModel<T> {
-   id: string,
-   data: T[],
-   index: number
+  id: string;
+  data: T[];
+  index: number;
 }
 
 describe('GroupingComponent', () => {

@@ -21,7 +21,6 @@ describe('ReportComponent', () => {
   let corpus_service_spy;
   let report_service_spy;
   let ngx_spinner_service_spy;
-  let child_spy;
 
   beforeEach(async(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);

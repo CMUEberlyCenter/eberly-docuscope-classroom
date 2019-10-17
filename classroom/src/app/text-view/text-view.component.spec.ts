@@ -72,7 +72,7 @@ describe('TextViewComponent', () => {
                                               ['bypassSecurityTrustHtml',
                                                'sanitize']);
     domSanitizer.sanitize.and.callThrough();
-    //domSanitizer.bypassSecurityTrustHtml.and.callThrough();
+    // domSanitizer.bypassSecurityTrustHtml.and.callThrough();
     domSanitizer.bypassSecurityTrustHtml.and.returnValue({
       'changingThisBreaksApplicationSecurity': test_html
     });
@@ -143,15 +143,14 @@ describe('TextViewComponent', () => {
 
   it('getTaggedText', async () => {
     component.getTaggedText();
-    //await fixture.detectChanges();
     await fixture.whenStable().then((a) => {
       fixture.detectChanges();
       expect(component.clusters.data[0]).toBeDefined();
       expect(component.tagged_text).toBeDefined();
       expect(component.html_content).toBeDefined();
-      //const article: HTMLElement = fixture.nativeElement.querySelector('.text_content');
-      //expect(article.textContent).toMatch(/stub\w+text/);
-      //expect(article.innerHTML).toMatch(/stub\w+text/);
+      // const article: HTMLElement = fixture.nativeElement.querySelector('.text_content');
+      // expect(article.textContent).toMatch(/stub\w+text/);
+      // expect(article.innerHTML).toMatch(/stub\w+text/);
     });
     /*tagged_text_service_spy.getTaggedText.and.stub();
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(null));
@@ -174,17 +173,17 @@ describe('TextViewComponent', () => {
         parentNode: {
           getAttribute: () => 'invalid',
           classed: () => {},
-          select: () => ({style:()=>{}})
+          select: () => ({style: () => {}})
         }
       }
     };
-    expect(()=>component.click_select(evt)).not.toThrow();
+    expect(() => component.click_select(evt)).not.toThrow();
     await fixture.detectChanges();
     evt.target.parentNode.getAttribute = () => null;
-    expect(()=>component.click_select(evt)).not.toThrow();
+    expect(() => component.click_select(evt)).not.toThrow();
     await fixture.detectChanges();
-    evt.target.parentNode.getAttribute = () => 'bogus'; // problems with d3
-    //expect(()=>component.click_select(evt)).not.toThrow();
+    evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
+    // expect(()=>component.click_select(evt)).not.toThrow();
     fixture.detectChanges();
   }));
 
@@ -215,7 +214,7 @@ describe('TextViewComponent', () => {
   }));
 
   it('selection_change', () => fixture.whenStable().then(() => {
-    let evt = {
+    const evt = {
       source: {
         selectedOptions: {
           selected: []
@@ -226,10 +225,12 @@ describe('TextViewComponent', () => {
         value: 'bogus_cluster',
         _getHostElement: () => {}
       }
-    }
-    expect(()=>component.selection_change(evt)).not.toThrow();
-    evt.source.selectedOptions.selected = ['bogus_cluster', 'c2','c3','c4', 'c5'];
-    expect(()=>component.selection_change(evt)).not.toThrow();
+    };
+    expect(() => component.selection_change(evt)).not.toThrow();
+    evt.source.selectedOptions.selected = [
+      'bogus_cluster', 'c2', 'c3', 'c4', 'c5'
+    ];
+    expect(() => component.selection_change(evt)).not.toThrow();
   }));
 
   it('get_cluster_class', () => {

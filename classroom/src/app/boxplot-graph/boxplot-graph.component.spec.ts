@@ -15,7 +15,7 @@ const data = {
 };
 
 @Component({
-  selector: 'fake-boxplot-component',
+  selector: 'app-fake-boxplot-component',
   template: `<app-boxplot-graph boxplot="${data}" max_value="1"></app-boxplot-graph>`
 })
 class TestBoxplotComponent {
@@ -60,7 +60,7 @@ describe('BoxplotGraphComponent', () => {
   }));
 
   it('get options', () => {
-    expect(component.boxplot.options).toEqual({width:500, height:50});
+    expect(component.boxplot.options).toEqual({ width: 500, height: 50 });
   });
 
   it('handle_selection', () => fixture.whenStable().then(() => {
@@ -101,6 +101,6 @@ describe('BoxplotGraphComponent', () => {
 
   it('ngAfterViewChecked', () => fixture.whenStable().then(() => {
     component.boxplot.sort = null;
-    expect(()=>component.boxplot.ngAfterViewChecked()).not.toThrow();
+    expect(() => component.boxplot.ngAfterViewChecked()).not.toThrow();
   }));
 });

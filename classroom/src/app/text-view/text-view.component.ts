@@ -125,7 +125,7 @@ export class TextViewComponent implements OnInit {
         const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
           const lat: string = $(this).attr('data-key');
-          const cluster: string = txt.dictionary[lat]?txt.dictionary[lat]['cluster']:lat;
+          const cluster: string = txt.dictionary[lat] ? txt.dictionary[lat]['cluster'] : lat;
           const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 

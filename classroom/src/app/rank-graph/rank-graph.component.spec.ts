@@ -34,7 +34,7 @@ const data = {
   ]
 };
 @Component({
-  selector: 'fake-rank-component',
+  selector: 'app-fake-rank-component',
   template: `<app-rank-graph rank_data="${data}" max_value="1"></app-rank-graph>`
 })
 class TestRankComponent {
@@ -77,7 +77,7 @@ describe('RankGraphComponent', () => {
     fixture.detectChanges();
     component.rank.rank_data = null;
     fixture.detectChanges();
-    expect(() => component.rank.ngOnChanges()).not.toThrow()
+    expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
   it('mean_start', () => {

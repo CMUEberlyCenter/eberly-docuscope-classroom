@@ -14,7 +14,6 @@ describe('ClusterData', () => {
   });
 
   it('cluster_compare', () => {
-    //expect(cluster_compare(null, null)).toThrowError();
     expect(cluster_compare(
       {id: 'id0', name: 'name0', pattern_count: 0, count: 0, patterns: []},
       {id: 'id0', name: 'name0', pattern_count: 0, count: 0, patterns: []}

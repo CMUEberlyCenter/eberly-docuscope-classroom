@@ -34,7 +34,7 @@ describe('CorpusService', () => {
 
   it('getDocumentIds', () => {
     service.getDocumentIds().subscribe(
-      ids => expect(ids).toEqual(['1','2','3']));
+      ids => expect(ids).toEqual(['1', '2', '3']));
     console.error = jasmine.createSpy('error');
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('');
     service.getDocumentIds().subscribe(ids => {
@@ -47,11 +47,11 @@ describe('CorpusService', () => {
   it('getCorpus', async () =>
     service.getCorpus().subscribe(corpus => {
       expect(corpus.course).toBe('course stub');
-      expect(corpus.documents).toEqual(['1','2','3']);
+      expect(corpus.documents).toEqual(['1', '2', '3']);
       // check cache
-      service.getCorpus().subscribe(corpus => {
-        expect(corpus.course).toBe('course stub');
-        expect(corpus.documents).toEqual(['1','2','3']);
+      service.getCorpus().subscribe(corp => {
+        expect(corp.course).toBe('course stub');
+        expect(corp.documents).toEqual(['1', '2', '3']);
       });
     })
   );
