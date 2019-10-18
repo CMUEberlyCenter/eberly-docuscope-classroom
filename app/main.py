@@ -151,12 +151,12 @@ class CorpusSchema(BaseModel):
 
     def documents(self):
         """Gets a list of document ids for this corpus."""
-        return [d.id for d in self.corpus]
+        return [d.id for d in self.corpus]  #pylint: disable=not-an-iterable
     def corpus_index(self) -> str:
         """Generate the id for this corpus."""
         # key limit of 250 characters for memcached
         key = [str(self.level)]
-        key.extend(sorted([str(d.id) for d in self.corpus]))
+        key.extend(sorted([str(d.id) for d in self.corpus])) #pylint: disable=not-an-iterable
         return str(hash(tuple(key)))
     def make_level_frame(self, db_session: Session) -> LevelFrame:  #pylint: disable=too-many-locals
         """Make the LevelFrame for the corpus."""
