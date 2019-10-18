@@ -17,7 +17,6 @@ from bs4 import BeautifulSoup as bs
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
@@ -83,14 +82,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=['GET', 'POST'],
     allow_headers=['*'])
-
-## Add Sessions Middleware
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="docuscopeclassroom",
-    same_site="lax",
-    https_only=False
-)
 
 ## Add custom middleware for database connection.
 @app.middleware("http")
