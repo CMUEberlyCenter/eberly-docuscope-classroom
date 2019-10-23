@@ -142,7 +142,7 @@ describe('TextViewComponent', () => {
     }));
 
   it('getTaggedText', async () => {
-    component.getTaggedText();
+    await component.getTaggedText();
     await fixture.whenStable().then((a) => {
       fixture.detectChanges();
       expect(component.clusters.data[0]).toBeDefined();
