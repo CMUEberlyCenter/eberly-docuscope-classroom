@@ -178,7 +178,7 @@ def sort_patterns(unsorted_patterns):
                         key=lambda sl: (-sl[0], sl[1]))
             for (key, val) in unsorted_patterns.items()}
 
-def html_to_report_string(node, ds_dict, patterns_all):
+def html_to_report_string(node, ds_dict, cat_descriptions, patterns_all):
     """ Returns a HTML version of the text with tags. """
     paragraphs = ""
     patterns = defaultdict(Counter)
@@ -187,12 +187,13 @@ def html_to_report_string(node, ds_dict, patterns_all):
 
         if name:
             if 'class' in child.attrs and 'tag' in child.attrs['class']:
-                words, _ = html_to_report_string(child, ds_dict, patterns_all)
+                words, _ = html_to_report_string(child, ds_dict, cat_descriptions, patterns_all)
                 inner_str = ' '.join(words)
                 cluster = ds_dict[child.attrs['data-key']].get('cluster', "?")
                 if cluster != "Other":
                     paragraphs += "<u>{}</u><font face=Helvetica size=7> [{}]</font>"\
-                        .format(inner_str.strip(), cluster)
+                        .format(inner_str.strip(),
+                                cat_descriptions[cluster]['name'])
 
                     # collect all the patterns
                     key = inner_str.lower()
@@ -316,6 +317,8 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
     with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
          io.BytesIO() as all_reports:
         doc = BaseDocTemplate(all_reports, pagesize=letter,
+                              title="Reports",
+                              creator='DocuScope@CMU',
                               rightMargin=MARGINS["right"],
                               leftMargin=MARGINS["left"],
                               topMargin=MARGINS["top"],
@@ -449,6 +452,8 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
             with io.BytesIO() as fpath:
                 #fpath = os.path.join(report_dir, "{}.pdf".format(title))
                 individual_doc = BaseDocTemplate(fpath, pagesize=letter,
+                                                 title="Report for {}".format(title),
+                                                 creator='DocuScope@CMU',
                                                  rightMargin=MARGINS["right"],
                                                  leftMargin=MARGINS["left"],
                                                  topMargin=MARGINS["top"],
@@ -499,7 +504,7 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
                 soup = bs(tagged_str['html_content'], "html.parser")
 
-                para_list, patterns = html_to_report_string(soup, tagged_str['dict'], patterns_all)
+                para_list, patterns = html_to_report_string(soup, tagged_str['dict'], cat_descriptions, patterns_all)
                 for para in para_list:
                     try:
                         content.append(Paragraph(para, styles['DS_Body']))
@@ -517,7 +522,8 @@ The text will not display properly, however the analysis is not affected.""",
                 ranked_patterns = sort_patterns(patterns)
                 for cat in categories:
                     lst = ranked_patterns.get(cat, [])
-                    content.append(Paragraph(cat, styles['DS_Heading1']))
+                    content.append(Paragraph(cat_descriptions[cat]['name'],
+                                             styles['DS_Heading1']))
                     for pat in lst:
                         pat_ln = "{} ({})".format(pat[1], pat[0])
                         content.append(Paragraph(pat_ln, styles['DS_Pattern']))
@@ -551,18 +557,23 @@ The text will not display properly, however the analysis is not affected.""",
         #fpath = os.path.join(report_dir, "_patterns.pdf")
         with io.BytesIO() as fpath:
             patterns_doc = BaseDocTemplate(fpath, pagesize=letter,
+                                           title='Patterns Used in the Corpus',
+                                           creator='DocuScope@CMU',
                                            rightMargin=MARGINS["right"],
                                            leftMargin=MARGINS["left"],
                                            topMargin=MARGINS["top"],
                                            bottomMargin=MARGINS["bottom"])
-            patterns_doc.addPageTemplates([three_column_hd_template, three_column_template])
+            patterns_doc.addPageTemplates([three_column_hd_template,
+                                           three_column_template])
             content = []
             content.append(NextPageTemplate('three_column'))
-            content.append(Paragraph("Patterns Used in the Corpus", styles['DS_Title']))
+            content.append(Paragraph("Patterns Used in the Corpus",
+                                     styles['DS_Title']))
             content.append(FrameBreak())
             for cat in categories:
                 lst = ranked_patterns.get(cat, [])
-                content.append(Paragraph(cat, styles['DS_Heading1']))
+                content.append(Paragraph(cat_descriptions[cat]['name'],
+                                         styles['DS_Heading1']))
                 for pat in lst:
                     pat_ln = "{} ({})".format(pat[1], pat[0])
                     content.append(Paragraph(pat_ln, styles['DS_Pattern']))

@@ -112,11 +112,8 @@ export class TextViewComponent implements OnInit {
             this._cluster_info.set(clust.id, clust);
           }
         }
-        const cluster_ids = new Set<string>();
-        for (const d of Object.keys(txt.dictionary)) {
-          const cluster = txt.dictionary[d]['cluster'];
-          cluster_ids.add(cluster);
-        }
+        // get ids from dictionary information to get all of them.
+        const cluster_ids = new Set<string>(this._cluster_info.keys());
         cluster_ids.delete('Other');
 
         const pats = new Map<string, Map<string, number>>();

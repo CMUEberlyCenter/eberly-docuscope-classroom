@@ -43,7 +43,7 @@ SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="2.1.1",
+    version="2.2.0",
     license={'name': 'CC BY-NC-SA 4.0',
              'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
 
@@ -199,6 +199,8 @@ class CorpusSchema(BaseModel):
             sumframe = ds_stats.filter(lats)
             if not sumframe.empty:
                 data[category] = sumframe.transpose().sum()
+            else:
+                data[category] = 0
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
         frame['title'] = ds_stats['title']
@@ -595,6 +597,8 @@ def patterns(corpus: CorpusSchema,
             count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
     ds_info = get_ds_info(ds_dictionary, db_session)
     dsi = ds_info['cluster'] + ds_info['dimension']
+    for clust in ds_info['cluster']: # assumes cluster view.
+        pats[clust['id']].update([])
     return [
         {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
                           {'id': cat, 'name': cat.capitalize()}),
