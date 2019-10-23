@@ -61,6 +61,7 @@ class DSDictionary(BASE): #pylint: disable=R0903
     id = Column(SmallInteger, primary_key=True)
     name = Column(TINY_TEXT)
     class_info = Column(JSON)
+    enabled = Column(Boolean)
 
     def __repr__(self):
         return "<DS_Dictionary(name='{}')>".format(self.name)

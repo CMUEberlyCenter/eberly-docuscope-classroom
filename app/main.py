@@ -92,7 +92,8 @@ def get_ds_info(ds_dict: str, db_session: Session):
     """Get the dictionary of DocuScope Dictionary information."""
     return db_session\
         .query(DSDictionary.class_info)\
-        .filter(DSDictionary.name == ds_dict).one_or_none()[0]
+        .filter(DSDictionary.name == ds_dict)\
+        .filter(DSDictionary.enabled == True).one_or_none()[0]
 
 def get_ds_info_map(ds_info) -> dict:
     """Transforms ds_info into a simple id->name map."""
