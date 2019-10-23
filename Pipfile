@@ -14,7 +14,6 @@ itsdangerous = "*"
 aiofiles = "*"
 email-validator = "*"
 ujson = "*"
-pymemcache = "*"
 
 [dev-packages]
 pylint = "*"

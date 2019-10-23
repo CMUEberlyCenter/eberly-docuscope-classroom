@@ -26,7 +26,6 @@ from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pandas import DataFrame, Series
-from pymemcache.client.base import Client
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
@@ -39,30 +38,6 @@ ENGINE = create_engine(
     pool_pre_ping=True,
     pool_recycle=3600)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
-
-# Setup memcached
-def json_serializer(_key, value):
-    """Serialize strings to strings, BaseModels to json, and objects to json.
-    This is used by the memcached client.
-    """
-    if isinstance(value, str):
-        return value, 1
-    if isinstance(value, BaseModel):
-        return value.json(), 2
-    return json.dumps(value), 2
-def json_deserializer(_key, value, flags):
-    """Deserialize json.
-    This is used by the memcached client.
-    """
-    if flags == 1:
-        return value.decode('utf-8')
-    if flags == 2:
-        return json.loads(value.decode('utf-8'))
-    raise Exception("Unknown serialization format")
-
-CLIENT = Client(('memcached', 11211),
-                serializer=json_serializer,
-                deserializer=json_deserializer)
 
 # Setup API service.
 app = FastAPI( #pylint: disable=invalid-name
@@ -237,17 +212,10 @@ class CorpusSchema(BaseModel):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
             indx = self.corpus_index()
-            level_frame = CLIENT.get(indx)
-            if not level_frame:
-                #logging.warning("CACHE miss for %s, generating", indx)
-                level_frame = self.make_level_frame(db_session)
-                if level_frame:
-                    #CLIENT.set(indx, level_frame, expire=5*60) # cache for 5m
-                    level_frame = dict(level_frame)
-            else:
-                logging.warning("CACHE hit for %s", indx)
+            level_frame = self.make_level_frame(db_session)
+            if level_frame:
+                level_frame = dict(level_frame)
             logging.info(level_frame)
-            #return DataFrame.from_dict(level_frame['frame'])
             return LevelFrame(**level_frame)
         except Exception as exp:
             traceback.print_exc()
@@ -418,7 +386,6 @@ def get_rank_list(corpus: RankListSchema,
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
-    #lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
     ds_map = get_ds_info_map(get_ds_info(stats.ds_dictionary, db_session))
     return {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
