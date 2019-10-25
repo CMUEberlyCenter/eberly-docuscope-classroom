@@ -714,6 +714,9 @@ class TextContent(BaseModel): #pylint: disable=too-few-public-methods
     html_content: str = ""
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
+    course: str = ...
+    assignment: str = ...
+    instructor: str = ...
 
 @app.get('/text_content/{file_id}', response_model=TextContent,
          responses={
@@ -736,9 +739,10 @@ def get_tagged_text(file_id: UUID,
     if not file_id:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    doc, filename, state = db_session.query(Filesystem.processed,
-                                            Filesystem.name, Filesystem.state)\
-                                     .filter_by(id=file_id).first()
+    doc, filename, state, a_name, a_course, a_instructor = db_session.query(
+        Filesystem.processed, Filesystem.name, Filesystem.state,
+        Assignment.name, Assignment.course, Assignment.instructor
+    ).filter_by(id=file_id).filter(Assignment.id == Filesystem.assignment).first()
     if state in ('pending', 'submitted'):
         logging.error("%s has state %s", file_id, state)
         raise HTTPException(detail="Document is still being processed, try again later.",
@@ -759,6 +763,9 @@ def get_tagged_text(file_id: UUID,
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
     tag_dict = doc['ds_tag_dict']
+    res.course = a_course
+    res.assignment = a_name
+    res.instructor = a_instructor
     if tag_dict:
         tones = DocuScopeTones(doc['ds_dictionary'])
         for lat in tag_dict.keys():
