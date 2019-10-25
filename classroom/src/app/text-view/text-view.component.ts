@@ -92,7 +92,8 @@ export class TextViewComponent implements OnInit {
     }
     return 'collapsed';
   }
-  expand_handler($event, cluster) {
+
+  expand_handler($event, cluster: TextClusterData|null) {
     this.expanded = this.expanded === cluster ? null : cluster;
     $event.stopPropagation();
   }
@@ -105,34 +106,23 @@ export class TextViewComponent implements OnInit {
         this.tagged_text = txt;
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        // console.log(txt.html_content);
-        // console.log(this.html_content);
-        // console.log($(txt.html_content));
         this._cluster_info = new Map<string, TextContentDictionaryInformation>();
         if (this.tagged_text && this.tagged_text.dict_info && this.tagged_text.dict_info.cluster) {
           for (const clust of this.tagged_text.dict_info.cluster) {
             this._cluster_info.set(clust.id, clust);
           }
         }
-        const cluster_ids = new Set<string>();
-        for (const d of Object.keys(txt.dictionary)) {
-          const cluster = txt.dictionary[d]['cluster'];
-          cluster_ids.add(cluster);
-        }
+        // get ids from dictionary information to get all of them.
+        const cluster_ids = new Set<string>(this._cluster_info.keys());
         cluster_ids.delete('Other');
 
         const pats = new Map<string, Map<string, number>>();
         cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        // const $html = $(txt.html_content);
-        /*$html.find('[data-key]').each(function() {
-          const lat = $(this).attr('data-key');
-          const cluster = txt.dict[lat]['cluster'];
-        });*/
         const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
           const lat: string = $(this).attr('data-key');
-          const cluster: string = txt.dictionary[lat]['cluster'];
+          const cluster: string = txt.dictionary[lat] ? txt.dictionary[lat]['cluster'] : lat;
           const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 

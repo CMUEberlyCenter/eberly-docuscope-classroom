@@ -11,11 +11,13 @@ import { NavComponent } from './nav.component';
 describe('NavComponent', () => {
   let component: NavComponent;
   let fixture: ComponentFixture<NavComponent>;
+  let activated_route_spy;
 
   beforeEach(async(() => {
-    const activated_route_spy = jasmine.createSpyObj('activatedRoute', ['paramMap']);
+    activated_route_spy = jasmine.createSpyObj('activatedRoute', ['paramMap']);
     activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activated_route_spy.snapshot.url = ['stub'];
+    activated_route_spy.snapshot.queryParamMap = new Map();
     TestBed.configureTestingModule({
       imports: [ FormsModule, RouterTestingModule,
                  MatTabsModule, MatTooltipModule ],
@@ -36,5 +38,19 @@ describe('NavComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('is_current', () => {
+    expect(component.is_current('')).toBe(false);
+    expect(component.is_current('/stub')).toBe(true);
+    expect(component.is_current('/foo/bar')).toBe(false);
+  });
+
+  it('is_instructor', () => {
+    expect(component.is_instructor()).toBe(false);
+    activated_route_spy.snapshot.queryParamMap.set('roles', 'Student');
+    expect(component.is_instructor()).toBe(false);
+    activated_route_spy.snapshot.queryParamMap.set('roles', 'Instructor');
+    expect(component.is_instructor()).toBe(true);
   });
 });

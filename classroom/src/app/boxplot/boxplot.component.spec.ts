@@ -41,10 +41,17 @@ describe('BoxplotComponent', () => {
     }));
     const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getRankedList']);
     dataService_spy.getBoxPlotData.and.returnValue(asyncData({
-      bpdata: [],
+      bpdata: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
+                uifence: 3.5, lifence: 0.5,
+                category: 'bogus', category_label: 'Bogus Data'}],
       outliers: []
     }));
-    dataService_spy.getRankedList.and.returnValue(asyncData({ result: [] }));
+    dataService_spy.getRankedList.and.returnValue(asyncData({ result: [{
+      index: 'bogus_index',
+      text: 'bogus_text',
+      value: 1,
+      ownedby: 'student'
+    }] }));
 
     TestBed.configureTestingModule({
       declarations: [ BoxplotComponent,
@@ -69,5 +76,15 @@ describe('BoxplotComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('null select', () => {
+    component.onSelectCategory('');
+    expect(component.rank_data).toBe(null);
+  });
+
+  it('bogus rank', async () => {
+    await component.onSelectCategory('bogus');
+    expect(component.rank_data).toBeTruthy();
   });
 });

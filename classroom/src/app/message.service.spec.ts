@@ -11,4 +11,25 @@ describe('MessageService', () => {
     const service: MessageService = TestBed.get(MessageService);
     expect(service).toBeTruthy();
   });
+
+  it('add', () => {
+    const service: MessageService = TestBed.get(MessageService);
+    console.log = jasmine.createSpy('log');
+    service.add('message');
+    expect(console.log).toHaveBeenCalledWith('message');
+    expect(service.messages).toEqual(['message']);
+    service.debug = false;
+    service.add('no console');
+    expect(console.log).toHaveBeenCalledTimes(1);
+    expect(service.messages).toEqual(['message', 'no console']);
+  });
+
+  it('clear', () => {
+    const service: MessageService = TestBed.get(MessageService);
+    expect(service.messages).toEqual([]);
+    service.add('message');
+    expect(service.messages).toEqual(['message']);
+    service.clear();
+    expect(service.messages).toEqual([]);
+  });
 });

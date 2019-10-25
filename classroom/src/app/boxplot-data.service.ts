@@ -52,7 +52,7 @@ export class BoxplotDataService {
         .pipe(
           publishReplay(1),
           refCount(),
-          // tap(data => this.messageService.add('Box Plot data retrieval successful.')),
+          // tap(() => this.messageService.add('Box Plot data retrieval successful.')),
           catchError(this.handleError('getBoxPlotData',
                                       {bpdata: [], outliers: []}))
         );

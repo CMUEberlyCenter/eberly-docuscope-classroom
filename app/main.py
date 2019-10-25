@@ -2,10 +2,6 @@
 from collections import defaultdict, Counter
 from enum import Enum
 from functools import partial
-try:
-    import ujson as json
-except ImportError:
-    import json
 import logging
 from operator import itemgetter
 import re
@@ -17,7 +13,6 @@ from bs4 import BeautifulSoup as bs
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
@@ -27,7 +22,6 @@ from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pandas import DataFrame, Series
-from pymemcache.client.base import Client
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
@@ -41,35 +35,11 @@ ENGINE = create_engine(
     pool_recycle=3600)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
-# Setup memcached
-def json_serializer(_key, value):
-    """Serialize strings to strings, BaseModels to json, and objects to json.
-    This is used by the memcached client.
-    """
-    if isinstance(value, str):
-        return value, 1
-    if isinstance(value, BaseModel):
-        return value.json(), 2
-    return json.dumps(value), 2
-def json_deserializer(_key, value, flags):
-    """Deserialize json.
-    This is used by the memcached client.
-    """
-    if flags == 1:
-        return value.decode('utf-8')
-    if flags == 2:
-        return json.loads(value.decode('utf-8'))
-    raise Exception("Unknown serialization format")
-
-CLIENT = Client(('memcached', 11211),
-                serializer=json_serializer,
-                deserializer=json_deserializer)
-
 # Setup API service.
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="2.1.1",
+    version="2.2.0",
     license={'name': 'CC BY-NC-SA 4.0',
              'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
 
@@ -83,14 +53,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=['GET', 'POST'],
     allow_headers=['*'])
-
-## Add Sessions Middleware
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="docuscopeclassroom",
-    same_site="lax",
-    https_only=False
-)
 
 ## Add custom middleware for database connection.
 @app.middleware("http")
@@ -119,14 +81,14 @@ def get_db_session(request: Request) -> Session:
 
 def get_request(request: Request) -> Request:
     """Get the Request."""
-    #logging.warning("type: %s", type(request.session))
     return request
 
 def get_ds_info(ds_dict: str, db_session: Session):
     """Get the dictionary of DocuScope Dictionary information."""
     return db_session\
         .query(DSDictionary.class_info)\
-        .filter(DSDictionary.name == ds_dict).one_or_none()[0]
+        .filter(DSDictionary.name == ds_dict, DSDictionary.enabled)\
+        .one_or_none()[0]
 
 def get_ds_info_map(ds_info) -> dict:
     """Transforms ds_info into a simple id->name map."""
@@ -160,12 +122,12 @@ class CorpusSchema(BaseModel):
 
     def documents(self):
         """Gets a list of document ids for this corpus."""
-        return [d.id for d in self.corpus]
+        return [d.id for d in self.corpus]  #pylint: disable=not-an-iterable
     def corpus_index(self) -> str:
         """Generate the id for this corpus."""
         # key limit of 250 characters for memcached
         key = [str(self.level)]
-        key.extend(sorted([str(d.id) for d in self.corpus]))
+        key.extend(sorted([str(d.id) for d in self.corpus])) #pylint: disable=not-an-iterable
         return str(hash(tuple(key)))
     def make_level_frame(self, db_session: Session) -> LevelFrame:  #pylint: disable=too-many-locals
         """Make the LevelFrame for the corpus."""
@@ -232,6 +194,8 @@ class CorpusSchema(BaseModel):
             sumframe = ds_stats.filter(lats)
             if not sumframe.empty:
                 data[category] = sumframe.transpose().sum()
+            else:
+                data[category] = 0
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
         frame['title'] = ds_stats['title']
@@ -245,18 +209,10 @@ class CorpusSchema(BaseModel):
     def get_stats(self, db_session: Session):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
-            indx = self.corpus_index()
-            level_frame = CLIENT.get(indx)
-            if not level_frame:
-                #logging.warning("CACHE miss for %s, generating", indx)
-                level_frame = self.make_level_frame(db_session)
-                if level_frame:
-                    #CLIENT.set(indx, level_frame, expire=5*60) # cache for 5m
-                    level_frame = dict(level_frame)
-            else:
-                logging.warning("CACHE hit for %s", indx)
+            level_frame = self.make_level_frame(db_session)
+            if level_frame:
+                level_frame = dict(level_frame)
             logging.info(level_frame)
-            #return DataFrame.from_dict(level_frame['frame'])
             return LevelFrame(**level_frame)
         except Exception as exp:
             traceback.print_exc()
@@ -427,7 +383,6 @@ def get_rank_list(corpus: RankListSchema,
     frame = frame.head(50)
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
-    #lfrm = json.loads(CLIENT.get(corpus.corpus_index()))
     ds_map = get_ds_info_map(get_ds_info(stats.ds_dictionary, db_session))
     return {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
@@ -636,6 +591,8 @@ def patterns(corpus: CorpusSchema,
             count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
     ds_info = get_ds_info(ds_dictionary, db_session)
     dsi = ds_info['cluster'] + ds_info['dimension']
+    for clust in ds_info['cluster']: # assumes cluster view.
+        pats[clust['id']].update([])
     return [
         {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
                           {'id': cat, 'name': cat.capitalize()}),

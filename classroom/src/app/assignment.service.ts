@@ -3,13 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 // import { MessageService } from './message.service';
-
-export interface AssignmentData {
-  course: string;
-  assignment: string;
-  intro: string;
-  stv_intro: string;
-}
+import { AssignmentData } from './assignment-data';
 
 const DefaultAssignmentData: AssignmentData = {
   course: 'Course Name',

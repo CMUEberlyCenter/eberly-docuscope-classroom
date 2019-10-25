@@ -7,10 +7,9 @@ import { AboutComponent } from './about.component';
 describe('AboutComponent', () => {
   let component: AboutComponent;
   let fixture: ComponentFixture<AboutComponent>;
+  const mat_dialog_spy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
   beforeEach(async(() => {
-    const mat_dialog_spy = jasmine.createSpyObj('MatDialogRef', ['close']);
-
     TestBed.configureTestingModule({
       declarations: [ AboutComponent ],
       imports: [ MatDialogModule, MatIconModule ],
@@ -29,5 +28,10 @@ describe('AboutComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('close', () => {
+    component.onNoClick();
+    expect(mat_dialog_spy.close).toHaveBeenCalled();
   });
 });

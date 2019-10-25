@@ -6,11 +6,6 @@ import { CorpusService } from '../corpus.service';
 import { RankData, RankDataEntry, BoxplotDataEntry, max_boxplot_value } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
 
-interface Category {
-  category: string;
-  category_label: string;
-}
-
 @Component({
   selector: 'app-rank',
   templateUrl: './rank.component.html',
@@ -20,7 +15,7 @@ export class RankComponent implements OnInit {
   corpus: Corpus;
   data: RankData;
   rank_data: [string, number][];
-  categories: Category[];
+  categories: Map<string, string> = new Map<string, string>();
   category: string;
   max_value: number;
   options = {
@@ -50,11 +45,11 @@ export class RankComponent implements OnInit {
     this._spinner.start();
     this._data_service.getBoxPlotData(this.corpus)
       .subscribe(data => {
-        this.categories = data.bpdata.map(
-          (bpd: BoxplotDataEntry): Category => bpd as Category);
+        this.categories = new Map<string, string>(
+          data.bpdata.map((bpd: BoxplotDataEntry): [string, string] => [bpd.category, bpd.category_label]));
         this.max_value = max_boxplot_value(data);
         this.options.hAxis.viewWindow.max = this.max_value * 100;
-        this.category = this.categories[0].category;
+        this.category = this.categories.keys().next().value;
         this._spinner.stop();
         this.getData();
       });
@@ -76,6 +71,6 @@ export class RankComponent implements OnInit {
     this.getData();
   }
   get_label(category: string): string {
-    return this.categories.find(c => c.category === category).category_label;
+    return this.categories.get(category);
   }
 }
