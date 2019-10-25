@@ -2,10 +2,6 @@
 from collections import defaultdict, Counter
 from enum import Enum
 from functools import partial
-try:
-    import ujson as json
-except ImportError:
-    import json
 import logging
 from operator import itemgetter
 import re
@@ -85,15 +81,14 @@ def get_db_session(request: Request) -> Session:
 
 def get_request(request: Request) -> Request:
     """Get the Request."""
-    #logging.warning("type: %s", type(request.session))
     return request
 
 def get_ds_info(ds_dict: str, db_session: Session):
     """Get the dictionary of DocuScope Dictionary information."""
     return db_session\
         .query(DSDictionary.class_info)\
-        .filter(DSDictionary.name == ds_dict)\
-        .filter(DSDictionary.enabled == True).one_or_none()[0]
+        .filter(DSDictionary.name == ds_dict, DSDictionary.enabled)\
+        .one_or_none()[0]
 
 def get_ds_info_map(ds_info) -> dict:
     """Transforms ds_info into a simple id->name map."""
@@ -214,7 +209,6 @@ class CorpusSchema(BaseModel):
     def get_stats(self, db_session: Session):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
-            indx = self.corpus_index()
             level_frame = self.make_level_frame(db_session)
             if level_frame:
                 level_frame = dict(level_frame)

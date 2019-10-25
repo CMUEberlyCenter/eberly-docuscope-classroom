@@ -132,8 +132,10 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
 
         # draw a ruler
         self.canv.setFont("Helvetica", 6)
-        msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words"\
+        msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words."\
                  .format(self.value*1000)
+        if math.isclose(self.data['max'], 0.0):
+            msg += " No writers used patterns in this category."
         self.canv.circle(self.margins['left'], self.margins['bottom']-6,
                          self.measurements['radius'], fill=1)
         self.canv.drawString(self.margins['left']+3, self.margins['bottom']-8,
@@ -504,7 +506,8 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
                 soup = bs(tagged_str['html_content'], "html.parser")
 
-                para_list, patterns = html_to_report_string(soup, tagged_str['dict'], cat_descriptions, patterns_all)
+                para_list, patterns = html_to_report_string(
+                    soup, tagged_str['dict'], cat_descriptions, patterns_all)
                 for para in para_list:
                     try:
                         content.append(Paragraph(para, styles['DS_Body']))
