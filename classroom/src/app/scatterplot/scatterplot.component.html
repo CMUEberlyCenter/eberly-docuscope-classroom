@@ -1,31 +1,33 @@
-<app-nav></app-nav>
-<mat-card *ngIf="corpus" class="container">
-  <mat-card-title>Scatter Plot</mat-card-title>
-  <mat-card-subtitle>Compares the frequecies of two patterns where each point represents a document.</mat-card-subtitle>
-  <mat-card-subtitle>Units are average number of incidences per 100 words.</mat-card-subtitle>
-  <mat-card-content *ngIf="categories" class="scatter_container">
-    <div class="axis_selection">
-      <mat-form-field class="axis_select">
-        <mat-label>Y Axis:</mat-label>
-        <select matNativeControl required [(ngModel)]="y_axis" (ngModelChange)="on_select($event)" ngOptions>
-          <option *ngFor="let y of y_categories" [value]="y.category">{{y.category_label}}</option>
-        </select>
-      </mat-form-field>
-      <mat-form-field class="axis_select">
-        <mat-label>X Axis:</mat-label>
-        <select matNativeControl required [(ngModel)]="x_axis" (ngModelChange)="on_select($event)">
-          <option *ngFor="let x of x_categories" [value]="x.category">{{x.category_label}}</option>
-        </select>
-      </mat-form-field>
-    </div>
-    <google-chart #scatterplot *ngIf="scatter_data"
-                  [title]="get_label(x_axis)+' vs '+get_label(y_axis)"
-                  [type]="'ScatterChart'"
-                  [columnNames]="[get_label(x_axis), get_label(y_axis), {'type': 'string', 'role': 'id'}, {'type': 'string', 'role': 'style'}, {'type': 'string', 'role': 'tooltip'}]"
-                  [data]="scatter_data"
-                  (select)="select_point(scatterplot, $event)"
-                  [options]="options"
-                  width="400"
-                  height="400"></google-chart>
-  </mat-card-content>
-</mat-card>
+<div class="tool">
+  <app-nav></app-nav>
+  <mat-card *ngIf="corpus" class="container">
+    <mat-card-title>Scatter Plot</mat-card-title>
+    <mat-card-subtitle>Compares the frequecies of two patterns where each point represents a document.</mat-card-subtitle>
+    <mat-card-subtitle>Units are average number of incidences per 100 words.</mat-card-subtitle>
+    <mat-card-content *ngIf="categories" class="scatter_container">
+      <div class="axis_selection">
+        <mat-form-field class="axis_select">
+          <mat-label>Y Axis</mat-label>
+          <select matNativeControl required [(ngModel)]="y_axis" (ngModelChange)="on_select($event)" ngOptions>
+            <option *ngFor="let y of y_categories" [value]="y.category">{{y.category_label}}</option>
+          </select>
+        </mat-form-field>
+        <mat-form-field class="axis_select">
+          <mat-label>X Axis</mat-label>
+          <select matNativeControl required [(ngModel)]="x_axis" (ngModelChange)="on_select($event)">
+            <option *ngFor="let x of x_categories" [value]="x.category">{{x.category_label}}</option>
+          </select>
+        </mat-form-field>
+      </div>
+      <google-chart #scatterplot *ngIf="scatter_data"
+                    [title]="get_label(x_axis)+' vs '+get_label(y_axis)"
+                    [type]="'ScatterChart'"
+                    [columnNames]="[get_label(x_axis), get_label(y_axis), {'type': 'string', 'role': 'id'}, {'type': 'string', 'role': 'style'}, {'type': 'string', 'role': 'tooltip'}]"
+                    [data]="scatter_data"
+                    (select)="select_point(scatterplot, $event)"
+                    [options]="options"
+                    width="400"
+                    height="400"></google-chart>
+    </mat-card-content>
+  </mat-card>
+</div>
