@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
@@ -13,6 +14,13 @@ import { GroupsData } from '../boxplot-data';
   styleUrls: ['./grouping.component.css']
 })
 export class GroupingComponent implements OnInit {
+  size_min = 2;
+  get size_max(): number {
+    return this.corpus
+      ? Math.max(this.size_min,
+                 Math.floor(this.corpus.documents.length / 2))
+      : this.size_min;
+  }
   corpus: Corpus;
   group_size = 2;
   groups: GroupsData;
@@ -20,6 +28,7 @@ export class GroupingComponent implements OnInit {
 
   constructor(private corpus_service: CorpusService,
               private _spinner: NgxUiLoaderService,
+              private _snack_bar: MatSnackBar,
               private data_service: BoxplotDataService) { }
 
   getCorpus(): void {
@@ -45,11 +54,20 @@ export class GroupingComponent implements OnInit {
     this.getCorpus();
   }
 
+  get num_documents(): number { return this.corpus ? this.corpus.documents.length : 0; }
   generate_groups(e): void {
     if (this.group_size) {
-      this.getGroupsData();
+      if (this.num_documents < 4) {
+        this._snack_bar.open(`There needs to be at least four documents in order to form groups.`, '\u2612');
+      } else if (this.group_size < this.size_min) {
+        this._snack_bar.open(`The group size needs to be at least ${this.size_min}.`, '\u2612');
+      } else if (this.group_size > this.size_max) {
+        this._snack_bar.open(`The group size can not be greater than half the number of documents (${this.size_max}).`, '\u2612');
+      } else {
+        this.getGroupsData();
+      }
     } else {
-      alert('Select a group size.');
+      this._snack_bar.open('Please set a group size.', '\u2612');
     }
   }
 

@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { GroupingComponent } from './grouping/grouping.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PatternsComponent } from './patterns/patterns.component';
 import { RankComponent } from './rank/rank.component';
 import { ReportComponent } from './report/report.component';
@@ -17,7 +18,8 @@ const routes: Routes = [
   { path: 'report', component: ReportComponent },
   { path: 'scatterplot', component: ScatterplotComponent },
   { path: 'stv/:doc', component: TextViewComponent },
-  { path: '', redirectTo: '/boxplot', pathMatch: 'full' }
+  { path: '', redirectTo: '/boxplot', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

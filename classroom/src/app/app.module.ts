@@ -44,6 +44,7 @@ import { TextViewComponent } from './text-view/text-view.component';
 import { AboutComponent } from './about/about.component';
 import { PatternsComponent } from './patterns/patterns.component';
 import { PatternsTableComponent } from './patterns-table/patterns-table.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { PatternsTableComponent } from './patterns-table/patterns-table.componen
     NavComponent,
     PatternsComponent,
     PatternsTableComponent,
+    PageNotFoundComponent,
   ],
   entryComponents: [
     AboutComponent,

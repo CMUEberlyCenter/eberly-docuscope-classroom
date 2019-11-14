@@ -29,12 +29,16 @@ export class HttpErrorHandlerService {
       if (error.error instanceof ErrorEvent) {
         message = error.error.message;
       } else if (error.error && 'detail' in error.error) {
-        message = `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
+        if (Array.isArray(error.error.detail)) {
+          message = `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
+        } else {
+          message = error.error.detail;
+        }
       } else {
         message = error.message;
       }
       this.messageService.add(`${serviceName}: ${operation} failed: ${message}`);
-      this._snackBar.open(message);
+      this._snackBar.open(message, '\u2612');
       return of(result);
     };
   }
