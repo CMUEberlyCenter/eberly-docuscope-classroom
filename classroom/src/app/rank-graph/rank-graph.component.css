@@ -1,5 +1,8 @@
 .student_col {
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .model_entry {
@@ -12,7 +15,6 @@
 }
 .name {
   /*flex: 0 1 auto;*/
-  text-overflow: ellipsis;
 }
 .value {
   flex: 0 1 60px;

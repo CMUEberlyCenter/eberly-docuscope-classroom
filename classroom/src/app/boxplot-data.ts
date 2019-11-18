@@ -1,4 +1,4 @@
-import { Corpus } from './corpus';
+import { AssignmentData } from './assignment-data';
 
 export const enum Level {
   Dimension = 'Dimension',
@@ -9,29 +9,29 @@ export class DocumentSchema {
   id: string;
   data?: string;
 }
-export function makeDocumentSchema(corpus: Corpus): DocumentSchema[] {
-  return corpus.documents.map((d: string): DocumentSchema => ({id: d}));
+export function makeDocumentSchema(corpus: string[]): DocumentSchema[] {
+  return corpus.map((d: string): DocumentSchema => ({id: d}));
 }
 
 export class CorpusSchema {
   corpus: DocumentSchema[];
   level: Level;
 }
-export function makeCorpusSchema(corpus: Corpus): CorpusSchema {
+export function makeCorpusSchema(corpus: string[]): CorpusSchema {
   return {
     corpus: makeDocumentSchema(corpus),
     level: Level.Cluster
   };
 }
 export class BoxplotSchema extends CorpusSchema {}
-export function makeBoxplotSchema(corpus: Corpus): BoxplotSchema {
+export function makeBoxplotSchema(corpus: string[]): BoxplotSchema {
   return makeCorpusSchema(corpus) as BoxplotSchema;
 }
 
 export class RankedListSchema extends CorpusSchema {
   sortby: string;
 }
-export function makeRankedListSchema(corpus: Corpus, sortby: string): RankedListSchema {
+export function makeRankedListSchema(corpus: string[], sortby: string): RankedListSchema {
   const schema = makeCorpusSchema(corpus) as RankedListSchema;
   schema.sortby = sortby;
   return schema;
@@ -41,7 +41,7 @@ export class ScatterplotSchema extends CorpusSchema {
   catX: string;
   catY: string;
 }
-export function makeScatterplotSchema(corpus: Corpus, cat_x: string, cat_y: string): ScatterplotSchema {
+export function makeScatterplotSchema(corpus: string[], cat_x: string, cat_y: string): ScatterplotSchema {
   const schema = makeCorpusSchema(corpus) as ScatterplotSchema;
   schema.catX = cat_x;
   schema.catY = cat_y;
@@ -51,23 +51,10 @@ export function makeScatterplotSchema(corpus: Corpus, cat_x: string, cat_y: stri
 export class GroupsSchema extends CorpusSchema {
   group_size: number;
 }
-export function makeGroupsSchema(corpus: Corpus, group_size: number): GroupsSchema {
+export function makeGroupsSchema(corpus: string[], group_size: number): GroupsSchema {
   const schema = makeCorpusSchema(corpus) as GroupsSchema;
   schema.group_size = group_size;
   return schema;
-}
-
-export class ReportsSchema {
-  corpus: DocumentSchema[];
-  intro: string;
-  stv_intro: string;
-}
-export function makeReportsSchema(corpus: Corpus): ReportsSchema {
-  return {
-    corpus: makeDocumentSchema(corpus),
-    intro: corpus.intro,
-    stv_intro: corpus.stv_intro
-  };
 }
 
 export class BoxplotDataEntry {
@@ -87,7 +74,7 @@ export class Outlier {
   category: string;
 }
 
-export class BoxplotData {
+export class BoxplotData extends AssignmentData {
   bpdata: BoxplotDataEntry[];
   outliers: Outlier[];
 }
@@ -109,7 +96,7 @@ export class RankDataEntry {
   value: number;
   ownedby: string;
 }
-export class RankData {
+export class RankData extends AssignmentData {
   category?: string;
   category_name?: string;
   median?: number;
@@ -123,13 +110,13 @@ export class ScatterplotDataPoint {
   text_id: string;
   ownedby: string;
 }
-export class ScatterplotData {
+export class ScatterplotData extends AssignmentData {
   axisX: string;
   axisY: string;
   spdata: ScatterplotDataPoint[];
 }
 
-export class GroupsData {
+export class GroupsData extends AssignmentData {
   groups: string[][];
   grp_qualities: number[];
   quality: number;

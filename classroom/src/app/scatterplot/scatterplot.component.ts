@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { Corpus } from '../corpus';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { ScatterplotData, BoxplotDataEntry } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
@@ -12,7 +12,7 @@ import { BoxplotDataService } from '../boxplot-data.service';
   styleUrls: ['./scatterplot.component.css']
 })
 export class ScatterplotComponent implements OnInit {
-  corpus: Corpus;
+  corpus: string[];
   data: ScatterplotData;
   scatter_data: [number, number, string, string, string][];
   categories: BoxplotDataEntry[];
@@ -44,6 +44,7 @@ export class ScatterplotComponent implements OnInit {
   };
 
   constructor(private corpusService: CorpusService,
+              private _assignment_service: AssignmentService,
               private _spinner: NgxUiLoaderService,
               private dataService: BoxplotDataService) {}
 
@@ -60,6 +61,7 @@ export class ScatterplotComponent implements OnInit {
     this._spinner.start();
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
+        this._assignment_service.setAssignmentData(data);
         // if (!data.bpdata) // TODO check for not enough categories
         this.categories = data.bpdata;
         this.x_categories = new Set<BoxplotDataEntry>(this.categories);

@@ -108,6 +108,9 @@ class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     corpus: List[UUID] = []
     level: LevelEnum = LevelEnum.cluster
     ds_dictionary: str = ...
+    assignments: List[str] = None
+    courses: List[str] = None
+    instructors: List[str] = None
     frame: dict = None
 
 class DocumentSchema(BaseModel): #pylint: disable=too-few-public-methods
@@ -135,14 +138,20 @@ class CorpusSchema(BaseModel):
         logging.info('Retrieving stats from database')
         stats = {}
         ds_dictionaries = set()
-        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
+        courses = set()
+        assignments = set()
+        instructors = set()
+        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary, a_name, a_course, a_instructor in \
             db_session.query(Filesystem.processed,
                              Filesystem.fullname,
                              Filesystem.ownedby,
                              Filesystem.name,
                              Filesystem.id,
                              Filesystem.state,
-                             DSDictionary.name)\
+                             DSDictionary.name,
+                             Assignment.name,
+                             Assignment.course,
+                             Assignment.instructor)\
                       .filter(Filesystem.id.in_(self.documents()))\
                       .filter(Filesystem.state == 'tagged')\
                       .filter(Assignment.id == Filesystem.assignment)\
@@ -165,6 +174,9 @@ class CorpusSchema(BaseModel):
                 ser['ownedby'] = ownedby
                 stats[str(doc_id)] = ser
                 ds_dictionaries.add(ds_dictionary)
+                courses.add(a_course)
+                assignments.add(a_name)
+                instructors.add(a_instructor)
         if not stats:
             logging.error("Failed to retrieve stats for corpus: %s",
                           self.documents())
@@ -205,7 +217,10 @@ class CorpusSchema(BaseModel):
         return LevelFrame(ds_dictionary=ds_dictionary,
                           corpus=self.documents(),
                           frame=lframe.to_dict(),
-                          level=self.level)
+                          level=self.level,
+                          courses=list(courses),
+                          assignments=list(assignments),
+                          instructors=list(instructors))
     def get_stats(self, db_session: Session):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
@@ -264,7 +279,14 @@ class BoxplotSchema(CorpusSchema):
         bpdata.reverse()
         logging.info(bpdata)
         logging.info(outliers)
-        return {"bpdata": bpdata, "outliers": outliers}
+        data = {"bpdata": bpdata, "outliers": outliers}
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data;
 
 class BoxplotDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a boxplot data point."""
@@ -282,7 +304,14 @@ class BoxplotDataOutlier(BaseModel): #pylint: disable=too-few-public-methods
     pointtitle: str = ...
     value: float = ...
     category: str = ...
-class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
+
+class AssignmentData(BaseModel): #pylint: disable=too-few-public-methods
+    """Schema for information about the assignment."""
+    assignment: str = None
+    course: str = None
+    instructor: str = None
+
+class BoxplotData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for 'boxplot_data' responses."""
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
@@ -323,7 +352,7 @@ class RankDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     value: float = ... # instances/words
     ownedby: str = ... # 'student' or 'instructor'
 
-class RankData(BaseModel): #pylint: disable=too-few-public-methods
+class RankData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "ranked_list" responses."""
     category: str = None
     category_name: str = None
@@ -384,10 +413,17 @@ def get_rank_list(corpus: RankListSchema,
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
     ds_map = get_ds_info_map(get_ds_info(stats.ds_dictionary, db_session))
-    return {'category': corpus.sortby,
+    data = {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
             'median': v_avg,
             'result': frame.to_dict('records')}
+    if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+        data['assignment'] = stats.assignments[0]
+    if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+        data['course'] = stats.courses[0]
+    if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+        data['instructor'] = stats.instructors[0]
+    return data
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
@@ -396,7 +432,8 @@ class ScatterplotSchema(CorpusSchema):
 
     def get_plot_data(self, db_session: Session):
         """Generate the scatterplot data for this corpus."""
-        frame = self.get_frame(db_session)
+        stats = self.get_stats(db_session)
+        frame = DataFrame.from_dict(stats.frame)
         title_row = frame.loc['title']
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
@@ -414,7 +451,16 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
-        return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
+        data = {'axisX': self.catX,
+                'axisY': self.catY,
+                'spdata': frame.to_dict('records')}
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data
 
 class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a point in the ScatterplotData."""
@@ -424,7 +470,7 @@ class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     text_id: str = ...
     ownedby: str = ...
 
-class ScatterplotData(BaseModel): #pylint: disable=too-few-public-methods
+class ScatterplotData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "scatterplot_data" response."""
     axisX: str = None
     axisY: str = None
@@ -457,7 +503,8 @@ class GroupsSchema(CorpusSchema):
 
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
-        frame = self.get_frame(db_session)#.transpose()
+        stats = self.get_stats(db_session)
+        frame = DataFrame.from_dict(stats.frame)
         # logging.warning(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
         title_row = frame.loc['title']
@@ -469,9 +516,16 @@ class GroupsSchema(CorpusSchema):
         frame = frame.append(title_row)
         frame = frame.transpose().fillna(0).set_index('title')
         # logging.warning(frame)
-        return get_best_groups(frame, group_size=self.group_size)
+        data = get_best_groups(frame, group_size=self.group_size)
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data
 
-class GroupsData(BaseModel): #pylint: disable=too-few-public-methods
+class GroupsData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
     grp_qualities: List[float] = None
@@ -713,16 +767,13 @@ class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
     cluster: List[DictionaryInformation] = []
     dimension: List[DictionaryInformation] = []
 
-class TextContent(BaseModel): #pylint: disable=too-few-public-methods
+class TextContent(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for text_content data."""
     text_id: str = ...
     word_count: int = 0
     html_content: str = ""
     dictionary: Dict[str, DictionaryEntry] = {}
     dict_info: DictInfo = ...
-    course: str = ...
-    assignment: str = ...
-    instructor: str = ...
 
 @app.get('/text_content/{file_id}', response_model=TextContent,
          responses={
@@ -764,7 +815,10 @@ def get_tagged_text(file_id: UUID,
     ds_info = get_ds_info(doc['ds_dictionary'], db_session)
     res = TextContent(text_id=filename or file_id.text_id,
                       word_count=doc['ds_num_word_tokens'],
-                      dict_info=ds_info)
+                      dict_info=ds_info,
+                      course=a_course,
+                      instructor=a_instructor,
+                      assignment=a_name)
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"

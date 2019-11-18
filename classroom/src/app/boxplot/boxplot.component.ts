@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CloudData } from 'angular-tag-cloud-module';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { Corpus } from '../corpus';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { BoxplotData, BoxplotDataEntry, RankData, max_boxplot_value } from '../boxplot-data';
 import { BoxplotDataService } from '../boxplot-data.service';
@@ -13,7 +13,7 @@ import { BoxplotDataService } from '../boxplot-data.service';
   styleUrls: ['./boxplot.component.css']
 })
 export class BoxplotComponent implements OnInit {
-  corpus: Corpus;
+  corpus: string[];
   data: BoxplotData;
   rank_data: RankData;
   cloud_data: CloudData[];
@@ -22,7 +22,8 @@ export class BoxplotComponent implements OnInit {
 
   constructor(private corpusService: CorpusService,
               private spinner: NgxUiLoaderService,
-              private dataService: BoxplotDataService) { }
+              private dataService: BoxplotDataService,
+              private assignmentService: AssignmentService) { }
 
   getCorpus(): void {
     this.spinner.start();
@@ -38,6 +39,7 @@ export class BoxplotComponent implements OnInit {
     this.dataService.getBoxPlotData(this.corpus)
       .subscribe(data => {
         this.data = data;
+        this.assignmentService.setAssignmentData(data);
         this.cloud_data = this.data.bpdata.map(
           (bpd: BoxplotDataEntry): CloudData =>
             ({text: bpd.category_label, weight: bpd.q2} as CloudData));

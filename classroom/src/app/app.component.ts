@@ -10,7 +10,6 @@ import { AboutComponent } from './about/about.component';
   providers: []
 })
 export class AppComponent {
-  title = 'DocuScope Classroom @ CMU';
 
   constructor(public about: MatDialog) { }
 

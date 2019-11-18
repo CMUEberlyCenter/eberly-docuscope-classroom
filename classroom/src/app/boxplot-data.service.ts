@@ -4,7 +4,6 @@ import { Observable, throwError, of } from 'rxjs';
 import { catchError, retry, tap, publishReplay, refCount, take } from 'rxjs/operators';
 import { environment } from './../environments/environment';
 import { MessageService } from './message.service';
-import { Corpus } from './corpus';
 import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema,
          ScatterplotData, makeScatterplotSchema, GroupsData,
          makeGroupsSchema } from './boxplot-data';
@@ -40,7 +39,7 @@ export class BoxplotDataService {
     return throwError('Something bad happened.');
   }*/
 
-  getBoxPlotData(corpus: Corpus): Observable<BoxplotData> {
+  getBoxPlotData(corpus: string[]): Observable<BoxplotData> {
     if (this.boxplot_data) {
       // console.log(this.boxplot_data);
       // this.messageService.add('Retrieved Box Plot data from cache.');
@@ -60,7 +59,7 @@ export class BoxplotDataService {
     }
   }
 
-  getRankedList(corpus: Corpus, sort_by: string): Observable<RankData> {
+  getRankedList(corpus: string[], sort_by: string): Observable<RankData> {
     if (!this.rank_data.has(sort_by)) {
       const rank_query = makeRankedListSchema(corpus, sort_by);
       this.rank_data.set(sort_by,
@@ -75,7 +74,7 @@ export class BoxplotDataService {
     return this.rank_data.get(sort_by);
   }
 
-  getScatterPlotData(corpus: Corpus, x: string, y: string): Observable<ScatterplotData> {
+  getScatterPlotData(corpus: string[], x: string, y: string): Observable<ScatterplotData> {
     if (!this.scatterplot_data.has(x)) {
       this.scatterplot_data.set(x, new Map<string, Observable<ScatterplotData>>());
     }
@@ -93,7 +92,7 @@ export class BoxplotDataService {
     return x_map.get(y);
   }
 
-  getGroupsData(corpus: Corpus, group_size: number): Observable<GroupsData> {
+  getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
     const groups_query = makeGroupsSchema(corpus, group_size);
     return this.http.post<GroupsData>(this.groups_server, groups_query)
       .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{})));

@@ -5,7 +5,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { ClusterData, instance_count } from '../cluster-data';
-import { Corpus } from '../corpus';
 import { CorpusService } from '../corpus.service';
 import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
 
@@ -44,7 +43,7 @@ export class PatternClusterData implements ClusterData {
   ],
 })
 export class PatternsComponent implements OnInit {
-  corpus: Corpus;
+  corpus: string[];
   patterns_data: MatTableDataSource<PatternClusterData>;
   expanded: PatternClusterData | null;
   cluster_columns = ['name', /*'pattern_count',*/ 'count', 'expand'];
