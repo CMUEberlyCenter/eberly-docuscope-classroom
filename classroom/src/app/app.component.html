@@ -1,11 +1,20 @@
 <!-- Title Banner -->
-<mat-toolbar color="warn"><!-- color="primary" -->
-  <span>{{title}}</span><span class="spacer"></span>
-  <button mat-icon-button (click)="openAbout()"><mat-icon>info</mat-icon></button>
-</mat-toolbar>
+<header>
+  <mat-toolbar color="warn" role="heading" class="header"><!-- color="primary" -->
+    <span>{{title}}</span>
+    <span class="spacer"></span>
+    <div></div>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="openAbout()">
+      <mat-icon>info</mat-icon>
+    </button>
+  </mat-toolbar>
+</header>
 <!-- Loading screen cover -->
 <ngx-ui-loader></ngx-ui-loader>
 <!-- content -->
-<router-outlet></router-outlet>
+<main>
+  <router-outlet></router-outlet>
+</main>
 <!-- message runner -->
 <app-messages></app-messages>

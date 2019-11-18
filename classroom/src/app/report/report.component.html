@@ -1,19 +1,21 @@
-<app-nav></app-nav>
-<!-- TODO: spinner for "Generating Reports..."? -->
-<mat-card *ngIf="corpus" class="container">
-  <mat-card-title>Reports</mat-card-title>
-  <mat-card-subtitle>Generate reports using the below text.</mat-card-subtitle>
-  <mat-card-content class="report_form">
-    <mat-form-field class="edit_textarea">
-      <textarea matInput placeholder="Customize the introduction text:" [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
-    </mat-form-field>
-    <br>
-    <mat-form-field class="edit_textarea">
-      <textarea matInput placeholder="Customize the introduction to the text analysis section" [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
-    </mat-form-field>
-    <br>
-    <button mat-raised-button color="primary"
-            (click)="generate_report($event)">Generate Report</button>
-    <a #download_link></a>
-  </mat-card-content>
-</mat-card>
+<div class="tool">
+  <app-nav></app-nav>
+  <!-- TODO: spinner for "Generating Reports..."? -->
+  <mat-card *ngIf="corpus" class="container">
+    <mat-card-title>Reports</mat-card-title>
+    <mat-card-subtitle>Generate reports using the below text.</mat-card-subtitle>
+    <mat-card-content class="report_form">
+      <mat-form-field class="edit_textarea">
+        <textarea matInput placeholder="Customize the introduction text:" [(ngModel)]="corpus.intro" rows="6" cols="80"></textarea>
+      </mat-form-field>
+      <br>
+      <mat-form-field class="edit_textarea">
+        <textarea matInput placeholder="Customize the introduction to the text analysis section" [(ngModel)]="corpus.stv_intro" rows="6" cols="80"></textarea>
+      </mat-form-field>
+      <br>
+      <button mat-raised-button color="primary"
+              (click)="generate_report($event)">Generate Report</button>
+      <a #download_link></a>
+    </mat-card-content>
+  </mat-card>
+</div>

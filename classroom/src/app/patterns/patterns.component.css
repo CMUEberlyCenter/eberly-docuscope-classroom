@@ -1,5 +1,13 @@
+.tool {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+app-nav {
+  flex: 0 1 auto;
+}
 .container {
-  height: calc(100vh - 64.5px - 49px - 10px);
+  flex: 1 1 auto;
   margin: 5px;
   overflow: auto;
 }
@@ -13,12 +21,6 @@
 .cluster-row td {
   border-bottom-width: 0;
 }
-/*tr.cluster-row:not(.cluster-expanded-row):hover {
-  background: #777;
-}
-tr.cluster-row:not(.cluster-expanded-row):active {
-  background: #efefef;
-}*/
 tr.cluster-detail-row {
   height: 0;
 }

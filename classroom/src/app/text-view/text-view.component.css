@@ -1,12 +1,12 @@
 .container {
-  width: 100%;
-  height: calc(100vh - 64.5px);
   display: flex;
   flex-direction: row;
+  height: 100%;
+  width: 100%;
 }
 .sidebar {
-  overflow: auto;
-  height: 100%;
+  flex: 0 1 auto;
+  overflow-y: auto;
 }
 
 .cluster-name {
@@ -28,8 +28,8 @@ tr.cluster-detail-row {
 
 .pattern-table {
   margin-left: 3em;
-  overflow: auto;
   max-height: calc(30vh);
+  overflow: auto;
 }
 
 .mat-column-count {
@@ -37,7 +37,7 @@ tr.cluster-detail-row {
 }
 
 .text_card {
-  height: 100%;
+  flex: 1 1 auto;
   overflow: auto;
 }
 .text_head {
@@ -45,8 +45,8 @@ tr.cluster-detail-row {
   text-overflow: ellipsis;
 }
 .text_content {
-  padding-left: 18px;
-  padding-right: 18px;
   line-height: 175%;
   max-width: 6.5in;
+  padding-left: 18px;
+  padding-right: 18px;
 }

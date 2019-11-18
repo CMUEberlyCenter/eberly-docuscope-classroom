@@ -1,11 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 /*@import url('https://fonts.googleapis.com/icon?family=Material+Icons');*/
 
-/* easy-ui */
-@import '~ng-easyui/themes/material/easyui.css';
-@import '~ng-easyui/themes/angular.css';
-@import '~ng-easyui/themes/icon.css';
-
 /* angular material */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
@@ -66,5 +61,10 @@ circle.dot.model {
   filter: opacity(40%);
 }
 
-html, body { height: 100%; }
+html, body { height: 100vh; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+app-root {
+  display: flex;
+  height: 100vh;
+  flex-flow: column;
+}

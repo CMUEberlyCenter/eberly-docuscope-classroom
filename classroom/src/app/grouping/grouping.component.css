@@ -1,6 +1,14 @@
+.tool {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+app-nav {
+  flex: 0 1 auto;
+}
 .container {
+  flex: 1 1 auto;
   margin: 5px;
-  height: calc(100vh - 64.5px - 49px - 10px);
   overflow: auto;
 }
 

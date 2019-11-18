@@ -1,21 +1,11 @@
 /* AppComponent's private CSS styles */
-.title-banner {
-  background-color: rgb(255,87,34);
-  color: white;
-  text-align: center;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  margin-left: 0px;
-  margin-right: 0px;
-  margin-top: 0px;
-  /*box-sizing: border-box;*/
-  padding: 1px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+header {
+  flex: 0 1 auto;
+}
+main {
+  flex: 1 1 auto;
+  overflow: auto;
 }
 .spacer {
   flex: 1 1 auto;
-}
-.pointer {
-  cursor: pointer;
 }

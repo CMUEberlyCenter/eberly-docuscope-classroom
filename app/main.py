@@ -497,9 +497,15 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     if len(corpus.corpus) < corpus.group_size:
-        raise HTTPException(detail="Not enough documents to do grouping.",
-                            status_code=HTTP_400_BAD_REQUEST)
-    return corpus.get_pairings(db_session)
+        raise HTTPException(
+            detail="Not enough documents to make groups of size {}.".format(corpus.group_size),
+            status_code=HTTP_400_BAD_REQUEST)
+    try:
+        return corpus.get_pairings(db_session)
+    except Exception as excp:
+        raise HTTPException(detail=excp.args[0],
+                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class DictionaryInformation(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dictionary help."""

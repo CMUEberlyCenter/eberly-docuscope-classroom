@@ -58,16 +58,16 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, #pylint: disable=R0913
     num = dtf.shape[0]
     k = dtf.shape[1]
     if k < 2:
-        raise Exception("need at least two DocuScope categories")
+        raise Exception("Need at least two DocuScope categories.")
     if num < 4:
-        raise Exception("need at least four students in a class")
+        raise Exception("Need at least four students in a class.")
     if group_size < 2 or group_size > num/2:
-        raise Exception("'group_size' must be between 2 and half the number" +\
-                        " of students")
+        raise Exception("Group Size must be between 2 and half the number" +\
+                        " of students.")
     if min_group_size < 2 or min_group_size > group_size:
-        raise Exception("invalid 'min_group_size")
+        raise Exception("Invalid 'min_group_size'.")
     if nsim < 1 or nsim > 10000000:
-        raise Exception("'nsim' should be between 2 and 10,000,000")
+        raise Exception("'nsim' should be between 2 and 10,000,000.")
 
     # Format data as a list of lists and an index list
     lst = [dtf.iloc[i, :].tolist() for i in range(dtf.shape[0])]

@@ -1,6 +1,5 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -18,7 +17,6 @@ describe('PatternsTableComponent', () => {
       declarations: [ PatternsTableComponent ],
       imports: [
         NoopAnimationsModule,
-        // EasyUIModule,
         MatCardModule,
         MatIconModule,
         MatSortModule,

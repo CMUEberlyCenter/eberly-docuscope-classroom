@@ -7,6 +7,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { asyncData } from '../../testing';
 
 import { GroupingComponent } from './grouping.component';
@@ -66,13 +68,24 @@ describe('GroupingComponent', () => {
   let corpus_service_spy;
   let boxplot_data_service_spy;
   let ngx_spinner_service_spy;
+  let snack_spy;
+  const test_corpus = {
+    course: 'test',
+    assignment: 'testing',
+    documents: ['a', 'b', 'c', 'd', 'e', 'f'],
+    intro: '',
+    stv_intro: ''
+  };
 
   beforeEach(async(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    boxplot_data_service_spy = jasmine.createSpyObj('BoxplotDataService', ['getGroupsData']);
+    boxplot_data_service_spy = jasmine.createSpyObj('BoxplotDataService',
+                                                    ['getGroupsData']);
     boxplot_data_service_spy.getGroupsData.and.returnValue(asyncData([]));
-    ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
+    ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService',
+                                                   ['start', 'stop']);
+    snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     TestBed.configureTestingModule({
       declarations: [ GroupingComponent,
@@ -82,12 +95,15 @@ describe('GroupingComponent', () => {
         FormsModule,
         MatCardModule,
         MatFormFieldModule,
-        MatSidenavModule
+        MatSidenavModule,
+        MatSnackBarModule,
+        NoopAnimationsModule
       ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: BoxplotDataService, useValue: boxplot_data_service_spy }
+        { provide: BoxplotDataService, useValue: boxplot_data_service_spy },
+        { provide: MatSnackBar, useValue: snack_spy }
       ]
     })
     .compileComponents();
@@ -116,12 +132,47 @@ describe('GroupingComponent', () => {
     });
   });
 
+  it('size_min', () => {
+    expect(component.size_min).toBe(2);
+  });
+  it('size_max', () => {
+    expect(component.size_max).toBe(2);
+    component.corpus = JSON.parse(JSON.stringify(test_corpus));
+    expect(component.size_max).toBe(3);
+    component.corpus.documents = ['a', 'b'];
+    expect(component.size_max).toBe(2);
+  });
+  it('num_documents', () => {
+    expect(component.num_documents).toBe(0);
+    component.corpus = test_corpus;
+    expect(component.num_documents).toBe(6);
+  });
+  it('generate_groups too low', () => {
+    [null, 0, 1].forEach(v => {
+      component.group_size = v;
+      component.generate_groups({});
+      expect(snack_spy.open).toHaveBeenCalled();
+    });
+    component.corpus = test_corpus;
+    [null, 0, 1].forEach(v => {
+      component.group_size = v;
+      component.generate_groups({});
+      expect(snack_spy.open).toHaveBeenCalled();
+    });
+  });
+
+  it('generate_groups too high', () => {
+    component.corpus = test_corpus;
+    [7, 6, 5, 4].forEach(v => {
+      component.group_size = v;
+      component.generate_groups({});
+      expect(snack_spy.open).toHaveBeenCalled();
+    });
+  });
+
   it('generate_groups', () => {
+    component.corpus = test_corpus;
     expect(component.group_size).toBe(2);
-    spyOn(window, 'alert');
-    component.group_size = 0;
-    component.generate_groups({});
-    expect(window.alert).toHaveBeenCalled();
     component.group_size = 2;
     component.generate_groups({});
     return fixture.whenStable().then(() => {
