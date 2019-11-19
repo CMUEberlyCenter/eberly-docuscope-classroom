@@ -7,13 +7,7 @@ import { environment } from './../environments/environment';
 
 describe('BoxplotDataService', () => {
   let service: BoxplotDataService;
-  const corpus = {
-    course: 'Test Course',
-    assignment: 'Fake Assignment',
-    documents: ['1', '2', '3'],
-    intro: 'generic introduction',
-    stv_intro: 'generic text introduction'
-  };
+  const corpus = ['1', '2', '3'];
   let httpMock: HttpTestingController;
   const server = environment.backend_server;
 

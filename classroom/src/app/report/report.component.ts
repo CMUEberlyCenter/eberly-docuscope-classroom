@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { CorpusService } from '../corpus.service';
-import { ReportIntroductionService } from '../report-introduction.service';
-import { ReportService } from '../report.service';
+import { ReportIntroductionService } from './report-introduction.service';
+import { ReportService } from './report.service';
 
 @Component({
   selector: 'app-report',

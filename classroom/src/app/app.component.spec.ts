@@ -2,9 +2,13 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
+import { HeaderComponent } from './header/header.component';
 
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
-import { MatDialogModule, MatIconModule, MatToolbarModule } from '@angular/material';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({selector: 'app-about', template: ''})
@@ -27,11 +31,16 @@ describe('AppComponent', () => {
       declarations: [
         AboutStubComponent,
         AppComponent,
+        HeaderComponent,
         MessagesStubComponent,
         RouterOutletStubComponent
       ],
       imports: [
-        MatDialogModule, MatIconModule, MatToolbarModule, NgxUiLoaderModule
+        MatDialogModule,
+        MatIconModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        NgxUiLoaderModule
       ],
       providers: [
         { provide: MatDialog, useValue: mat_dialog_spy }
@@ -47,10 +56,6 @@ describe('AppComponent', () => {
 
   it('should create the app', () => {
     expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'DocuScope Classroom @ CMU'`, () => {
-    expect(app.title).toEqual('DocuScope Classroom @ CMU');
   });
 
   it('should render title in the toolbar', () => {

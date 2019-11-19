@@ -3,10 +3,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
-import { environment } from './../environments/environment';
-import { MessageService } from './message.service';
-import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
-import { DocumentSchema, makeDocumentSchema } from './boxplot-data';
+import { environment } from '../../environments/environment';
+import { MessageService } from '../message.service';
+import { HttpErrorHandlerService, HandleError } from '../http-error-handler.service';
+import { DocumentSchema, makeDocumentSchema } from '../boxplot-data';
 
 class ReportsSchema {
   corpus: DocumentSchema[];

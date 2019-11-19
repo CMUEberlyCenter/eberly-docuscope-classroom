@@ -5,15 +5,15 @@
     <div class="assignment">
       <div *ngIf="course" class="item" matTooltip="{{course}}">
         <div class="title">Course:</div>
-        <div class="value">{{course}}</div>
+        <div id="course_name" class="value">{{course}}</div>
       </div>
       <div *ngIf="assignment" class="item" matTooltip="{{assignment}}">
         <div class="title">Assignment:</div>
-        <div class="value">{{assignment}}</div>
+        <div id="assignment_name" class="value">{{assignment}}</div>
       </div>
       <div *ngIf="instructor" matTooltip="{{instructor}}">
         <div class="title">Instructor:</div>
-        <div class="value">{{instructor}}</div>
+        <div id="instructor_name" class="value">{{instructor}}</div>
       </div>
     </div>
     <span class="spacer"></span>
