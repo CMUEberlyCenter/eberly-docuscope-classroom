@@ -10,9 +10,9 @@ import { AssignmentData } from '../assignment-data';
 })
 export class HeaderComponent implements OnInit {
   title = 'DocuScope Classroom @ CMU';
-  private course: string;
-  private assignment: string;
-  private instructor: string;
+  course: string;
+  assignment: string;
+  instructor: string;
 
   constructor(private assignmentService: AssignmentService) {
     assignmentService.course$.subscribe(c => this.course = c);
