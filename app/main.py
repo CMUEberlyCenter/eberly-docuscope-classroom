@@ -108,9 +108,9 @@ class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     corpus: List[UUID] = []
     level: LevelEnum = LevelEnum.cluster
     ds_dictionary: str = ...
-    assignments: List[str] = None
-    courses: List[str] = None
-    instructors: List[str] = None
+    assignments: List[str] = []
+    courses: List[str] = []
+    instructors: List[str] = []
     frame: dict = None
 
 class DocumentSchema(BaseModel): #pylint: disable=too-few-public-methods
@@ -141,7 +141,8 @@ class CorpusSchema(BaseModel):
         courses = set()
         assignments = set()
         instructors = set()
-        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary, a_name, a_course, a_instructor in \
+        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary, \
+            a_name, a_course, a_instructor in \
             db_session.query(Filesystem.processed,
                              Filesystem.fullname,
                              Filesystem.ownedby,
@@ -286,7 +287,7 @@ class BoxplotSchema(CorpusSchema):
             data['course'] = stats.courses[0]
         if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
             data['instructor'] = stats.instructors[0]
-        return data;
+        return data
 
 class BoxplotDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a boxplot data point."""
