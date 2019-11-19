@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-
-import { AboutComponent } from './about/about.component';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +8,6 @@ import { AboutComponent } from './about/about.component';
 })
 export class AppComponent {
 
-  constructor(public about: MatDialog) { }
+  constructor() { }
 
-  openAbout(): void {
-    this.about.open(AboutComponent);
-  }
 }

@@ -1,16 +1,23 @@
+import { Component } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { asyncData } from '../../testing';
 
+import { AboutComponent } from '../about/about.component';
 import { HeaderComponent } from './header.component';
 import { AssignmentService } from '../assignment.service';
+
+@Component({selector: 'app-about', template: ''})
+class AboutStubComponent {}
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let service: AssignmentService;
+  const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -20,7 +27,10 @@ describe('HeaderComponent', () => {
         MatToolbarModule,
         MatTooltipModule,
       ],
-      providers: [ AssignmentService ]
+      providers: [
+        AssignmentService,
+        { provide: MatDialog, useValue: mat_dialog_spy }
+      ]
     })
     .compileComponents();
   }));
@@ -66,5 +76,11 @@ describe('HeaderComponent', () => {
       expect(compiled.querySelector('#instructor_name').textContent)
         .toContain('instructor');
     });
+  });
+
+  it('about', () => {
+    component.openAbout();
+    expect(mat_dialog_spy.open).toHaveBeenCalled();
+    expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 });
