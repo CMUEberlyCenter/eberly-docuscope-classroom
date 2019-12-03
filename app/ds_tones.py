@@ -3,7 +3,10 @@ Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
 import gzip
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import logging
 import os
 from typing import List

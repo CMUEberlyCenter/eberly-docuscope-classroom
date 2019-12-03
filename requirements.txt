@@ -3,14 +3,14 @@ aiofiles==0.4.0
 beautifulsoup4==4.8.1
 dnspython==1.16.0
 email-validator==1.0.5
-fastapi==0.42.0
+fastapi==0.44.0
 idna==2.8
 itsdangerous==1.1.0
-mysqlclient==1.4.5
+mysqlclient==1.4.6
 numpy==1.17.4
 pandas==0.25.3
 pillow==6.2.1
-pydantic==0.32.2
+pydantic==1.2
 python-dateutil==2.8.1
 pytz==2019.3
 reportlab==3.5.32

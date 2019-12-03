@@ -39,7 +39,7 @@ SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="2.2.0",
+    version="3.0.0",
     license={'name': 'CC BY-NC-SA 4.0',
              'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
 

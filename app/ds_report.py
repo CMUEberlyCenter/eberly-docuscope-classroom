@@ -7,7 +7,10 @@ from collections import defaultdict, Counter
 import copy
 import html
 import io
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import logging
 import math
 import os
