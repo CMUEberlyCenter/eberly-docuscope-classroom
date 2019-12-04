@@ -16,7 +16,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
+from starlette.status import HTTP_400_BAD_REQUEST, \
     HTTP_422_UNPROCESSABLE_ENTITY, HTTP_500_INTERNAL_SERVER_ERROR, \
     HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
@@ -605,9 +605,6 @@ def count_patterns(node, ds_dict, patterns_all):
 
 @app.post('/patterns', response_model=List[CategoryPatternData],
           responses={
-              HTTP_204_NO_CONTENT:{
-                  "model": ErrorResponse,
-                  "description": "No content (untagged documents)"},
               HTTP_400_BAD_REQUEST: {
                   "model": ErrorResponse,
                   "description": "Bad Request"},
@@ -639,7 +636,7 @@ def patterns(corpus: CorpusSchema,
             logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
             raise HTTPException(
                 detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                status_code=HTTP_204_NO_CONTENT)
+                status_code=HTTP_503_SERVICE_UNAVAILABLE)
         ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
         if not tones or tones.dictionary_name != ds_dictionary:
             tones = DocuScopeTones(ds_dictionary)
@@ -690,7 +687,7 @@ class ReportsSchema(BoxplotSchema):
                 logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
                 raise HTTPException(
                     detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                    status_code=HTTP_204_NO_CONTENT)
+                    status_code=HTTP_503_SERVICE_UNAVAILABLE)
             tagged = {
                 'html_content': re.sub(r'(\n|\s)+', ' ', doc['ds_output']),
                 'dict': {}
@@ -778,9 +775,6 @@ class TextContent(AssignmentData): #pylint: disable=too-few-public-methods
 
 @app.get('/text_content/{file_id}', response_model=TextContent,
          responses={
-             HTTP_204_NO_CONTENT: {
-                 "model": ErrorResponse,
-                 "description": "No content (untagged document)"},
              HTTP_400_BAD_REQUEST: {
                  "model": ErrorResponse,
                  "description": "Bad Request"},
@@ -804,7 +798,7 @@ def get_tagged_text(file_id: UUID,
     if state in ('pending', 'submitted'):
         logging.error("%s has state %s", file_id, state)
         raise HTTPException(detail="Document is still being processed, try again later.",
-                            status_code=HTTP_204_NO_CONTENT)
+                            status_code=HTTP_503_SERVICE_UNAVAILABLE)
     if state == 'error':
         logging.error("Error while tagging: %s", doc)
         raise HTTPException(detail="Error while tagging document.",
