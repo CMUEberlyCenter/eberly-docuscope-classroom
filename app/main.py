@@ -208,7 +208,8 @@ class CorpusSchema(BaseModel):
             if not sumframe.empty:
                 data[category] = sumframe.transpose().sum()
             else:
-                data[category] = 0
+                data[category] = Series({'*** No Documents ***': 0})
+        logging.debug(data)
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
         frame['title'] = ds_stats['title']
