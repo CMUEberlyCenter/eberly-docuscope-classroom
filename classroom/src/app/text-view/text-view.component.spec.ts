@@ -141,6 +141,14 @@ describe('TextViewComponent', () => {
       expect(component.expanded).toBe(null);
     }));
 
+  it('getTaggedText null', async () => {
+    tagged_text_service_spy.getTaggedText.and.stub();
+    tagged_text_service_spy.getTaggedText.and.returnValue(asyncData({}));
+    await component.getTaggedText();
+    await fixture.whenStable().then(() => {
+      expect(component.clusters.data).toBeDefined();
+    });
+  });
   it('getTaggedText', async () => {
     await component.getTaggedText();
     await fixture.whenStable().then((a) => {
@@ -152,16 +160,9 @@ describe('TextViewComponent', () => {
       // expect(article.textContent).toMatch(/stub\w+text/);
       // expect(article.innerHTML).toMatch(/stub\w+text/);
     });
-    /*tagged_text_service_spy.getTaggedText.and.stub();
-    tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(null));
-    component.getTaggedText();
-    await fixture.whenStable().then(() => {
-      expect(component.clusters.data).toBeDefined();
-    });
-    */
     component.sort = null;
     component.getTaggedText();
-    await fixture.whenStable().then((a) => {
+    await fixture.whenStable().then(() => {
       expect(component.clusters.data[0]).toBeDefined();
     });
   });

@@ -1,23 +1,17 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Observable, of, zip } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-
-import { AssignmentService } from './assignment.service';
-import { Corpus } from './corpus';
+import { Observable, of } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CorpusService {
+  private _corpus: string[];
 
-  private _corpus: Corpus;
+  constructor(private activatedRoute: ActivatedRoute) { }
 
-  constructor(private activatedRoute: ActivatedRoute,
-              private assignment: AssignmentService
-             ) { }
-
-  getDocumentIds(): Observable<string[]> {
+  getDocumentIds(): string[] {
       const str_ids: string = this.activatedRoute.snapshot.queryParamMap.get('ids');
       let ids: string[] = [];
       if (str_ids) {
@@ -25,24 +19,13 @@ export class CorpusService {
       } else {
         console.error('CorpusService.getCorpus() => no document ids provided!');
       }
-    return of(ids);
+    return ids;
   }
 
-  getCorpus(): Observable<Corpus> {
-    if (this._corpus) {
-      return of(this._corpus);
-    } else {
-      return zip(this.assignment.getAssignment('default'),
-                 this.getDocumentIds())
-        .pipe(
-          map(([assign, doc_ids]) => ({
-            course: assign.course,
-            assignment: assign.assignment,
-            documents: doc_ids,
-            intro: assign.intro,
-            stv_intro: assign.stv_intro
-          })),
-          tap(c => this._corpus = c));
+  getCorpus(): Observable<string[]> {
+    if (!this._corpus) {
+      this._corpus = this.getDocumentIds();
     }
+    return of(this._corpus);
   }
 }

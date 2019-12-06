@@ -19,6 +19,9 @@ export interface TextContent {
     cluster?: TextContentDictionaryInformation[],
     dimension?: TextContentDictionaryInformation[]
   };
+  course?: string;
+  assignment?: string;
+  instructor?: string;
 }
 
 @Injectable({

@@ -9,6 +9,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as d3 from 'd3';
 import * as $ from 'jquery';
 
+import { AssignmentService } from '../assignment.service';
 import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
 import { PatternData, pattern_compare } from '../patterns.service';
 import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
@@ -22,7 +23,8 @@ class TextClusterData implements ClusterData {
   get pattern_count(): number { return this.patterns.length; }
   // expand: boolean = false; // to be used for multiple expansion.
 
-  constructor(di: TextContentDictionaryInformation, patterns: Map<string, number>) {
+  constructor(di: TextContentDictionaryInformation,
+              patterns: Map<string, number>) {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
@@ -81,6 +83,7 @@ export class TextViewComponent implements OnInit {
 
   constructor(
     private _route: ActivatedRoute,
+    private _assignmentService: AssignmentService,
     private _sanitizer: DomSanitizer,
     private _spinner: NgxUiLoaderService,
     private _text_service: TaggedTextService
@@ -104,6 +107,7 @@ export class TextViewComponent implements OnInit {
     return this._text_service.getTaggedText(id)
       .subscribe(txt => {
         this.tagged_text = txt;
+        this._assignmentService.setAssignmentData(txt);
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
         this._cluster_info = new Map<string, TextContentDictionaryInformation>();

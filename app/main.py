@@ -16,7 +16,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse, FileResponse
 from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, \
+from starlette.status import HTTP_400_BAD_REQUEST, \
     HTTP_422_UNPROCESSABLE_ENTITY, HTTP_500_INTERNAL_SERVER_ERROR, \
     HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
@@ -39,7 +39,7 @@ SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="2.2.0",
+    version="3.0.0",
     license={'name': 'CC BY-NC-SA 4.0',
              'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
 
@@ -108,6 +108,9 @@ class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     corpus: List[UUID] = []
     level: LevelEnum = LevelEnum.cluster
     ds_dictionary: str = ...
+    assignments: List[str] = []
+    courses: List[str] = []
+    instructors: List[str] = []
     frame: dict = None
 
 class DocumentSchema(BaseModel): #pylint: disable=too-few-public-methods
@@ -135,14 +138,21 @@ class CorpusSchema(BaseModel):
         logging.info('Retrieving stats from database')
         stats = {}
         ds_dictionaries = set()
-        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary in \
+        courses = set()
+        assignments = set()
+        instructors = set()
+        for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary, \
+            a_name, a_course, a_instructor in \
             db_session.query(Filesystem.processed,
                              Filesystem.fullname,
                              Filesystem.ownedby,
                              Filesystem.name,
                              Filesystem.id,
                              Filesystem.state,
-                             DSDictionary.name)\
+                             DSDictionary.name,
+                             Assignment.name,
+                             Assignment.course,
+                             Assignment.instructor)\
                       .filter(Filesystem.id.in_(self.documents()))\
                       .filter(Filesystem.state == 'tagged')\
                       .filter(Assignment.id == Filesystem.assignment)\
@@ -165,6 +175,9 @@ class CorpusSchema(BaseModel):
                 ser['ownedby'] = ownedby
                 stats[str(doc_id)] = ser
                 ds_dictionaries.add(ds_dictionary)
+                courses.add(a_course)
+                assignments.add(a_name)
+                instructors.add(a_instructor)
         if not stats:
             logging.error("Failed to retrieve stats for corpus: %s",
                           self.documents())
@@ -195,7 +208,8 @@ class CorpusSchema(BaseModel):
             if not sumframe.empty:
                 data[category] = sumframe.transpose().sum()
             else:
-                data[category] = 0
+                data[category] = Series({'*** No Documents ***': 0})
+        logging.debug(data)
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
         frame['title'] = ds_stats['title']
@@ -205,7 +219,10 @@ class CorpusSchema(BaseModel):
         return LevelFrame(ds_dictionary=ds_dictionary,
                           corpus=self.documents(),
                           frame=lframe.to_dict(),
-                          level=self.level)
+                          level=self.level,
+                          courses=list(courses),
+                          assignments=list(assignments),
+                          instructors=list(instructors))
     def get_stats(self, db_session: Session):
         """Retrieve or generate the basic statistics for this corpus."""
         try:
@@ -264,7 +281,14 @@ class BoxplotSchema(CorpusSchema):
         bpdata.reverse()
         logging.info(bpdata)
         logging.info(outliers)
-        return {"bpdata": bpdata, "outliers": outliers}
+        data = {"bpdata": bpdata, "outliers": outliers}
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data
 
 class BoxplotDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a boxplot data point."""
@@ -282,7 +306,14 @@ class BoxplotDataOutlier(BaseModel): #pylint: disable=too-few-public-methods
     pointtitle: str = ...
     value: float = ...
     category: str = ...
-class BoxplotData(BaseModel): #pylint: disable=too-few-public-methods
+
+class AssignmentData(BaseModel): #pylint: disable=too-few-public-methods
+    """Schema for information about the assignment."""
+    assignment: str = None
+    course: str = None
+    instructor: str = None
+
+class BoxplotData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for 'boxplot_data' responses."""
     bpdata: List[BoxplotDataEntry] = ...
     outliers: List[BoxplotDataOutlier] = None
@@ -323,7 +354,7 @@ class RankDataEntry(BaseModel): #pylint: disable=too-few-public-methods
     value: float = ... # instances/words
     ownedby: str = ... # 'student' or 'instructor'
 
-class RankData(BaseModel): #pylint: disable=too-few-public-methods
+class RankData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "ranked_list" responses."""
     category: str = None
     category_name: str = None
@@ -384,10 +415,17 @@ def get_rank_list(corpus: RankListSchema,
     frame = frame[frame.value != 0]
     #logging.info(frame.to_dict('records'))
     ds_map = get_ds_info_map(get_ds_info(stats.ds_dictionary, db_session))
-    return {'category': corpus.sortby,
+    data = {'category': corpus.sortby,
             'category_name': ds_map[corpus.sortby],
             'median': v_avg,
             'result': frame.to_dict('records')}
+    if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+        data['assignment'] = stats.assignments[0]
+    if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+        data['course'] = stats.courses[0]
+    if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+        data['instructor'] = stats.instructors[0]
+    return data
 
 class ScatterplotSchema(CorpusSchema):
     """Schema for '/scatterplot_data' requests."""
@@ -396,7 +434,8 @@ class ScatterplotSchema(CorpusSchema):
 
     def get_plot_data(self, db_session: Session):
         """Generate the scatterplot data for this corpus."""
-        frame = self.get_frame(db_session)
+        stats = self.get_stats(db_session)
+        frame = DataFrame.from_dict(stats.frame)
         title_row = frame.loc['title']
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
@@ -414,7 +453,16 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame[[self.catX, self.catY, 'title', 'ownedby']]
         frame['text_id'] = frame.index
         frame = frame.rename(columns={self.catX: 'catX', self.catY: 'catY'})
-        return {'axisX': self.catX, 'axisY': self.catY, 'spdata': frame.to_dict('records')}
+        data = {'axisX': self.catX,
+                'axisY': self.catY,
+                'spdata': frame.to_dict('records')}
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data
 
 class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for a point in the ScatterplotData."""
@@ -424,7 +472,7 @@ class ScatterplotDataPoint(BaseModel): #pylint: disable=too-few-public-methods
     text_id: str = ...
     ownedby: str = ...
 
-class ScatterplotData(BaseModel): #pylint: disable=too-few-public-methods
+class ScatterplotData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "scatterplot_data" response."""
     axisX: str = None
     axisY: str = None
@@ -457,7 +505,8 @@ class GroupsSchema(CorpusSchema):
 
     def get_pairings(self, db_session: Session):
         """Generate the groups for this corpus."""
-        frame = self.get_frame(db_session)#.transpose()
+        stats = self.get_stats(db_session)
+        frame = DataFrame.from_dict(stats.frame)
         # logging.warning(frame)
         frame = frame.loc[:, list(frame.loc['ownedby'] == 'student')]
         title_row = frame.loc['title']
@@ -469,9 +518,16 @@ class GroupsSchema(CorpusSchema):
         frame = frame.append(title_row)
         frame = frame.transpose().fillna(0).set_index('title')
         # logging.warning(frame)
-        return get_best_groups(frame, group_size=self.group_size)
+        data = get_best_groups(frame, group_size=self.group_size)
+        if 'assignments' in stats.__fields_set__ and len(stats.assignments) == 1:
+            data['assignment'] = stats.assignments[0]
+        if 'courses' in stats.__fields_set__ and len(stats.courses) == 1:
+            data['course'] = stats.courses[0]
+        if 'instructors' in stats.__fields_set__ and len(stats.instructors) == 1:
+            data['instructor'] = stats.instructors[0]
+        return data
 
-class GroupsData(BaseModel): #pylint: disable=too-few-public-methods
+class GroupsData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "groups" data."""
     groups: List[List[str]] = ...
     grp_qualities: List[float] = None
@@ -550,9 +606,6 @@ def count_patterns(node, ds_dict, patterns_all):
 
 @app.post('/patterns', response_model=List[CategoryPatternData],
           responses={
-              HTTP_204_NO_CONTENT:{
-                  "model": ErrorResponse,
-                  "description": "No content (untagged documents)"},
               HTTP_400_BAD_REQUEST: {
                   "model": ErrorResponse,
                   "description": "Bad Request"},
@@ -584,7 +637,7 @@ def patterns(corpus: CorpusSchema,
             logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
             raise HTTPException(
                 detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                status_code=HTTP_204_NO_CONTENT)
+                status_code=HTTP_503_SERVICE_UNAVAILABLE)
         ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
         if not tones or tones.dictionary_name != ds_dictionary:
             tones = DocuScopeTones(ds_dictionary)
@@ -635,7 +688,7 @@ class ReportsSchema(BoxplotSchema):
                 logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
                 raise HTTPException(
                     detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                    status_code=HTTP_204_NO_CONTENT)
+                    status_code=HTTP_503_SERVICE_UNAVAILABLE)
             tagged = {
                 'html_content': re.sub(r'(\n|\s)+', ' ', doc['ds_output']),
                 'dict': {}
@@ -713,7 +766,7 @@ class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
     cluster: List[DictionaryInformation] = []
     dimension: List[DictionaryInformation] = []
 
-class TextContent(BaseModel): #pylint: disable=too-few-public-methods
+class TextContent(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for text_content data."""
     text_id: str = ...
     word_count: int = 0
@@ -723,9 +776,6 @@ class TextContent(BaseModel): #pylint: disable=too-few-public-methods
 
 @app.get('/text_content/{file_id}', response_model=TextContent,
          responses={
-             HTTP_204_NO_CONTENT: {
-                 "model": ErrorResponse,
-                 "description": "No content (untagged document)"},
              HTTP_400_BAD_REQUEST: {
                  "model": ErrorResponse,
                  "description": "Bad Request"},
@@ -742,13 +792,14 @@ def get_tagged_text(file_id: UUID,
     if not file_id:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    doc, filename, state = db_session.query(Filesystem.processed,
-                                            Filesystem.name, Filesystem.state)\
-                                     .filter_by(id=file_id).first()
+    doc, filename, state, a_name, a_course, a_instructor = db_session.query(
+        Filesystem.processed, Filesystem.name, Filesystem.state,
+        Assignment.name, Assignment.course, Assignment.instructor
+    ).filter_by(id=file_id).filter(Assignment.id == Filesystem.assignment).first()
     if state in ('pending', 'submitted'):
         logging.error("%s has state %s", file_id, state)
         raise HTTPException(detail="Document is still being processed, try again later.",
-                            status_code=HTTP_204_NO_CONTENT)
+                            status_code=HTTP_503_SERVICE_UNAVAILABLE)
     if state == 'error':
         logging.error("Error while tagging: %s", doc)
         raise HTTPException(detail="Error while tagging document.",
@@ -760,11 +811,17 @@ def get_tagged_text(file_id: UUID,
     ds_info = get_ds_info(doc['ds_dictionary'], db_session)
     res = TextContent(text_id=filename or file_id.text_id,
                       word_count=doc['ds_num_word_tokens'],
-                      dict_info=ds_info)
+                      dict_info=ds_info,
+                      course=a_course,
+                      instructor=a_instructor,
+                      assignment=a_name)
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
     tag_dict = doc['ds_tag_dict']
+    res.course = a_course
+    res.assignment = a_name
+    res.instructor = a_instructor
     if tag_dict:
         tones = DocuScopeTones(doc['ds_dictionary'])
         for lat in tag_dict.keys():

@@ -1,6 +1,5 @@
-export interface AssignmentData {
-  course: string;
-  assignment: string;
-  intro: string;
-  stv_intro: string;
+export class AssignmentData {
+  course?: string;
+  assignment?: string;
+  instructor?: string;
 }

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { Corpus } from '../corpus';
+import { AssignmentService } from '../assignment.service';
+import { BoxplotDataService } from '../boxplot-data.service';
 import { CorpusService } from '../corpus.service';
 import { RankData, RankDataEntry, BoxplotDataEntry, max_boxplot_value } from '../boxplot-data';
-import { BoxplotDataService } from '../boxplot-data.service';
 
 @Component({
   selector: 'app-rank',
@@ -12,7 +12,7 @@ import { BoxplotDataService } from '../boxplot-data.service';
   styleUrls: ['./rank.component.css']
 })
 export class RankComponent implements OnInit {
-  corpus: Corpus;
+  corpus: string[];
   data: RankData;
   rank_data: [string, number][];
   categories: Map<string, string> = new Map<string, string>();
@@ -28,7 +28,8 @@ export class RankComponent implements OnInit {
     }
   };
 
-  constructor(private _corpus_service: CorpusService,
+  constructor(private _assignment_service: AssignmentService,
+              private _corpus_service: CorpusService,
               private _spinner: NgxUiLoaderService,
               private _data_service: BoxplotDataService) { }
 
@@ -45,6 +46,7 @@ export class RankComponent implements OnInit {
     this._spinner.start();
     this._data_service.getBoxPlotData(this.corpus)
       .subscribe(data => {
+        this._assignment_service.setAssignmentData(data);
         this.categories = new Map<string, string>(
           data.bpdata.map((bpd: BoxplotDataEntry): [string, string] => [bpd.category, bpd.category_label]));
         this.max_value = max_boxplot_value(data);

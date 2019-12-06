@@ -3,8 +3,8 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ReportService } from './report.service';
-import { MessageService } from './message.service';
-import { environment } from './../environments/environment';
+import { MessageService } from '../message.service';
+import { environment } from '../../environments/environment';
 
 describe('ReportService', () => {
   let service: ReportService;
@@ -29,12 +29,10 @@ describe('ReportService', () => {
   });
 
   it('getReports', () => {
-    const corpus = {course: 'Test Course', assignment: 'Test Assignment',
-                    intro: 'my intro', stv_intro: 'my other intro',
-                    documents: ['a', 'b', 'c']};
-    service.getReports(corpus).subscribe(data => {
-      expect(data).toBeTruthy();
-    });
+    service.getReports(['a', 'b', 'c'], 'my intro', 'my other intro')
+      .subscribe(data => {
+        expect(data).toBeTruthy();
+      });
     const req = httpMock.expectOne(`${environment.backend_server}/generate_reports`);
     expect(req.request.method).toBe('POST');
     req.flush(new Blob(['report']));

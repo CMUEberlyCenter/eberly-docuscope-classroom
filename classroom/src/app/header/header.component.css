@@ -1,0 +1,35 @@
+.assignment {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  /*flex-wrap: wrap;*/
+  justify-content: space-around;
+}
+
+.item {
+  padding-left: 1em;
+  padding-right: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  max-width: 30%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.title {
+  max-height: 2em;
+  font-size: xx-small;
+  /*color: grey;*/
+}
+
+.value {
+  font-size: medium;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}

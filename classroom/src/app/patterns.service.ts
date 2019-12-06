@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, publishReplay, refCount } from 'rxjs/operators';
 import { makeCorpusSchema } from './boxplot-data';
-import { Corpus } from './corpus';
 import { environment } from './../environments/environment';
 import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 
@@ -47,7 +46,7 @@ export class PatternsService {
     this.handleError = httpErrorHandler.createHandleError('PatternsService');
   }
 
-  getPatterns(corpus: Corpus): Observable<CategoryPatternData[]> {
+  getPatterns(corpus: string[]): Observable<CategoryPatternData[]> {
     if (!this.pattern_data) {
       const p_query = makeCorpusSchema(corpus);
       this.pattern_data = this._http.post<CategoryPatternData[]>(this.server, p_query)

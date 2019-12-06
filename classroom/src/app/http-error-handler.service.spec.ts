@@ -48,6 +48,12 @@ describe('HttpErrorHandlerService', () => {
     handler('handle_error', <any>{})(error).subscribe(data => {
       expect(data).toEqual({});
     });
+    const error0: HttpErrorResponse = new HttpErrorResponse({
+      error: {detail: 'I am a bat bug'}
+    });
+    handler('handle_error', <any>{})(error0).subscribe(data => {
+      expect(data).toEqual({});
+    });
     const error1: HttpErrorResponse = new HttpErrorResponse({
       error: {detail: [{msg: 'I am a bat bug'}]}
     });

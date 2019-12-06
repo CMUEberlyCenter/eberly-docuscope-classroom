@@ -4,7 +4,6 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
-// import { EasyUIModule } from 'ng-easyui/components/easyui/easyui.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GoogleChartsModule } from 'angular-google-charts';
 // import { MatBadgeModule } from '@angular/material/badge';
@@ -45,6 +44,7 @@ import { AboutComponent } from './about/about.component';
 import { PatternsComponent } from './patterns/patterns.component';
 import { PatternsTableComponent } from './patterns-table/patterns-table.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +63,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     PatternsComponent,
     PatternsTableComponent,
     PageNotFoundComponent,
+    HeaderComponent,
   ],
   entryComponents: [
     AboutComponent,

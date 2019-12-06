@@ -3,7 +3,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Corpus } from '../corpus';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { BoxplotDataService } from '../boxplot-data.service';
 import { GroupsData } from '../boxplot-data';
@@ -18,15 +18,16 @@ export class GroupingComponent implements OnInit {
   get size_max(): number {
     return this.corpus
       ? Math.max(this.size_min,
-                 Math.floor(this.corpus.documents.length / 2))
+                 Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
-  corpus: Corpus;
+  corpus: string[];
   group_size = 2;
   groups: GroupsData;
   absent: string[] = [];
 
   constructor(private corpus_service: CorpusService,
+              private _assignment_service: AssignmentService,
               private _spinner: NgxUiLoaderService,
               private _snack_bar: MatSnackBar,
               private data_service: BoxplotDataService) { }
@@ -45,6 +46,7 @@ export class GroupingComponent implements OnInit {
     this.data_service.getGroupsData(this.corpus, +this.group_size)
       .subscribe(data => {
         this.groups = data;
+        this._assignment_service.setAssignmentData(data);
         this.absent = [];
         this._spinner.stop();
       });
@@ -54,7 +56,7 @@ export class GroupingComponent implements OnInit {
     this.getCorpus();
   }
 
-  get num_documents(): number { return this.corpus ? this.corpus.documents.length : 0; }
+  get num_documents(): number { return this.corpus ? this.corpus.length : 0; }
   generate_groups(e): void {
     if (this.group_size) {
       if (this.num_documents < 4) {

@@ -69,13 +69,7 @@ describe('GroupingComponent', () => {
   let boxplot_data_service_spy;
   let ngx_spinner_service_spy;
   let snack_spy;
-  const test_corpus = {
-    course: 'test',
-    assignment: 'testing',
-    documents: ['a', 'b', 'c', 'd', 'e', 'f'],
-    intro: '',
-    stv_intro: ''
-  };
+  const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
   beforeEach(async(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
@@ -139,7 +133,7 @@ describe('GroupingComponent', () => {
     expect(component.size_max).toBe(2);
     component.corpus = JSON.parse(JSON.stringify(test_corpus));
     expect(component.size_max).toBe(3);
-    component.corpus.documents = ['a', 'b'];
+    component.corpus = ['a', 'b'];
     expect(component.size_max).toBe(2);
   });
   it('num_documents', () => {
