@@ -40,8 +40,10 @@ app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
     version="3.0.0",
-    license={'name': 'CC BY-NC-SA 4.0',
-             'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})
+    license={
+        'name': 'CC BY-NC-SA 4.0',
+        'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
+    })
 
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
