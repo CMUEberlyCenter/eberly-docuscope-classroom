@@ -21,7 +21,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, \
     HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from pandas import DataFrame, Series
+from pandas import DataFrame, NA, Series
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
@@ -248,7 +248,7 @@ class BoxplotSchema(CorpusSchema):
         stats = self.get_stats(db_session)
         frame = DataFrame.from_dict(stats.frame)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
-        frame = frame.apply(lambda x: x.divide(x['total_words'])) # frequencies
+        frame = frame.apply(lambda x: x.divide(x['total_words']) if x['total_words'] else NA) # frequencies
         frame = frame.drop('total_words').drop('Other', errors='ignore')
         frame = frame.transpose()
         frame = frame.fillna(0)
