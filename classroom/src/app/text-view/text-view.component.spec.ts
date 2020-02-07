@@ -167,27 +167,25 @@ describe('TextViewComponent', () => {
     });
   });
 
-  it('click_select', () => fixture.whenStable().then(async () => {
-    await fixture.whenStable().then(() => {
-      fixture.detectChanges();
-      const evt = {
-        target: {
-          parentNode: {
-            getAttribute: () => 'invalid',
-            classed: () => {},
-            select: () => ({style: () => {}})
-          }
+  it('click_select', () => fixture.whenStable().then(() => {
+    fixture.detectChanges();
+    const evt = {
+      target: {
+        parentNode: {
+          getAttribute: () => 'invalid',
+          classed: () => {},
+          select: () => ({style: () => {}})
         }
-      };
-      expect(() => component.click_select(evt)).not.toThrow();
-      fixture.detectChanges();
-      evt.target.parentNode.getAttribute = () => null;
-      expect(() => component.click_select(evt)).not.toThrow();
-      fixture.detectChanges();
-      evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
-      // expect(()=>component.click_select(evt)).not.toThrow();
-      fixture.detectChanges();
-    });
+      }
+    };
+    expect(() => component.click_select(evt)).not.toThrow();
+    fixture.detectChanges();
+    evt.target.parentNode.getAttribute = () => null;
+    expect(() => component.click_select(evt)).not.toThrow();
+    fixture.detectChanges();
+    evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
+    // expect(()=>component.click_select(evt)).not.toThrow();
+    fixture.detectChanges();
   }));
 
   it('get_lats', () => fixture.whenStable().then(() => {

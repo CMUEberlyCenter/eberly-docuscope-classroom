@@ -45,13 +45,17 @@ export class ReportComponent implements OnInit {
   generate_report($event): void {
     this._spinner.start();
     this.reportService.getReports(this.corpus, this.intro, this.stv_intro).subscribe(data => {
-      const url = window.URL.createObjectURL(data);
-      const link = this.download_link.nativeElement;
-      link.href = url;
-      link.download = 'reports.zip';
-      this._spinner.stop();
-      link.click();
-      window.URL.revokeObjectURL(url);
+      if (data) {
+        const url = window.URL.createObjectURL(data);
+        const link = this.download_link.nativeElement;
+        link.href = url;
+        link.download = 'reports.zip';
+        this._spinner.stop();
+        link.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        this._spinner.stop();
+      }
     });
   }
 }

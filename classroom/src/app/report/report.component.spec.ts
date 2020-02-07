@@ -67,7 +67,21 @@ describe('ReportComponent', () => {
     expect(component).toBeDefined();
   });
 
+  it('generate_report empty', () => fixture.whenStable().then(() => {
+    fixture.detectChanges();
+    spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
+    spyOn(window.URL, 'revokeObjectURL');
+    component.download_link.nativeElement.click = jasmine.createSpy('click');
+    component.generate_report({});
+    fixture.detectChanges();
+
+    expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+    expect(report_service_spy.getReports).toHaveBeenCalled();
+    expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+  }));
+
   it('generate_report', () => fixture.whenStable().then(() => {
+    report_service_spy.getReports.and.returnValue(asyncData('data'));
     fixture.detectChanges();
     spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
     spyOn(window.URL, 'revokeObjectURL');

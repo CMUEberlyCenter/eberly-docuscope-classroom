@@ -29,19 +29,8 @@ export class BoxplotDataService {
     this.handleError = httpErrorHandler.createHandleError('BoxplotDataService');
   }
 
-  /*private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('A client side or network error occurred:',
-                    error.error.message);
-    } else {
-      console.error(`Server error ${error.status}: ${error.error}`);
-    }
-    return throwError('Something bad happened.');
-  }*/
-
   getBoxPlotData(corpus: string[]): Observable<BoxplotData> {
     if (this.boxplot_data) {
-      // console.log(this.boxplot_data);
       // this.messageService.add('Retrieved Box Plot data from cache.');
       return this.boxplot_data;
     } else {
@@ -62,14 +51,15 @@ export class BoxplotDataService {
   getRankedList(corpus: string[], sort_by: string): Observable<RankData> {
     if (!this.rank_data.has(sort_by)) {
       const rank_query = makeRankedListSchema(corpus, sort_by);
-      this.rank_data.set(sort_by,
-                         this.http.post<RankData>(this.rank_server, rank_query)
-                         .pipe(
-                           publishReplay(1),
-                           refCount(),
-                           catchError(this.handleError('getRankedList',
-                                                       <RankData>{}))
-                         ));
+      this.rank_data.set(
+        sort_by,
+        this.http.post<RankData>(this.rank_server, rank_query)
+          .pipe(
+            publishReplay(1),
+            refCount(),
+            catchError(this.handleError('getRankedList',
+                                        <RankData>{result: []}))
+          ));
     }
     return this.rank_data.get(sort_by);
   }
@@ -86,7 +76,10 @@ export class BoxplotDataService {
                 .pipe(
                   publishReplay(1),
                   refCount(),
-                  catchError(this.handleError('getScatterPlotData', <ScatterplotData>{}))
+                  catchError(this.handleError('getScatterPlotData',
+                                              <ScatterplotData>{
+                                                axisX: x, axisY: y,
+                                                spdata: []}))
                 ));
     }
     return x_map.get(y);
@@ -95,6 +88,8 @@ export class BoxplotDataService {
   getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
     const groups_query = makeGroupsSchema(corpus, group_size);
     return this.http.post<GroupsData>(this.groups_server, groups_query)
-      .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{})));
+      .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{
+        groups: [[]], grp_qualities: [], quality: 0
+      })));
   }
 }
