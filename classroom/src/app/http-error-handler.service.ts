@@ -28,6 +28,8 @@ export class HttpErrorHandlerService {
       let message = '';
       if (error.error instanceof ErrorEvent) {
         message = error.error.message;
+      } else if (error.error && typeof error.error === "string") {
+        message = error.error;
       } else if (error.error && 'detail' in error.error) {
         if (Array.isArray(error.error.detail)) {
           message = `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;

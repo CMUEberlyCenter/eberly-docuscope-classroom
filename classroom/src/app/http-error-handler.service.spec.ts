@@ -66,5 +66,11 @@ describe('HttpErrorHandlerService', () => {
     handler('handle_error', <any>{})(error2).subscribe(data => {
       expect(data).toEqual({});
     });
+    const error3: HttpErrorResponse = new HttpErrorResponse({
+      error: "String Error"
+    });
+    handler('handle_error', <any>{})(error3).subscribe(data => {
+      expect(data).toEqual({});
+    });
   });
 });
