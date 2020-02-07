@@ -207,7 +207,7 @@ def html_to_report_string(node, ds_dict, cat_descriptions, patterns_all):
                 else:
                     paragraphs += inner_str
 
-            elif 'token' in child.attrs['class']:
+            elif 'class' in child.attrs and 'token' in child.attrs['class']:
                 if child.text == " ":
                     paragraphs += child.text
                 else:
