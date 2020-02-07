@@ -167,7 +167,7 @@ describe('TextViewComponent', () => {
     });
   });
 
-  it('click_select', () => fixture.whenStable().then(async () => {
+  it('click_select', () => fixture.whenStable().then(() => {
     fixture.detectChanges();
     const evt = {
       target: {
@@ -179,10 +179,10 @@ describe('TextViewComponent', () => {
       }
     };
     expect(() => component.click_select(evt)).not.toThrow();
-    await fixture.detectChanges();
+    fixture.detectChanges();
     evt.target.parentNode.getAttribute = () => null;
     expect(() => component.click_select(evt)).not.toThrow();
-    await fixture.detectChanges();
+    fixture.detectChanges();
     evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
     // expect(()=>component.click_select(evt)).not.toThrow();
     fixture.detectChanges();
