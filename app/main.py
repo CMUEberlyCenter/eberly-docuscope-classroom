@@ -398,7 +398,8 @@ def get_rank_list(corpus: RankListSchema,
     title_row = frame.loc['title']
     owner_row = frame.loc['ownedby']
     frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
-    frame = frame.apply(lambda x: x.divide(x['total_words']))
+    frame = frame.apply(lambda x: x.divide(x['total_words'])
+                        if x['total_words'] else NA)
     frame = frame.drop('total_words').append(title_row).append(owner_row)
     frame = frame.transpose()
     frame = frame.fillna(0)
