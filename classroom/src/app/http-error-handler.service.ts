@@ -28,7 +28,7 @@ export class HttpErrorHandlerService {
       let message = '';
       if (error.error instanceof ErrorEvent) {
         message = error.error.message;
-      } else if (error.error && typeof error.error === "string") {
+      } else if (error.error && typeof error.error === 'string') {
         message = error.error;
       } else if (error.error && 'detail' in error.error) {
         if (Array.isArray(error.error.detail)) {
