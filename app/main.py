@@ -444,8 +444,9 @@ class ScatterplotSchema(CorpusSchema):
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
         frame = frame.fillna(0)
-        frame = frame.apply(lambda x: x.divide(x['total_words'])*100)
-        frame = frame.drop('total_words')
+        frame = frame.apply(lambda x: x.divide(x['total_words'])*100
+                            if x['total_words'] else NA)
+        frame = frame.drop('total_words').fillna(0)
         frame = frame.append(title_row).append(owner_row)
         frame = frame.transpose()
         if self.catX not in frame or self.catY not in frame:
@@ -516,7 +517,8 @@ class GroupsSchema(CorpusSchema):
         title_row = frame.loc['title']
         frame = frame.drop('title')
         frame = frame.drop('ownedby')
-        frame = frame.apply(lambda x: x.divide(x['total_words']))
+        frame = frame.apply(lambda x: x.divide(x['total_words'])
+                            if x['total_words'] else NA)
         frame = frame.drop('total_words')
         frame = frame.drop('Other', errors='ignore')
         frame = frame.append(title_row)
