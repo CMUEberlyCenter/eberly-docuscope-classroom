@@ -187,7 +187,7 @@ describe('TextViewComponent', () => {
       evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
       // expect(()=>component.click_select(evt)).not.toThrow();
       fixture.detectChanges();
-    })
+    });
   }));
 
   it('get_lats', () => fixture.whenStable().then(() => {

@@ -248,7 +248,8 @@ class BoxplotSchema(CorpusSchema):
         stats = self.get_stats(db_session)
         frame = DataFrame.from_dict(stats.frame)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
-        frame = frame.apply(lambda x: x.divide(x['total_words']) if x['total_words'] else NA) # frequencies
+        frame = frame.apply(lambda x: x.divide(x['total_words'])
+                            if x['total_words'] else NA) # frequencies
         frame = frame.drop('total_words').drop('Other', errors='ignore')
         frame = frame.transpose()
         frame = frame.fillna(0)
