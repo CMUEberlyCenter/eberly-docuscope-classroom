@@ -169,7 +169,7 @@ export class TextViewComponent implements OnInit {
       });
     }
     const parent_key = $event.target.parentNode.getAttribute('data-key');
-    if (parent_key) {
+    if (parent_key && this.tagged_text && this.tagged_text.dictionary) {
       const lat = parent_key.trim();
       // this.selected_lat = lat;
       const obj = this.tagged_text.dictionary[lat];
