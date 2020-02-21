@@ -12,7 +12,7 @@ describe('AssignmentService', () => {
       imports: [ ],
       providers: [ AssignmentService ]
     });
-    service = TestBed.get(AssignmentService);
+    service = TestBed.inject(AssignmentService);
   });
 
   it('should be created', () => {

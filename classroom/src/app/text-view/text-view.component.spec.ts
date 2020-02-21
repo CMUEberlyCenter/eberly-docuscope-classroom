@@ -71,15 +71,6 @@ describe('TextViewComponent', () => {
          dimension: []}}));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
-    const domSanitizer = jasmine.createSpyObj('DomSanitizer',
-                                              ['bypassSecurityTrustHtml',
-                                               'sanitize']);
-    domSanitizer.sanitize.and.callThrough();
-    // domSanitizer.bypassSecurityTrustHtml.and.callThrough();
-    domSanitizer.bypassSecurityTrustHtml.and.returnValue({
-      'changingThisBreaksApplicationSecurity': test_html
-    });
-
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
 
@@ -97,7 +88,7 @@ describe('TextViewComponent', () => {
         NoopAnimationsModule
       ],
       providers: [
-        { provide: DomSanitizer, useValue: domSanitizer },
+        DomSanitizer,
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: TaggedTextService, useValue: tagged_text_service_spy },
@@ -154,8 +145,7 @@ describe('TextViewComponent', () => {
   });
   it('getTaggedText', async () => {
     await component.getTaggedText();
-    await fixture.whenStable().then((a) => {
-      fixture.detectChanges();
+    await fixture.whenStable().then(() => {
       expect(component.clusters.data[0]).toBeDefined();
       expect(component.tagged_text).toBeDefined();
       expect(component.html_content).toBeDefined();
@@ -170,8 +160,7 @@ describe('TextViewComponent', () => {
     });
   });
 
-  it('click_select', () => fixture.whenStable().then(() => {
-    fixture.detectChanges();
+  it('click_select invalid', () => fixture.whenStable().then(() => {
     const evt = {
       target: {
         parentNode: {
@@ -182,13 +171,37 @@ describe('TextViewComponent', () => {
       }
     };
     expect(() => component.click_select(evt)).not.toThrow();
-    fixture.detectChanges();
-    evt.target.parentNode.getAttribute = () => null;
+    // fixture.whenStable().then(() => expect(true).toBe(true));
+  }));
+
+  it('click_select null', () => fixture.whenStable().then(() => {
+    const evt = {
+      target: {
+        parentNode: {
+          getAttribute: () => null,
+          classed: () => {},
+          select: () => ({style: () => {}})
+        }
+      }
+    };
     expect(() => component.click_select(evt)).not.toThrow();
-    fixture.detectChanges();
-    evt.target.parentNode.getAttribute = () => 'bogus'; // problems with html not in element
-    // expect(()=>component.click_select(evt)).not.toThrow();
-    fixture.detectChanges();
+    // return fixture.whenStable().then(() => expect(true).toBe(true));
+  }));
+
+  it('click_select bogus', () => fixture.whenStable().then(() => {
+    const evt = {
+      target: {
+        parentNode: {
+          getAttribute: () => 'bogus',
+          classed: () => {},
+          select: () => ({style: () => {}}),
+          setAttribute: () => true,
+          querySelector: () => null
+        }
+      }
+    };
+    expect(() => component.click_select(evt)).not.toThrow();
+    // return fixture.whenStable().then(() => expect(true).toBe(true));
   }));
 
   it('get_lats', () => fixture.whenStable().then(() => {

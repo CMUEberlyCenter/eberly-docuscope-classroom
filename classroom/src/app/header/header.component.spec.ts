@@ -39,7 +39,7 @@ describe('HeaderComponent', () => {
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    service = TestBed.get(AssignmentService);
+    service = TestBed.inject(AssignmentService);
   });
 
   it('should create', () => {
