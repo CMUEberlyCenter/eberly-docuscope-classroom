@@ -27,7 +27,7 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   get boxplot(): BoxplotData { return this._boxplot; }
   @Output() selected_category = new EventEmitter<string>();
   @Input() max_value: number;
-  @ViewChild('boxplotSort', {static: false}) sort: MatSort;
+  @ViewChild('boxplotSort') sort: MatSort;
 
   displayColumns: string[] = [ 'category_label', 'boxplot' ];
   private _options: { width, height } = { width: 500, height: 50 };

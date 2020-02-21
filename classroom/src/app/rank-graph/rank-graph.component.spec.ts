@@ -38,7 +38,7 @@ const data = {
   template: `<app-rank-graph rank_data="${data}" max_value="1"></app-rank-graph>`
 })
 class TestRankComponent {
-  @ViewChild(RankGraphComponent, {static: false})
+  @ViewChild(RankGraphComponent)
   public rank: RankGraphComponent;
 }
 
