@@ -18,8 +18,8 @@ describe('ReportService', () => {
       providers: [ ReportService,
                    { provide: MessageService, useValue: message_service_spy } ]
     });
-    service = TestBed.get(ReportService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(ReportService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => httpMock.verify());

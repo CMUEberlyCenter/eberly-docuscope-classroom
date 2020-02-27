@@ -16,8 +16,8 @@ describe('BoxplotDataService', () => {
       imports: [ HttpClientTestingModule, MatSnackBarModule ],
       providers: [ BoxplotDataService ]
     });
-    service = TestBed.get(BoxplotDataService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(BoxplotDataService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
   afterEach(() => httpMock.verify());
 

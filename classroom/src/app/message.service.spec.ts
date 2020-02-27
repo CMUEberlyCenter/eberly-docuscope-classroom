@@ -8,12 +8,12 @@ describe('MessageService', () => {
   }));
 
   it('should be created', () => {
-    const service: MessageService = TestBed.get(MessageService);
+    const service: MessageService = TestBed.inject(MessageService);
     expect(service).toBeTruthy();
   });
 
   it('add', () => {
-    const service: MessageService = TestBed.get(MessageService);
+    const service: MessageService = TestBed.inject(MessageService);
     console.log = jasmine.createSpy('log');
     service.add('message');
     expect(console.log).toHaveBeenCalledWith('message');
@@ -25,7 +25,7 @@ describe('MessageService', () => {
   });
 
   it('clear', () => {
-    const service: MessageService = TestBed.get(MessageService);
+    const service: MessageService = TestBed.inject(MessageService);
     expect(service.messages).toEqual([]);
     service.add('message');
     expect(service.messages).toEqual(['message']);

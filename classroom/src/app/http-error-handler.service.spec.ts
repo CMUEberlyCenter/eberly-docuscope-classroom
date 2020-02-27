@@ -19,18 +19,18 @@ describe('HttpErrorHandlerService', () => {
   });
 
   it('should be created', () => {
-    const service: HttpErrorHandlerService = TestBed.get(HttpErrorHandlerService);
+    const service: HttpErrorHandlerService = TestBed.inject(HttpErrorHandlerService);
     expect(service).toBeTruthy();
   });
 
   it('createHandleError', () => {
-    const service: HttpErrorHandlerService = TestBed.get(HttpErrorHandlerService);
+    const service: HttpErrorHandlerService = TestBed.inject(HttpErrorHandlerService);
     const handler: HandleError = service.createHandleError('http-service-spec');
     expect(handler).toBeTruthy();
   });
 
   it('handleError default', () => {
-    const service: HttpErrorHandlerService = TestBed.get(HttpErrorHandlerService);
+    const service: HttpErrorHandlerService = TestBed.inject(HttpErrorHandlerService);
     const handler: HandleError = service.createHandleError();
     const error: HttpErrorResponse = new HttpErrorResponse({});
     handler()(error).subscribe(data => {
@@ -42,7 +42,7 @@ describe('HttpErrorHandlerService', () => {
   });
 
   it('handleError', () => {
-    const service: HttpErrorHandlerService = TestBed.get(HttpErrorHandlerService);
+    const service: HttpErrorHandlerService = TestBed.inject(HttpErrorHandlerService);
     const handler: HandleError = service.createHandleError('http-service-spec');
     const error: HttpErrorResponse = new HttpErrorResponse({});
     handler('handle_error', <any>{})(error).subscribe(data => {

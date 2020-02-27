@@ -19,7 +19,7 @@ const data = {
   template: `<app-boxplot-graph boxplot="${data}" max_value="1"></app-boxplot-graph>`
 })
 class TestBoxplotComponent {
-  @ViewChild(BoxplotGraphComponent, {static: false})
+  @ViewChild(BoxplotGraphComponent)
   public boxplot: BoxplotGraphComponent;
 }
 

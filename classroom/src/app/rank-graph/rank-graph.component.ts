@@ -25,7 +25,7 @@ interface Options {
 export class RankGraphComponent implements OnChanges, OnInit {
   @Input() rank_data: RankData;
   @Input() max_value: number;
-  @ViewChild('rankSort', {static: false}) sort: MatSort;
+  @ViewChild('rankSort') sort: MatSort;
   ranking: MatTableDataSource<RankDataEntry>;
 
   options: Options = { width: 250, height: 30, margins: { left: 10, top: 5, bottom: 5, right: 10 }};

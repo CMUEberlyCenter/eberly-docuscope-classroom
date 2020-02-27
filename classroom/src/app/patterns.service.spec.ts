@@ -14,8 +14,8 @@ describe('PatternsService', () => {
       imports: [ HttpClientTestingModule, MatSnackBarModule ],
       providers: [ PatternsService ]
     });
-    service = TestBed.get(PatternsService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(PatternsService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
   afterEach(() => httpMock.verify());
 

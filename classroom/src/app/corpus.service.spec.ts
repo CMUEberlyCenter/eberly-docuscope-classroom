@@ -25,7 +25,7 @@ describe('CorpusService', () => {
         { provide: AssignmentService, useValue: assignment_spy }
       ]
     });
-    service = TestBed.get(CorpusService);
+    service = TestBed.inject(CorpusService);
   });
 
   it('should be created', () => {

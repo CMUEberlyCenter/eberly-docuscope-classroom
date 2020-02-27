@@ -13,8 +13,8 @@ describe('ReportIntroductionService', () => {
   }));
 
   beforeEach(() => {
-    service = TestBed.get(ReportIntroductionService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(ReportIntroductionService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
   afterEach(() => httpMock.verify());
 

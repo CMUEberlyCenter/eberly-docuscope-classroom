@@ -210,7 +210,7 @@ class CorpusSchema(BaseModel):
             if not sumframe.empty:
                 data[category] = sumframe.transpose().sum()
             else:
-                data[category] = Series({'*** No Documents ***': 0})
+                data[category] = 0.0
         logging.debug(data)
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
@@ -444,6 +444,7 @@ class ScatterplotSchema(CorpusSchema):
         owner_row = frame.loc['ownedby']
         frame = frame.drop('title').drop('ownedby').drop('Other', errors='ignore')
         frame = frame.fillna(0)
+        logging.debug(frame)
         frame = frame.apply(lambda x: x.divide(x['total_words'])*100
                             if x['total_words'] else NA)
         frame = frame.drop('total_words').fillna(0)

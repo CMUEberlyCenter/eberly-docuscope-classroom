@@ -14,8 +14,8 @@ describe('TaggedTextService', () => {
       imports: [ HttpClientTestingModule, MatSnackBarModule ],
       providers: [ TaggedTextService ]
     });
-    service = TestBed.get(TaggedTextService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(TaggedTextService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => httpMock.verify());
