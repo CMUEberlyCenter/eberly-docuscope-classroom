@@ -1,5 +1,7 @@
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 
@@ -13,10 +15,6 @@ import { MatDialog } from '@angular/material/dialog';
 @Component({selector: 'app-messages', template: ''})
 class MessagesStubComponent {}
 
-// tslint:disable-next-line
-@Component({selector: 'router-outlet', template: ''})
-class RouterOutletStubComponent {}
-
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let app: AppComponent;
@@ -27,14 +25,14 @@ describe('AppComponent', () => {
         AppComponent,
         HeaderComponent,
         MessagesStubComponent,
-        RouterOutletStubComponent
       ],
       imports: [
         MatDialogModule,
         MatIconModule,
         MatToolbarModule,
         MatTooltipModule,
-        NgxUiLoaderModule
+        NgxUiLoaderModule,
+        RouterTestingModule
       ],
       providers: [
       ],
