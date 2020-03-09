@@ -21,7 +21,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, \
     HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from pandas import DataFrame, NA, Series
+from pandas import DataFrame, Series
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
@@ -207,10 +207,7 @@ class CorpusSchema(BaseModel):
             tone_lats = tones.map_cluster_to_lats().items()
         for category, lats in tone_lats:
             sumframe = ds_stats.filter(lats)
-            if not sumframe.empty:
-                data[category] = sumframe.transpose().sum()
-            else:
-                data[category] = 0.0
+            data[category] = sumframe.transpose().sum()
         logging.debug(data)
         frame = DataFrame(data)
         frame['total_words'] = ds_stats['total_words']
@@ -247,9 +244,12 @@ class BoxplotSchema(CorpusSchema):
         """Generate the boxplot data for this request."""
         stats = self.get_stats(db_session)
         frame = DataFrame.from_dict(stats.frame)
+        logging.warning(stats.frame)
+        #logging.warning(frame)
         frame = frame.drop('title').drop('ownedby', errors='ignore')
         frame = frame.apply(lambda x: x.divide(x['total_words'])
-                            if x['total_words'] else NA) # frequencies
+                            if x['total_words'] else Series(0, index=x.index))
+        logging.warning(frame)
         frame = frame.drop('total_words').drop('Other', errors='ignore')
         frame = frame.transpose()
         frame = frame.fillna(0)
@@ -399,7 +399,7 @@ def get_rank_list(corpus: RankListSchema,
     owner_row = frame.loc['ownedby']
     frame = frame.drop('title').drop('ownedby', errors='ignore').drop('Other', errors='ignore')
     frame = frame.apply(lambda x: x.divide(x['total_words'])
-                        if x['total_words'] else NA)
+                        if x['total_words'] else Series(0, index=x.index))
     frame = frame.drop('total_words').append(title_row).append(owner_row)
     frame = frame.transpose()
     frame = frame.fillna(0)
@@ -446,7 +446,7 @@ class ScatterplotSchema(CorpusSchema):
         frame = frame.fillna(0)
         logging.debug(frame)
         frame = frame.apply(lambda x: x.divide(x['total_words'])*100
-                            if x['total_words'] else NA)
+                            if x['total_words'] else Series(0, index=x.index))
         frame = frame.drop('total_words').fillna(0)
         frame = frame.append(title_row).append(owner_row)
         frame = frame.transpose()
@@ -519,7 +519,7 @@ class GroupsSchema(CorpusSchema):
         frame = frame.drop('title')
         frame = frame.drop('ownedby')
         frame = frame.apply(lambda x: x.divide(x['total_words'])
-                            if x['total_words'] else NA)
+                            if x['total_words'] else Series(0, index=x.index))
         frame = frame.drop('total_words')
         frame = frame.drop('Other', errors='ignore')
         frame = frame.append(title_row)

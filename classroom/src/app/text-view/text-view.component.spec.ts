@@ -1,7 +1,7 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer, By } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
 import { MatCardModule } from '@angular/material/card';
@@ -73,6 +73,13 @@ describe('TextViewComponent', () => {
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
+    const sanitizer = jasmine.createSpyObj('DOMSanitizer', ['bypassSecurityTrustHtml']);
+    sanitizer.bypassSecurityTrustHtml.and.callFake((html: string) => {
+      return {
+        changingThisBreaksApplicationSecurity: html,
+        getTypeName: () => 'HTML'
+      } as SafeHtml;
+    });
 
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent, PatternsTableStubComponent ],
@@ -88,7 +95,7 @@ describe('TextViewComponent', () => {
         NoopAnimationsModule
       ],
       providers: [
-        DomSanitizer,
+        { provide: DomSanitizer, useValue: sanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: TaggedTextService, useValue: tagged_text_service_spy },

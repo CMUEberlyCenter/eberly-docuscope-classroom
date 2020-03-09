@@ -62,7 +62,7 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
         self.data = data or {}
         self.outliers = outliers or []
         self.value = val
-        self.max_val = max_val
+        self.max_val = max_val if max_val else 0.0001
         self.measurements = {'ruler_height': rh,
                              'whisker': whisker, 'radius': radius}
         self.width = wd
