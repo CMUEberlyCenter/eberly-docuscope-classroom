@@ -21,7 +21,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, \
     HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from pandas import DataFrame, NA, Series
+from pandas import DataFrame, Series
 from default_settings import Config
 from ds_db import Assignment, DSDictionary, Filesystem
 from ds_groups import get_best_groups
