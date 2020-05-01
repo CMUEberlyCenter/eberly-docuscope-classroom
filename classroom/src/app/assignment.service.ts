@@ -21,15 +21,15 @@ import { AssignmentData } from './assignment-data';
   providedIn: 'root'
 })
 export class AssignmentService {
-  /** Observables on assgnment data */
-  assignment$ = this.assignment.asObservable();
-  course$ = this.course.asObservable();
-  instructor$ = this.instructor.asObservable();
-
   /** Storage for current assignment data */
   private assignment = new Subject<string>();
   private course = new Subject<string>();
   private instructor = new Subject<string>();
+
+  /** Observables on assgnment data */
+  assignment$ = this.assignment.asObservable();
+  course$ = this.course.asObservable();
+  instructor$ = this.instructor.asObservable();
 
   constructor() { }
 
