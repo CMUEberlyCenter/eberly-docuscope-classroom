@@ -37,7 +37,7 @@ describe('ScatterplotComponent', () => {
     const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getScatterPlotData']);
     dataService_spy.getBoxPlotData.and.returnValue(asyncData({
       bpdata: [{'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4, 'uifence': .6, 'lifence': 0, 'category': 'STUB_X'},
-               {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
+        {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
       outliers: []
     }));
     dataService_spy.getScatterPlotData.and.returnValue(asyncData({
@@ -50,19 +50,19 @@ describe('ScatterplotComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ ScatterplotComponent,
-                      NavStubComponent,
-                      ScatterplotGraphStubComponent ],
+        NavStubComponent,
+        ScatterplotGraphStubComponent ],
       imports: [ FormsModule,
-                 GoogleChartsModule,
-                 MatCardModule,
-                 MatFormFieldModule ],
+        GoogleChartsModule,
+        MatCardModule,
+        MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: BoxplotDataService, useValue: dataService_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

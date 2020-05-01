@@ -18,7 +18,7 @@ export class GroupingComponent implements OnInit {
   get size_max(): number {
     return this.corpus
       ? Math.max(this.size_min,
-                 Math.floor(this.corpus.length / 2))
+        Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
   corpus: string[];
@@ -27,10 +27,10 @@ export class GroupingComponent implements OnInit {
   absent: string[] = [];
 
   constructor(private corpus_service: CorpusService,
-              private _assignment_service: AssignmentService,
-              private _spinner: NgxUiLoaderService,
-              private _snack_bar: MatSnackBar,
-              private data_service: BoxplotDataService) { }
+    private _assignment_service: AssignmentService,
+    private _spinner: NgxUiLoaderService,
+    private _snack_bar: MatSnackBar,
+    private data_service: BoxplotDataService) { }
 
   getCorpus(): void {
     this._spinner.start();
@@ -60,7 +60,7 @@ export class GroupingComponent implements OnInit {
   generate_groups(e): void {
     if (this.group_size) {
       if (this.num_documents < 4) {
-        this._snack_bar.open(`There needs to be at least four documents in order to form groups.`, '\u2612');
+        this._snack_bar.open('There needs to be at least four documents in order to form groups.', '\u2612');
       } else if (this.group_size < this.size_min) {
         this._snack_bar.open(`The group size needs to be at least ${this.size_min}.`, '\u2612');
       } else if (this.group_size > this.size_max) {
@@ -76,13 +76,13 @@ export class GroupingComponent implements OnInit {
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data,
-                      event.previousIndex,
-                      event.currentIndex);
+        event.previousIndex,
+        event.currentIndex);
     } else {
       transferArrayItem(event.previousContainer.data,
-                        event.container.data,
-                        event.previousIndex,
-                        event.currentIndex);
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
     }
   }
 }

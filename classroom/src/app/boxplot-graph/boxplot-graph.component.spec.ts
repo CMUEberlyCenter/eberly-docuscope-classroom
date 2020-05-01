@@ -9,8 +9,8 @@ import { BoxplotGraphComponent } from './boxplot-graph.component';
 
 const data = {
   bpdata: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
-            uifence: 3.5, lifence: 0.5,
-            category: 'bogus', category_label: 'Bogus Data'}],
+    uifence: 3.5, lifence: 0.5,
+    category: 'bogus', category_label: 'Bogus Data'}],
   outliers: [{pointtitle: 'outlier', value: 4.5, category: 'bogus'}]
 };
 
@@ -36,9 +36,9 @@ describe('BoxplotGraphComponent', () => {
         NoopAnimationsModule
       ],
       declarations: [ BoxplotGraphComponent, TestBoxplotComponent ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

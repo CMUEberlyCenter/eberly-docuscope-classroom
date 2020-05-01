@@ -41,7 +41,7 @@ describe('PatternsComponent', () => {
       [
         {
           category: { id: 'future', name: 'Future',
-                      description: 'To the future and beyond!!!!'},
+            description: 'To the future and beyond!!!!'},
           patterns: [
             { pattern: 'i will', count: 4 },
             { pattern: 'future of', count: 1 },
@@ -59,8 +59,8 @@ describe('PatternsComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ PatternsComponent,
-                      PatternsTableStubComponent,
-                      NavStubComponent ],
+        PatternsTableStubComponent,
+        NavStubComponent ],
       imports: [
         NoopAnimationsModule,
         MatCardModule,
@@ -75,7 +75,7 @@ describe('PatternsComponent', () => {
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe('PatternsComponent', () => {
   it('count', () => {
     const pat_data = new PatternClusterData({
       category: { id: 'future', name: 'Future',
-                  description: 'To the future and beyond!!!!'},
+        description: 'To the future and beyond!!!!'},
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },
@@ -104,7 +104,7 @@ describe('PatternsComponent', () => {
   it('pattern_count', () => {
     const pat_data = new PatternClusterData({
       category: { id: 'future', name: 'Future',
-                  description: 'To the future and beyond!!!!'},
+        description: 'To the future and beyond!!!!'},
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },

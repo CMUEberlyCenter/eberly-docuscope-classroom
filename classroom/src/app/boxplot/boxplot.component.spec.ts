@@ -42,8 +42,8 @@ describe('BoxplotComponent', () => {
     const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getRankedList']);
     dataService_spy.getBoxPlotData.and.returnValue(asyncData({
       bpdata: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
-                uifence: 3.5, lifence: 0.5,
-                category: 'bogus', category_label: 'Bogus Data'}],
+        uifence: 3.5, lifence: 0.5,
+        category: 'bogus', category_label: 'Bogus Data'}],
       outliers: []
     }));
     dataService_spy.getRankedList.and.returnValue(asyncData({ result: [{
@@ -55,9 +55,9 @@ describe('BoxplotComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ BoxplotComponent,
-                      BoxplotGraphStubComponent,
-                      NavStubComponent,
-                      RankGraphStubComponent ],
+        BoxplotGraphStubComponent,
+        NavStubComponent,
+        RankGraphStubComponent ],
       imports: [ MatCardModule, TagCloudModule],
       providers: [
         { provide: BoxplotDataService, useValue: dataService_spy },
@@ -65,7 +65,7 @@ describe('BoxplotComponent', () => {
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

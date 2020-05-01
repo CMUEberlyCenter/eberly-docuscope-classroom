@@ -24,7 +24,7 @@ class TextClusterData implements ClusterData {
   // expand: boolean = false; // to be used for multiple expansion.
 
   constructor(di: TextContentDictionaryInformation,
-              patterns: Map<string, number>) {
+    patterns: Map<string, number>) {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
@@ -44,14 +44,14 @@ class TextClusterData implements ClusterData {
       state('collapsed, void', style({height: '0px', minHeight: '0'})),
       state('expanded', style({height: '*'})),
       transition('expanded <=> collapsed, void => collapsed',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
       // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
     ]),
     trigger('indicatorRotate', [
       state('collapsed, void', style({transform: 'rotate(0deg)'})),
       state('expanded', style({transform: 'rotate(180deg)'})),
       transition('expanded <=> collapsed, void => collapsed',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
     ]),
   ]
 })
@@ -142,7 +142,7 @@ export class TextViewComponent implements OnInit {
         this.patterns = pats;
         const clusters: TextClusterData[] = Array.from(cluster_ids)
           .map((cid: string): TextClusterData =>
-               new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
+            new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
         clusters.sort(cluster_compare);
         this.clusters = new MatTableDataSource(clusters);
         if (this.sort) { this.clusters.sort = this.sort; }

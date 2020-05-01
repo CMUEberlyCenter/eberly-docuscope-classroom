@@ -1,8 +1,8 @@
 import { CategoryPatternData, PatternData } from './patterns.service';
 
 export function instance_count(patterns: PatternData[]): number {
-    return patterns.reduce(
-      (total: number, current: PatternData) => total + current.count, 0);
+  return patterns.reduce(
+    (total: number, current: PatternData) => total + current.count, 0);
 }
 
 export interface ClusterData {

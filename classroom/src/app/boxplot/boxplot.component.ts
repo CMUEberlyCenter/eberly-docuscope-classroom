@@ -21,9 +21,9 @@ export class BoxplotComponent implements OnInit {
   max_value: number;
 
   constructor(private corpusService: CorpusService,
-              private spinner: NgxUiLoaderService,
-              private dataService: BoxplotDataService,
-              private assignmentService: AssignmentService) { }
+    private spinner: NgxUiLoaderService,
+    private dataService: BoxplotDataService,
+    private assignmentService: AssignmentService) { }
 
   getCorpus(): void {
     this.spinner.start();

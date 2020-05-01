@@ -29,9 +29,9 @@ export class RankComponent implements OnInit {
   };
 
   constructor(private _assignment_service: AssignmentService,
-              private _corpus_service: CorpusService,
-              private _spinner: NgxUiLoaderService,
-              private _data_service: BoxplotDataService) { }
+    private _corpus_service: CorpusService,
+    private _spinner: NgxUiLoaderService,
+    private _data_service: BoxplotDataService) { }
 
   getCorpus(): void {
     this._spinner.start();

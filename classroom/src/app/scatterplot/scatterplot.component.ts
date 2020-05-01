@@ -44,9 +44,9 @@ export class ScatterplotComponent implements OnInit {
   };
 
   constructor(private corpusService: CorpusService,
-              private _assignment_service: AssignmentService,
-              private _spinner: NgxUiLoaderService,
-              private dataService: BoxplotDataService) {}
+    private _assignment_service: AssignmentService,
+    private _spinner: NgxUiLoaderService,
+    private dataService: BoxplotDataService) {}
 
   getCorpus(): void {
     this._spinner.start();

@@ -32,7 +32,7 @@ describe('HeaderComponent', () => {
         { provide: MatDialog, useValue: mat_dialog_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -46,11 +46,11 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it(`should have as title 'DocuScope Classroom @ CMU'`, () => {
+  it('should have as title \'DocuScope Classroom @ CMU\'', () => {
     expect(component.title).toEqual('DocuScope Classroom @ CMU');
   });
 
-  it(`check assignment`, () => {
+  it('check assignment', () => {
     service.setAssignment('assignment');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
@@ -59,7 +59,7 @@ describe('HeaderComponent', () => {
         .toContain('assignment');
     });
   });
-  it(`check course`, () => {
+  it('check course', () => {
     service.setCourse('course');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
@@ -68,7 +68,7 @@ describe('HeaderComponent', () => {
         .toContain('course');
     });
   });
-  it(`check instructor`, () => {
+  it('check instructor', () => {
     service.setInstructor('instructor');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {

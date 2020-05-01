@@ -14,10 +14,10 @@ export interface TextContent {
   text_id: string;
   word_count: number;
   html_content: string;
-  dictionary: Record<string, {dimension: string, cluster: string}>;
+  dictionary: Record<string, {dimension: string; cluster: string}>;
   dict_info: {
-    cluster?: TextContentDictionaryInformation[],
-    dimension?: TextContentDictionaryInformation[]
+    cluster?: TextContentDictionaryInformation[];
+    dimension?: TextContentDictionaryInformation[];
   };
   course?: string;
   assignment?: string;
@@ -34,7 +34,7 @@ export class TaggedTextService {
   private handleError: HandleError;
 
   constructor(private _http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService) {
+    httpErrorHandler: HttpErrorHandlerService) {
     this.handleError = httpErrorHandler.createHandleError('TaggedTextService');
   }
 
