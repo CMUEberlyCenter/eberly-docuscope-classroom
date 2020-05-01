@@ -18,7 +18,7 @@ describe('AboutComponent', () => {
         { provide: MatDialogRef, useValue: mat_dialog_spy }
       ],
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

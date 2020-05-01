@@ -34,11 +34,11 @@ describe('RankComponent', () => {
     boxplot_data_service_spy.getBoxPlotData.and.returnValue(asyncData({
       bpdata: [
         {'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4,
-         'uifence': .6, 'lifence': 0,
-         'category': 'STUB_X', 'category_label': 'Stub X'},
+          'uifence': .6, 'lifence': 0,
+          'category': 'STUB_X', 'category_label': 'Stub X'},
         {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5,
-         'uifence': .6, 'lifence': 0.1,
-         'category': 'STUB_Y', 'category_label': 'Stub Y'}],
+          'uifence': .6, 'lifence': 0.1,
+          'category': 'STUB_Y', 'category_label': 'Stub Y'}],
       outliers: []
     }));
     boxplot_data_service_spy.getRankedList.and.returnValue(asyncData({
@@ -49,19 +49,19 @@ describe('RankComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ RankComponent,
-                      NavStubComponent,
-                      RankGraphStubComponent ],
+        NavStubComponent,
+        RankGraphStubComponent ],
       imports: [ FormsModule,
-                 GoogleChartsModule,
-                 MatCardModule,
-                 MatFormFieldModule ],
+        GoogleChartsModule,
+        MatCardModule,
+        MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: BoxplotDataService, useValue: boxplot_data_service_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -88,10 +88,8 @@ describe('RankComponent', () => {
     expect(boxplot_data_service_spy.getRankedList).toHaveBeenCalled();
   });
 
-  it('get_label', () => {
-    return fixture.whenStable().then(() => {
-      expect(component.get_label('STUB_X')).toBe('Stub X');
-      expect(component.get_label('STUB_Y')).toBe('Stub Y');
-    });
-  });
+  it('get_label', () => fixture.whenStable().then(() => {
+    expect(component.get_label('STUB_X')).toBe('Stub X');
+    expect(component.get_label('STUB_Y')).toBe('Stub Y');
+  }));
 });

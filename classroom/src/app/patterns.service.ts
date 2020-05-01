@@ -42,7 +42,7 @@ export class PatternsService {
   private pattern_data: Observable<CategoryPatternData[]>;
 
   constructor(private _http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService) {
+    httpErrorHandler: HttpErrorHandlerService) {
     this.handleError = httpErrorHandler.createHandleError('PatternsService');
   }
 

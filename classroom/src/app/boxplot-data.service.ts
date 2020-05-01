@@ -5,8 +5,8 @@ import { catchError, retry, tap, publishReplay, refCount, take } from 'rxjs/oper
 import { environment } from './../environments/environment';
 import { MessageService } from './message.service';
 import { BoxplotData, makeBoxplotSchema, RankData, makeRankedListSchema,
-         ScatterplotData, makeScatterplotSchema, GroupsData,
-         makeGroupsSchema } from './boxplot-data';
+  ScatterplotData, makeScatterplotSchema, GroupsData,
+  makeGroupsSchema } from './boxplot-data';
 import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 
 @Injectable({
@@ -19,13 +19,13 @@ export class BoxplotDataService {
   private rank_data: Map<string, Observable<RankData>> = new Map<string, Observable<RankData>>();
   private scatter_server = `${environment.backend_server}/scatterplot_data`;
   private scatterplot_data: Map<string, Map<string, Observable<ScatterplotData>>> =
-    new Map<string, Map<string, Observable<ScatterplotData>>>();
+  new Map<string, Map<string, Observable<ScatterplotData>>>();
   private groups_server = `${environment.backend_server}/groups`;
   private handleError: HandleError;
 
   constructor(private http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService,
-              private messageService: MessageService) {
+    httpErrorHandler: HttpErrorHandlerService,
+    private messageService: MessageService) {
     this.handleError = httpErrorHandler.createHandleError('BoxplotDataService');
   }
 
@@ -42,7 +42,7 @@ export class BoxplotDataService {
           refCount(),
           // tap(() => this.messageService.add('Box Plot data retrieval successful.')),
           catchError(this.handleError('getBoxPlotData',
-                                      {bpdata: [], outliers: []}))
+            {bpdata: [], outliers: []}))
         );
       return this.boxplot_data;
     }
@@ -72,15 +72,15 @@ export class BoxplotDataService {
     if (!x_map.has(y)) {
       const scatter_query = makeScatterplotSchema(corpus, x, y);
       x_map.set(y,
-                this.http.post<ScatterplotData>(this.scatter_server, scatter_query)
-                .pipe(
-                  publishReplay(1),
-                  refCount(),
-                  catchError(this.handleError('getScatterPlotData',
+        this.http.post<ScatterplotData>(this.scatter_server, scatter_query)
+          .pipe(
+            publishReplay(1),
+            refCount(),
+            catchError(this.handleError('getScatterPlotData',
                                               <ScatterplotData>{
                                                 axisX: x, axisY: y,
                                                 spdata: []}))
-                ));
+          ));
     }
     return x_map.get(y);
   }

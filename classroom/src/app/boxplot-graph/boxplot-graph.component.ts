@@ -13,7 +13,6 @@ import { BoxplotData, BoxplotDataEntry, Outlier } from '../boxplot-data';
   styleUrls: ['./boxplot-graph.component.css']
 })
 export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
-  private _boxplot: BoxplotData;
   boxplot_data: MatTableDataSource<BoxplotDataEntry>;
   selection = new SelectionModel<BoxplotDataEntry>(false, []);
   @Input()
@@ -25,20 +24,15 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     }
   }
   get boxplot(): BoxplotData { return this._boxplot; }
+
   @Output() selected_category = new EventEmitter<string>();
   @Input() max_value: number;
   @ViewChild('boxplotSort') sort: MatSort;
 
   displayColumns: string[] = [ 'category_label', 'boxplot' ];
-  private _options: { width, height } = { width: 500, height: 50 };
 
-  get options(): { width, height } {
-    return this._options; /* = {
-      width: window.innerWidth,
-      height: window.innerHeight
-    };*/
-  }
-
+  private _boxplot: BoxplotData;
+  private _options: { width; height } = { width: 500, height: 50 };
   private _box_options = {
     width: 300,
     height: 30,
@@ -50,6 +44,15 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     }
   };
 
+  constructor() { }
+
+  get options(): { width; height } {
+    return this._options; /* = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };*/
+  }
+
   handle_selection(row: BoxplotDataEntry) {
     this.selection.toggle(row);
     if (this.selection.selected.length) {
@@ -58,8 +61,6 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
       this.selected_category.emit('');
     }
   }
-
-  constructor() { }
 
   percent(value: number): string {
     return `${(100 * value).toFixed(2)}`;

@@ -22,8 +22,8 @@ export class ReportService {
   private handleError: HandleError;
 
   constructor(private http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService,
-              private messageService: MessageService) {
+    httpErrorHandler: HttpErrorHandlerService,
+    private messageService: MessageService) {
     this.handleError = httpErrorHandler.createHandleError('ReportService');
   }
 
@@ -35,7 +35,7 @@ export class ReportService {
       stv_intro: stv_intro
     };
     return this.http.post<Blob>(this._server, query,
-                                {responseType: 'blob' as 'json'})
+      {responseType: 'blob' as 'json'})
       .pipe(
         tap(() => this.messageService.add('Report Generation Successful!')),
         catchError(this.handleError('getReports', <Blob>{}))

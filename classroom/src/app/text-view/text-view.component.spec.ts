@@ -50,36 +50,34 @@ describe('TextViewComponent', () => {
     tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(
       {'text_id': 'stub_id', word_count: 2,
-       html_content: test_html,
-       dictionary: {
-         bogus: {dimension: 'bogus_dimension', cluster: 'bogus_cluster'},
-         no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
-       },
-       dict_info: {
-         cluster: [
-           {
-             id: 'bogus_cluster',
-             name: 'Bogus Cluster',
-             description: 'This is a bogus cluster.'
-           },
-           {
-             id: 'no_cluster',
-             name: 'No Cluster',
-             description: 'Cluster does not appear.'
-           }
-         ],
-         dimension: []}}));
+        html_content: test_html,
+        dictionary: {
+          bogus: {dimension: 'bogus_dimension', cluster: 'bogus_cluster'},
+          no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
+        },
+        dict_info: {
+          cluster: [
+            {
+              id: 'bogus_cluster',
+              name: 'Bogus Cluster',
+              description: 'This is a bogus cluster.'
+            },
+            {
+              id: 'no_cluster',
+              name: 'No Cluster',
+              description: 'Cluster does not appear.'
+            }
+          ],
+          dimension: []}}));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
     const sanitizer = jasmine.createSpyObj('DOMSanitizer', ['bypassSecurityTrustHtml']);
-    sanitizer.bypassSecurityTrustHtml.and.callFake((html: string) => {
-      return {
-        changingThisBreaksApplicationSecurity: html,
-        getTypeName: () => 'HTML'
-      } as SafeHtml;
-    });
+    sanitizer.bypassSecurityTrustHtml.and.callFake((html: string) => ({
+      changingThisBreaksApplicationSecurity: html,
+      getTypeName: () => 'HTML'
+    } as SafeHtml));
 
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent, PatternsTableStubComponent ],
@@ -100,9 +98,9 @@ describe('TextViewComponent', () => {
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: TaggedTextService, useValue: tagged_text_service_spy },
       ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -132,15 +130,15 @@ describe('TextViewComponent', () => {
   }));
 
   it('expand_handler', () => fixture.whenStable().then(() => {
-      const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
-      expect(component.expanded).toBe(null);
-      component.expand_handler(fake_event, null);
-      expect(component.expanded).toBe(null);
-      component.expand_handler(fake_event, component.clusters.data[0]);
-      expect(component.expanded).toBe(component.clusters.data[0]);
-      component.expand_handler(fake_event, component.clusters.data[0]);
-      expect(component.expanded).toBe(null);
-    }));
+    const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
+    expect(component.expanded).toBe(null);
+    component.expand_handler(fake_event, null);
+    expect(component.expanded).toBe(null);
+    component.expand_handler(fake_event, component.clusters.data[0]);
+    expect(component.expanded).toBe(component.clusters.data[0]);
+    component.expand_handler(fake_event, component.clusters.data[0]);
+    expect(component.expanded).toBe(null);
+  }));
 
   it('getTaggedText null', async () => {
     tagged_text_service_spy.getTaggedText.and.stub();

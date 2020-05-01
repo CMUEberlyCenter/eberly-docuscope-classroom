@@ -7,7 +7,7 @@ import { Observable, of } from 'rxjs';
 import { MessageService } from './message.service';
 
 export type HandleError = <T> (operation?: string, result?: T) =>
-  (error: HttpErrorResponse) => Observable<T>;
+(error: HttpErrorResponse) => Observable<T>;
 
 @Injectable({
   providedIn: 'root'
@@ -15,11 +15,11 @@ export type HandleError = <T> (operation?: string, result?: T) =>
 export class HttpErrorHandlerService {
 
   constructor(private messageService: MessageService,
-              private _snackBar: MatSnackBar) { }
+    private _snackBar: MatSnackBar) { }
 
   createHandleError = (serviceName = '') =>
     <T> (operation = 'operation', result = {} as T) =>
-    this.handleError(serviceName, operation, result)
+      this.handleError(serviceName, operation, result)
 
   handleError<T> (serviceName = '', operation = 'operation', result = {} as T) {
     return (error: HttpErrorResponse):

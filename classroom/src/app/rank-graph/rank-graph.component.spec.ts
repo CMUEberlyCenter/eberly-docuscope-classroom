@@ -56,9 +56,9 @@ describe('RankGraphComponent', () => {
         MatTooltipModule,
         NoopAnimationsModule
       ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

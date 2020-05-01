@@ -17,7 +17,7 @@ describe('MessagesComponent', () => {
         { provide: MessageService, useValue: message_service_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

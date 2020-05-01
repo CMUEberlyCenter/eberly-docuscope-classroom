@@ -1,4 +1,4 @@
-import { /*NO_ERRORS_SCHEMA,*/ NgModule } from '@angular/core';
+import { /* NO_ERRORS_SCHEMA,*/ NgModule } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -20,14 +20,14 @@ describe('NavComponent', () => {
     activated_route_spy.snapshot.queryParamMap = new Map();
     TestBed.configureTestingModule({
       imports: [ FormsModule, RouterTestingModule,
-                 MatTabsModule, MatTooltipModule ],
+        MatTabsModule, MatTooltipModule ],
       declarations: [ NavComponent ],
       providers: [
         { provide: ActivatedRoute, useValue: activated_route_spy }
       ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

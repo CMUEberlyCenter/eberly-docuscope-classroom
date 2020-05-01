@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
   instructor: string;
 
   constructor(private about: MatDialog,
-              private assignmentService: AssignmentService) {
+    private assignmentService: AssignmentService) {
     assignmentService.course$.subscribe(c => this.course = c);
     assignmentService.assignment$.subscribe(c => this.assignment = c);
     assignmentService.instructor$.subscribe(c => this.instructor = c);

@@ -29,7 +29,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
   ranking: MatTableDataSource<RankDataEntry>;
 
   options: Options = { width: 250, height: 30, margins: { left: 10, top: 5, bottom: 5, right: 10 }};
-  displayedColumns: string[] = [/*'position',*/ 'text', 'value', 'meanbar'/*, 'bar'*/];
+  displayedColumns: string[] = [/* 'position',*/ 'text', 'value', 'meanbar'/* , 'bar'*/];
 
   constructor() { }
 
@@ -71,7 +71,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
     return d3.scaleLinear().domain([0, this.max_value * 100])
       .range([this.options.margins.left, this.options.width - this.options.margins.right]).nice().clamp(true);
   }
-  /*scale(value: number): number {
+  /* scale(value: number): number {
     return 100 * value / this.max_value;
   }*/
 
