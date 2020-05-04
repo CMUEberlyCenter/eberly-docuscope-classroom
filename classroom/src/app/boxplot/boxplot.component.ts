@@ -20,7 +20,8 @@ export class BoxplotComponent implements OnInit {
   selected_category: string;
   max_value: number;
 
-  constructor(private corpusService: CorpusService,
+  constructor(
+    private corpusService: CorpusService,
     private spinner: NgxUiLoaderService,
     private dataService: BoxplotDataService,
     private assignmentService: AssignmentService) { }

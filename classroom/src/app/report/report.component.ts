@@ -16,7 +16,8 @@ export class ReportComponent implements OnInit {
   stv_intro: string;
   @ViewChild('download_link') download_link: ElementRef;
 
-  constructor(private corpusService: CorpusService,
+  constructor(
+    private corpusService: CorpusService,
     private _spinner: NgxUiLoaderService,
     private introService: ReportIntroductionService,
     private reportService: ReportService) { }
