@@ -26,7 +26,8 @@ export class GroupingComponent implements OnInit {
   groups: GroupsData;
   absent: string[] = [];
 
-  constructor(private corpus_service: CorpusService,
+  constructor(
+    private corpus_service: CorpusService,
     private _assignment_service: AssignmentService,
     private _spinner: NgxUiLoaderService,
     private _snack_bar: MatSnackBar,

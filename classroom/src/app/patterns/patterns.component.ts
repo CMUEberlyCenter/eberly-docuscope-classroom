@@ -50,7 +50,8 @@ export class PatternsComponent implements OnInit {
 
   @ViewChild('clusterTableSort', {static: true}) sort: MatSort;
 
-  constructor(private corpusService: CorpusService,
+  constructor(
+    private corpusService: CorpusService,
     private dataService: PatternsService,
     private spinner: NgxUiLoaderService) { }
 
