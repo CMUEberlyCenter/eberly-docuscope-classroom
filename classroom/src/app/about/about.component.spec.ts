@@ -1,21 +1,37 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 
+import { asyncData } from '../../testing';
+
 import { AboutComponent } from './about.component';
+import { SettingsService } from '../settings.service';
 
 describe('AboutComponent', () => {
   let component: AboutComponent;
   let fixture: ComponentFixture<AboutComponent>;
   const mat_dialog_spy = jasmine.createSpyObj('MatDialogRef', ['close']);
+  const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+  settings_spy.getSettings.and.returnValue(asyncData({
+    title: 'DocuScope Classroom',
+    institution: 'CMU',
+    unit: 100,
+    homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+    scatter: {width: 400, height: 400},
+    boxplot: {cloud: true},
+    stv: {max_clusters: 4}
+  }));
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ AboutComponent ],
       imports: [ MatDialogModule, MatIconModule ],
       providers: [
-        { provide: MatDialogRef, useValue: mat_dialog_spy }
+        HttpClientTestingModule, // settings import requires.
+        { provide: MatDialogRef, useValue: mat_dialog_spy },
+        { provide: SettingsService, useValue: settings_spy }
       ],
     })
       .compileComponents();

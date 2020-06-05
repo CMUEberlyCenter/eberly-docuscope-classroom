@@ -5,8 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
-import { BoxplotDataService } from '../boxplot-data.service';
-import { GroupsData } from '../boxplot-data';
+import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
   selector: 'app-grouping',
@@ -31,7 +30,7 @@ export class GroupingComponent implements OnInit {
     private _assignment_service: AssignmentService,
     private _spinner: NgxUiLoaderService,
     private _snack_bar: MatSnackBar,
-    private data_service: BoxplotDataService) { }
+    private data_service: GroupsService) { }
 
   getCorpus(): void {
     this._spinner.start();

@@ -16,7 +16,7 @@ const data = {
 
 @Component({
   selector: 'app-fake-boxplot-component',
-  template: `<app-boxplot-graph boxplot="${data}" max_value="1"></app-boxplot-graph>`
+  template: `<app-boxplot-graph boxplot="${data}" unit="100"></app-boxplot-graph>`
 })
 class TestBoxplotComponent {
   @ViewChild(BoxplotGraphComponent)
@@ -66,15 +66,15 @@ describe('BoxplotGraphComponent', () => {
   it('handle_selection', () => fixture.whenStable().then(() => {
     component.boxplot.selected_category.emit = jasmine.createSpy('emit');
     component.boxplot.handle_selection(data.categories[0]);
-    expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith('bogus');
+    expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith(data.categories[0]);
     component.boxplot.handle_selection(data.categories[0]);
-    expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith('');
+    expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith(null);
   }));
 
-  it('percent', () => {
-    expect(component.boxplot.percent(.2)).toBe('20.00');
-    expect(component.boxplot.percent(.25678)).toBe('25.68');
-    expect(component.boxplot.percent(0)).toBe('0.00');
+  it('scale', () => {
+    expect(component.boxplot.scale(.2)).toBe('20.00');
+    expect(component.boxplot.scale(.25678)).toBe('25.68');
+    expect(component.boxplot.scale(0)).toBe('0.00');
   });
 
   it('open', () => {

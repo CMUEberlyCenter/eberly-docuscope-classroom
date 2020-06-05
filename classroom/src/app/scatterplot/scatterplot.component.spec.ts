@@ -7,18 +7,12 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing';
 
 import { ScatterplotComponent } from './scatterplot.component';
-import { ScatterplotData } from '../boxplot-data';
 import { CorpusService } from '../corpus.service';
-import { BoxplotDataService} from '../boxplot-data.service';
+import { DocuScopeData, DsDataService } from '../ds-data.service';
 import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
-
-@Component({selector: 'app-scatterplot-graph', template: ''})
-class ScatterplotGraphStubComponent {
-  @Input() points: ScatterplotData;
-}
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -34,24 +28,24 @@ describe('ScatterplotComponent', () => {
       intro: 'stub',
       stv_intro: 'stub'
     }));
-    const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getScatterPlotData']);
-    dataService_spy.getBoxPlotData.and.returnValue(asyncData({
-      bpdata: [{'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4, 'uifence': .6, 'lifence': 0, 'category': 'STUB_X'},
-        {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
-      outliers: []
-    }));
-    dataService_spy.getScatterPlotData.and.returnValue(asyncData({
-      spdata: [{
-        catX: 1, catY: 2, title: 'Name', text_id: '123', ownedby: 'student'
-      }, {
-        catX: 2, catY: 1, title: 'model', text_id: '456', ownedby: 'instructor'
+    const dataService_spy = jasmine.createSpyObj('DsDataService', ['getData']);
+    dataService_spy.getData.and.returnValue(asyncData({
+      categories: [
+        {'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4,
+        'uifence': .6, 'lifence': 0,
+        'id': 'STUB_X', 'name': 'Stub X'},
+        {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5,
+        'uifence': .6, 'lifence': 0.1,
+        'id': 'STUB_Y', 'name': 'Stub Y'}],
+      data: [{
+        id: 'bogus_index', text: 'bogus text', ownedby: 'student',
+        bogus: 0.5, STUB_X: 0.1, STUB_Y: 0.2, total_words: 2
       }]
     }));
 
     TestBed.configureTestingModule({
       declarations: [ ScatterplotComponent,
-        NavStubComponent,
-        ScatterplotGraphStubComponent ],
+        NavStubComponent ],
       imports: [ FormsModule,
         GoogleChartsModule,
         MatCardModule,
@@ -59,7 +53,7 @@ describe('ScatterplotComponent', () => {
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: BoxplotDataService, useValue: dataService_spy }
+        { provide: DsDataService, useValue: dataService_spy }
       ]
     })
       .compileComponents();
@@ -77,8 +71,6 @@ describe('ScatterplotComponent', () => {
 
   it('getData', async () => {
     component.getData();
-    await fixture.whenStable().then(() => expect(component.data).toBeDefined());
-    component.x_axis = '';
     await fixture.whenStable().then(() => expect(component.data).toBeDefined());
   });
 

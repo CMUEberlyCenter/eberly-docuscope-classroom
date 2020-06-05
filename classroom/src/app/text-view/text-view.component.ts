@@ -63,6 +63,7 @@ export class TextViewComponent implements OnInit {
   expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
+  max_clusters = 4;
 
   @ViewChild('TableSort', {static: true}) sort: MatSort;
 
@@ -105,7 +106,7 @@ export class TextViewComponent implements OnInit {
 
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
-      this.unit = settings.unit;
+      this.max_clusters = settings.stv.max_clusters;
     });
   }
   getTaggedText() {

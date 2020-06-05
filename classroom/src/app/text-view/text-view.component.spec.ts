@@ -1,4 +1,5 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -82,6 +83,7 @@ describe('TextViewComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent, PatternsTableStubComponent ],
       imports: [
+        HttpClientTestingModule, // settings import requires.
         MatCardModule,
         MatCheckboxModule,
         MatIconModule,

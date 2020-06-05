@@ -41,7 +41,8 @@ describe('AssignmentService', () => {
     const stub: AssignmentData = {
       course: 'course_stub',
       assignment: 'assignment_stub',
-      instructor: 'Testy Tester'
+      instructor: 'Testy Tester',
+      categories: []
     };
     service.assignment$.subscribe(
       assign => expect(assign).toEqual(stub.assignment));
