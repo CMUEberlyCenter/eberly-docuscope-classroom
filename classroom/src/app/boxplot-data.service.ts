@@ -35,8 +35,8 @@ export class BoxplotDataService {
       return this.boxplot_data;
     } else {
       // this.messageService.add('Going to retrieve Box Plot data from server, please wait.');
-      const bp_query = makeBoxplotSchema(corpus);
-      this.boxplot_data = this.http.post<BoxplotData>(this.boxplot_server, bp_query)
+      // const bp_query = makeBoxplotSchema(corpus);
+      this.boxplot_data = this.http.post<BoxplotData>(this.boxplot_server, corpus)
         .pipe(
           publishReplay(1),
           refCount(),
@@ -50,10 +50,10 @@ export class BoxplotDataService {
 
   getRankedList(corpus: string[], sort_by: string): Observable<RankData> {
     if (!this.rank_data.has(sort_by)) {
-      const rank_query = makeRankedListSchema(corpus, sort_by);
+      // const rank_query = makeRankedListSchema(corpus, sort_by);
       this.rank_data.set(
         sort_by,
-        this.http.post<RankData>(this.rank_server, rank_query)
+        this.http.post<RankData>(this.rank_server, corpus)
           .pipe(
             publishReplay(1),
             refCount(),

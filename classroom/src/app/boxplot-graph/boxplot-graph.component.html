@@ -1,15 +1,15 @@
 <table mat-table matSort #box_plot_table *ngIf="boxplot_data"
        #boxplotSort=matSort
        [dataSource]="boxplot_data">
-  <ng-container matColumnDef="category_label">
+  <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
-    <td mat-cell *matCellDef="let row">{{row.category_label}}</td>
+    <td mat-cell *matCellDef="let row">{{row.name}}<button mat-icon-button matTooltip="{{row.description}}" matTooltipPosition="after"><mat-icon class="tooltip-icon">comment</mat-icon></button></td>
   </ng-container>
   <ng-container matColumnDef="boxplot">
     <th mat-header-cell *matHeaderCellDef>
       <svg xmlns="http://www.w3.org/2000/svg"
-           [style.width]="_box_options.width+'px'"
-           [style.height]="_box_options.height+'px'">
+           [style.width]="options.width+'px'"
+           [style.height]="options.height+'px'">
         <desc>Linear scale ruler from 0 to {{x.tickFormat(10)(x.ticks(10)[10])}}.</desc>
         <g fill="none" font-size="9"
            font-weight="normal" text-anchor="middle">
@@ -28,19 +28,19 @@
     </th>
     <td mat-cell *matCellDef="let row">
       <svg class="box_plot_item"
-           [attr.width]="_box_options.width+'px'"
-           [attr.height]="_box_options.height+'px'"
+           [attr.width]="options.width+'px'"
+           [attr.height]="options.height+'px'"
            [attr.data-min]="row.lifence"
            [attr.data-q1]="row.q1"
            [attr.data-q2]="row.q2"
            [attr.data-q3]="row.q3"
            [attr.data-max]="row.uifence"
-           matTooltip="Minimum={{percent(row.min)}};  First Quantile={{percent(row.q1)}};  Median={{percent(row.q2)}};  Third Quantile={{percent(row.q3)}};  Maximum={{percent(row.max)}}">
-        <desc>A box plot where the minimum is {{percent(row.lifence)}},
-          the first quantile is {{percent(row.q1)}},
-          the median is {{percent(row.q2)}},
-          the third quantile is {{percent(row.q3)}},
-          and the maximum is {{percent(row.uifence)}}.
+           matTooltip="Minimum={{scale(row.min)}};  First Quantile={{scale(row.q1)}};  Median={{scale(row.q2)}};  Third Quantile={{scale(row.q3)}};  Maximum={{scale(row.max)}}">
+        <desc>A box plot where the minimum is {{scale(row.lifence)}},
+          the first quantile is {{scale(row.q1)}},
+          the median is {{scale(row.q2)}},
+          the third quantile is {{scale(row.q3)}},
+          and the maximum is {{scale(row.uifence)}}.
         </desc>
         <!-- Base line -->
         <line [attr.x1]="scale_x(row.lifence)"
@@ -79,14 +79,15 @@
               [style.stroke]="'#3c3c3c'"
               [style.stroke-width]="1"/>
         <g>
-          <a *ngFor="let out of get_outliers(row.category)"
-             (click)="open('stv/'+out.pointtitle)">
+          <a *ngFor="let out of get_outliers(row)"
+             (click)="open('stv/'+out.id)">
             <circle [attr.cx]="scale_x(out.value)"
                     [attr.cy]="scale_y(0.5)"
                     [attr.r]="scale_y(0.1)"
                     [style.fill]="'#52be80'"
                     [style.stroke-width]="1"
-                    [style.stroke]="'#eeeeee'"/>
+                    [style.stroke]="'#eeeeee'"
+                    matTooltip="{{out.title}}: {{scale(out.value)}}"/>
           </a>
         </g>
       </svg>

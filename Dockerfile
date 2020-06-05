@@ -8,7 +8,7 @@ COPY ./classroom .
 RUN npm run build_prod
 #RUN npm run build_dev
 
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
 COPY requirements.txt /tmp
 RUN pip install --upgrade pip && pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 #ENV STATIC_INDEX 1

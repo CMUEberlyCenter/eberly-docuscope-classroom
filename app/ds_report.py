@@ -32,6 +32,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from bs4 import BeautifulSoup as bs
 
 from default_settings import Config
+from routers.ds_data import DocuScopeData
 
 class Divider(Flowable):
     """A Divider."""
@@ -165,15 +166,21 @@ def get_cat_descriptions(cats, dict_name):
         raise
     return {k:v for (k, v) in clusters.items() if k in cats}
 
-def find_bp(category, bp_data):
+def find_bp(category: str, bp_data: DocuScopeData):
     """ Returns the boxplot data. """
-    return next((bp for bp in bp_data['bpdata'] if bp['category'] == category),
+    return next((bp for bp in bp_data.categories if bp['id'] == category),
                 None)
 
-def find_outliers(category, bp_data):
-    """ Return a list of outliers for the boxplot of the given category. """
-    return list(filter(lambda outl: outl['category'] == category,
-                       bp_data['outliers']))
+def find_outliers(category: str, bp_data: DocuScopeData):
+    """ Return a list of outliers for the boxplot of the given category.
+    @param category: str - id of category
+    @param bp_data: DocuScopeData
+    """
+    cat_info = find_bp(category, bp_data)
+    upper = cat_info['uifence']
+    lower = cat_info['lifence']
+    return list(filter(lambda outl: outl[category] > upper or outl[category] < lower,
+                       bp_data.data))
 
 def sort_patterns(unsorted_patterns):
     """ Sort a list of dictionaries that contain count-pattern pairs by frequency.
@@ -265,7 +272,7 @@ def generate_paragraph_styles():
     return styles
 
 #pylint: disable=too-many-locals, too-many-statements
-def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
+def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData, descriptions):
     """Generate all of the pdf reports.
 
     @param dframe - the data frame for the corpus.
@@ -273,7 +280,7 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
                                              'dict': {lat*: {'dimension': str,
                                                              'cluster': str}}}}
     @param dict_name - the name of the DocuScope dictionary used.
-    @param bp_data - the data frame of the box plot data.
+    @param bp_data: DocuScopeData - the DocuScope metadata object.
     @param descriptions - a dictionary of {'course': str, 'assignment': str,
                                            'instructor': str, 'intro': str,
                                            'stv_intro': str}
@@ -307,9 +314,8 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
     # calculate the max value for the box-plot. It will be used to determine
     # the scale factor by Boxplot class.
-    max_val = max(0.0,
-                  max([d['max'] for d in bp_data['bpdata']], default=0.0),
-                  max([o['value'] for o in bp_data['outliers']], default=0.0))
+    max_val = max([max(d['max'], d['uifence']) for d in bp_data.categories],
+                  default=0.0)
 
     # let's extract the cluster names (i.e., categories)
     categories = list(df1)[::-1]
@@ -428,17 +434,17 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
         combined_content.append(Paragraph(
             "<b>DocuScope Report</b>", styles["DS_CoverText"]))
         combined_content.append(Spacer(1, 6))
-        if descriptions['instructor']:
+        if 'instructor' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Instructor:</b>    {}".format(descriptions['instructor']),
+                "<b>Instructor:</b>    {}".format(bp_data.instructor),
                 styles["DS_CoverText"]))
-        if descriptions['course']:
+        if 'course' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Course:</b>        {}".format(descriptions['course']),
+                "<b>Course:</b>        {}".format(bp_data.course),
                 styles["DS_CoverText"]))
-        if descriptions['assignment']:
+        if 'assignment' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Assignment:</b>    {}".format(descriptions['assignment']),
+                "<b>Assignment:</b>    {}".format(bp_data.assignment),
                 styles["DS_CoverText"]))
 
         combined_content.append(PageBreak())
@@ -470,10 +476,10 @@ def generate_pdf_reports(dframe, corpus, dict_name, bp_data, descriptions):
 
                 # header area (course name, assignment name, and the student's name)
                 content.append(Paragraph(
-                    "<b>{}</b>".format(descriptions['course']),
+                    "<b>{}</b>".format(bp_data.course),
                     styles['DS_MetaData']))
                 content.append(Paragraph(
-                    "Assignment: {}".format(descriptions['assignment']),
+                    "Assignment: {}".format(bp_data.assignment),
                     styles['DS_MetaData']))
                 content.append(Spacer(1, pica))
                 content.append(Paragraph("Report for {}".format(title),
@@ -553,7 +559,7 @@ The text will not display properly, however the analysis is not affected.""",
         # ########################################
 
         doc.build(combined_content)
-        zip_file.writestr(f"_all.pdf", all_reports.getvalue())
+        zip_file.writestr("_all.pdf", all_reports.getvalue())
 
         # ########################################
         # Create a summary of patterns in a separate PDF.

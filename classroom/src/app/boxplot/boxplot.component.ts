@@ -4,8 +4,8 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
-import { BoxplotData, BoxplotDataEntry, RankData, max_boxplot_value } from '../boxplot-data';
-import { BoxplotDataService } from '../boxplot-data.service';
+import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
   selector: 'app-boxplot',
@@ -13,60 +13,59 @@ import { BoxplotDataService } from '../boxplot-data.service';
   styleUrls: ['./boxplot.component.css']
 })
 export class BoxplotComponent implements OnInit {
-  corpus: string[];
-  data: BoxplotData;
-  rank_data: RankData;
   cloud_data: CloudData[];
-  selected_category: string;
-  max_value: number;
+  corpus: string[];
+  data: DocuScopeData;
+  show_cloud = true;
+  selected_category: CategoryData;
+  unit = 100;
 
   constructor(
+    private assignmentService: AssignmentService,
     private corpusService: CorpusService,
-    private spinner: NgxUiLoaderService,
-    private dataService: BoxplotDataService,
-    private assignmentService: AssignmentService) { }
+    private dataService: DsDataService,
+    private settingsService: SettingsService,
+    private spinner: NgxUiLoaderService
+  ) { }
 
   getCorpus(): void {
     this.spinner.start();
     this.corpusService.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this.spinner.stop();
+        // this.spinner.stop();
         this.getData();
       });
   }
+
   getData(): void {
     this.spinner.start();
-    this.dataService.getBoxPlotData(this.corpus)
+    this.dataService.getData(this.corpus)
       .subscribe(data => {
         this.data = data;
         this.assignmentService.setAssignmentData(data);
-        this.cloud_data = this.data.bpdata.map(
-          (bpd: BoxplotDataEntry): CloudData =>
-            ({text: bpd.category_label, weight: bpd.q2} as CloudData));
-        this.max_value = max_boxplot_value(data);
+        this.cloud_data = this.data.categories.map(
+          (bpd: CategoryData): CloudData =>
+            // TODO: check for empty category/name
+            ({text: bpd.name, weight: bpd.q2} as CloudData));
+        // this.max_value = max_boxplot_value(data);
         this.spinner.stop();
       });
   }
-  getRankData(selected_category: string): void {
-    if (selected_category) {
-      this.spinner.start();
-      this.dataService.getRankedList(this.corpus, selected_category)
-        .subscribe(data => {
-          this.rank_data = data;
-          this.spinner.stop();
-        });
-    } else {
-      this.rank_data = null;
-    }
+
+  getSettings(): void {
+    this.settingsService.getSettings().subscribe(settings => {
+      this.unit = settings.unit;
+      this.show_cloud = settings.boxplot.cloud;
+    });
   }
 
   ngOnInit() {
+    this.getSettings();
     this.getCorpus();
   }
 
-  onSelectCategory(category: string) {
+  onSelectCategory(category: CategoryData) {
     this.selected_category = category;
-    this.getRankData(category);
   }
 }

@@ -8,10 +8,10 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BoxplotGraphComponent } from './boxplot-graph.component';
 
 const data = {
-  bpdata: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
+  categories: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
     uifence: 3.5, lifence: 0.5,
-    category: 'bogus', category_label: 'Bogus Data'}],
-  outliers: [{pointtitle: 'outlier', value: 4.5, category: 'bogus'}]
+    id: 'bogus', name: 'Bogus Data'}],
+  data: [{id: 'outlier', title: 'Outlier', bogus: 4.5, total_words: 100, ownedby: 'student'}]
 };
 
 @Component({
@@ -54,9 +54,9 @@ describe('BoxplotGraphComponent', () => {
 
   it('boxplot', () => fixture.whenStable().then(() => {
     component.boxplot.boxplot = data;
-    expect(component.boxplot.boxplot).toEqual(data);
+    expect(component.boxplot.data).toEqual(data);
     component.boxplot.boxplot = null;
-    expect(component.boxplot.boxplot).toBeNull();
+    expect(component.boxplot.data).toBeNull();
   }));
 
   it('get options', () => {
@@ -65,9 +65,9 @@ describe('BoxplotGraphComponent', () => {
 
   it('handle_selection', () => fixture.whenStable().then(() => {
     component.boxplot.selected_category.emit = jasmine.createSpy('emit');
-    component.boxplot.handle_selection(data.bpdata[0]);
+    component.boxplot.handle_selection(data.categories[0]);
     expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith('bogus');
-    component.boxplot.handle_selection(data.bpdata[0]);
+    component.boxplot.handle_selection(data.categories[0]);
     expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith('');
   }));
 
@@ -94,9 +94,11 @@ describe('BoxplotGraphComponent', () => {
   });
 
   it('get_outliers', () => fixture.whenStable().then(() => {
-    component.boxplot.boxplot = data;
-    expect(component.boxplot.get_outliers('bogus')).toEqual([data.outliers[0]]);
-    expect(component.boxplot.get_outliers('no_lat')).toEqual([]);
+    // component.boxplot.#ds_data = data;
+    expect(component.boxplot.get_outliers(data.categories[0])).toEqual(
+      [{id: data.data[0].id, title: data.data[0].title, value: data.data[0].bogus}]);
+    // expect(component.boxplot.get_outliers(
+    // {id: 'no_lat', name: "NULL", q1:0, q2:0, q3:0, min:0, max:1, lifence:0, uifence:0})).toEqual([]);
   }));
 
   it('ngAfterViewChecked', () => fixture.whenStable().then(() => {

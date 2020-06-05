@@ -48,13 +48,14 @@ export function makeScatterplotSchema(corpus: string[], cat_x: string, cat_y: st
   return schema;
 }
 
-export class GroupsSchema extends CorpusSchema {
+export class GroupsSchema {
+  corpus: string[];
   group_size: number;
 }
 export function makeGroupsSchema(corpus: string[], group_size: number): GroupsSchema {
-  const schema = makeCorpusSchema(corpus) as GroupsSchema;
-  schema.group_size = group_size;
-  return schema;
+  // const schema = makeCorpusSchema(corpus) as GroupsSchema;
+  // schema.group_size = group_size;
+  return {corpus: corpus, group_size: group_size};
 }
 
 export class BoxplotDataEntry {
@@ -66,7 +67,7 @@ export class BoxplotDataEntry {
   uifence: number;
   lifence: number;
   category: string;
-  category_label: string;
+  // category_label: string;
 }
 export class Outlier {
   pointtitle: string;

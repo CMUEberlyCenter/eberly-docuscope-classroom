@@ -38,7 +38,8 @@ export class GroupingComponent implements OnInit {
     this.corpus_service.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.stop();
+        // this._spinner.stop();
+        this.getGroupsData();
       });
   }
 

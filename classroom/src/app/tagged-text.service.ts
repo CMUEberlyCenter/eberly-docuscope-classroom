@@ -4,24 +4,26 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
 import { environment } from './../environments/environment';
 import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
+import { DictionaryInformation } from './assignment-data';
 
-export interface TextContentDictionaryInformation {
+/*export interface TextContentDictionaryInformation {
   id: string;
   name: string;
   description?: string;
-}
+}*/
 export interface TextContent {
   text_id: string;
   word_count: number;
   html_content: string;
   dictionary: Record<string, {dimension: string; cluster: string}>;
-  dict_info: {
+  /*dict_info: {
     cluster?: TextContentDictionaryInformation[];
     dimension?: TextContentDictionaryInformation[];
-  };
+  };*/
   course?: string;
   assignment?: string;
   instructor?: string;
+  categories?: DictionaryInformation[];
 }
 
 @Injectable({

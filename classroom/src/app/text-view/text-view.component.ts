@@ -12,7 +12,9 @@ import * as $ from 'jquery';
 import { AssignmentService } from '../assignment.service';
 import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
 import { PatternData, pattern_compare } from '../patterns.service';
-import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
+import { TaggedTextService, TextContent } from '../tagged-text.service';
+import { DictionaryInformation } from '../assignment-data';
+import { SettingsService } from '../settings.service';
 
 class TextClusterData implements ClusterData {
   id: string;
@@ -23,8 +25,7 @@ class TextClusterData implements ClusterData {
   get pattern_count(): number { return this.patterns.length; }
   // expand: boolean = false; // to be used for multiple expansion.
 
-  constructor(di: TextContentDictionaryInformation,
-    patterns: Map<string, number>) {
+  constructor(di: DictionaryInformation, patterns: Map<string, number>) {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
@@ -65,7 +66,7 @@ export class TextViewComponent implements OnInit {
 
   @ViewChild('TableSort', {static: true}) sort: MatSort;
 
-  _cluster_info: Map<string, TextContentDictionaryInformation>;
+  _cluster_info: Map<string, DictionaryInformation>;
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -76,7 +77,7 @@ export class TextViewComponent implements OnInit {
     'cluster_5'];
 
   get max_selected_clusters(): number {
-    return 4; // maximum of the total number of _css_classes.
+    return Math.min(4, this._css_classes.length); // maximum of the total number of _css_classes.
   }
 
   private _selected_clusters: Map<string, string> = new Map<string, string>();
@@ -85,6 +86,7 @@ export class TextViewComponent implements OnInit {
     private _route: ActivatedRoute,
     private _assignmentService: AssignmentService,
     private _sanitizer: DomSanitizer,
+    private _settings_service: SettingsService,
     private _spinner: NgxUiLoaderService,
     private _text_service: TaggedTextService
   ) { }
@@ -101,6 +103,11 @@ export class TextViewComponent implements OnInit {
     $event.stopPropagation();
   }
 
+  getSettings(): void {
+    this._settings_service.getSettings().subscribe(settings => {
+      this.unit = settings.unit;
+    });
+  }
   getTaggedText() {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
@@ -110,9 +117,9 @@ export class TextViewComponent implements OnInit {
         this._assignmentService.setAssignmentData(txt);
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
-        if (this.tagged_text && this.tagged_text.dict_info && this.tagged_text.dict_info.cluster) {
-          for (const clust of this.tagged_text.dict_info.cluster) {
+        this._cluster_info = new Map<string, DictionaryInformation>();
+        if (this.tagged_text && this.tagged_text.categories) {
+          for (const clust of this.tagged_text.categories) {
             this._cluster_info.set(clust.id, clust);
           }
         }
@@ -151,6 +158,7 @@ export class TextViewComponent implements OnInit {
       });
   }
   ngOnInit() {
+    this.getSettings();
     this.getTaggedText();
   }
 
@@ -193,7 +201,7 @@ export class TextViewComponent implements OnInit {
     }
   }
 
-  get_cluster_info(cluster: string): TextContentDictionaryInformation {
+  get_cluster_info(cluster: string): DictionaryInformation {
     return this._cluster_info.get(cluster);
   }
 
