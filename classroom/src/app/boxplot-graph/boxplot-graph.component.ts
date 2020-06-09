@@ -18,15 +18,12 @@ class Outlier {
   styleUrls: ['./boxplot-graph.component.css']
 })
 export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
-  boxplot_data: MatTableDataSource<CategoryData>;
-  selection = new SelectionModel<CategoryData>(false, []);
-  @Input()
-  set boxplot(data: DocuScopeData) {
-    this.#ds_data = data;
+  @Input() set boxplot(data: DocuScopeData) {
+    this.ds_data = data;
     this.max_value = 0.0;
-    this.#outliers = new Map<string, Outlier[]>();
+    this.outliers = new Map<string, Outlier[]>();
     if (data) {
-      this.boxplot_data = new MatTableDataSource(this.#ds_data.categories);
+      this.boxplot_data = new MatTableDataSource(this.ds_data.categories);
       if (this.sort) { this.boxplot_data.sort = this.sort; }
       this.max_value = max_boxplot_value(data);
     }
@@ -35,30 +32,29 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     this.x = d3.scaleLinear().domain([0, this.max_value * this.unit])
       .range([this.left, this.right]).nice().clamp(true);
   }
-  get data(): DocuScopeData { return this.#ds_data; }
-
-  max_value = 0.0;
-  #unit = 100;
-  get unit(): number { return this.#unit; }
   @Input() set unit(scale: number) {
-    this.#unit = scale;
-    this.x = d3.scaleLinear().domain([0, this.max_value * this.unit])
+    this._unit = scale;
+    this.x = d3.scaleLinear().domain([0, this.max_value * this._unit])
       .range([this.left, this.right]).nice().clamp(true);
   }
   @Output() selected_category = new EventEmitter<CategoryData>();
   @ViewChild('boxplotSort') sort: MatSort;
 
+  boxplot_data: MatTableDataSource<CategoryData>;
+  get data(): DocuScopeData { return this.ds_data; }
+  ds_data: DocuScopeData;
   displayColumns: string[] = [ 'name', 'boxplot' ];
-
+  max_value = 0.0;
+  outliers: Map<string, Outlier[]>;
+  selection = new SelectionModel<CategoryData>(false, []);
   scale_y;
   scale_x;
+  get unit(): number { return this._unit; }
   x;
-  #ds_data: DocuScopeData;
-  #options: { width; height } = { width: 500, height: 50 };
-  #outliers: Map<string, Outlier[]>;
-  #box_options = {
-    width: 300,
-    height: 30,
+
+  options = {
+    width: 500,
+    height: 50,
     margin: {
       left: 10,
       right: 10,
@@ -67,14 +63,16 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     }
   };
 
+  private _unit = 100;
+
   constructor() { }
 
-  get options(): { width; height } {
-    return this.#options; /* = {
-      width: window.innerWidth,
-      height: window.innerHeight
-    };*/
-  }
+  // get options(): { width; height } {
+  //  return this.options; /* = {
+  //    width: window.innerWidth,
+  //    height: window.innerHeight
+  //  };*/
+  // }
 
   handle_selection(row: CategoryData) {
     this.selection.toggle(row);
@@ -88,13 +86,13 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   scale(value: number): string {
     return `${(this.unit * value).toFixed(2)}`;
   }
-  get left(): number { return this.#box_options.margin.left; }
-  get right(): number { return this.options.width - this.#box_options.margin.right; }
-  get top(): number { return this.#box_options.margin.top; }
-  get bottom(): number { return this.options.height - this.#box_options.margin.bottom; }
+  get left(): number { return this.options.margin.left; }
+  get right(): number { return this.options.width - this.options.margin.right; }
+  get top(): number { return this.options.margin.top; }
+  get bottom(): number { return this.options.height - this.options.margin.bottom; }
 
   get_outliers(category: CategoryData): Outlier[] {
-    if (!this.#outliers.has(category.id)) {
+    if (!this.outliers.has(category.id)) {
       const uf: number = category.uifence, lf: number = category.lifence;
       const outs: Outlier[] = this.data.data.map(
         (datum: DocumentData): Outlier => new Outlier(datum.id, datum.title, category_value(category, datum))
@@ -102,9 +100,9 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
         (out: Outlier): boolean => (out.value > uf) || (out.value < lf)
       );
       // console.log(`outliers for ${category.id}, ${lf}, ${uf}:`, outs);
-      this.#outliers.set(category.id, outs);
+      this.outliers.set(category.id, outs);
     }
-    return this.#outliers.get(category.id);
+    return this.outliers.get(category.id);
   }
 
   open(doc_id: string): void {

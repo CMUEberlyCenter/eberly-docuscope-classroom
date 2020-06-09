@@ -9,6 +9,7 @@ import { asyncData } from '../../testing';
 import { AboutComponent } from '../about/about.component';
 import { HeaderComponent } from './header.component';
 import { AssignmentService } from '../assignment.service';
+import { SettingsService } from '../settings.service';
 
 @Component({selector: 'app-about', template: ''})
 class AboutStubComponent {}
@@ -20,6 +21,16 @@ describe('HeaderComponent', () => {
   const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
 
   beforeEach(async(() => {
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
+    }));
     TestBed.configureTestingModule({
       declarations: [ HeaderComponent ],
       imports: [
@@ -29,7 +40,8 @@ describe('HeaderComponent', () => {
       ],
       providers: [
         AssignmentService,
-        { provide: MatDialog, useValue: mat_dialog_spy }
+        { provide: MatDialog, useValue: mat_dialog_spy },
+        { provide: SettingsService, useValue: settings_spy }
       ]
     })
       .compileComponents();
@@ -47,7 +59,8 @@ describe('HeaderComponent', () => {
   });
 
   it('should have as title \'DocuScope Classroom @ CMU\'', () => {
-    expect(component.title).toEqual('DocuScope Classroom @ CMU');
+    expect(component.title).toEqual('DocuScope Classroom');
+    expect(component.institution).toEqual('@ CMU');
   });
 
   it('check assignment', () => {

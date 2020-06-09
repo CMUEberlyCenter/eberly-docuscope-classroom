@@ -43,12 +43,12 @@ export class PatternClusterData implements ClusterData {
   ],
 })
 export class PatternsComponent implements OnInit {
+  @ViewChild('clusterTableSort', {static: true}) sort: MatSort;
+
   corpus: string[];
   patterns_data: MatTableDataSource<PatternClusterData>;
   expanded: PatternClusterData | null;
   cluster_columns = ['name', /* 'pattern_count',*/ 'count', 'expand'];
-
-  @ViewChild('clusterTableSort', {static: true}) sort: MatSort;
 
   constructor(
     private corpusService: CorpusService,

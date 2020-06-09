@@ -17,20 +17,21 @@ export class GroupsData extends AssignmentData {
   providedIn: 'root'
 })
 export class GroupsService {
+  private handleError: HandleError;
   private groups_server = `${environment.backend_server}/groups`;
-  #handleError: HandleError;
+
   constructor(
     private http: HttpClient,
     httpErrorHandler: HttpErrorHandlerService
   ) {
-    this.#handleError = httpErrorHandler.createHandleError('GroupsService');
+    this.handleError = httpErrorHandler.createHandleError('GroupsService');
   }
 
   getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
     return this.http.post<GroupsData>(this.groups_server,
-       {corpus: corpus, group_size: group_size})
-       .pipe(catchError(this.#handleError('getGroupsData', <GroupsData>{
-         groups: [[]], grp_qualities: [], quality: 0
-       })));
+      {corpus: corpus, group_size: group_size})
+      .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{
+        groups: [[]], grp_qualities: [], quality: 0
+      })));
   }
 }

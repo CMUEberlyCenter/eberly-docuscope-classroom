@@ -27,11 +27,11 @@ const default_settings: Settings = {
   providedIn: 'root'
 })
 export class SettingsService {
-  #assets_settings = 'assets/settings.json';
+  assets_settings = 'assets/settings.json';
   constructor(private http: HttpClient) { }
   getSettings(): Observable<Settings> {
-    return this.http.get<Settings>(this.#assets_settings).pipe(
-      // catchError(err => of(default_settings))
+    return this.http.get<Settings>(this.assets_settings).pipe(
+      catchError(err => of(default_settings))
     );
   }
 }

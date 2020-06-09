@@ -10,6 +10,7 @@ import { ScatterplotComponent } from './scatterplot.component';
 import { CorpusService } from '../corpus.service';
 import { DocuScopeData, DsDataService } from '../ds-data.service';
 import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
+import { SettingsService } from '../settings.service';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
@@ -32,15 +33,25 @@ describe('ScatterplotComponent', () => {
     dataService_spy.getData.and.returnValue(asyncData({
       categories: [
         {'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4,
-        'uifence': .6, 'lifence': 0,
-        'id': 'STUB_X', 'name': 'Stub X'},
+          'uifence': .6, 'lifence': 0,
+          'id': 'STUB_X', 'name': 'Stub X'},
         {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5,
-        'uifence': .6, 'lifence': 0.1,
-        'id': 'STUB_Y', 'name': 'Stub Y'}],
+          'uifence': .6, 'lifence': 0.1,
+          'id': 'STUB_Y', 'name': 'Stub Y'}],
       data: [{
         id: 'bogus_index', text: 'bogus text', ownedby: 'student',
         bogus: 0.5, STUB_X: 0.1, STUB_Y: 0.2, total_words: 2
       }]
+    }));
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
     }));
 
     TestBed.configureTestingModule({
@@ -53,6 +64,7 @@ describe('ScatterplotComponent', () => {
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
+        { provide: SettingsService, useValue: settings_spy },
         { provide: DsDataService, useValue: dataService_spy }
       ]
     })
@@ -84,7 +96,7 @@ describe('ScatterplotComponent', () => {
       dataTable: {
         getValue: () => '123'
       }
-    }, [{row: 'row'}]);
+    }, {selection: [{row: 1}]});
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
 });

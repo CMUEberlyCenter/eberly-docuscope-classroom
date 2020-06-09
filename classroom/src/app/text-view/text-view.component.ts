@@ -57,6 +57,8 @@ class TextClusterData implements ClusterData {
   ]
 })
 export class TextViewComponent implements OnInit {
+  @ViewChild('TableSort', {static: true}) sort: MatSort;
+
   tagged_text: TextContent;
   cluster_columns = ['name', 'count', 'expand'];
   clusters: MatTableDataSource<TextClusterData>;
@@ -64,8 +66,6 @@ export class TextViewComponent implements OnInit {
   patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
   max_clusters = 4;
-
-  @ViewChild('TableSort', {static: true}) sort: MatSort;
 
   _cluster_info: Map<string, DictionaryInformation>;
 

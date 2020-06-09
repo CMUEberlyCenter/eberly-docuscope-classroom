@@ -50,26 +50,26 @@ export function max_boxplot_value(data: DocuScopeData): number {
   providedIn: 'root'
 })
 export class DsDataService {
-  #server = `${environment.backend_server}/ds_data`;
-  #handleError: HandleError;
-  #data: Observable<DocuScopeData>;
+  server = `${environment.backend_server}/ds_data`;
+  handleError: HandleError;
+  data: Observable<DocuScopeData>;
 
   constructor(
     private http: HttpClient,
     httpErrorHandler: HttpErrorHandlerService
   ) {
-    this.#handleError = httpErrorHandler.createHandleError('DsDataService');
+    this.handleError = httpErrorHandler.createHandleError('DsDataService');
   }
 
   getData(corpus: string[]): Observable<DocuScopeData> {
-    if (!this.#data) {
-      this.#data = this.http.post<DocuScopeData>(this.#server, corpus)
-      .pipe(
-        publishReplay(1),
-        refCount(),
-        catchError(this.#handleError('getData', {categories: [], data: []}))
-      );
+    if (!this.data) {
+      this.data = this.http.post<DocuScopeData>(this.server, corpus)
+        .pipe(
+          publishReplay(1),
+          refCount(),
+          catchError(this.handleError('getData', {categories: [], data: []}))
+        );
     }
-    return this.#data;
+    return this.data;
   }
 }

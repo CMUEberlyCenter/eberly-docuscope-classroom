@@ -60,7 +60,8 @@ describe('BoxplotGraphComponent', () => {
   }));
 
   it('get options', () => {
-    expect(component.boxplot.options).toEqual({ width: 500, height: 50 });
+    expect(component.boxplot.options.width).toEqual(500);
+    expect(component.boxplot.options.height).toEqual(50);
   });
 
   it('handle_selection', () => fixture.whenStable().then(() => {
@@ -83,20 +84,30 @@ describe('BoxplotGraphComponent', () => {
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
 
+  it('positions', () => {
+    expect(component.boxplot.left).toBe(10);
+    expect(component.boxplot.right).toBe(490);
+    expect(component.boxplot.top).toBe(2);
+    expect(component.boxplot.bottom).toBe(48);
+  });
+
   it('scale_x', () => {
+    component.boxplot.boxplot = data;
     expect(component.boxplot.scale_x(0)).toBe(10);
-    expect(component.boxplot.scale_x(1)).toBe(280);
+    expect(component.boxplot.scale_x(1000)).toBe(490);
   });
 
   it('scale_y', () => {
     expect(component.boxplot.scale_y(0)).toBe(2);
-    expect(component.boxplot.scale_y(1)).toBe(26);
+    expect(component.boxplot.scale_y(1)).toBe(48);
   });
 
   it('get_outliers', () => fixture.whenStable().then(() => {
-    // component.boxplot.#ds_data = data;
-    expect(component.boxplot.get_outliers(data.categories[0])).toEqual(
-      [{id: data.data[0].id, title: data.data[0].title, value: data.data[0].bogus}]);
+    component.boxplot.boxplot = data;
+    const outlier = component.boxplot.get_outliers(data.categories[0])[0];
+    expect(outlier.id).toEqual(data.data[0].id);
+    expect(outlier.title).toEqual(data.data[0].title);
+    expect(outlier.value).toEqual(data.data[0].bogus);
     // expect(component.boxplot.get_outliers(
     // {id: 'no_lat', name: "NULL", q1:0, q2:0, q3:0, min:0, max:1, lifence:0, uifence:0})).toEqual([]);
   }));

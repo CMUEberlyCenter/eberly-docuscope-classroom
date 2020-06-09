@@ -75,7 +75,7 @@ describe('GroupingComponent', () => {
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     groups_data_service_spy = jasmine.createSpyObj('GroupsService',
       ['getGroupsData']);
-    groups_data_service_spy.getGroupsData.and.returnValue(asyncData({groups:[]}));
+    groups_data_service_spy.getGroupsData.and.returnValue(asyncData({groups: []}));
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService',
       ['start', 'stop']);
     snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);

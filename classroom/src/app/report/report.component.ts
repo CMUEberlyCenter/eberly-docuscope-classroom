@@ -11,10 +11,10 @@ import { ReportService } from './report.service';
   styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
+  @ViewChild('download_link') download_link: ElementRef;
   corpus: string[];
   intro: string;
   stv_intro: string;
-  @ViewChild('download_link') download_link: ElementRef;
 
   constructor(
     private corpusService: CorpusService,

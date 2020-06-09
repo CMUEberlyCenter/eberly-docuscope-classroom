@@ -43,7 +43,7 @@ const data = {
 
 @Component({
   selector: 'app-fake-rank-component',
-  template: `<app-rank-graph data="${data}" category="bogus" unit="100"></app-rank-graph>`
+  template: `<app-rank-graph data="" category="${data.categories[0]}" unit="100"></app-rank-graph>`
 })
 class TestRankComponent {
   @ViewChild(RankGraphComponent)
@@ -91,24 +91,41 @@ describe('RankGraphComponent', () => {
     expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
-  it('median', () => { expect(component.rank.median).toBe(0.5); });
-  it('max_value', () => { expect(component.rank.max_value).toBe(1); });
+  it('median', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    return fixture.whenStable().then(() => {
+      expect(component.rank.median).toBe(50);
+    });
+  });
+  it('max_value', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.max_value).toBe(100);
+  });
   it('mean_start', () => {
-    //component.rank.data = data;
-    expect(component.rank.mean_start(0.3)).toBe(0.3);
-    expect(component.rank.mean_start(0.6)).toBe(0.5);
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.mean_start(30)).toBe(30);
+    expect(component.rank.mean_start(60)).toBe(50);
   });
   it('mean_width', () => {
-    //component.rank.data = data;
-    expect(component.rank.mean_width(0.3)).toBe(0.2);
-    expect(component.rank.mean_width(0.75)).toBe(0.25);
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.mean_width(30)).toBe(20);
+    expect(component.rank.mean_width(75)).toBe(25);
   });
 
   it('bar_tip', () => {
-    //component.rank.data = data;
-    //fixture.detectChanges();
-    expect(component.rank.bar_tip(0.2)).toBe('20.00 which is about 30.00 less than the median of 50.00.');
-    expect(component.rank.bar_tip(0.6)).toBe('60.00 which is about 10.00 more than the median of 50.00.');
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.bar_tip(20)).toBe('20.00 which is about 30.00 less than the median of 50.00.');
+    expect(component.rank.bar_tip(60)).toBe('60.00 which is about 10.00 more than the median of 50.00.');
   });
 
   it('open', () => {

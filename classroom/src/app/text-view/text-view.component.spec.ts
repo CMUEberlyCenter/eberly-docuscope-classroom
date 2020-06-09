@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TextViewComponent } from './text-view.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { PatternData } from '../patterns.service';
+import { SettingsService } from '../settings.service';
 import { TaggedTextService } from '../tagged-text.service';
 
 @Component({selector: 'app-patterns-table', template: ''})
@@ -56,8 +57,7 @@ describe('TextViewComponent', () => {
           bogus: {dimension: 'bogus_dimension', cluster: 'bogus_cluster'},
           no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
         },
-        dict_info: {
-          cluster: [
+        categories: [
             {
               id: 'bogus_cluster',
               name: 'Bogus Cluster',
@@ -68,8 +68,8 @@ describe('TextViewComponent', () => {
               name: 'No Cluster',
               description: 'Cluster does not appear.'
             }
-          ],
-          dimension: []}}));
+          ]
+        }));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
@@ -79,6 +79,16 @@ describe('TextViewComponent', () => {
       changingThisBreaksApplicationSecurity: html,
       getTypeName: () => 'HTML'
     } as SafeHtml));
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
+    }));
 
     TestBed.configureTestingModule({
       declarations: [ TextViewComponent, PatternsTableStubComponent ],
@@ -98,6 +108,7 @@ describe('TextViewComponent', () => {
         { provide: DomSanitizer, useValue: sanitizer },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
+        { provide: SettingsService, useValue: settings_spy },
         { provide: TaggedTextService, useValue: tagged_text_service_spy },
       ],
       schemas: [ /* NO_ERRORS_SCHEMA*/ ]

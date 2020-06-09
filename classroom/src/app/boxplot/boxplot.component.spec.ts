@@ -8,6 +8,7 @@ import { asyncData } from '../../testing';
 import { BoxplotComponent } from './boxplot.component';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DsDataService, DocuScopeData} from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
 
 @Component({selector: 'app-boxplot-graph', template: ''})
@@ -54,6 +55,16 @@ describe('BoxplotComponent', () => {
         bogus: 0.5, total_words: 2
       }]
     }));
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
+    }));
 
     TestBed.configureTestingModule({
       declarations: [ BoxplotComponent,
@@ -62,7 +73,7 @@ describe('BoxplotComponent', () => {
         RankGraphStubComponent ],
       imports: [ MatCardModule, TagCloudModule],
       providers: [
-        HttpClientTestingModule, // settings import requires.
+        { provide: SettingsService, useValue: settings_spy },
         { provide: DsDataService, useValue: dataService_spy },
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }

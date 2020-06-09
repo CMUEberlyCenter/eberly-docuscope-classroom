@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { RankComponent } from './rank.component';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({selector: 'app-rank-graph', template: ''})
@@ -45,6 +46,16 @@ describe('RankComponent', () => {
       }]
     }));
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
+    }));
 
     TestBed.configureTestingModule({
       declarations: [ RankComponent,
@@ -55,6 +66,7 @@ describe('RankComponent', () => {
         MatCardModule,
         MatFormFieldModule ],
       providers: [
+        { provide: SettingsService, useValue: settings_spy },
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: DsDataService, useValue: ds_data_service_spy }
@@ -82,7 +94,10 @@ describe('RankComponent', () => {
   });
 
   it('on_select', () => {
-    component.on_select({});
-    expect(component.category.id).toBe('STUB_X');
+    component.ngOnInit();
+    return fixture.whenStable().then(() => {
+      component.on_select({});
+      expect(component.category.id).toBe('STUB_X');
+    });
   });
 });

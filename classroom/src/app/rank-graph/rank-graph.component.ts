@@ -23,7 +23,11 @@ interface Options {
   styleUrls: ['./rank-graph.component.css']
 })
 export class RankGraphComponent implements OnChanges, OnInit {
-  @Input() data: DocuScopeData;
+  @Input() set data(ds_data: DocuScopeData) {
+    this.ds_data = ds_data;
+    this._max_cache = null;
+  }
+  get data(): DocuScopeData { return this.ds_data; }
   @Input() category: CategoryData;
   @Input() unit: number;
   @ViewChild('rankSort') sort: MatSort;
@@ -32,12 +36,13 @@ export class RankGraphComponent implements OnChanges, OnInit {
   options: Options = { width: 250, height: 30, margins: { left: 10, top: 5, bottom: 5, right: 10 }};
   displayedColumns: string[] = [/* 'position',*/ 'title', 'value', 'meanbar'/* , 'bar'*/];
 
-  #max_cache: number;
+  private _max_cache: number;
+  private ds_data: DocuScopeData;
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
+
   ngOnChanges(): void {
     if (this.data) {
       if (this.category) {
@@ -46,11 +51,11 @@ export class RankGraphComponent implements OnChanges, OnInit {
         }
       }
       this.ranking = new MatTableDataSource(this.data.data);
-      this.#max_cache = this.unit * max_boxplot_value(this.data);
+      this._max_cache = this.unit * max_boxplot_value(this.data);
     }
   }
   ngAfterViewChecked(): void {
-    if (this.data) {
+    if (this.data && this.ranking) {
       this.ranking.sort = this.sort;
     }
   }
@@ -58,10 +63,10 @@ export class RankGraphComponent implements OnChanges, OnInit {
   get median(): number { return this.unit * this.category.q2; }
 
   get max_value(): number {
-    if (!this.#max_cache) {
-      this.#max_cache = this.unit * max_boxplot_value(this.data);
+    if (!this._max_cache) {
+      this._max_cache = this.unit * max_boxplot_value(this.data);
     }
-    return this.#max_cache;
+    return this._max_cache;
   }
   mean_start(value: number): number {
     return Math.min(value, this.median);
@@ -73,7 +78,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
     const diff = value - this.median;
     const val: string = value.toFixed(2);
     const avg: string = this.median.toFixed(2);
-    const d: string = Math.abs(diff ).toFixed(2);
+    const d: string = Math.abs(diff).toFixed(2);
     const sign: string = diff >= 0 ? 'more' : 'less';
     return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
   }
