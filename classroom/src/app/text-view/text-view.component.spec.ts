@@ -27,11 +27,11 @@ class PatternsTableStubComponent {
 
 const test_html = `
 <p>
-<span id="tag_0" data-key="bogus" class="tag">
+<span id="tag_0" data-key="bogus_cluster" class="tag">
  <span id="w1" class="token">stub</span>
  <span id="w2" class="token">text</span>
 </span>
-<span id="tag_1" data-key="bogus" class="tag">
+<span id="tag_1" data-key="bogus_cluster" class="tag">
  <span id="w3" class="token">stub</span>
  <span id="w4" class="token">text</span>
 </span>
@@ -53,10 +53,6 @@ describe('TextViewComponent', () => {
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(
       {'text_id': 'stub_id', word_count: 2,
         html_content: test_html,
-        dictionary: {
-          bogus: {dimension: 'bogus_dimension', cluster: 'bogus_cluster'},
-          no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
-        },
         categories: [
           {
             id: 'bogus_cluster',
@@ -221,7 +217,7 @@ describe('TextViewComponent', () => {
     const evt = {
       target: {
         parentNode: {
-          getAttribute: () => 'bogus',
+          getAttribute: () => 'bogus_cluster',
           classed: () => {},
           select: () => ({style: () => {}}),
           setAttribute: () => true,
@@ -230,19 +226,8 @@ describe('TextViewComponent', () => {
       }
     };
     expect(() => component.click_select(evt)).not.toThrow();
+    // return fixture.whenStable().then(() => expect(() => component.click_select(evt)).not.toThrow());
     // return fixture.whenStable().then(() => expect(true).toBe(true));
-  }));
-
-  it('get_lats', () => fixture.whenStable().then(() => {
-    const bogus = component.get_lats('bogus_cluster');
-    expect(bogus.next().value).toBe('bogus');
-    expect(bogus.next().done).toBe(true);
-    const fake = component.get_lats('fake');
-    expect(fake.next().done).toBe(true);
-  }));
-
-  it('lat_to_cluster', () => fixture.whenStable().then(() => {
-    expect(component.lat_to_cluster('bogus')).toBe('Bogus Cluster');
   }));
 
   it('get_cluster_name', () => fixture.whenStable().then(() => {

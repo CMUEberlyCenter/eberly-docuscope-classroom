@@ -1,7 +1,9 @@
 """ Get content for single text view. """
+from html.parser import HTMLParser
+import io
 import logging
 import re
-from typing import Dict, List
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,6 +21,36 @@ from util import get_db_session, get_ds_info
 
 router = APIRouter()
 
+class ToneParser(HTMLParser):
+    """ An HTML parser that converts data-key=<lat> to <cluster>. """
+    def __init__(self, tones: DocuScopeTones, out: io.StringIO):
+        super().__init__()
+        self.tones = tones
+        self.out = out
+    def error(self, message):
+        logging.error(message)
+        raise RuntimeError(message)
+    def handle_starttag(self, tag, attrs):
+        self.out.write("<%s" % tag)
+        for attr in attrs:
+            if attr[0] == 'data-key':
+                cluster = self.tones.get_lat_cluster(attr[1])
+                if cluster != 'Other':
+                    self.out.write(' %s="%s"' % (attr[0], cluster))
+            else:
+                self.out.write(" %s" % attr[0])
+                if attr[1]:
+                    self.out.write('="%s"' % attr[1])
+        self.out.write(">")
+    def handle_endtag(self, tag):
+        self.out.write("</%s>" % tag)
+    def handle_data(self, data):
+        self.out.write(data)
+    def handle_comment(self, data):
+        self.out.write("<!-- %s -->" % data)
+    def handle_decl(self, decl):
+        self.out.write("<!%s>" % decl)
+
 class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dimension->cluster mapping."""
     dimension: str = ...
@@ -34,8 +66,6 @@ class TextContent(AssignmentData): #pylint: disable=too-few-public-methods
     text_id: str = ...
     word_count: int = 0
     html_content: str = ""
-    dictionary: Dict[str, DictionaryEntry] = {}
-    #dict_info: DictInfo = ...
 
 @router.get('/text_content/{file_id}', response_model=TextContent,
             responses=ERROR_RESPONSES)
@@ -64,21 +94,18 @@ def get_tagged_text(file_id: UUID,
     ds_info = get_ds_info(doc['ds_dictionary'], db_session)
     res = TextContent(text_id=filename or file_id.text_id,
                       word_count=doc['ds_num_word_tokens'],
-                      #dict_info=ds_info,
                       course=a_course,
                       instructor=a_instructor,
                       assignment=a_name,
                       categories=ds_info['cluster'])
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
-    res.html_content = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
-    tag_dict = doc['ds_tag_dict']
-    #res.course = a_course
-    #res.assignment = a_name
-    #res.instructor = a_instructor
-    if tag_dict:
-        tones = DocuScopeTones(doc['ds_dictionary'])
-        for lat in tag_dict.keys():
-            res.dictionary[lat] = {"dimension": tones.get_dimension(lat),
-                                   "cluster": tones.get_lat_cluster(lat)}
+    html = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
+    tones = DocuScopeTones(doc['ds_dictionary'])
+    buf = io.StringIO()
+    parser = ToneParser(tones, buf)
+    parser.feed(html)
+    parser.close()
+    res.html_content = buf.getvalue()
+    buf.close()
     return res
