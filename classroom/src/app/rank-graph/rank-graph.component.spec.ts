@@ -84,8 +84,10 @@ describe('RankGraphComponent', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
+    expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.category = null;
     fixture.detectChanges();
+    expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.data = null;
     fixture.detectChanges();
     expect(() => component.rank.ngOnChanges()).not.toThrow();

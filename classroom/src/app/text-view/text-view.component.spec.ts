@@ -2,7 +2,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
 import { MatCardModule } from '@angular/material/card';
@@ -58,18 +58,18 @@ describe('TextViewComponent', () => {
           no_hit: {dimension: 'no_dimension', cluster: 'no_cluster'}
         },
         categories: [
-            {
-              id: 'bogus_cluster',
-              name: 'Bogus Cluster',
-              description: 'This is a bogus cluster.'
-            },
-            {
-              id: 'no_cluster',
-              name: 'No Cluster',
-              description: 'Cluster does not appear.'
-            }
-          ]
-        }));
+          {
+            id: 'bogus_cluster',
+            name: 'Bogus Cluster',
+            description: 'This is a bogus cluster.'
+          },
+          {
+            id: 'no_cluster',
+            name: 'No Cluster',
+            description: 'Cluster does not appear.'
+          }
+        ]
+      }));
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
@@ -178,6 +178,17 @@ describe('TextViewComponent', () => {
     });
   });
 
+  /* it('click_select cluster_id', () => {
+    component.getTaggedText();
+    fixture.detectChanges();
+    return fixture.whenStable().then(() => {
+      //expect(component.html_content).toBe(test_html);
+      //expect(fixture.nativeElement.querySelector('.text_content')).toBe(3);
+      expect(fixture.debugElement.query(By.css('[data-key]'))).toBe(null);
+      expect(fixture.debugElement).toBe(null);
+    });
+  }); */
+
   it('click_select invalid', () => fixture.whenStable().then(() => {
     const evt = {
       target: {
@@ -189,7 +200,7 @@ describe('TextViewComponent', () => {
       }
     };
     expect(() => component.click_select(evt)).not.toThrow();
-    // fixture.whenStable().then(() => expect(true).toBe(true));
+    // fixture.whenStable().then(() => expect(fixture.debugElement.nativeElement.querySelectorAll('.cluster_id')).toBe(true));
   }));
 
   it('click_select null', () => fixture.whenStable().then(() => {

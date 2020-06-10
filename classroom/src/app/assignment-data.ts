@@ -20,8 +20,3 @@ export function genCategoryInfoMap(adata: AssignmentData): CategoryInfoMap {
   }
   return cmap;
 }
-
-export function genGetCategoryName(assignment: AssignmentData): (category: string) => string {
-  const map = genCategoryInfoMap(assignment);
-  return (category: string) => map.has(category) ? map.get(category).name : category;
-}

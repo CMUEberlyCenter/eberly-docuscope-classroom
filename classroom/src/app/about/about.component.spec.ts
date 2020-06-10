@@ -1,5 +1,4 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -29,7 +28,6 @@ describe('AboutComponent', () => {
       declarations: [ AboutComponent ],
       imports: [ MatDialogModule, MatIconModule ],
       providers: [
-        HttpClientTestingModule, // settings import requires.
         { provide: MatDialogRef, useValue: mat_dialog_spy },
         { provide: SettingsService, useValue: settings_spy }
       ],

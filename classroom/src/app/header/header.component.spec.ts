@@ -18,13 +18,14 @@ describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let service: AssignmentService;
+  let settings_spy;
   const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
 
   beforeEach(async(() => {
-    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
     settings_spy.getSettings.and.returnValue(asyncData({
       title: 'DocuScope Classroom',
-      institution: 'CMU',
+      institution: 'Home',
       unit: 100,
       homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
       scatter: {width: 400, height: 400},
@@ -95,5 +96,29 @@ describe('HeaderComponent', () => {
     component.openAbout();
     expect(mat_dialog_spy.open).toHaveBeenCalled();
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
+  });
+
+  it('getSettings', async () => {
+    expect(component.institution).toBe('@ CMU');
+    component.getSettings();
+    fixture.detectChanges();
+    await fixture.whenStable().then(() => {
+      expect(component.institution).toBe('@ Home');
+    });
+
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: '',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
+    }));
+    component.getSettings();
+    fixture.detectChanges();
+    await fixture.whenStable().then(() => {
+      expect(component.institution).toBe('');
+    });
   });
 });

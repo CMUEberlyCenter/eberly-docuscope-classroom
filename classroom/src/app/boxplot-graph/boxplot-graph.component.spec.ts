@@ -11,7 +11,16 @@ const data = {
   categories: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
     uifence: 3.5, lifence: 0.5,
     id: 'bogus', name: 'Bogus Data'}],
-  data: [{id: 'outlier', title: 'Outlier', bogus: 4.5, total_words: 100, ownedby: 'student'}]
+  data: [{
+    id: 'over_outlier', title: 'High Bogus Outlier', bogus: 4.5,
+    total_words: 100, ownedby: 'student'
+  }, {
+    id: 'under_outlier', title: 'Low Bogus Outlier', bogus: .25,
+    total_words: 100, ownedby: 'student'
+  }, {
+    id: 'noutlier', title: 'Non-Outlier', bogus: 2, total_words: 100,
+    ownedby: 'instructor'
+  }]
 };
 
 @Component({
@@ -104,10 +113,14 @@ describe('BoxplotGraphComponent', () => {
 
   it('get_outliers', () => fixture.whenStable().then(() => {
     component.boxplot.boxplot = data;
-    const outlier = component.boxplot.get_outliers(data.categories[0])[0];
-    expect(outlier.id).toEqual(data.data[0].id);
-    expect(outlier.title).toEqual(data.data[0].title);
-    expect(outlier.value).toEqual(data.data[0].bogus);
+    const outlier0 = component.boxplot.get_outliers(data.categories[0])[0];
+    expect(outlier0.id).toEqual(data.data[0].id);
+    expect(outlier0.title).toEqual(data.data[0].title);
+    expect(outlier0.value).toEqual(data.data[0].bogus);
+    const outlier1 = component.boxplot.get_outliers(data.categories[0])[1];
+    expect(outlier1.id).toEqual(data.data[1].id);
+    expect(outlier1.title).toEqual(data.data[1].title);
+    expect(outlier1.value).toEqual(data.data[1].bogus);
     // expect(component.boxplot.get_outliers(
     // {id: 'no_lat', name: "NULL", q1:0, q2:0, q3:0, min:0, max:1, lifence:0, uifence:0})).toEqual([]);
   }));

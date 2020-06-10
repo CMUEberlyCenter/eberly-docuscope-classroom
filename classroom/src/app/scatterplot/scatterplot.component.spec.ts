@@ -41,6 +41,9 @@ describe('ScatterplotComponent', () => {
       data: [{
         id: 'bogus_index', text: 'bogus text', ownedby: 'student',
         bogus: 0.5, STUB_X: 0.1, STUB_Y: 0.2, total_words: 2
+      }, {
+        id: 'bogus_index1', text: 'instructor text', ownedby: 'instructor',
+        bogus: 0.4, STUB_X: 0.2, STUB_Y: 0.1, total_words: 2
       }]
     }));
     const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
@@ -84,6 +87,14 @@ describe('ScatterplotComponent', () => {
   it('getData', async () => {
     component.getData();
     await fixture.whenStable().then(() => expect(component.data).toBeDefined());
+  });
+
+  it('genPoints null', () => {
+    component.getData();
+    return fixture.whenStable().then(() => {
+      component.x_axis = null;
+      expect(() => component.genPoints()).not.toThrow();
+    });
   });
 
   it('on_select', () => fixture.whenStable().then(() => {
