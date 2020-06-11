@@ -31,25 +31,25 @@ class ToneParser(HTMLParser):
         logging.error(message)
         raise RuntimeError(message)
     def handle_starttag(self, tag, attrs):
-        self.out.write("<%s" % tag)
+        self.out.write(f"<{tag}")
         for attr in attrs:
             if attr[0] == 'data-key':
                 cluster = self.tones.get_lat_cluster(attr[1])
                 if cluster != 'Other':
-                    self.out.write(' %s="%s"' % (attr[0], cluster))
+                    self.out.write(f' {attr[0]}="{cluster}"')
             else:
-                self.out.write(" %s" % attr[0])
-                if attr[1]:
-                    self.out.write('="%s"' % attr[1])
+                self.out.write(f' {attr[0]}="{attr[1]}"'
+                               if len(attr) > 1 else
+                               f' {attr[0]}')
         self.out.write(">")
     def handle_endtag(self, tag):
-        self.out.write("</%s>" % tag)
+        self.out.write(f"</{tag}>")
     def handle_data(self, data):
         self.out.write(data)
     def handle_comment(self, data):
-        self.out.write("<!-- %s -->" % data)
+        self.out.write(f"<!-- {data} -->")
     def handle_decl(self, decl):
-        self.out.write("<!%s>" % decl)
+        self.out.write(f"<!{decl}>")
 
 class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dimension->cluster mapping."""
