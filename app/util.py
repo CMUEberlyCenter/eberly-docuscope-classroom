@@ -1,5 +1,4 @@
 """ General utility functions for DocuScope classroom """
-from collections import namedtuple
 import logging
 from typing import List
 from uuid import UUID
@@ -28,10 +27,6 @@ def get_ds_info(ds_dict: str, db_session: Session):
         .filter(DSDictionary.name == ds_dict, DSDictionary.enabled)\
         .one_or_none()[0]
 
-#def get_ds_info_map(ds_info) -> dict:
-#    """Transforms ds_info into a simple id->name map."""
-#    return {i['id']: i['name'] for i in ds_info}
-
 def queue_length(db_session: Session):
     """ Returns the number of documents that are yet to be tagged. """
     return db_session.query(Filesystem.id, Filesystem.state)\
@@ -41,6 +36,7 @@ def queue_length(db_session: Session):
 def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
                          db_session: Session):
     """ Raises HTTPExceptions when the status is problematic. """
+    logging.warning('%s, %s, %s', status, uuid, filename)
     if status == 'error':
         logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
         raise HTTPException(
@@ -64,8 +60,6 @@ def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
             detail=f"No tagging data for {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
-Document = namedtuple('Document', 'id stats dictionary course assignment instructor')
-
 def get_documents(documents: List[UUID], db_session: Session) -> DataFrame:
     """ Retrieve the documents and preprocess each one. """
     docs = {}
@@ -82,7 +76,6 @@ def get_documents(documents: List[UUID], db_session: Session) -> DataFrame:
                          Assignment.course,
                          Assignment.instructor)\
                   .filter(Filesystem.id.in_(documents))\
-                  .filter(Filesystem.state == 'tagged')\
                   .filter(Assignment.id == Filesystem.assignment)\
                   .filter(DSDictionary.id == Assignment.dictionary):
         document_state_check(state, doc_id, filename, doc, db_session)
@@ -97,8 +90,6 @@ def get_documents(documents: List[UUID], db_session: Session) -> DataFrame:
         ser['course_name'] = a_course
         ser['assignment_name'] = a_name
         ser['instructor_name'] = a_instructor
-        #docs.append(Document(doc_id, ser,
-        #                     ds_dictionary, a_course, a_name, a_instructor))
         docs[doc_id] = ser
     return DataFrame(data=docs)
 
@@ -107,7 +98,6 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     logging.info("Generating Frame for %s", documents)
     frame = LevelFrame(corpus=documents)
     ds_stats = get_documents(documents, db_session)
-    #stats = {d.id: d.stats for d in docs}
     if ds_stats.empty:
         logging.error("Failed to retrieve stats for corpus: %s", documents)
         raise HTTPException(
