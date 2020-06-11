@@ -10,15 +10,12 @@ from bs4 import BeautifulSoup as bs
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from starlette.status import \
-    HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR, \
-    HTTP_503_SERVICE_UNAVAILABLE
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from ds_db import Filesystem
 from ds_tones import DocuScopeTones
 from response import DictionaryInformation, ERROR_RESPONSES
-from util import get_db_session, get_ds_info
+from util import document_state_check, get_db_session, get_ds_info
 
 router = APIRouter()
 
@@ -71,16 +68,7 @@ def patterns(corpus: List[UUID],
     for (uuid, doc, filename, status) in db_session.query(
             Filesystem.id, Filesystem.processed, Filesystem.name,
             Filesystem.state).filter(Filesystem.id.in_(corpus)):
-        if status == 'error':
-            logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
-            raise HTTPException(
-                detail="Aborting: there was an error while tagging {}".format(filename),
-                status_code=HTTP_500_INTERNAL_SERVER_ERROR)
-        if status != 'tagged':
-            logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
-            raise HTTPException(
-                detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                status_code=HTTP_503_SERVICE_UNAVAILABLE)
+        document_state_check(status, uuid, filename, doc, db_session)
         ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
         if not tones or tones.dictionary_name != ds_dictionary:
             tones = DocuScopeTones(ds_dictionary)

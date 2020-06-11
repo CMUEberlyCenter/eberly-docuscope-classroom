@@ -76,9 +76,11 @@ export class TextViewComponent implements OnInit {
     'cluster_3',
     'cluster_4',
     'cluster_5'];
+  private _css_classes_length = this._css_classes.length;
 
   get max_selected_clusters(): number {
-    return Math.min(4, this._css_classes.length); // maximum of the total number of _css_classes.
+    // maximum of the total number of original _css_classes or settings value.
+    return Math.min(this.max_clusters, this._css_classes_length);
   }
 
   private _selected_clusters: Map<string, string> = new Map<string, string>();
@@ -134,7 +136,7 @@ export class TextViewComponent implements OnInit {
         const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
           const lat: string = $(this).attr('data-key');
-          const cluster: string = txt.dictionary[lat] ? txt.dictionary[lat]['cluster'] : lat;
+          const cluster: string = lat;
           const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
@@ -163,14 +165,10 @@ export class TextViewComponent implements OnInit {
     this.getTaggedText();
   }
 
-  lat_to_cluster(lat: string): string {
-    return this.get_cluster_name(this.tagged_text.dictionary[lat]['cluster']);
-  }
-
   click_select($event) {
     // console.log($event);
     if ($('.cluster_id').length === 0) {
-      const l2c = this.lat_to_cluster.bind(this);
+      const l2c = this.get_cluster_name.bind(this);
       $('[data-key]').each(function() {
         const lat: string = $(this).attr('data-key');
         const cluster_name: string = l2c(lat);
@@ -178,26 +176,13 @@ export class TextViewComponent implements OnInit {
       });
     }
     const parent_key = $event.target.parentNode.getAttribute('data-key');
-    if (parent_key && this.tagged_text && this.tagged_text.dictionary) {
+    if (parent_key && this.tagged_text) {
       const lat = parent_key.trim();
-      // this.selected_lat = lat;
-      const obj = this.tagged_text.dictionary[lat];
-      if (obj) {
-        // this.selected_dimension = obj['dimension'];
-        // this.selected_cluster = this.get_cluster_name(obj['cluster']);
-        // this.selection = $event.target.parentNode.textContent;
+      if (this._cluster_info.has(lat)) {
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').style('display', 'none');
         d3.select($event.target.parentNode).classed('selected_text', true);
         d3.select($event.target.parentNode).select('.cluster_id').style('display', 'inline');
-      }
-    }
-  }
-
-  *get_lats(cluster: string) {
-    for (const lat in this.tagged_text.dictionary) {
-      if (this.tagged_text.dictionary[lat]['cluster'] === cluster) {
-        yield lat;
       }
     }
   }
@@ -212,8 +197,7 @@ export class TextViewComponent implements OnInit {
    */
   get_cluster_name(cluster: string): string {
     const cluster_info = this.get_cluster_info(cluster);
-    if (cluster_info) { return cluster_info.name; }
-    return cluster;
+    return cluster_info ? cluster_info.name : cluster;
   }
   get_pattern_count(cluster: string): number {
     if (this.patterns.has(cluster)) {
@@ -221,6 +205,7 @@ export class TextViewComponent implements OnInit {
     }
     return 0;
   }
+
   get_cluster_title(cluster: string): string {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
@@ -231,19 +216,13 @@ export class TextViewComponent implements OnInit {
       $event.option.selected = false;
     }
     const clust: string = $event.option.value;
-    const lats = this.get_lats(clust);
     const css_class = this.get_cluster_class(clust);
     if (!$event.option.selected && this._selected_clusters.has(clust)) {
       this._css_classes.unshift(this._selected_clusters.get(clust));
       this._selected_clusters.delete(clust);
     }
     d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
-    let lat = lats.next();
-    while (!lat.done) {
-      d3.selectAll(`[data-key=${lat.value}]`)
-        .classed(css_class, $event.option.selected);
-      lat = lats.next();
-    }
+    d3.selectAll(`[data-key=${clust}]`).classed(css_class, $event.option.selected);
   }
 
   get_cluster_class(cluster: string): string {

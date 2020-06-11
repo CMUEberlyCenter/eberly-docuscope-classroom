@@ -13,13 +13,12 @@ from sqlalchemy.orm import Session
 from starlette.status import \
     HTTP_200_OK, \
     HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR, \
-    HTTP_503_SERVICE_UNAVAILABLE
+    HTTP_500_INTERNAL_SERVER_ERROR
 
 from ds_db import Filesystem
 from ds_report import generate_pdf_reports
 from ds_tones import DocuScopeTones
-from util import get_db_session, get_stats
+from util import document_state_check, get_db_session, get_stats
 from response import ERROR_RESPONSES
 from routers.ds_data import calculate_data
 
@@ -39,16 +38,7 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     for (uuid, doc, filename, status) in db_session.query(
             Filesystem.id, Filesystem.processed, Filesystem.name,
             Filesystem.state).filter(Filesystem.id.in_(ids)):
-        if status == 'error':
-            logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
-            raise HTTPException(
-                detail="Aborting: there was an error while tagging {}".format(filename),
-                status_code=HTTP_500_INTERNAL_SERVER_ERROR)
-        if status != 'tagged':
-            logging.error("Aborting: %s (%s) has state %s", uuid, filename, status)
-            raise HTTPException(
-                detail="Aborting because {} is not tagged (state: {})".format(filename, status),
-                status_code=HTTP_503_SERVICE_UNAVAILABLE)
+        document_state_check(status, uuid, filename, doc, db_session)
         tagged = {
             'html_content': re.sub(r'(\n|\s)+', ' ', doc['ds_output']),
             'dict': {}
