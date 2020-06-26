@@ -1,0 +1,247 @@
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+
+import * as d3 from 'd3';
+import * as $ from 'jquery';
+
+import { AssignmentService } from '../assignment.service';
+import { DictionaryInformation } from '../assignment-data';
+import { ClusterData, cluster_compare } from '../cluster-data';
+import { CorpusService } from '../corpus.service';
+import { Documents, DocumentService } from '../document.service';
+// import { MessageService } from '../message.service';
+// import { PatternData, pattern_compare } from '../patterns.service';
+import { SettingsService } from '../settings.service';
+
+class PatternData {
+  pattern: string;
+  counts: number[];
+  get count(): number {
+    return this.counts.reduce((t: number, c: number): number => t + c, 0);
+  }
+  constructor(pattern: string, counts: number[]) {
+    this.pattern = pattern;
+    this.counts = counts;
+  }
+}
+function pattern_cmp(a: PatternData, b: PatternData): number {
+  if (a.count === b.count) {
+    if (a.pattern < b.pattern) {
+      return -1;
+    }
+    if (a.pattern > b.pattern) {
+      return 1;
+    }
+    return 0;
+  }
+  return b.count - a.count;
+}
+class TextClusterData implements ClusterData {
+  id: string;
+  name: string;
+  description?: string;
+  patterns: PatternData[];
+  get count(): number {
+    return this.patterns.reduce(
+      (total: number, current: PatternData): number => total + current.count, 0);
+  }
+  get counts(): number[] {
+    if (this.patterns.length) {
+      const zero: number[] = this.patterns[0].counts.map(() => 0);
+      return this.patterns.reduce((t: number[],p:PatternData):number[] => t.map((x:number,i:number):number => x + p.counts[i]), zero);
+    }
+    return [0];
+  }
+  get pattern_count(): number { return this.patterns.length; }
+  constructor(di: DictionaryInformation, patterns: Map<string, number[]>) {
+    this.id = di.id;
+    this.name = di.name;
+    this.description = di.description;
+    const pats: PatternData[] = Array.from(patterns.entries()).map(
+      (pc): PatternData => new PatternData(pc[0], pc[1]));
+    pats.sort(pattern_cmp);
+    this.patterns = pats;
+  }
+}
+
+@Component({
+  selector: 'app-comparison',
+  templateUrl: './comparison.component.html',
+  styleUrls: ['./comparison.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed, void', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed, void => collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
+    ]),
+    trigger('indicatorRotate', [
+      state('collapsed, void', style({transform: 'rotate(0deg)'})),
+      state('expanded', style({transform: 'rotate(180deg)'})),
+      transition('expanded <=> collapsed, void => collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+    ]),
+  ]
+})
+export class ComparisonComponent implements OnInit {
+  @ViewChild('TableSort', {static: true}) sort: MatSort;
+
+  cluster_columns = ['name', 'count', 'expand'];
+  cluster_info: Map<string, DictionaryInformation>;
+  clusters: MatTableDataSource<TextClusterData>;
+  corpus: string[];
+  documents: Documents;
+  direction = 'horizontal';
+  expanded: TextClusterData | null = null;
+  html_content: SafeHtml[];
+  max_clusters = 4;
+  patterns: Map<string, Map<string, number[]>>;
+
+  private _css_classes: string[] = [
+    'cluster_0',
+    'cluster_1',
+    'cluster_2',
+    'cluster_3',
+    'cluster_4',
+    'cluster_5'];
+  private _css_classes_length = this._css_classes.length;
+  get max_selected_clusters(): number {
+    return Math.min(this.max_clusters, this._css_classes_length);
+  }
+  private _selected_clusters: Map<string, string> = new Map<string, string>();
+
+  constructor(
+    private _assignmentService: AssignmentService,
+    private _corpusService: CorpusService,
+    private _router: Router,
+    private _sanitizer: DomSanitizer,
+    private _settings_service: SettingsService,
+    private _snackBar: MatSnackBar,
+    //private _messageService: MessageService,
+    private _spinner: NgxUiLoaderService,
+    private _doc_service: DocumentService
+  ) { }
+
+  getCorpus(): void {
+    this._spinner.start();
+    this._corpusService.getCorpus().subscribe(corpus => {
+      this.corpus = corpus;
+      if (corpus.length === 0) {
+        // ERROR: no documents
+        this.reportError('No documents specified!');
+      } else if (corpus.length === 1) {
+        // WARNING: not enough documents
+        this.reportError('Only one document specified, need two for comparison.');
+        this._spinner.stop();
+        this._router.navigate(['/stv', corpus[0]]);
+        return;
+      } else if (corpus.length > 2) {
+        // WARNING: too many documents
+        this.reportError('More than two documents specified, only showing the first two.');
+        this.corpus = corpus.slice(0, 2);
+      }
+      this.getTaggedText();
+    });
+  }
+  getSettings(): void {
+    this._settings_service.getSettings().subscribe(settings => {
+      this.max_clusters = settings.stv.max_clusters;
+      this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
+    });
+  }
+  getTaggedText() {
+    this._spinner.start();
+    return this._doc_service.getData(this.corpus)
+      .subscribe(docs => {
+        this.documents = docs;
+        this._assignmentService.setAssignmentData(docs);
+        this.html_content = docs.documents.map(
+          doc => this._sanitizer.bypassSecurityTrustHtml(doc.html_content));
+        this.cluster_info = new Map<string, DictionaryInformation>();
+        if (docs && docs.categories) {
+          for (const cluster of docs.categories) {
+            this.cluster_info.set(cluster.id, cluster);
+          }
+        }
+        const cluster_ids = new Set<string>(this.cluster_info.keys());
+        cluster_ids.delete('Other');
+
+        const pats = new Map<string, Map<string, number[]>>();
+        cluster_ids.forEach(c => pats.set(c, new Map<string, number[]>()));
+        let i = 0;
+        const zero: number[] = this.html_content.map(():number => 0);
+        for (const doc of this.html_content) {
+          $(doc['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
+            const cluster: string = $(this).attr('data-key');
+            const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
+            if (pats.has(cluster)) {
+              if (!pats.get(cluster).has(example)) {
+                pats.get(cluster).set(example, zero.slice());
+              }
+              const p_val: number[] = pats.get(cluster).get(example);
+              p_val[i] = p_val[i] + 1
+              //pats.get(cluster).set(example, p_val);
+            }
+          });
+          i++;
+        }
+        this.patterns = pats;
+        const clusters: TextClusterData[] = Array.from(cluster_ids).map(
+          (cid: string): TextClusterData =>
+            new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
+        clusters.sort(cluster_compare);
+        this.clusters = new MatTableDataSource(clusters);
+        if (this.sort) { this.clusters.sort = this.sort; }
+        this._spinner.stop();
+      }
+    );
+  }
+  ngOnInit(): void {
+    this.getSettings();
+    this.getCorpus();
+  }
+  reportError(message: string): void {
+    //this._messageService.add(message);
+    this._snackBar.open(message, '\u2612');
+  }
+  get_cluster_class(cluster: string): string {
+    if (this._selected_clusters.has(cluster)) {
+      return this._selected_clusters.get(cluster);
+    }
+    if (this._css_classes.length) {
+      this._selected_clusters.set(cluster, this._css_classes.shift());
+      return this._selected_clusters.get(cluster);
+    }
+    return 'cluster_default';
+  }
+  selection_change($event) {
+    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
+      $event.option.selected = false;
+    }
+    const cluster: string = $event.option.value;
+    const css_class = this.get_cluster_class(cluster);
+    if (!$event.option.selected && this._selected_clusters.has(cluster)) {
+      this._css_classes.unshift(this._selected_clusters.get(cluster));
+      this._selected_clusters.delete(cluster);
+    }
+    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
+    d3.selectAll(`[data-key=${cluster}]`).classed(css_class, $event.option.selected);
+  }
+  show_expanded(cluster: TextClusterData|null) {
+    if (this.expanded && cluster && cluster.id === this.expanded.id) {
+      return 'expanded';
+    }
+    return 'collapsed';
+  }
+  expand_handler($event, cluster: TextClusterData|null) {
+    this.expanded = this.expanded === cluster ? null : cluster;
+    $event.stopPropagation();
+  }
+}

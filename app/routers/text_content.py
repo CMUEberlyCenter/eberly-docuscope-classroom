@@ -1,4 +1,5 @@
 """ Get content for single text view. """
+#TODO: replace use with /document
 from html.parser import HTMLParser
 import io
 import logging
@@ -21,6 +22,7 @@ from util import get_db_session, get_ds_info
 
 router = APIRouter()
 
+#TODO: move this to ds_tones
 class ToneParser(HTMLParser):
     """ An HTML parser that converts data-key=<lat> to <cluster>. """
     def __init__(self, tones: DocuScopeTones, out: io.StringIO):

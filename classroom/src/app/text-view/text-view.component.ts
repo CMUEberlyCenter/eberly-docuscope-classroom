@@ -133,11 +133,11 @@ export class TextViewComponent implements OnInit {
         const pats = new Map<string, Map<string, number>>();
         cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        const tv = this;
+        // const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
-          const lat: string = $(this).attr('data-key');
-          const cluster: string = lat;
-          const cluster_name: string = tv.get_cluster_name(cluster);
+          const cluster: string = $(this).attr('data-key');
+          // const cluster: string = lat;
+          // const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
           if (pats.has(cluster)) {
