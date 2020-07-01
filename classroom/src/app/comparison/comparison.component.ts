@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { SelectionModel } from '@angular/cdk/collections';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
@@ -15,46 +16,35 @@ import { DictionaryInformation } from '../assignment-data';
 import { ClusterData, cluster_compare } from '../cluster-data';
 import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
-// import { MessageService } from '../message.service';
-// import { PatternData, pattern_compare } from '../patterns.service';
+import { PatternData, pattern_compare } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 
-class PatternData {
+class MultiPatternData extends PatternData {
   pattern: string;
   counts: number[];
   get count(): number {
     return this.counts.reduce((t: number, c: number): number => t + c, 0);
   }
   constructor(pattern: string, counts: number[]) {
+    super();
     this.pattern = pattern;
     this.counts = counts;
   }
 }
-function pattern_cmp(a: PatternData, b: PatternData): number {
-  if (a.count === b.count) {
-    if (a.pattern < b.pattern) {
-      return -1;
-    }
-    if (a.pattern > b.pattern) {
-      return 1;
-    }
-    return 0;
-  }
-  return b.count - a.count;
-}
+
 class TextClusterData implements ClusterData {
   id: string;
   name: string;
   description?: string;
-  patterns: PatternData[];
+  patterns: MultiPatternData[];
   get count(): number {
     return this.patterns.reduce(
-      (total: number, current: PatternData): number => total + current.count, 0);
+      (total: number, current: MultiPatternData): number => total + current.count, 0);
   }
   get counts(): number[] {
     if (this.patterns.length) {
       const zero: number[] = this.patterns[0].counts.map(() => 0);
-      return this.patterns.reduce((t: number[],p:PatternData):number[] => t.map((x:number,i:number):number => x + p.counts[i]), zero);
+      return this.patterns.reduce((t: number[],p: MultiPatternData): number[] => t.map((x: number, i: number): number => x + p.counts[i]), zero);
     }
     return [0];
   }
@@ -63,9 +53,9 @@ class TextClusterData implements ClusterData {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
-    const pats: PatternData[] = Array.from(patterns.entries()).map(
-      (pc): PatternData => new PatternData(pc[0], pc[1]));
-    pats.sort(pattern_cmp);
+    const pats: MultiPatternData[] = Array.from(patterns.entries()).map(
+      (pc): MultiPatternData => new MultiPatternData(pc[0], pc[1]));
+    pats.sort(pattern_compare);
     this.patterns = pats;
   }
 }
@@ -95,7 +85,7 @@ export class ComparisonComponent implements OnInit {
 
   cluster_columns = ['name', 'count', 'expand'];
   cluster_info: Map<string, DictionaryInformation>;
-  clusters: MatTableDataSource<TextClusterData>;
+  clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
   corpus: string[];
   documents: Documents;
   direction = 'horizontal';
@@ -103,6 +93,7 @@ export class ComparisonComponent implements OnInit {
   html_content: SafeHtml[];
   max_clusters = 4;
   patterns: Map<string, Map<string, number[]>>;
+  selection = new SelectionModel<TextClusterData>(true, []);
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -124,10 +115,9 @@ export class ComparisonComponent implements OnInit {
     private _sanitizer: DomSanitizer,
     private _settings_service: SettingsService,
     private _snackBar: MatSnackBar,
-    //private _messageService: MessageService,
     private _spinner: NgxUiLoaderService,
     private _doc_service: DocumentService
-  ) { }
+  ) {}
 
   getCorpus(): void {
     this._spinner.start();
@@ -136,6 +126,7 @@ export class ComparisonComponent implements OnInit {
       if (corpus.length === 0) {
         // ERROR: no documents
         this.reportError('No documents specified!');
+        return;
       } else if (corpus.length === 1) {
         // WARNING: not enough documents
         this.reportError('Only one document specified, need two for comparison.');
@@ -149,6 +140,27 @@ export class ComparisonComponent implements OnInit {
       }
       this.getTaggedText();
     });
+  }
+
+  click_select($event) {
+    if ($('.cluster_id').length === 0) {
+      const l2c = (c:string):string => this.cluster_info.get(c).name;
+      $('[data-key]').each(function() {
+        const lat: string = $(this).attr('data-key');
+        const cluster_name: string = l2c(lat);
+        $(this).append(`<sup class="cluster_id">{${cluster_name}}</sup>`);
+      });
+    }
+    const parent_key = $event.target.parentNode.getAttribute('data-key');
+    if (parent_key && this.documents) {
+      const lat = parent_key.trim();
+      if (this.cluster_info.has(lat)) {
+        d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').style('display', 'none');
+        d3.select($event.target.parentNode).classed('selected_text', true);
+        d3.select($event.target.parentNode).select('.cluster_id').style('display', 'inline');
+      }
+    }
   }
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
@@ -197,8 +209,7 @@ export class ComparisonComponent implements OnInit {
           (cid: string): TextClusterData =>
             new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
         clusters.sort(cluster_compare);
-        this.clusters = new MatTableDataSource(clusters);
-        if (this.sort) { this.clusters.sort = this.sort; }
+        this.clusters.data = clusters;
         this._spinner.stop();
       }
     );
@@ -206,9 +217,9 @@ export class ComparisonComponent implements OnInit {
   ngOnInit(): void {
     this.getSettings();
     this.getCorpus();
+    this.clusters.sort = this.sort;
   }
   reportError(message: string): void {
-    //this._messageService.add(message);
     this._snackBar.open(message, '\u2612');
   }
   get_cluster_class(cluster: string): string {
@@ -221,18 +232,20 @@ export class ComparisonComponent implements OnInit {
     }
     return 'cluster_default';
   }
-  selection_change($event) {
-    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
-      $event.option.selected = false;
+  selection_change($event, cluster) {
+    if ($event && cluster) {
+      if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
+        $event.source.checked = false;
+      } else {
+        this.selection.toggle(cluster);
+      }
     }
-    const cluster: string = $event.option.value;
-    const css_class = this.get_cluster_class(cluster);
-    if (!$event.option.selected && this._selected_clusters.has(cluster)) {
-      this._css_classes.unshift(this._selected_clusters.get(cluster));
-      this._selected_clusters.delete(cluster);
+    const css_class = this.get_cluster_class(cluster.id);
+    if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
+      this._css_classes.unshift(this._selected_clusters.get(cluster.id));
+      this._selected_clusters.delete(cluster.id);
     }
-    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
-    d3.selectAll(`[data-key=${cluster}]`).classed(css_class, $event.option.selected);
+    d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
   }
   show_expanded(cluster: TextClusterData|null) {
     if (this.expanded && cluster && cluster.id === this.expanded.id) {

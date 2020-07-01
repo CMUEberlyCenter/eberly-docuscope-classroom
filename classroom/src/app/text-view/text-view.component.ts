@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -66,6 +67,7 @@ export class TextViewComponent implements OnInit {
   patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
   max_clusters = 4;
+  selection = new SelectionModel<TextClusterData>(true, []);
 
   _cluster_info: Map<string, DictionaryInformation>;
 
@@ -210,19 +212,20 @@ export class TextViewComponent implements OnInit {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
-  selection_change($event) {
-    console.log($event.source.selectedOptions.selected.length, this.max_selected_clusters);
-    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
-      $event.option.selected = false;
+  selection_change($event, cluster) {
+    if ($event && cluster) {
+      if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
+        $event.source.checked = false;
+      } else {
+        this.selection.toggle(cluster);
+      }
     }
-    const clust: string = $event.option.value;
-    const css_class = this.get_cluster_class(clust);
-    if (!$event.option.selected && this._selected_clusters.has(clust)) {
-      this._css_classes.unshift(this._selected_clusters.get(clust));
-      this._selected_clusters.delete(clust);
+    const css_class = this.get_cluster_class(cluster.id);
+    if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
+      this._css_classes.unshift(this._selected_clusters.get(cluster.id));
+      this._selected_clusters.delete(cluster.id);
     }
-    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
-    d3.selectAll(`[data-key=${clust}]`).classed(css_class, $event.option.selected);
+    d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
   }
 
   get_cluster_class(cluster: string): string {

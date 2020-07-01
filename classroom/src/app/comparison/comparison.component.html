@@ -3,25 +3,27 @@
     <mat-card-title>Dictionary Categories</mat-card-title>
     <mat-card-subtitle>Select up to {{max_clusters}}:</mat-card-subtitle>
     <mat-card-content>
-      <mat-selection-list #cluster_selection
-                          (selectionChange)="selection_change($event)">
       <table mat-table matSort #clusterTable
              #TableSort=matSort  [dataSource]="clusters"
              matSortDisableClear multiTemplateDataRows>
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
           <td mat-cell *matCellDef="let clust;">
-            <mat-list-option
-              checkboxPosition="before"
-              [value]="clust.id" (click)="$event.stopPropagation();">
-              <span class="cluster-name">{{clust.name}}
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="selection_change($event, clust)"
+              [checked]="selection.isSelected(clust)"
+              [value]="clust.id"
+              [aria-label]="clust.name"> <!-- add checkboxLabel method -->
+              <span class="cluster-name">
+                <span [attr.data-key]="clust.id">{{clust.name}}</span>
                 <button mat-icon-button
                         matTooltip="{{clust.description}}"
                         matTooltipPosition="after">
                   <mat-icon class="tooltip-icon">speaker_notes</mat-icon>
                 </button>
               </span>
-            </mat-list-option>
+            </mat-checkbox>
           </td>
         </ng-container>
         <ng-container matColumnDef="count">
@@ -56,8 +58,6 @@
         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
             class="cluster-detail-row"></tr>
       </table>
-    </mat-selection-list>
-
     </mat-card-content>
   </mat-card>
   <main *ngIf="documents" class="text_cards">
