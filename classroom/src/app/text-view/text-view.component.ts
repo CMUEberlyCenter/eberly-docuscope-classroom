@@ -212,7 +212,7 @@ export class TextViewComponent implements OnInit {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
-  selection_change($event, cluster) {
+  selection_change($event, cluster: TextClusterData) {
     if ($event && cluster) {
       if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
         $event.source.checked = false;

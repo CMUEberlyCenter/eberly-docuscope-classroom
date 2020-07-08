@@ -1,4 +1,14 @@
+.layout {
+  flex: 0 0 auto;
+  background: silver;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .container {
+  align-self: stretch;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -37,11 +47,18 @@ tr.cluster-detail-row {
   text-align: right;
 }
 
+.document_area {
+  flex: 1 1 auto;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+}
 .text_cards {
   /*margin-left: 3px;
   margin-right: 3px;*/
   flex: 1 1 auto;
-  /*overflow: auto;*/
+  overflow: hidden;
 }
 .text_card {
   margin: 5px;

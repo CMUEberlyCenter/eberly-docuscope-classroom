@@ -1,11 +1,8 @@
 /* AppComponent's private CSS styles */
-header {
+.flex-grow-0 {
   flex: 0 1 auto;
 }
-main {
+.flex-grow-1 {
   flex: 1 1 auto;
-  overflow: auto;
-}
-.spacer {
-  flex: 1 1 auto;
+  overflow: hidden;
 }

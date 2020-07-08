@@ -10,11 +10,11 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
           <td mat-cell *matCellDef="let clust;">
             <mat-checkbox
-              (click)="$event.stopPropagation()"
-              (change)="selection_change($event, clust)"
-              [checked]="selection.isSelected(clust)"
-              [value]="clust.id"
-              [aria-label]="clust.name"> <!-- add checkboxLabel method -->
+                (click)="$event.stopPropagation()"
+                (change)="selection_change($event, clust)"
+                [checked]="selection.isSelected(clust)"
+                [value]="clust.id"
+                [aria-label]="clust.name"> <!-- add checkboxLabel method -->
               <span class="cluster-name">
                 <span [attr.data-key]="clust.id">{{clust.name}}</span>
                 <button mat-icon-button
@@ -60,18 +60,26 @@
       </table>
     </mat-card-content>
   </mat-card>
-  <main *ngIf="documents" class="text_cards">
-    <as-split unit="percent" [direction]="direction">
-      <as-split-area *ngFor="let doc of documents.documents; index as i">
-        <mat-card class="text_card">
-          <mat-card-title class="text_head">ID:&nbsp;{{doc.text_id}} Owner:&nbsp;{{doc.owner}}</mat-card-title>
-          <mat-card-content>
-            <article class="text_content" [innerHTML]="html_content[i]"
-                     (click)="click_select($event)">
-            </article>
-          </mat-card-content>
-        </mat-card>
-      </as-split-area>
-    </as-split>
-  </main>
+  <div class="document_area">
+    <nav class="layout mat-accent">
+      <mat-button-toggle-group [(value)]="direction">
+        <mat-button-toggle value="vertical" aria-label="Top-Bottom View"><mat-icon>view_stream</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="horizontal" aria-label="Left-Right View"><mat-icon>view_column</mat-icon></mat-button-toggle>
+      </mat-button-toggle-group>
+    </nav>
+    <main *ngIf="documents" class="text_cards">
+      <as-split unit="percent" [direction]="direction">
+        <as-split-area *ngFor="let doc of documents.documents; index as i">
+          <mat-card class="text_card">
+            <mat-card-title class="text_head">ID:&nbsp;{{doc.text_id}} Owner:&nbsp;{{doc.owner}}</mat-card-title>
+            <mat-card-content>
+              <article class="text_content" [innerHTML]="html_content[i]"
+                       (click)="click_select($event)">
+              </article>
+            </mat-card-content>
+          </mat-card>
+        </as-split-area>
+      </as-split>
+    </main>
+  </div>
 </div>
