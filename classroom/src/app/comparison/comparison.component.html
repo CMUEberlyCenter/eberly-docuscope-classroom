@@ -26,9 +26,17 @@
             </mat-checkbox>
           </td>
         </ng-container>
-        <ng-container matColumnDef="count">
+        <ng-container matColumnDef="count0">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
-          <td mat-cell *matCellDef="let clust;">{{clust.counts.join(' - ')}}</td>
+          <td mat-cell *matCellDef="let clust;">{{clust.count0}}</td>
+        </ng-container>
+        <ng-container matColumnDef="count1">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
+          <td mat-cell *matCellDef="let clust;">{{clust.count1}}</td>
+        </ng-container>
+        <ng-container matColumnDef="count">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
+          <td mat-cell *matCellDef="let clust;"><span matTooltip="{{clust.counts.join(' + ')}}" matTooltipPosition="after">{{clust.count}}</span></td>
         </ng-container>
         <ng-container matColumnDef="expand">
           <th mat-header-cell *matHeaderCellDef></th>

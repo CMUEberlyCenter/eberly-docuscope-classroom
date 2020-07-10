@@ -83,7 +83,8 @@ describe('TextViewComponent', () => {
       homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
       scatter: {width: 400, height: 400},
       boxplot: {cloud: true},
-      stv: {max_clusters: 4}
+      stv: {max_clusters: 1},
+      mtv: {horizontal: false}
     }));
 
     TestBed.configureTestingModule({
@@ -247,21 +248,13 @@ describe('TextViewComponent', () => {
   it('selection_change', () => fixture.whenStable().then(() => {
     const evt = {
       source: {
-        selectedOptions: {
-          selected: []
-        }
-      },
-      option: {
-        selected: true,
-        value: 'bogus_cluster',
-        _getHostElement: () => {}
+        checked: true
       }
     };
-    expect(() => component.selection_change(evt)).not.toThrow();
-    evt.source.selectedOptions.selected = [
-      'bogus_cluster', 'c2', 'c3', 'c4', 'c5'
-    ];
-    expect(() => component.selection_change(evt)).not.toThrow();
+    const clust = component.clusters.data[0];
+    expect(() => component.selection_change(evt, clust)).not.toThrow();
+    evt.source.checked = false;
+    expect(() => component.selection_change(evt, clust)).not.toThrow();
   }));
 
   it('get_cluster_class', () => {

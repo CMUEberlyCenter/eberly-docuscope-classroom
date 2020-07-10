@@ -46,6 +46,12 @@ tr.cluster-detail-row {
 .mat-column-count {
   text-align: right;
 }
+.mat-column-count0 {
+  text-align: right;
+}
+.mat-column-count1 {
+  text-align: right;
+}
 
 .document_area {
   flex: 1 1 auto;

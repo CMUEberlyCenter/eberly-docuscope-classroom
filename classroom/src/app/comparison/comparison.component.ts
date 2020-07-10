@@ -30,6 +30,8 @@ class MultiPatternData extends PatternData {
     this.pattern = pattern;
     this.counts = counts;
   }
+  get count0(): number { return this.counts[0]; }
+  get count1(): number { return this.counts[1]; }
 }
 
 class TextClusterData implements ClusterData {
@@ -48,6 +50,11 @@ class TextClusterData implements ClusterData {
     }
     return [0];
   }
+  col_count(col: number): number {
+    return this.patterns.reduce((t: number, c: MultiPatternData): number => t + c.counts[col], 0);
+  }
+  get count0(): number { return this.col_count(0); }
+  get count1(): number { return this.col_count(1); }
   get pattern_count(): number { return this.patterns.length; }
   constructor(di: DictionaryInformation, patterns: Map<string, number[]>) {
     this.id = di.id;
@@ -83,7 +90,7 @@ class TextClusterData implements ClusterData {
 export class ComparisonComponent implements OnInit {
   @ViewChild('TableSort', {static: true}) sort: MatSort;
 
-  cluster_columns = ['name', 'count', 'expand'];
+  cluster_columns = ['name', 'count0', 'count1', 'expand'];
   cluster_info: Map<string, DictionaryInformation>;
   clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
   corpus: string[];
