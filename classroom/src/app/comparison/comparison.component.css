@@ -1,19 +1,19 @@
 .layout {
-  flex: 0 0 auto;
+  align-items: center;
   background: silver;
   display: flex;
+  flex: 0 0 auto;
   justify-content: center;
-  align-items: center;
 }
 
 .container {
+  align-items: stretch;
   align-self: stretch;
-  flex: 1 1 auto;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: row;
   height: 100%;
   width: 100%;
-  align-items: stretch;
 }
 .sidebar {
   flex: 0 0 auto;
@@ -54,18 +54,18 @@ tr.cluster-detail-row {
 }
 
 .document_area {
-  flex: 1 1 auto;
-  overflow: hidden;
-  display: flex;
   align-items: stretch;
+  display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  overflow: hidden;
 }
 .document_entry {
+  align-items: stretch;
+  border-style: none none none solid;
+  border-width: thick;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  border-width: thick;
-  border-style: none none none solid;
   height: 100%;
   margin-left: 1em;
 }
@@ -74,8 +74,6 @@ tr.cluster-detail-row {
   overflow: auto;
 }
 .text_cards {
-  /*margin-left: 3px;
-  margin-right: 3px;*/
   flex: 1 1 auto;
   overflow: auto;
 }
@@ -92,14 +90,12 @@ tr.cluster-detail-row {
   flex-wrap: wrap;
   padding: 3px 1em;
 }
-.text_head > * {
+.text_head > span {
   font-size: larger;
   font-weight: bold;
   margin-right: 1.5em;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-.text_card_content {
 }
 .text_content {
   line-height: 175%;
