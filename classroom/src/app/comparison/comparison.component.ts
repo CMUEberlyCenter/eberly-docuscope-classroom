@@ -16,45 +16,32 @@ import { DictionaryInformation } from '../assignment-data';
 import { ClusterData, cluster_compare } from '../cluster-data';
 import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
-import { PatternData, pattern_compare } from '../patterns.service';
+import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { SettingsService } from '../settings.service';
-
-class MultiPatternData extends PatternData {
-  pattern: string;
-  counts: number[];
-  get count(): number {
-    return this.counts.reduce((t: number, c: number): number => t + c, 0);
-  }
-  constructor(pattern: string, counts: number[]) {
-    super();
-    this.pattern = pattern;
-    this.counts = counts;
-  }
-  get count0(): number { return this.counts[0]; }
-  get count1(): number { return this.counts[1]; }
-}
 
 class TextClusterData implements ClusterData {
   id: string;
   name: string;
   description?: string;
-  patterns: MultiPatternData[];
+  patterns: ComparePatternData[];
   get count(): number {
     return this.patterns.reduce(
-      (total: number, current: MultiPatternData): number => total + current.count, 0);
+      (total: number, current: ComparePatternData): number => total + current.count, 0);
   }
   get counts(): number[] {
     if (this.patterns.length) {
       const zero: number[] = this.patterns[0].counts.map(() => 0);
-      return this.patterns.reduce((t: number[],p: MultiPatternData): number[] => t.map((x: number, i: number): number => x + p.counts[i]), zero);
+      return this.patterns.reduce(
+        (t: number[], p: ComparePatternData): number[] => t.map(
+          (x: number, i: number): number => x + p.counts[i]), zero);
     }
     return [0];
   }
   get max_count(): number { return Math.max(...this.counts); }
   left(max: number): number { return 50 * this.count0 / max; }
-  right(max: number): number { return 50*this.count1/max; }
+  right(max: number): number { return 50 * this.count1 / max; }
   col_count(col: number): number {
-    return this.patterns.reduce((t: number, c: MultiPatternData): number => t + c.counts[col], 0);
+    return this.patterns.reduce((t: number, c: ComparePatternData): number => t + c.counts[col], 0);
   }
   get count0(): number { return this.col_count(0); }
   get count1(): number { return this.col_count(1); }
@@ -63,8 +50,8 @@ class TextClusterData implements ClusterData {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
-    const pats: MultiPatternData[] = Array.from(patterns.entries()).map(
-      (pc): MultiPatternData => new MultiPatternData(pc[0], pc[1]));
+    const pats: ComparePatternData[] = Array.from(patterns.entries()).map(
+      (pc): ComparePatternData => new ComparePatternData(pc[0], pc[1]));
     pats.sort(pattern_compare);
     this.patterns = pats;
   }
@@ -97,7 +84,7 @@ export class ComparisonComponent implements OnInit {
   cluster_info: Map<string, DictionaryInformation>;
   clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
   corpus: string[];
-  doc_colors = ['royalblue', 'seagreen'];
+  doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
   documents: Documents;
   direction = 'horizontal';
   expanded: TextClusterData | null = null;
@@ -156,7 +143,7 @@ export class ComparisonComponent implements OnInit {
 
   click_select($event) {
     if ($('.cluster_id').length === 0) {
-      const l2c = (c:string):string => this.cluster_info.get(c).name;
+      const l2c = (c: string): string => this.cluster_info.get(c).name;
       $('[data-key]').each(function() {
         const lat: string = $(this).attr('data-key');
         const cluster_name: string = l2c(lat);
@@ -178,6 +165,7 @@ export class ComparisonComponent implements OnInit {
     this._settings_service.getSettings().subscribe(settings => {
       this.max_clusters = settings.stv.max_clusters;
       this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
+      this.doc_colors = settings.mtv.documentColors;
     });
   }
   getTaggedText() {
@@ -200,7 +188,7 @@ export class ComparisonComponent implements OnInit {
         const pats = new Map<string, Map<string, number[]>>();
         cluster_ids.forEach(c => pats.set(c, new Map<string, number[]>()));
         let i = 0;
-        const zero: number[] = this.html_content.map(():number => 0);
+        const zero: number[] = this.html_content.map((): number => 0);
         for (const doc of this.html_content) {
           $(doc['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
             const cluster: string = $(this).attr('data-key');
@@ -210,8 +198,7 @@ export class ComparisonComponent implements OnInit {
                 pats.get(cluster).set(example, zero.slice());
               }
               const p_val: number[] = pats.get(cluster).get(example);
-              p_val[i] = p_val[i] + 1
-              //pats.get(cluster).set(example, p_val);
+              p_val[i] = p_val[i] + 1;
             }
           });
           i++;
@@ -221,7 +208,7 @@ export class ComparisonComponent implements OnInit {
           (cid: string): TextClusterData =>
             new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
         clusters.sort(cluster_compare);
-        this.max_count = Math.max(...clusters.map(c=>c.max_count));
+        this.max_count = Math.max(...clusters.map(c => c.max_count));
         this.clusters.data = clusters;
         this._spinner.stop();
       }

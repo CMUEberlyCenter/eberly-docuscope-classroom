@@ -69,7 +69,9 @@
             <div class="cluster-detail" [style.height]="0"
                  [@detailExpand]="show_expanded(clust)">
               <div class="pattern-table">
-                <app-patterns-table [patterns]="clust.patterns"></app-patterns-table>
+                <app-compare-patterns-table
+                    [patterns]="clust.patterns" [colors]="doc_colors">
+                </app-compare-patterns-table>
               </div>
             </div>
           </td>

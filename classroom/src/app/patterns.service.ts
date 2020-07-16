@@ -23,6 +23,21 @@ export function pattern_compare(a: PatternData, b: PatternData): number {
   return b.count - a.count;
 }
 
+export class ComparePatternData extends PatternData {
+  pattern: string;
+  counts: number[];
+  get count(): number {
+    return this.counts.reduce((t: number, c: number): number => t + c, 0);
+  }
+  constructor(pattern: string, counts: number[]) {
+    super();
+    this.pattern = pattern;
+    this.counts = counts;
+  }
+  get count0(): number { return this.counts[0]; }
+  get count1(): number { return this.counts[1]; }
+}
+
 export class CategoryPatternData {
   category: DictionaryInformation;
   patterns?: PatternData[];

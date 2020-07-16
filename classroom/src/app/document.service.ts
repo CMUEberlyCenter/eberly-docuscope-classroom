@@ -35,7 +35,7 @@ export class DocumentService {
       .pipe(
         publishReplay(1),
         refCount(),
-        catchError(this.handleError('getData', {documents:[]}))
+        catchError(this.handleError('getData', {documents: []}))
       );
   }
 }

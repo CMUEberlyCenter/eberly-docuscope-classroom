@@ -48,6 +48,7 @@ import { PatternsTableComponent } from './patterns-table/patterns-table.componen
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { HeaderComponent } from './header/header.component';
 import { ComparisonComponent } from './comparison/comparison.component';
+import { ComparePatternsTableComponent } from './compare-patterns-table/compare-patterns-table.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { ComparisonComponent } from './comparison/comparison.component';
     PageNotFoundComponent,
     HeaderComponent,
     ComparisonComponent,
+    ComparePatternsTableComponent,
   ],
   entryComponents: [
     AboutComponent,
