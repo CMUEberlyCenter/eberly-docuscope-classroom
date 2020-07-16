@@ -60,23 +60,50 @@ tr.cluster-detail-row {
   align-items: stretch;
   flex-direction: column;
 }
+.document_entry {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-width: thick;
+  border-style: none none none solid;
+  height: 100%;
+  margin-left: 1em;
+}
+.document_body {
+  flex: 1 1 auto;
+  overflow: auto;
+}
 .text_cards {
   /*margin-left: 3px;
   margin-right: 3px;*/
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow: auto;
 }
 .text_card {
   margin: 5px;
 }
 .text_head {
+  flex: 1 0 auto;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 3px 1em;
+}
+.text_head > * {
+  font-size: larger;
+  font-weight: bold;
+  margin-right: 1.5em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.text_card_content {
 }
 .text_content {
   line-height: 175%;
   max-width: 6.5in;
   padding-left: 18px;
   padding-right: 18px;
-  overflow: auto;
 }

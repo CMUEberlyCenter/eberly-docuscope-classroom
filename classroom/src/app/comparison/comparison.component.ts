@@ -50,6 +50,9 @@ class TextClusterData implements ClusterData {
     }
     return [0];
   }
+  get max_count(): number { return Math.max(...this.counts); }
+  left(max: number): number { return 50 * this.count0 / max; }
+  right(max: number): number { return 50*this.count1/max; }
   col_count(col: number): number {
     return this.patterns.reduce((t: number, c: MultiPatternData): number => t + c.counts[col], 0);
   }
@@ -90,15 +93,17 @@ class TextClusterData implements ClusterData {
 export class ComparisonComponent implements OnInit {
   @ViewChild('TableSort', {static: true}) sort: MatSort;
 
-  cluster_columns = ['name', 'count0', 'count1', 'expand'];
+  cluster_columns = ['name', 'bar', 'expand'];
   cluster_info: Map<string, DictionaryInformation>;
   clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
   corpus: string[];
+  doc_colors = ['royalblue', 'seagreen'];
   documents: Documents;
   direction = 'horizontal';
   expanded: TextClusterData | null = null;
   html_content: SafeHtml[];
   max_clusters = 4;
+  max_count = 1;
   patterns: Map<string, Map<string, number[]>>;
   selection = new SelectionModel<TextClusterData>(true, []);
 
@@ -216,6 +221,7 @@ export class ComparisonComponent implements OnInit {
           (cid: string): TextClusterData =>
             new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
         clusters.sort(cluster_compare);
+        this.max_count = Math.max(...clusters.map(c=>c.max_count));
         this.clusters.data = clusters;
         this._spinner.stop();
       }
