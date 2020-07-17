@@ -62,8 +62,8 @@ tr.cluster-detail-row {
 }
 .document_entry {
   align-items: stretch;
-  border-style: none none none solid;
-  border-width: thick;
+  /*border-style: none none none solid;
+  border-width: thick;*/
   display: flex;
   flex-direction: column;
   height: 100%;

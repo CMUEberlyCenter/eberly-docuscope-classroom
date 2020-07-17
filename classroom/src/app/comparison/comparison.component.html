@@ -96,7 +96,7 @@
     <main *ngIf="documents" class="text_cards">
       <as-split unit="percent" [direction]="direction">
         <as-split-area *ngFor="let doc of documents.documents; index as i" [style.overflow]="'hidden'">
-          <div class="document_entry" [style.border-color]="doc_colors[i]">
+          <div class="document_entry">
             <div class="text_head" [style.background]="doc_colors[i]">
               <span>ID:&nbsp;{{doc.text_id}}</span>
               <span>Owner:&nbsp;{{doc.owner}}</span>
