@@ -30,16 +30,16 @@ describe('ReportComponent', () => {
     report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);
     report_service_spy.getReports.and.returnValue(asyncData(''));
     intro_service_spy = jasmine.createSpyObj('ReportIntroductionService',
-                                             ['getIntroductionText']);
+      ['getIntroductionText']);
     intro_service_spy.getIntroductionText.and.returnValue(asyncData({
       introduction: 'Intro Text', stv_introduction: 'STV Introduction'
     }));
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService',
-                                                   ['start', 'stop']);
+      ['start', 'stop']);
 
     TestBed.configureTestingModule({
       declarations: [ ReportComponent,
-                      NavStubComponent ],
+        NavStubComponent ],
       imports: [
         FormsModule,
         MatCardModule,
@@ -54,7 +54,7 @@ describe('ReportComponent', () => {
         { provide: ReportIntroductionService, useValue: intro_service_spy },
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

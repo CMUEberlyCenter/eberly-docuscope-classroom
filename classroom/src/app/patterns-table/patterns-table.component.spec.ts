@@ -23,7 +23,7 @@ describe('PatternsTableComponent', () => {
         MatTableModule,
         MatTooltipModule ],
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

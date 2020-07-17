@@ -1,3 +1,7 @@
 .selected {
   background-color: pink;
 }
+
+.tooltip-icon {
+  font-size: small;
+}

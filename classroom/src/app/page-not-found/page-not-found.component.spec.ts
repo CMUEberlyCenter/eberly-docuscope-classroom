@@ -16,7 +16,7 @@ describe('PageNotFoundComponent', () => {
       declarations: [ PageNotFoundComponent, NavStubComponent ],
       imports: [ MatCardModule ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, publishReplay, refCount } from 'rxjs/operators';
-import { makeCorpusSchema } from './boxplot-data';
 import { environment } from './../environments/environment';
 import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
+import { DictionaryInformation } from './assignment-data';
 
 export class PatternData {
   pattern: string;
@@ -23,11 +23,21 @@ export function pattern_compare(a: PatternData, b: PatternData): number {
   return b.count - a.count;
 }
 
-export class DictionaryInformation {
-  id: string;
-  name: string;
-  description?: string;
+export class ComparePatternData extends PatternData {
+  pattern: string;
+  counts: number[];
+  get count(): number {
+    return this.counts.reduce((t: number, c: number): number => t + c, 0);
+  }
+  constructor(pattern: string, counts: number[]) {
+    super();
+    this.pattern = pattern;
+    this.counts = counts;
+  }
+  get count0(): number { return this.counts[0]; }
+  get count1(): number { return this.counts[1]; }
 }
+
 export class CategoryPatternData {
   category: DictionaryInformation;
   patterns?: PatternData[];
@@ -42,14 +52,13 @@ export class PatternsService {
   private pattern_data: Observable<CategoryPatternData[]>;
 
   constructor(private _http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService) {
+    httpErrorHandler: HttpErrorHandlerService) {
     this.handleError = httpErrorHandler.createHandleError('PatternsService');
   }
 
   getPatterns(corpus: string[]): Observable<CategoryPatternData[]> {
     if (!this.pattern_data) {
-      const p_query = makeCorpusSchema(corpus);
-      this.pattern_data = this._http.post<CategoryPatternData[]>(this.server, p_query)
+      this.pattern_data = this._http.post<CategoryPatternData[]>(this.server, corpus)
         .pipe(
           publishReplay(1),
           refCount(),

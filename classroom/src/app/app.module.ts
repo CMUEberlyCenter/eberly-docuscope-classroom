@@ -3,11 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { AngularSplitModule } from 'angular-split';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GoogleChartsModule } from 'angular-google-charts';
 // import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 // import { MatChipsModule } from '@angular/material/chips';
@@ -45,6 +47,8 @@ import { PatternsComponent } from './patterns/patterns.component';
 import { PatternsTableComponent } from './patterns-table/patterns-table.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { HeaderComponent } from './header/header.component';
+import { ComparisonComponent } from './comparison/comparison.component';
+import { ComparePatternsTableComponent } from './compare-patterns-table/compare-patterns-table.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +68,8 @@ import { HeaderComponent } from './header/header.component';
     PatternsTableComponent,
     PageNotFoundComponent,
     HeaderComponent,
+    ComparisonComponent,
+    ComparePatternsTableComponent,
   ],
   entryComponents: [
     AboutComponent,
@@ -71,6 +77,7 @@ import { HeaderComponent } from './header/header.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    AngularSplitModule.forRoot(),
     BrowserAnimationsModule,
     DragDropModule,
     FormsModule,
@@ -80,6 +87,7 @@ import { HeaderComponent } from './header/header.component';
     // EasyUIModule,
     // MatBadgeModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatCardModule,
     MatCheckboxModule,
     // MatChipsModule,

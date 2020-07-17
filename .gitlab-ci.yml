@@ -9,6 +9,10 @@ stages:
   - release
   - deploy
 
+include:
+  - template: SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
+
 variables:
   DOCKER_DRIVER: overlay2
   REF_CONTAINER: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
@@ -75,8 +79,8 @@ release:
     - docker pull "${REF_CONTAINER}"
     - docker tag "${REF_CONTAINER}" "${RELEASE_CONTAINER}"
     - docker push "${RELEASE_CONTAINER}"
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
 
 pages:
   stage: deploy
@@ -88,5 +92,5 @@ pages:
     paths:
       - public
     expire_in: 30 days
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'

@@ -5,7 +5,12 @@ import { MatTableDataSource } from '@angular/material/table';
 
 import * as d3 from 'd3';
 
-import { BoxplotData, BoxplotDataEntry, Outlier } from '../boxplot-data';
+import { genCategoryInfoMap, CategoryInfoMap } from '../assignment-data';
+import { CategoryData, category_value, DocumentData, DocuScopeData, max_boxplot_value } from '../ds-data.service';
+
+class Outlier {
+  constructor(public id: string, public title: string, public value: number) {}
+}
 
 @Component({
   selector: 'app-boxplot-graph',
@@ -13,35 +18,43 @@ import { BoxplotData, BoxplotDataEntry, Outlier } from '../boxplot-data';
   styleUrls: ['./boxplot-graph.component.css']
 })
 export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
-  private _boxplot: BoxplotData;
-  boxplot_data: MatTableDataSource<BoxplotDataEntry>;
-  selection = new SelectionModel<BoxplotDataEntry>(false, []);
-  @Input()
-  set boxplot(bpd: BoxplotData) {
-    this._boxplot = bpd;
-    if (bpd) {
-      this.boxplot_data = new MatTableDataSource(this._boxplot.bpdata);
+  @Input() set boxplot(data: DocuScopeData) {
+    this.ds_data = data;
+    this.max_value = 0.0;
+    this.outliers = new Map<string, Outlier[]>();
+    if (data) {
+      this.boxplot_data = new MatTableDataSource(this.ds_data.categories);
       if (this.sort) { this.boxplot_data.sort = this.sort; }
+      this.max_value = max_boxplot_value(data);
     }
+    this.scale_x = d3.scaleLinear().domain([0, this.max_value])
+      .range([this.left, this.right]).nice().clamp(true);
+    this.x = d3.scaleLinear().domain([0, this.max_value * this.unit])
+      .range([this.left, this.right]).nice().clamp(true);
   }
-  get boxplot(): BoxplotData { return this._boxplot; }
-  @Output() selected_category = new EventEmitter<string>();
-  @Input() max_value: number;
+  @Input() set unit(scale: number) {
+    this._unit = scale;
+    this.x = d3.scaleLinear().domain([0, this.max_value * this._unit])
+      .range([this.left, this.right]).nice().clamp(true);
+  }
+  @Output() selected_category = new EventEmitter<CategoryData>();
   @ViewChild('boxplotSort') sort: MatSort;
 
-  displayColumns: string[] = [ 'category_label', 'boxplot' ];
-  private _options: { width, height } = { width: 500, height: 50 };
+  boxplot_data: MatTableDataSource<CategoryData>;
+  get data(): DocuScopeData { return this.ds_data; }
+  ds_data: DocuScopeData;
+  displayColumns: string[] = [ 'name', 'boxplot' ];
+  max_value = 0.0;
+  outliers: Map<string, Outlier[]>;
+  selection = new SelectionModel<CategoryData>(false, []);
+  scale_y;
+  scale_x;
+  get unit(): number { return this._unit; }
+  x;
 
-  get options(): { width, height } {
-    return this._options; /* = {
-      width: window.innerWidth,
-      height: window.innerHeight
-    };*/
-  }
-
-  private _box_options = {
-    width: 300,
-    height: 30,
+  options = {
+    width: 500,
+    height: 50,
     margin: {
       left: 10,
       right: 10,
@@ -50,54 +63,54 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     }
   };
 
-  handle_selection(row: BoxplotDataEntry) {
-    this.selection.toggle(row);
-    if (this.selection.selected.length) {
-      this.selected_category.emit(row.category);
-    } else {
-      this.selected_category.emit('');
-    }
-  }
+  private _unit = 100;
 
   constructor() { }
 
-  percent(value: number): string {
-    return `${(100 * value).toFixed(2)}`;
-  }
-  get x() {
-    const left = this._box_options.margin.left;
-    const width = this._box_options.width -
-      (left + this._box_options.margin.right);
-    return d3.scaleLinear().domain([0, this.max_value * 100])
-      .range([left, width]).nice().clamp(true);
-  }
-  scale_x(value: number): number {
-    const left = this._box_options.margin.left;
-    const width = this._box_options.width -
-      (left + this._box_options.margin.right);
-    const x = d3.scaleLinear()
-      .domain([0, this.max_value])
-      .range([left, width]).nice().clamp(true);
-    return x(value);
-  }
-  scale_y(value: number): number {
-    const top = this._box_options.margin.top;
-    const height = this._box_options.height -
-      (top + this._box_options.margin.bottom);
-    const y = d3.scaleLinear()
-      .domain([0, 1])
-      .range([top, height]);
-    return y(value);
+  // get options(): { width; height } {
+  //  return this.options; /* = {
+  //    width: window.innerWidth,
+  //    height: window.innerHeight
+  //  };*/
+  // }
+
+  handle_selection(row: CategoryData) {
+    this.selection.toggle(row);
+    if (this.selection.selected.length) {
+      this.selected_category.emit(row);
+    } else {
+      this.selected_category.emit(null);
+    }
   }
 
-  get_outliers(category: string): Outlier[] {
-    return this._boxplot.outliers.filter(out => out.category === category);
+  scale(value: number): string {
+    return `${(this.unit * value).toFixed(2)}`;
+  }
+  get left(): number { return this.options.margin.left; }
+  get right(): number { return this.options.width - this.options.margin.right; }
+  get top(): number { return this.options.margin.top; }
+  get bottom(): number { return this.options.height - this.options.margin.bottom; }
+
+  get_outliers(category: CategoryData): Outlier[] {
+    if (!this.outliers.has(category.id)) {
+      const uf: number = category.uifence, lf: number = category.lifence;
+      const outs: Outlier[] = this.data.data.map(
+        (datum: DocumentData): Outlier => new Outlier(datum.id, datum.title, category_value(category, datum))
+      ).filter(
+        (out: Outlier): boolean => (out.value > uf) || (out.value < lf)
+      );
+      // console.log(`outliers for ${category.id}, ${lf}, ${uf}:`, outs);
+      this.outliers.set(category.id, outs);
+    }
+    return this.outliers.get(category.id);
   }
 
-  open(doc_id: string) {
+  open(doc_id: string): void {
     window.open(doc_id);
   }
-  ngOnInit() {}
+  ngOnInit() {
+    this.scale_y = d3.scaleLinear().domain([0, 1]).range([this.top, this.bottom]);
+  }
   ngAfterViewChecked() {
     if (this.sort) { this.boxplot_data.sort = this.sort; }
   }

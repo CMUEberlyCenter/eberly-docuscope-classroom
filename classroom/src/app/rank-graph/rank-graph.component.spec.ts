@@ -9,33 +9,41 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RankGraphComponent } from './rank-graph.component';
 
 const data = {
-  category: 'bogus_category',
-  category_name: 'Bogus Category',
-  median: 0.5,
-  result: [
+  categories: [{
+    id: 'bogus',
+    name: 'Bogus Data',
+    description: 'A completely bogus category.',
+    q1: 0.25, q2: 0.5, q3: 0.75, min: 0, max: 1,
+    uifence: 0.9, lifence: 0.1,
+  }],
+  data: [
     {
-      index: 'i0',
-      text: 'Text0',
-      value: 0.6,
+      id: 'i0',
+      title: 'Text0',
+      bogus: 0.6,
+      total_words: 5,
       ownedby: 'student'
     },
     {
-      index: 'i1',
-      text: 'Text1',
-      value: 0.5,
+      id: 'i1',
+      title: 'Text1',
+      bogus: 0.5,
+      total_words: 4,
       ownedby: 'instructor'
     },
     {
-      index: 'i2',
-      text: 'Text2',
-      value: 0.4,
+      id: 'i2',
+      title: 'Text2',
+      bogus: 0.4,
+      total_words: 3,
       ownedby: 'student'
     },
   ]
 };
+
 @Component({
   selector: 'app-fake-rank-component',
-  template: `<app-rank-graph rank_data="${data}" max_value="1"></app-rank-graph>`
+  template: `<app-rank-graph data="" category="${data.categories[0]}" unit="100"></app-rank-graph>`
 })
 class TestRankComponent {
   @ViewChild(RankGraphComponent)
@@ -56,9 +64,9 @@ describe('RankGraphComponent', () => {
         MatTooltipModule,
         NoopAnimationsModule
       ],
-      schemas: [ /*NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -73,32 +81,53 @@ describe('RankGraphComponent', () => {
   });
 
   it('ngOnChanges', () => {
-    component.rank.rank_data = data;
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
     fixture.detectChanges();
-    component.rank.rank_data = null;
+    expect(() => component.rank.ngOnChanges()).not.toThrow();
+    component.rank.category = null;
+    fixture.detectChanges();
+    expect(() => component.rank.ngOnChanges()).not.toThrow();
+    component.rank.data = null;
     fixture.detectChanges();
     expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
-  it('mean_start', () => {
-    component.rank.rank_data = data;
+  it('median', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.mean_start(0.3)).toBe(0.3);
-    expect(component.rank.mean_start(0.6)).toBe(0.5);
+    return fixture.whenStable().then(() => {
+      expect(component.rank.median).toBe(50);
+    });
   });
-
-  it('mean_width', () => {
-    component.rank.rank_data = data;
+  it('max_value', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.mean_width(0.3)).toBe(0.2);
-    expect(component.rank.mean_width(0.75)).toBe(0.25);
+    expect(component.rank.max_value).toBe(100);
+  });
+  it('mean_start', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.mean_start(30)).toBe(30);
+    expect(component.rank.mean_start(60)).toBe(50);
+  });
+  it('mean_width', () => {
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    expect(component.rank.mean_width(30)).toBe(20);
+    expect(component.rank.mean_width(75)).toBe(25);
   });
 
   it('bar_tip', () => {
-    component.rank.rank_data = data;
+    component.rank.data = data;
+    component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.bar_tip(0.2)).toBe('20.00 which is about 30.00 less than the median of 50.00.');
-    expect(component.rank.bar_tip(0.6)).toBe('60.00 which is about 10.00 more than the median of 50.00.');
+    expect(component.rank.bar_tip(20)).toBe('20.00 which is about 30.00 less than the median of 50.00.');
+    expect(component.rank.bar_tip(60)).toBe('60.00 which is about 10.00 more than the median of 50.00.');
   });
 
   it('open', () => {

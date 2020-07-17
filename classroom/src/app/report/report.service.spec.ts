@@ -16,7 +16,7 @@ describe('ReportService', () => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule, MatSnackBarModule ],
       providers: [ ReportService,
-                   { provide: MessageService, useValue: message_service_spy } ]
+        { provide: MessageService, useValue: message_service_spy } ]
     });
     service = TestBed.inject(ReportService);
     httpMock = TestBed.inject(HttpTestingController);

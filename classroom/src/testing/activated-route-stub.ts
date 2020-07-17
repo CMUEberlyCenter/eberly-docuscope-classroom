@@ -9,6 +9,9 @@ import { ReplaySubject } from 'rxjs';
  * Use the `setParamMap()` method to add the next `paramMap` value.
  */
 export class ActivatedRouteStub {
+  /** The mock paramMap observable */
+  readonly paramMap = this.subject.asObservable();
+
   // Use a ReplaySubject to share previous values with subscribers
   // and pump new values into the `paramMap` observable
   private subject = new ReplaySubject<ParamMap>();
@@ -16,9 +19,6 @@ export class ActivatedRouteStub {
   constructor(initialParams?: Params) {
     this.setParamMap(initialParams);
   }
-
-  /** The mock paramMap observable */
-  readonly paramMap = this.subject.asObservable();
 
   /** Set the paramMap observables's next value */
   setParamMap(params?: Params) {

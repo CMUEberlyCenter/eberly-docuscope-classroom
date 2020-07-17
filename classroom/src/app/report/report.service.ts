@@ -6,10 +6,9 @@ import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { MessageService } from '../message.service';
 import { HttpErrorHandlerService, HandleError } from '../http-error-handler.service';
-import { DocumentSchema, makeDocumentSchema } from '../boxplot-data';
 
 class ReportsSchema {
-  corpus: DocumentSchema[];
+  corpus: string[];
   intro: string;
   stv_intro: string;
 }
@@ -22,24 +21,23 @@ export class ReportService {
   private handleError: HandleError;
 
   constructor(private http: HttpClient,
-              httpErrorHandler: HttpErrorHandlerService,
-              private messageService: MessageService) {
+    httpErrorHandler: HttpErrorHandlerService,
+    private messageService: MessageService) {
     this.handleError = httpErrorHandler.createHandleError('ReportService');
   }
 
   getReports(corpus: string[], intro: string, stv_intro: string): Observable<Blob> {
     this.messageService.add('Generating Reports...');
     const query: ReportsSchema = {
-      corpus: makeDocumentSchema(corpus),
+      corpus: corpus,
       intro: intro,
       stv_intro: stv_intro
     };
     return this.http.post<Blob>(this._server, query,
-                                {responseType: 'blob' as 'json'})
+      {responseType: 'blob' as 'json'})
       .pipe(
         tap(() => this.messageService.add('Report Generation Successful!')),
         catchError(this.handleError('getReports', <Blob>{}))
       );
   }
-
 }

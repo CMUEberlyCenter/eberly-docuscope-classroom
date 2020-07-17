@@ -5,8 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
-import { BoxplotDataService } from '../boxplot-data.service';
-import { GroupsData } from '../boxplot-data';
+import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
   selector: 'app-grouping',
@@ -18,7 +17,7 @@ export class GroupingComponent implements OnInit {
   get size_max(): number {
     return this.corpus
       ? Math.max(this.size_min,
-                 Math.floor(this.corpus.length / 2))
+        Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
   corpus: string[];
@@ -26,18 +25,20 @@ export class GroupingComponent implements OnInit {
   groups: GroupsData;
   absent: string[] = [];
 
-  constructor(private corpus_service: CorpusService,
-              private _assignment_service: AssignmentService,
-              private _spinner: NgxUiLoaderService,
-              private _snack_bar: MatSnackBar,
-              private data_service: BoxplotDataService) { }
+  constructor(
+    private corpus_service: CorpusService,
+    private _assignment_service: AssignmentService,
+    private _spinner: NgxUiLoaderService,
+    private _snack_bar: MatSnackBar,
+    private data_service: GroupsService) { }
 
   getCorpus(): void {
     this._spinner.start();
     this.corpus_service.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.stop();
+        // this._spinner.stop();
+        this.getGroupsData();
       });
   }
 
@@ -60,7 +61,7 @@ export class GroupingComponent implements OnInit {
   generate_groups(e): void {
     if (this.group_size) {
       if (this.num_documents < 4) {
-        this._snack_bar.open(`There needs to be at least four documents in order to form groups.`, '\u2612');
+        this._snack_bar.open('There needs to be at least four documents in order to form groups.', '\u2612');
       } else if (this.group_size < this.size_min) {
         this._snack_bar.open(`The group size needs to be at least ${this.size_min}.`, '\u2612');
       } else if (this.group_size > this.size_max) {
@@ -76,13 +77,13 @@ export class GroupingComponent implements OnInit {
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data,
-                      event.previousIndex,
-                      event.currentIndex);
+        event.previousIndex,
+        event.currentIndex);
     } else {
       transferArrayItem(event.previousContainer.data,
-                        event.container.data,
-                        event.previousIndex,
-                        event.currentIndex);
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
     }
   }
 }

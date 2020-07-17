@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
-import { BoxplotDataService } from '../boxplot-data.service';
+import { CategoryInfoMap, genCategoryInfoMap } from '../assignment-data';
 import { CorpusService } from '../corpus.service';
-import { RankData, RankDataEntry, BoxplotDataEntry, max_boxplot_value } from '../boxplot-data';
+import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
   selector: 'app-rank',
@@ -13,66 +14,53 @@ import { RankData, RankDataEntry, BoxplotDataEntry, max_boxplot_value } from '..
 })
 export class RankComponent implements OnInit {
   corpus: string[];
-  data: RankData;
-  rank_data: [string, number][];
-  categories: Map<string, string> = new Map<string, string>();
-  category: string;
-  max_value: number;
-  options = {
-    legend: 'none',
-    hAxis: {
-      viewWindow: {
-        min: 0,
-        max: 10
-      }
-    }
-  };
+  data: DocuScopeData;
+  dsmap; // TODO: fix typing
+  category: CategoryData;
+  selected_category: string;
+  unit = 100;
 
-  constructor(private _assignment_service: AssignmentService,
-              private _corpus_service: CorpusService,
-              private _spinner: NgxUiLoaderService,
-              private _data_service: BoxplotDataService) { }
+  get categories(): CategoryData[] { return this.data.categories; }
+
+  constructor(
+    private _assignment_service: AssignmentService,
+    private _corpus_service: CorpusService,
+    private _spinner: NgxUiLoaderService,
+    private _data_service: DsDataService,
+    private _settings_service: SettingsService
+  ) { }
 
   getCorpus(): void {
     this._spinner.start();
     this._corpus_service.getCorpus()
       .subscribe(corpus => {
         this.corpus = corpus;
-        this._spinner.stop();
-        this.getCategories();
-      });
-  }
-  getCategories(): void {
-    this._spinner.start();
-    this._data_service.getBoxPlotData(this.corpus)
-      .subscribe(data => {
-        this._assignment_service.setAssignmentData(data);
-        this.categories = new Map<string, string>(
-          data.bpdata.map((bpd: BoxplotDataEntry): [string, string] => [bpd.category, bpd.category_label]));
-        this.max_value = max_boxplot_value(data);
-        this.options.hAxis.viewWindow.max = this.max_value * 100;
-        this.category = this.categories.keys().next().value;
-        this._spinner.stop();
+        // this._spinner.stop();
         this.getData();
       });
   }
   getData(): void {
     this._spinner.start();
-    this._data_service.getRankedList(this.corpus, this.category)
+    this._data_service.getData(this.corpus)
       .subscribe(data => {
         this.data = data;
-        this.rank_data = this.data.result.map((rp: RankDataEntry) => [rp.text, rp.value * 100]);
+        this._assignment_service.setAssignmentData(data);
+        this.dsmap = genCategoryInfoMap(data);
+        this.category = this.categories[0];
+        this.selected_category = this.category.id;
         this._spinner.stop();
       });
   }
+  getSettings(): void {
+    this._settings_service.getSettings().subscribe(settings => {
+      this.unit = settings.unit;
+    });
+  }
   ngOnInit() {
+    this.getSettings();
     this.getCorpus();
   }
   on_select(event): void {
-    // console.log(this.category);
-    this.getData();
-  }
-  get_label(category: string): string {
-    return this.categories.get(category);
+    this.category = this.dsmap.get(this.selected_category);
   }
 }

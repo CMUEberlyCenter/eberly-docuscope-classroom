@@ -11,15 +11,16 @@ import { ReportService } from './report.service';
   styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
+  @ViewChild('download_link') download_link: ElementRef;
   corpus: string[];
   intro: string;
   stv_intro: string;
-  @ViewChild('download_link') download_link: ElementRef;
 
-  constructor(private corpusService: CorpusService,
-              private _spinner: NgxUiLoaderService,
-              private introService: ReportIntroductionService,
-              private reportService: ReportService) { }
+  constructor(
+    private corpusService: CorpusService,
+    private _spinner: NgxUiLoaderService,
+    private introService: ReportIntroductionService,
+    private reportService: ReportService) { }
 
   getCorpus(): void {
     this._spinner.start();

@@ -38,21 +38,22 @@ export class PatternClusterData implements ClusterData {
       state('collapsed, void', style({transform: 'rotate(0deg)'})),
       state('expanded', style({transform: 'rotate(180deg)'})),
       transition('expanded <=> collapsed, void => collapsed',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
     ]),
   ],
 })
 export class PatternsComponent implements OnInit {
+  @ViewChild('clusterTableSort', {static: true}) sort: MatSort;
+
   corpus: string[];
   patterns_data: MatTableDataSource<PatternClusterData>;
   expanded: PatternClusterData | null;
-  cluster_columns = ['name', /*'pattern_count',*/ 'count', 'expand'];
+  cluster_columns = ['name', /* 'pattern_count',*/ 'count', 'expand'];
 
-  @ViewChild('clusterTableSort', {static: true}) sort: MatSort;
-
-  constructor(private corpusService: CorpusService,
-              private dataService: PatternsService,
-              private spinner: NgxUiLoaderService) { }
+  constructor(
+    private corpusService: CorpusService,
+    private dataService: PatternsService,
+    private spinner: NgxUiLoaderService) { }
 
   ngOnInit() {
     this.spinner.start();

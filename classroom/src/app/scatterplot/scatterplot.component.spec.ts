@@ -7,18 +7,13 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing';
 
 import { ScatterplotComponent } from './scatterplot.component';
-import { ScatterplotData } from '../boxplot-data';
 import { CorpusService } from '../corpus.service';
-import { BoxplotDataService} from '../boxplot-data.service';
+import { DocuScopeData, DsDataService } from '../ds-data.service';
 import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
+import { SettingsService } from '../settings.service';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
-
-@Component({selector: 'app-scatterplot-graph', template: ''})
-class ScatterplotGraphStubComponent {
-  @Input() points: ScatterplotData;
-}
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -34,35 +29,49 @@ describe('ScatterplotComponent', () => {
       intro: 'stub',
       stv_intro: 'stub'
     }));
-    const dataService_spy = jasmine.createSpyObj('BoxplotDataService', ['getBoxPlotData', 'getScatterPlotData']);
-    dataService_spy.getBoxPlotData.and.returnValue(asyncData({
-      bpdata: [{'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4, 'uifence': .6, 'lifence': 0, 'category': 'STUB_X'},
-               {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5, 'uifence': .6, 'lifence': 0.1, 'category': 'STUB_Y'}],
-      outliers: []
-    }));
-    dataService_spy.getScatterPlotData.and.returnValue(asyncData({
-      spdata: [{
-        catX: 1, catY: 2, title: 'Name', text_id: '123', ownedby: 'student'
+    const dataService_spy = jasmine.createSpyObj('DsDataService', ['getData']);
+    dataService_spy.getData.and.returnValue(asyncData({
+      categories: [
+        {'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4,
+          'uifence': .6, 'lifence': 0,
+          'id': 'STUB_X', 'name': 'Stub X'},
+        {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5,
+          'uifence': .6, 'lifence': 0.1,
+          'id': 'STUB_Y', 'name': 'Stub Y'}],
+      data: [{
+        id: 'bogus_index', text: 'bogus text', ownedby: 'student',
+        bogus: 0.5, STUB_X: 0.1, STUB_Y: 0.2, total_words: 2
       }, {
-        catX: 2, catY: 1, title: 'model', text_id: '456', ownedby: 'instructor'
+        id: 'bogus_index1', text: 'instructor text', ownedby: 'instructor',
+        bogus: 0.4, STUB_X: 0.2, STUB_Y: 0.1, total_words: 2
       }]
+    }));
+    const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+    settings_spy.getSettings.and.returnValue(asyncData({
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
+      unit: 100,
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+      scatter: {width: 400, height: 400},
+      boxplot: {cloud: true},
+      stv: {max_clusters: 4}
     }));
 
     TestBed.configureTestingModule({
       declarations: [ ScatterplotComponent,
-                      NavStubComponent,
-                      ScatterplotGraphStubComponent ],
+        NavStubComponent ],
       imports: [ FormsModule,
-                 GoogleChartsModule,
-                 MatCardModule,
-                 MatFormFieldModule ],
+        GoogleChartsModule,
+        MatCardModule,
+        MatFormFieldModule ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: BoxplotDataService, useValue: dataService_spy }
+        { provide: SettingsService, useValue: settings_spy },
+        { provide: DsDataService, useValue: dataService_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -78,8 +87,14 @@ describe('ScatterplotComponent', () => {
   it('getData', async () => {
     component.getData();
     await fixture.whenStable().then(() => expect(component.data).toBeDefined());
-    component.x_axis = '';
-    await fixture.whenStable().then(() => expect(component.data).toBeDefined());
+  });
+
+  it('genPoints null', () => {
+    component.getData();
+    return fixture.whenStable().then(() => {
+      component.x_axis = null;
+      expect(() => component.genPoints()).not.toThrow();
+    });
   });
 
   it('on_select', () => fixture.whenStable().then(() => {
@@ -92,7 +107,7 @@ describe('ScatterplotComponent', () => {
       dataTable: {
         getValue: () => '123'
       }
-    }, [{row: 'row'}]);
+    }, {selection: [{row: 1}]});
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
 });

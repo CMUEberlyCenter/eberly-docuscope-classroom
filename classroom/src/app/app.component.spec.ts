@@ -1,5 +1,6 @@
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { AppComponent } from './app.component';
@@ -27,6 +28,7 @@ describe('AppComponent', () => {
         MessagesStubComponent,
       ],
       imports: [
+        HttpClientTestingModule,
         MatDialogModule,
         MatIconModule,
         MatToolbarModule,

@@ -12,46 +12,46 @@ import { asyncData } from '../../testing';
 
 import { GroupingComponent } from './grouping.component';
 import { CorpusService } from '../corpus.service';
-import { BoxplotDataService } from '../boxplot-data.service';
+import { GroupsService } from './groups.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
 
 class DragDropEventFactory<T> {
-   createInContainerEvent(containerId: string, data: T[], fromIndex: number, toIndex: number): CdkDragDrop<T[], T[]> {
-      const event = this.createEvent(fromIndex, toIndex);
-      const container: any = { id: containerId, data: data };
-      event.container = <CdkDropList<T[]>>container;
-      event.previousContainer = event.container;
-      event.item = <CdkDrag<T>>{ data: data[fromIndex] };
-      return event;
-   }
+  createInContainerEvent(containerId: string, data: T[], fromIndex: number, toIndex: number): CdkDragDrop<T[], T[]> {
+    const event = this.createEvent(fromIndex, toIndex);
+    const container: any = { id: containerId, data: data };
+    event.container = <CdkDropList<T[]>>container;
+    event.previousContainer = event.container;
+    event.item = <CdkDrag<T>>{ data: data[fromIndex] };
+    return event;
+  }
 
-   createCrossContainerEvent(from: ContainerModel<T>, to: ContainerModel<T>): CdkDragDrop<T[], T[]> {
-      const event = this.createEvent(from.index, to.index);
-      event.container = this.createContainer(to);
-      event.previousContainer = this.createContainer(from);
-      event.item = <CdkDrag<T>>{ data: from.data[from.index] };
-      return event;
-   }
+  createCrossContainerEvent(from: ContainerModel<T>, to: ContainerModel<T>): CdkDragDrop<T[], T[]> {
+    const event = this.createEvent(from.index, to.index);
+    event.container = this.createContainer(to);
+    event.previousContainer = this.createContainer(from);
+    event.item = <CdkDrag<T>>{ data: from.data[from.index] };
+    return event;
+  }
 
-   private createEvent(previousIndex: number, currentIndex: number): CdkDragDrop<T[], T[]> {
-      return {
-         previousIndex: previousIndex,
-         currentIndex: currentIndex,
-         item: undefined,
-         container: undefined,
-         previousContainer: undefined,
-         isPointerOverContainer: true,
-         distance: { x: 0, y: 0 }
-      };
-   }
+  private createEvent(previousIndex: number, currentIndex: number): CdkDragDrop<T[], T[]> {
+    return {
+      previousIndex: previousIndex,
+      currentIndex: currentIndex,
+      item: undefined,
+      container: undefined,
+      previousContainer: undefined,
+      isPointerOverContainer: true,
+      distance: { x: 0, y: 0 }
+    };
+  }
 
-   private createContainer(model: ContainerModel<T>): CdkDropList<T[]> {
-      const container: any = { id: model.id, data: model.data };
-      return <CdkDropList<T[]>>container;
-   }
+  private createContainer(model: ContainerModel<T>): CdkDropList<T[]> {
+    const container: any = { id: model.id, data: model.data };
+    return <CdkDropList<T[]>>container;
+  }
 }
 
 interface ContainerModel<T> {
@@ -65,7 +65,7 @@ describe('GroupingComponent', () => {
   let component: GroupingComponent;
   let fixture: ComponentFixture<GroupingComponent>;
   let corpus_service_spy;
-  let boxplot_data_service_spy;
+  let groups_data_service_spy;
   let ngx_spinner_service_spy;
   let snack_spy;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -73,16 +73,16 @@ describe('GroupingComponent', () => {
   beforeEach(async(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    boxplot_data_service_spy = jasmine.createSpyObj('BoxplotDataService',
-                                                    ['getGroupsData']);
-    boxplot_data_service_spy.getGroupsData.and.returnValue(asyncData([]));
+    groups_data_service_spy = jasmine.createSpyObj('GroupsService',
+      ['getGroupsData']);
+    groups_data_service_spy.getGroupsData.and.returnValue(asyncData({groups: []}));
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService',
-                                                   ['start', 'stop']);
+      ['start', 'stop']);
     snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     TestBed.configureTestingModule({
       declarations: [ GroupingComponent,
-                      NavStubComponent ],
+        NavStubComponent ],
       imports: [
         DragDropModule,
         FormsModule,
@@ -95,11 +95,11 @@ describe('GroupingComponent', () => {
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: BoxplotDataService, useValue: boxplot_data_service_spy },
+        { provide: GroupsService, useValue: groups_data_service_spy },
         { provide: MatSnackBar, useValue: snack_spy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -120,7 +120,7 @@ describe('GroupingComponent', () => {
     return fixture.whenStable().then(() => {
       expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
       expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-      expect(boxplot_data_service_spy.getGroupsData).toHaveBeenCalled();
+      expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
       expect(component.absent).toEqual([]);
     });
   });
@@ -171,7 +171,7 @@ describe('GroupingComponent', () => {
     return fixture.whenStable().then(() => {
       expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
       expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-      expect(boxplot_data_service_spy.getGroupsData).toHaveBeenCalled();
+      expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
       expect(component.absent).toEqual([]);
     });
   });

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -12,7 +13,9 @@ import * as $ from 'jquery';
 import { AssignmentService } from '../assignment.service';
 import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
 import { PatternData, pattern_compare } from '../patterns.service';
-import { TaggedTextService, TextContent, TextContentDictionaryInformation } from '../tagged-text.service';
+import { TaggedTextService, TextContent } from '../tagged-text.service';
+import { DictionaryInformation } from '../assignment-data';
+import { SettingsService } from '../settings.service';
 
 class TextClusterData implements ClusterData {
   id: string;
@@ -23,8 +26,7 @@ class TextClusterData implements ClusterData {
   get pattern_count(): number { return this.patterns.length; }
   // expand: boolean = false; // to be used for multiple expansion.
 
-  constructor(di: TextContentDictionaryInformation,
-              patterns: Map<string, number>) {
+  constructor(di: DictionaryInformation, patterns: Map<string, number>) {
     this.id = di.id;
     this.name = di.name;
     this.description = di.description;
@@ -44,28 +46,30 @@ class TextClusterData implements ClusterData {
       state('collapsed, void', style({height: '0px', minHeight: '0'})),
       state('expanded', style({height: '*'})),
       transition('expanded <=> collapsed, void => collapsed',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
       // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
     ]),
     trigger('indicatorRotate', [
       state('collapsed, void', style({transform: 'rotate(0deg)'})),
       state('expanded', style({transform: 'rotate(180deg)'})),
       transition('expanded <=> collapsed, void => collapsed',
-                 animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
     ]),
   ]
 })
 export class TextViewComponent implements OnInit {
+  @ViewChild('TableSort', {static: true}) sort: MatSort;
+
   tagged_text: TextContent;
   cluster_columns = ['name', 'count', 'expand'];
   clusters: MatTableDataSource<TextClusterData>;
   expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;
   html_content: SafeHtml;
+  max_clusters = 4;
+  selection = new SelectionModel<TextClusterData>(true, []);
 
-  @ViewChild('TableSort', {static: true}) sort: MatSort;
-
-  _cluster_info: Map<string, TextContentDictionaryInformation>;
+  _cluster_info: Map<string, DictionaryInformation>;
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -74,9 +78,11 @@ export class TextViewComponent implements OnInit {
     'cluster_3',
     'cluster_4',
     'cluster_5'];
+  private _css_classes_length = this._css_classes.length;
 
   get max_selected_clusters(): number {
-    return 4; // maximum of the total number of _css_classes.
+    // maximum of the total number of original _css_classes or settings value.
+    return Math.min(this.max_clusters, this._css_classes_length);
   }
 
   private _selected_clusters: Map<string, string> = new Map<string, string>();
@@ -85,6 +91,7 @@ export class TextViewComponent implements OnInit {
     private _route: ActivatedRoute,
     private _assignmentService: AssignmentService,
     private _sanitizer: DomSanitizer,
+    private _settings_service: SettingsService,
     private _spinner: NgxUiLoaderService,
     private _text_service: TaggedTextService
   ) { }
@@ -101,6 +108,11 @@ export class TextViewComponent implements OnInit {
     $event.stopPropagation();
   }
 
+  getSettings(): void {
+    this._settings_service.getSettings().subscribe(settings => {
+      this.max_clusters = settings.stv.max_clusters;
+    });
+  }
   getTaggedText() {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
@@ -110,9 +122,9 @@ export class TextViewComponent implements OnInit {
         this._assignmentService.setAssignmentData(txt);
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        this._cluster_info = new Map<string, TextContentDictionaryInformation>();
-        if (this.tagged_text && this.tagged_text.dict_info && this.tagged_text.dict_info.cluster) {
-          for (const clust of this.tagged_text.dict_info.cluster) {
+        this._cluster_info = new Map<string, DictionaryInformation>();
+        if (this.tagged_text && this.tagged_text.categories) {
+          for (const clust of this.tagged_text.categories) {
             this._cluster_info.set(clust.id, clust);
           }
         }
@@ -123,11 +135,11 @@ export class TextViewComponent implements OnInit {
         const pats = new Map<string, Map<string, number>>();
         cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
-        const tv = this;
+        // const tv = this;
         $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
-          const lat: string = $(this).attr('data-key');
-          const cluster: string = txt.dictionary[lat] ? txt.dictionary[lat]['cluster'] : lat;
-          const cluster_name: string = tv.get_cluster_name(cluster);
+          const cluster: string = $(this).attr('data-key');
+          // const cluster: string = lat;
+          // const cluster_name: string = tv.get_cluster_name(cluster);
           const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
           if (pats.has(cluster)) {
@@ -142,7 +154,7 @@ export class TextViewComponent implements OnInit {
         this.patterns = pats;
         const clusters: TextClusterData[] = Array.from(cluster_ids)
           .map((cid: string): TextClusterData =>
-               new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
+            new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
         clusters.sort(cluster_compare);
         this.clusters = new MatTableDataSource(clusters);
         if (this.sort) { this.clusters.sort = this.sort; }
@@ -151,17 +163,14 @@ export class TextViewComponent implements OnInit {
       });
   }
   ngOnInit() {
+    this.getSettings();
     this.getTaggedText();
-  }
-
-  lat_to_cluster(lat: string): string {
-    return this.get_cluster_name(this.tagged_text.dictionary[lat]['cluster']);
   }
 
   click_select($event) {
     // console.log($event);
     if ($('.cluster_id').length === 0) {
-      const l2c = this.lat_to_cluster.bind(this);
+      const l2c = this.get_cluster_name.bind(this);
       $('[data-key]').each(function() {
         const lat: string = $(this).attr('data-key');
         const cluster_name: string = l2c(lat);
@@ -169,14 +178,9 @@ export class TextViewComponent implements OnInit {
       });
     }
     const parent_key = $event.target.parentNode.getAttribute('data-key');
-    if (parent_key && this.tagged_text && this.tagged_text.dictionary) {
+    if (parent_key && this.tagged_text) {
       const lat = parent_key.trim();
-      // this.selected_lat = lat;
-      const obj = this.tagged_text.dictionary[lat];
-      if (obj) {
-        // this.selected_dimension = obj['dimension'];
-        // this.selected_cluster = this.get_cluster_name(obj['cluster']);
-        // this.selection = $event.target.parentNode.textContent;
+      if (this._cluster_info.has(lat)) {
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').style('display', 'none');
         d3.select($event.target.parentNode).classed('selected_text', true);
@@ -185,15 +189,7 @@ export class TextViewComponent implements OnInit {
     }
   }
 
-  *get_lats(cluster: string) {
-    for (const lat in this.tagged_text.dictionary) {
-      if (this.tagged_text.dictionary[lat]['cluster'] === cluster) {
-        yield lat;
-      }
-    }
-  }
-
-  get_cluster_info(cluster: string): TextContentDictionaryInformation {
+  get_cluster_info(cluster: string): DictionaryInformation {
     return this._cluster_info.get(cluster);
   }
 
@@ -203,8 +199,7 @@ export class TextViewComponent implements OnInit {
    */
   get_cluster_name(cluster: string): string {
     const cluster_info = this.get_cluster_info(cluster);
-    if (cluster_info) { return cluster_info.name; }
-    return cluster;
+    return cluster_info ? cluster_info.name : cluster;
   }
   get_pattern_count(cluster: string): number {
     if (this.patterns.has(cluster)) {
@@ -212,29 +207,25 @@ export class TextViewComponent implements OnInit {
     }
     return 0;
   }
+
   get_cluster_title(cluster: string): string {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
-  selection_change($event) {
-    console.log($event.source.selectedOptions.selected.length, this.max_selected_clusters);
-    if ($event.source.selectedOptions.selected.length > this.max_selected_clusters) {
-      $event.option.selected = false;
+  selection_change($event, cluster: TextClusterData) {
+    if ($event && cluster) {
+      if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
+        $event.source.checked = false;
+      } else {
+        this.selection.toggle(cluster);
+      }
     }
-    const clust: string = $event.option.value;
-    const lats = this.get_lats(clust);
-    const css_class = this.get_cluster_class(clust);
-    if (!$event.option.selected && this._selected_clusters.has(clust)) {
-      this._css_classes.unshift(this._selected_clusters.get(clust));
-      this._selected_clusters.delete(clust);
+    const css_class = this.get_cluster_class(cluster.id);
+    if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
+      this._css_classes.unshift(this._selected_clusters.get(cluster.id));
+      this._selected_clusters.delete(cluster.id);
     }
-    d3.select($event.option._getHostElement()).select('.mat-list-text').classed(css_class, $event.option.selected);
-    let lat = lats.next();
-    while (!lat.done) {
-      d3.selectAll(`[data-key=${lat.value}]`)
-        .classed(css_class, $event.option.selected);
-      lat = lats.next();
-    }
+    d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
   }
 
   get_cluster_class(cluster: string): string {
