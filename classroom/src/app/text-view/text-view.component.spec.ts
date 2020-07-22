@@ -7,8 +7,6 @@ import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
@@ -94,8 +92,6 @@ describe('TextViewComponent', () => {
         MatCardModule,
         MatCheckboxModule,
         MatIconModule,
-        MatListModule,
-        MatSidenavModule,
         MatSortModule,
         MatTableModule,
         MatTooltipModule,

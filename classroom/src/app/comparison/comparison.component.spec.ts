@@ -5,9 +5,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatListModule } from '@angular/material/list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
@@ -39,7 +37,6 @@ describe('ComparisonComponent', () => {
         HttpClientTestingModule,
         MatCardModule,
         MatIconModule,
-        MatListModule,
         MatSnackBarModule,
         MatSortModule,
         MatTableModule,
