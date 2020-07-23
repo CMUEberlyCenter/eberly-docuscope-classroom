@@ -251,6 +251,7 @@ describe('TextViewComponent', () => {
     expect(() => component.selection_change(evt, clust)).not.toThrow();
     evt.source.checked = false;
     expect(() => component.selection_change(evt, clust)).not.toThrow();
+    expect(() => component.selection_change(null, null)).not.toThrow();
   }));
 
   it('get_cluster_class', () => {

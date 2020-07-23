@@ -219,13 +219,13 @@ export class TextViewComponent implements OnInit {
       } else {
         this.selection.toggle(cluster);
       }
+      const css_class = this.get_cluster_class(cluster.id);
+      if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
+        this._css_classes.unshift(this._selected_clusters.get(cluster.id));
+        this._selected_clusters.delete(cluster.id);
+      }
+      d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
     }
-    const css_class = this.get_cluster_class(cluster.id);
-    if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
-      this._css_classes.unshift(this._selected_clusters.get(cluster.id));
-      this._selected_clusters.delete(cluster.id);
-    }
-    d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
   }
 
   get_cluster_class(cluster: string): string {
