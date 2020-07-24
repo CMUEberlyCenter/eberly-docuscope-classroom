@@ -10,8 +10,8 @@ import { SettingsService } from '../settings.service';
   styleUrls: ['./about.component.css']
 })
 export class AboutComponent implements OnInit {
-  title = 'DocuScope Classroom';
-  institution = 'CMU';
+  title = 'DocuScope Classroom'; // For the Title text
+  institution = 'CMU'; // the @ {{institution}} text
   homepage = 'https://www.cmu.edu/dietrich/english/research/docuscope.html';
 
   constructor(
@@ -19,6 +19,7 @@ export class AboutComponent implements OnInit {
     private _settings_service: SettingsService
   ) { }
 
+  /** Retrieve the settings file and pull out the appropriate information. */
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
       this.title = settings.title;
@@ -27,10 +28,12 @@ export class AboutComponent implements OnInit {
     });
   }
 
+  /** On component initialization, get the settings. */
   ngOnInit() {
     this.getSettings();
   }
 
+  /** Event handler for the close dialog button. */
   onNoClick(): void {
     this.dialogRef.close();
   }

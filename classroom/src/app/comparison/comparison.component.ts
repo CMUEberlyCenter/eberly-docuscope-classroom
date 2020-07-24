@@ -86,7 +86,7 @@ export class ComparisonComponent implements OnInit {
   corpus: string[];
   doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
   documents: Documents;
-  direction = 'horizontal';
+  direction = 'row';//'horizontal';
   expanded: TextClusterData | null = null;
   html_content: SafeHtml[];
   max_clusters = 4;
@@ -164,7 +164,8 @@ export class ComparisonComponent implements OnInit {
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
       this.max_clusters = settings.stv.max_clusters;
-      this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
+      //this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
+      this.direction = settings.mtv.horizontal ? 'column' : 'row';
       this.doc_colors = settings.mtv.documentColors;
     });
   }

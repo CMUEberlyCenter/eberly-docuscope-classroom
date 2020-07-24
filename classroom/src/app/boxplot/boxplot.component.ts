@@ -1,3 +1,8 @@
+/*
+Component for displaying the boxplot analysis page.
+This includes a list of boxplots, a word cloud based on category frequency,
+and ranking list based on the currently selected category.
+*/
 import { Component, OnInit } from '@angular/core';
 import { CloudData } from 'angular-tag-cloud-module';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -28,6 +33,7 @@ export class BoxplotComponent implements OnInit {
     private spinner: NgxUiLoaderService
   ) { }
 
+  /** Retrieve the list of document ids to analyze */
   getCorpus(): void {
     this.spinner.start();
     this.corpusService.getCorpus()
@@ -38,6 +44,7 @@ export class BoxplotComponent implements OnInit {
       });
   }
 
+  /** Retrieve the data for the component's corpus of documents. */
   getData(): void {
     this.spinner.start();
     this.dataService.getData(this.corpus)
@@ -53,6 +60,7 @@ export class BoxplotComponent implements OnInit {
       });
   }
 
+  /** Retrieve the system settings file and apply them. */
   getSettings(): void {
     this.settingsService.getSettings().subscribe(settings => {
       this.unit = settings.unit;
@@ -60,11 +68,13 @@ export class BoxplotComponent implements OnInit {
     });
   }
 
+  /** On component initialization, initiate information retrieval. */
   ngOnInit() {
     this.getSettings();
     this.getCorpus();
   }
 
+  /** Event handler for when a category is selected in the boxplot-graph. */
   onSelectCategory(category: CategoryData) {
     this.selected_category = category;
   }

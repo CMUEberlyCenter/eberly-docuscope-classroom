@@ -1,3 +1,10 @@
+/** Component for displaying a list of boxplots, one for each category.
+
+Takes as input a DocuScopeData object and a unit scale which are used to
+construct and scale the boxplots.
+Emits when a category is selected by clicking on it.
+The boxplots are also user sortable based on category name.
+*/
 import { SelectionModel } from '@angular/cdk/collections';
 import { AfterViewChecked, Component, EventEmitter, OnInit, Input, Output, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
@@ -8,6 +15,7 @@ import * as d3 from 'd3';
 import { genCategoryInfoMap, CategoryInfoMap } from '../assignment-data';
 import { CategoryData, category_value, DocumentData, DocuScopeData, max_boxplot_value } from '../ds-data.service';
 
+/** Class for storing boxplot outliers. */
 class Outlier {
   constructor(public id: string, public title: string, public value: number) {}
 }
@@ -18,6 +26,7 @@ class Outlier {
   styleUrls: ['./boxplot-graph.component.css']
 })
 export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
+  /** When the boxplot data parameter is set, update relevant fields. */
   @Input() set boxplot(data: DocuScopeData) {
     this.ds_data = data;
     this.max_value = 0.0;
