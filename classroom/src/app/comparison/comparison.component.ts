@@ -86,7 +86,7 @@ export class ComparisonComponent implements OnInit {
   corpus: string[];
   doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
   documents: Documents;
-  direction = 'row';//'horizontal';
+  direction = 'horizontal';
   expanded: TextClusterData | null = null;
   html_content: SafeHtml[];
   max_clusters = 4;
@@ -164,7 +164,7 @@ export class ComparisonComponent implements OnInit {
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
       this.max_clusters = settings.stv.max_clusters;
-      //this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
+      // this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
       this.direction = settings.mtv.horizontal ? 'column' : 'row';
       this.doc_colors = settings.mtv.documentColors;
     });
@@ -257,5 +257,9 @@ export class ComparisonComponent implements OnInit {
   expand_handler($event, cluster: TextClusterData|null) {
     this.expanded = this.expanded === cluster ? null : cluster;
     $event.stopPropagation();
+  }
+  get is_safari(): boolean {
+    // return true;
+    return navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1;
   }
 }
