@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, ViewChild } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
@@ -16,7 +16,7 @@ const data = {};
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)
-  public table: ComparePatternsTableComponent
+  public table: ComparePatternsTableComponent;
 }
 
 describe('ComparePatternsTableComponent', () => {

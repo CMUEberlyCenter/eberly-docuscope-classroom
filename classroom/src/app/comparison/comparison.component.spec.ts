@@ -29,9 +29,9 @@ class ComparePatternsTableStubComponent {
 describe('ComparisonComponent', () => {
   let component: ComparisonComponent;
   let fixture: ComponentFixture<ComparisonComponent>;
-  let assignment_service_spy;
+  // let assignment_service_spy;
   let corpus_service_spy;
-  let router_spy;
+  // let router_spy;
   let settings_spy;
   let ngx_spinner_service_spy;
   let documents_service_spy;
@@ -53,7 +53,7 @@ describe('ComparisonComponent', () => {
 
   beforeEach(async(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
-    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a','b']));
+    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b']));
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
     documents_service_spy = jasmine.createSpyObj('DocumentService', ['getData']);
     documents_service_spy.getData.and.returnValue(asyncData({
@@ -73,14 +73,14 @@ describe('ComparisonComponent', () => {
     }));
     settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
     settings_spy.getSettings.and.returnValue(asyncData({
-      title: "DocuScope Classroom",
-      institution: "CMU",
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
       unit: 100,
-      homepage: "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
       scatter: {width: 400, height: 400},
       boxplot: {cloud: true},
       stv: {max_clusters: 4},
-      mtv: {horizontal: false, documentColors: ["#1c66aa", "#639c54"]}
+      mtv: {horizontal: false, documentColors: ['#1c66aa', '#639c54']}
     }));
 
     TestBed.configureTestingModule({
@@ -120,14 +120,14 @@ describe('ComparisonComponent', () => {
 
   it('getSettings', () => {
     settings_spy.getSettings.and.returnValue(asyncData({
-      title: "DocuScope Classroom",
-      institution: "CMU",
+      title: 'DocuScope Classroom',
+      institution: 'CMU',
       unit: 100,
-      homepage: "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+      homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
       scatter: {width: 400, height: 400},
       boxplot: {cloud: true},
       stv: {max_clusters: 4},
-      mtv: {horizontal: true, documentColors: ["#1c66aa", "#639c54"]}
+      mtv: {horizontal: true, documentColors: ['#1c66aa', '#639c54']}
     }));
     expect(() => component.getSettings()).not.toThrow();
   });
@@ -148,9 +148,9 @@ describe('ComparisonComponent', () => {
   });
 
   it('getCorpus too many', async () => {
-    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a','b','c']));
+    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b', 'c']));
     await component.getCorpus();
-    expect(component.corpus).toEqual(['a','b']);
+    expect(component.corpus).toEqual(['a', 'b']);
   });
 
   it('click_select invalid', () => fixture.whenStable().then(() => {
