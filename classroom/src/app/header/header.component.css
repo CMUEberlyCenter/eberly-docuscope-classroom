@@ -1,19 +1,19 @@
 .assignment {
-  flex: 1 1 auto;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: row;
   /*flex-wrap: wrap;*/
   justify-content: space-around;
 }
 
 .item {
-  padding-left: 1em;
-  padding-right: 1em;
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: flex-start;
   max-width: 30%;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 .spacer {
@@ -21,15 +21,15 @@
 }
 
 .title {
-  max-height: 2em;
-  font-size: xx-small;
   /*color: grey;*/
+  font-size: xx-small;
+  max-height: 2em;
 }
 
 .value {
   font-size: medium;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

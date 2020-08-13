@@ -112,15 +112,14 @@
     </main>
   </div>
   <ng-container *ngIf="is_safari">
-  <main class="safari_entry"
-        *ngFor="let doc of documents.documents; index as i">
-    <div class="safari_head" [style.background]="doc_colors[i]">
-      <span>ID:&nbsp;{{doc.text_id}}</span>
-      <span>Owner:&nbsp;{{doc.owner}}</span>
-    </div>
-    <article class="text_content" [innerHTML]="html_content[i]"
-             (click)="click_select($event)">
-    </article>
-  </main>
+    <main class="safari_entry"
+          *ngFor="let doc of documents.documents; index as i">
+      <div class="safari_head" [style.background]="doc_colors[i]">
+        <span>ID:&nbsp;{{doc.text_id}}</span>
+        <span>Owner:&nbsp;{{doc.owner}}</span>
+      </div>
+      <article class="text_content" [innerHTML]="html_content[i]"
+               (click)="click_select($event)"></article>
+    </main>
   </ng-container>
 </div>

@@ -1,8 +1,8 @@
 .student_col {
   cursor: pointer;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .model_entry {

@@ -74,27 +74,27 @@ tr.cluster-detail-row {
   flex-direction: column;
   /*flex: 0 1 50%;*/
   height: 100%;
-  width: 100%;
   overflow: hidden;
+  width: 100%;
 }
 .document_body {
   flex: 1 1 auto;
   overflow: auto;
 }
 .text_head {
-  flex: 1 0 auto;
-  overflow: hidden;
   color: white;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: row;
   flex-wrap: wrap;
+  overflow: hidden;
   padding: 3px 1em;
 }
 .text_head > span {
   font-size: larger;
   margin-right: 1.5em;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .text_content {
   line-height: 175%;
@@ -108,16 +108,16 @@ tr.cluster-detail-row {
   overflow: auto;
 }
 .safari_head {
-  overflow: hidden;
   color: white;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  overflow: hidden;
   padding: 3px 1em;
 }
 .safari_head > span {
   font-size: larger;
   margin-right: 1.5em;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -16,8 +16,8 @@ app-nav {
   padding-right: 1em;
 }
 .go_button {
-  margin: 0px auto 8px;
   display: block;
+  margin: 0 auto 8px;
 }
 
 .groups_content {
@@ -31,11 +31,11 @@ app-nav {
 }
 
 .group {
+  align-items: center;
+  border-bottom: 1px solid grey;
   display: flex;
   flex-flow: row;
-  align-items: center;
   justify-content: flex-start;
-  border-bottom: 1px solid grey;
   min-height: 3em;
 }
 
@@ -43,32 +43,32 @@ app-nav {
   width: 10em;
 }
 .group_list {
+  align-items: center;
   display: flex;
   flex-flow: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
+  flex-wrap: wrap;
   height: 100%;
+  justify-content: flex-start;
   margin-top: 3px;
   padding-top: 3px;
-  flex-wrap: wrap;
+  width: 100%;
 }
 .group_member {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  text-align: center;
-  overflow: visible;
-  white-space: nowrap;
+  background: lightgrey;
   border: solid 1px grey;
   border-radius: 1em;
-  background: lightgrey;
+  display: flex;
+  justify-content: center;
   margin-left: 4px;
   margin-right: 4px;
-  padding-top: 3px;
+  overflow: visible;
   padding-bottom: 3px;
   padding-left: 1em;
   padding-right: 1em;
+  padding-top: 3px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .cdk-drag {
