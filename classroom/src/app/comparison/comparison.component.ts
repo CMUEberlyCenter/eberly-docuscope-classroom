@@ -164,8 +164,8 @@ export class ComparisonComponent implements OnInit {
   getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
       this.max_clusters = settings.stv.max_clusters;
-      // this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical';
-      this.direction = settings.mtv.horizontal ? 'column' : 'row';
+      this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
+      // this.direction = settings.mtv.horizontal ? 'column' : 'row'; // flex layout
       this.doc_colors = settings.mtv.documentColors;
     });
   }
