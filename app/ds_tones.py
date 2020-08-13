@@ -2,7 +2,9 @@
 Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
+import io
 import gzip
+from html.parser import HTMLParser
 try:
     import ujson as json
 except ImportError:
@@ -156,3 +158,39 @@ class DocuScopeTones():
 #        if not self._dim_to_clust:
 #            self._dim_to_clust = self.map_dimension_to_cluster()
 #        return self._dim_to_clust[dimension]
+
+class ToneParser(HTMLParser):
+    """ An HTML parser that converts data-key=<lat> to <cluster>. """
+    def __init__(self, tones: DocuScopeTones, out: io.StringIO):
+        super().__init__()
+        self.tones = tones
+        self.out = out
+    def error(self, message):
+        """On error: raise the error."""
+        logging.error(message)
+        raise RuntimeError(message)
+    def handle_starttag(self, tag, attrs):
+        """On start tag: update data-key to cluster name."""
+        self.out.write(f"<{tag}")
+        for attr in attrs:
+            if attr[0] == 'data-key':
+                cluster = self.tones.get_lat_cluster(attr[1])
+                if cluster != 'Other':
+                    self.out.write(f' {attr[0]}="{cluster}"')
+            else:
+                self.out.write(f' {attr[0]}="{attr[1]}"'
+                               if len(attr) > 1 else
+                               f' {attr[0]}')
+        self.out.write(">")
+    def handle_endtag(self, tag):
+        """On end tag: preserve end tag."""
+        self.out.write(f"</{tag}>")
+    def handle_data(self, data):
+        """On data: preserve data."""
+        self.out.write(data)
+    def handle_comment(self, data):
+        """On comment: preserve comments."""
+        self.out.write(f"<!-- {data} -->")
+    def handle_decl(self, decl):
+        """On declaration: preserve declaration."""
+        self.out.write(f"<!{decl}>")

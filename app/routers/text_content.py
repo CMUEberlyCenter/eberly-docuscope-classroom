@@ -1,6 +1,5 @@
 """ Get content for single text view. """
-#TODO: replace use with /document
-from html.parser import HTMLParser
+# Replace use with /document but requires rewrite of /stv in classroom.
 import io
 import logging
 import re
@@ -16,42 +15,11 @@ from starlette.status import \
     HTTP_503_SERVICE_UNAVAILABLE
 
 from ds_db import Assignment, Filesystem
-from ds_tones import DocuScopeTones
+from ds_tones import DocuScopeTones, ToneParser
 from response import AssignmentData, DictionaryInformation, ERROR_RESPONSES
 from util import get_db_session, get_ds_info
 
 router = APIRouter()
-
-#TODO: move this to ds_tones
-class ToneParser(HTMLParser):
-    """ An HTML parser that converts data-key=<lat> to <cluster>. """
-    def __init__(self, tones: DocuScopeTones, out: io.StringIO):
-        super().__init__()
-        self.tones = tones
-        self.out = out
-    def error(self, message):
-        logging.error(message)
-        raise RuntimeError(message)
-    def handle_starttag(self, tag, attrs):
-        self.out.write(f"<{tag}")
-        for attr in attrs:
-            if attr[0] == 'data-key':
-                cluster = self.tones.get_lat_cluster(attr[1])
-                if cluster != 'Other':
-                    self.out.write(f' {attr[0]}="{cluster}"')
-            else:
-                self.out.write(f' {attr[0]}="{attr[1]}"'
-                               if len(attr) > 1 else
-                               f' {attr[0]}')
-        self.out.write(">")
-    def handle_endtag(self, tag):
-        self.out.write(f"</{tag}>")
-    def handle_data(self, data):
-        self.out.write(data)
-    def handle_comment(self, data):
-        self.out.write(f"<!-- {data} -->")
-    def handle_decl(self, decl):
-        self.out.write(f"<!{decl}>")
 
 class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for dimension->cluster mapping."""
