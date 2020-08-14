@@ -72,40 +72,52 @@ tr.cluster-detail-row {
   border: 1px solid silver;
   display: flex;
   flex-direction: column;
-  flex: 0 1 50%;
-  /*height: 100%;
-  width: 100%;*/
+  /*flex: 0 1 50%;*/
+  height: 100%;
   overflow: hidden;
+  width: 100%;
 }
 .document_body {
   flex: 1 1 auto;
   overflow: auto;
 }
-/*.text_card {
-  margin: 5px;
-}*/
 .text_head {
-  flex: 1 0 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
   color: white;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: row;
   flex-wrap: wrap;
+  overflow: hidden;
   padding: 3px 1em;
 }
 .text_head > span {
   font-size: larger;
-  font-weight: bold;
   margin-right: 1.5em;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .text_content {
-  flex: 1 1 auto;
   line-height: 175%;
   max-width: 6.5in;
   padding-left: 18px;
   padding-right: 18px;
-  overflow: auto;
+}
+
+.safari_entry {
+  flex: 1 1;
+  overflow-y: auto;
+}
+.safari_head {
+  color: white;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 3px 1em;
+}
+.safari_head > span {
+  font-size: larger;
+  margin-right: 1.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

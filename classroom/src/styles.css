@@ -5,45 +5,51 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
 .cluster_id {
-  display: none;
   background: lightgrey;
   border: 1px solid grey;
+  display: none;
   padding: 3px;
 }
 .cluster_default {
+  border-bottom-color: black;
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: black;
 }
 .cluster_0 {
+  border-bottom-color: rgb(255, 0, 32); /* fallback */
+  border-bottom-color: rgba(255, 0, 32, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(255,0,32,0.7);
 }
 .cluster_1 {
+  border-bottom-color: rgb(255, 172, 0); /* fallback */
+  border-bottom-color: rgba(255, 172, 0, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(255,172,0,0.7);
 }
 .cluster_2 {
+  border-bottom-color: rgb(119, 189, 11); /* fallback */
+  border-bottom-color: rgba(119, 189, 11, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(119,189,11,0.7);
 }
 .cluster_3 {
+  border-bottom-color: rgb(49, 117, 230); /* fallback */
+  border-bottom-color: rgba(49, 117, 230, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(49,117,230,0.7);
 }
 .cluster_4 {
+  border-bottom-color: rgb(137, 80, 224); /* fallback */
+  border-bottom-color: rgba(137, 80, 224, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(137,80,224,0.7);
 }
 .cluster_5 {
+  border-bottom-color: rgb(220, 10, 169); /* fallback */
+  border-bottom-color: rgba(220, 10, 169, 0.7);
   border-bottom-style: solid;
   border-bottom-width: 3px;
-  border-bottom-color: rgba(220,10,169,0.7);
 }
 .selected_text {
   background-color: pink;
@@ -51,9 +57,9 @@
 
 /* scatterplot */
 circle.dot {
+  cursor: pointer;
   fill: black;
   filter: opacity(60%);
-  cursor: pointer;
 }
 
 circle.dot.model {
@@ -62,9 +68,9 @@ circle.dot.model {
 }
 
 html, body { height: 100vh; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { font-family: Roboto, "Helvetica Neue", sans-serif; margin: 0; }
 app-root {
   display: flex;
-  height: 100vh;
   flex-flow: column;
+  height: 100vh;
 }

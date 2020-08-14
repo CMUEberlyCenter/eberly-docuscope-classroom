@@ -16,11 +16,11 @@ app-nav {
   max-width: 5.5in;
 }
 .edit_textarea {
-  width: 100%;
   padding: 2em;
+  width: 100%;
 }
 
 button {
-  margin: 0 auto 15px;
   display: block;
+  margin: 0 auto 15px;
 }

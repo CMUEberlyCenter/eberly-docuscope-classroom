@@ -7,18 +7,18 @@ app-nav {
   flex: 0 1 auto;
 }
 .container {
+  color: #721c24;
   flex: 1 1 auto;
   margin: 5px;
   overflow: auto;
-  color: #721c24
 }
 .alert {
-  position: relative;
-  padding: .75rem 1.25rem;
-  margin-bottom: 1rem;
+  background-color: #f8d7da;
   border: 1px solid transparent;
+  border-color: #f5c6cb;
   border-radius: .25rem;
   color: #721c24;
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
+  margin-bottom: 1rem;
+  padding: .75rem 1.25rem;
+  position: relative;
 }
