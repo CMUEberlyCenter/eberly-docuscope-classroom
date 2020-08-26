@@ -52,12 +52,12 @@ def get_local_tones(dictionary_name="default"):
         logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Error reading {}_tones.json.gz: {}".format(
-                                dictionary_name, enc_error))
+                                dictionary_name, enc_error)) from enc_error
     except OSError as os_error:
         logging.error("Error reading %s tones: %s", dictionary_name, os_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Error reading {}_tones.json.gz: {}".format(
-                                dictionary_name, os_error))
+                                dictionary_name, os_error)) from os_error
     try:
         tones = [DocuScopeTone(**d) for d in data]
     except ValidationError as err:
@@ -65,13 +65,13 @@ def get_local_tones(dictionary_name="default"):
         raise HTTPException(
             status_code=HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Errors in parsing tones for {}: {}".format(dictionary_name,
-                                                               err))
+                                                               err)) from err
     except ValueError as v_err:
         logging.error("Invalid JSON returned for %s", dictionary_name)
         logging.error("%s", v_err)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Errors decoding tones for {}: {}".format(
-                                dictionary_name, v_err))
+                                dictionary_name, v_err)) from v_err
     if not tones:
         logging.error("No tones were retrieved for %s.", dictionary_name)
         raise HTTPException(

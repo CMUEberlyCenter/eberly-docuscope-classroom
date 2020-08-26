@@ -90,8 +90,9 @@ async def generate_reports(corpus: ReportsSchema,
     except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
-        raise HTTPException(detail="ERROR in report generation.",
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(
+            detail="ERROR in report generation.",
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from excp
     return StreamingResponse(zip_buffer, media_type='application/zip',
                              headers={'Content-Disposition':
                                       "attachment; filename='report.zip'"})
