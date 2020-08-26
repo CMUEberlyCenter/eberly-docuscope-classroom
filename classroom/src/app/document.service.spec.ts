@@ -26,7 +26,7 @@ const data = {
       html_content: ''
     }
   ]
-}
+};
 
 describe('DocumentService', () => {
   let service: DocumentService;
@@ -55,11 +55,11 @@ describe('DocumentService', () => {
     expect(errorServiceMock.createHandleError).toHaveBeenCalledWith('DocumentService');
   });
 
-  //it('server', () => expect(service.server).toBe(server));
+  // it('server', () => expect(service.server).toBe(server));
 
   it('getData', () => {
-    service.getData(['1','2']).subscribe(d => {
-      expect(d.documents[0].text_id).toBe('1')
+    service.getData(['1', '2']).subscribe(d => {
+      expect(d.documents[0].text_id).toBe('1');
     });
     const req = httpMock.expectOne(server);
     expect(req.request.method).toBe('POST');
