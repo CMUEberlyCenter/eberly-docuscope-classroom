@@ -64,7 +64,7 @@ describe('DsDataService', () => {
     req.error(new ErrorEvent('fail'), { status: 404 });
   });
 
-  it('getData error', () => {
+  it('getData', () => {
     service.getData(['1', '2', '3']).subscribe(edata => {
       expect(edata.categories[0].q1).toEqual(1);
       expect(edata.data[0].id).toEqual('over_outlier');
@@ -72,6 +72,7 @@ describe('DsDataService', () => {
     const req = httpMock.expectOne(server);
     expect(req.request.method).toBe('POST');
     req.flush(data);
+    // check caching
     service.getData(['1', '2', '3']).subscribe(cdata => {
       expect(cdata.categories[0].q1).toEqual(1);
       expect(cdata.data[0].id).toEqual('over_outlier');

@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { PatternsService, pattern_compare } from './patterns.service';
+import { ComparePatternData, PatternsService, pattern_compare } from './patterns.service';
 import { environment } from './../environments/environment';
 
 describe('PatternsService', () => {
@@ -62,4 +62,15 @@ describe('pattern_compare', () => {
     expect(pattern_compare(pattern_a1, pattern_b1)).toBe(-1);
     expect(pattern_compare(pattern_b1, pattern_a1)).toBe(1);
   });
+});
+
+describe('ComparePatternData', () => {
+  const p: ComparePatternData = new ComparePatternData('a', [1, 2]);
+  it('constructor', () => {
+    expect(p).toBeTruthy();
+    expect(p.pattern).toBe('a');
+  });
+  it('count', () => expect(p.count).toBe(3));
+  it('count0', () => expect(p.count0).toBe(1));
+  it('count1', () => expect(p.count1).toBe(2));
 });
