@@ -1,3 +1,7 @@
+/*
+Service for retrieving information about individual documents, such as the
+tagged text and other meta information.
+*/
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';

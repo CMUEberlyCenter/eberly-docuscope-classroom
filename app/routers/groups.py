@@ -68,5 +68,6 @@ def generate_groups(corpus: GroupsSchema, db_session: Session = Depends(get_db_s
         return get_pairings(corpus.corpus, corpus.group_size, db_session)
     except Exception as excp:
         logging.error(excp)
-        raise HTTPException(detail=excp.args[0],
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(
+            detail=excp.args[0],
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from excp

@@ -49,7 +49,7 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
                       "cluster": tones.get_lat_cluster(lat)}
                 for lat in doc['ds_tag_dict'].keys()
             }
-        documents[str(uuid)] = tagged
+        documents[uuid] = tagged
 
     descriptions = {
         #'course': ", ".join(stats.courses), # redundant
@@ -90,8 +90,9 @@ async def generate_reports(corpus: ReportsSchema,
     except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
-        raise HTTPException(detail="ERROR in report generation.",
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(
+            detail="ERROR in report generation.",
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from excp
     return StreamingResponse(zip_buffer, media_type='application/zip',
                              headers={'Content-Disposition':
                                       "attachment; filename='report.zip'"})
