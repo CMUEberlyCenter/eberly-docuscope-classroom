@@ -49,7 +49,7 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
                       "cluster": tones.get_lat_cluster(lat)}
                 for lat in doc['ds_tag_dict'].keys()
             }
-        documents[str(uuid)] = tagged
+        documents[uuid] = tagged
 
     descriptions = {
         #'course': ", ".join(stats.courses), # redundant
