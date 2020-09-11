@@ -93,6 +93,7 @@ export class ComparisonComponent implements OnInit {
   max_count = 1;
   patterns: Map<string, Map<string, number[]>>;
   selection = new SelectionModel<TextClusterData>(true, []);
+  unit = 100;
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -167,6 +168,7 @@ export class ComparisonComponent implements OnInit {
       this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
       // this.direction = settings.mtv.horizontal ? 'column' : 'row'; // flex layout
       this.doc_colors = settings.mtv.documentColors;
+      this.unit = settings.unit;
     });
   }
   getTaggedText() {
@@ -191,6 +193,7 @@ export class ComparisonComponent implements OnInit {
         let i = 0;
         const zero: number[] = this.html_content.map((): number => 0);
         for (const doc of this.html_content) {
+          const weight = this.unit / docs.documents[i].word_count;
           $(doc['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
             const cluster: string = $(this).attr('data-key');
             const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
@@ -199,7 +202,7 @@ export class ComparisonComponent implements OnInit {
                 pats.get(cluster).set(example, zero.slice());
               }
               const p_val: number[] = pats.get(cluster).get(example);
-              p_val[i] = p_val[i] + 1;
+              p_val[i] = p_val[i] + weight;
             }
           });
           i++;

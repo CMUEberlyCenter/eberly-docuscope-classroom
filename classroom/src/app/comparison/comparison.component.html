@@ -41,7 +41,7 @@
         <ng-container matColumnDef="bar">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let clust;">
-            <div matTooltip="{{clust.count}}: {{clust.counts.join(' vs ')}}" matTooltipPosition="after">
+            <div matTooltip="{{clust.count.toFixed(2)}}: {{clust.count0.toFixed(2)}} vs {{clust.count1.toFixed(2)}}" matTooltipPosition="after">
             <svg xmlns="http://www.w3.org/2000/svg"
                  [style.width]="'80px'" [style.height]="'32px'">
               <desc>{{clust.counts.join(' vs ')}}</desc>
