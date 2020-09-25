@@ -75,7 +75,7 @@ describe('ComparisonComponent', () => {
     settings_spy.getSettings.and.returnValue(asyncData({
       title: 'DocuScope Classroom',
       institution: 'CMU',
-      unit: 100,
+      unit: 2,
       homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
       scatter: {width: 400, height: 400},
       boxplot: {cloud: true},
