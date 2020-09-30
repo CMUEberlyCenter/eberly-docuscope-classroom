@@ -1,7 +1,7 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../../testing';
@@ -45,7 +45,7 @@ describe('TextViewComponent', () => {
   let ngx_spinner_service_spy;
   let tagged_text_service_spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
     tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(

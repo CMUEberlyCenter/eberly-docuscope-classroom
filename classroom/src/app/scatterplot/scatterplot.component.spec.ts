@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing';
 
 import { ScatterplotComponent } from './scatterplot.component';
@@ -19,7 +19,7 @@ describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
   let fixture: ComponentFixture<ScatterplotComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
     const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpusService_spy.getCorpus.and.returnValue(asyncData({
@@ -84,10 +84,10 @@ describe('ScatterplotComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getData', async () => {
+  it('getData', waitForAsync(async() => {
     component.getData();
     await fixture.whenStable().then(() => expect(component.data).toBeDefined());
-  });
+  }));
 
   it('genPoints null', () => {
     component.getData();

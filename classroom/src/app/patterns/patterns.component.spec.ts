@@ -1,6 +1,6 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -25,7 +25,7 @@ describe('PatternsComponent', () => {
   let component: PatternsComponent;
   let fixture: ComponentFixture<PatternsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['start', 'stop']);
     const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpusService_spy.getCorpus.and.returnValue(asyncData({

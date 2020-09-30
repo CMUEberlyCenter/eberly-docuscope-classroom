@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,7 +21,7 @@ describe('HeaderComponent', () => {
   let settings_spy;
   const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
     settings_spy.getSettings.and.returnValue(asyncData({
       title: 'DocuScope Classroom',
@@ -98,7 +98,7 @@ describe('HeaderComponent', () => {
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 
-  it('getSettings', async () => {
+  it('getSettings', waitForAsync(async() => {
     expect(component.institution).toBe('@ CMU');
     component.getSettings();
     fixture.detectChanges();
@@ -120,5 +120,5 @@ describe('HeaderComponent', () => {
     await fixture.whenStable().then(() => {
       expect(component.institution).toBe('');
     });
-  });
+  }));
 });

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CdkDragDrop, CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
@@ -70,7 +70,7 @@ describe('GroupingComponent', () => {
   let snack_spy;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     groups_data_service_spy = jasmine.createSpyObj('GroupsService',

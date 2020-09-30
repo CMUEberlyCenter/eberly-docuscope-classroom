@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -25,7 +25,7 @@ describe('ComparePatternsTableComponent', () => {
   let tcomponent: TestComparePatternsTableComponent;
   let tfixture: ComponentFixture<TestComparePatternsTableComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ComparePatternsTableComponent, TestComparePatternsTableComponent ],
       imports: [

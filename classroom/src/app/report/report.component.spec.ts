@@ -1,6 +1,6 @@
 import { Component, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +24,7 @@ describe('ReportComponent', () => {
   let intro_service_spy;
   let ngx_spinner_service_spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     report_service_spy = jasmine.createSpyObj('ReportService', ['getReports']);

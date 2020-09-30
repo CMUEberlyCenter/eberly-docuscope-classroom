@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +28,7 @@ describe('RankComponent', () => {
   let ds_data_service_spy;
   let corpus_service_spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     ds_data_service_spy = jasmine.createSpyObj('DsDataService', ['getData']);
@@ -85,13 +85,13 @@ describe('RankComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('gets data', async () => {
+  it('gets data', waitForAsync(() => {
     component.ngOnInit();
     return fixture.whenStable().then(() => {
       expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
       expect(ds_data_service_spy.getData).toHaveBeenCalled();
     });
-  });
+  }));
 
   it('on_select', () => {
     component.ngOnInit();

@@ -1,5 +1,5 @@
 import { /* NO_ERRORS_SCHEMA,*/ NgModule } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -13,7 +13,7 @@ describe('NavComponent', () => {
   let fixture: ComponentFixture<NavComponent>;
   let activated_route_spy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     activated_route_spy = jasmine.createSpyObj('activatedRoute', ['paramMap']);
     activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activated_route_spy.snapshot.url = ['stub'];

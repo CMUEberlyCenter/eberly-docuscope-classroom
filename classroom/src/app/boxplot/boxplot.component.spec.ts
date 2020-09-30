@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { TagCloudModule } from 'angular-tag-cloud-module';
@@ -31,7 +31,7 @@ describe('BoxplotComponent', () => {
   let component: BoxplotComponent;
   let fixture: ComponentFixture<BoxplotComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['start', 'stop']);
     const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
     corpusService_spy.getCorpus.and.returnValue(asyncData({
@@ -97,7 +97,7 @@ describe('BoxplotComponent', () => {
     expect(component.selected_category).toBe(null);
   });
 
-  it('bogus rank', async () => {
+  it('bogus rank', waitForAsync(async() => {
     await component.onSelectCategory({
       id: 'bogus',
       name: 'Bogus Data',
@@ -106,5 +106,5 @@ describe('BoxplotComponent', () => {
       uifence: 3.5, lifence: 0.5,
     });
     expect(component.selected_category).toBeTruthy();
-  });
+  }));
 });
