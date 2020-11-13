@@ -63,4 +63,8 @@ export class RankComponent implements OnInit {
   on_select(event): void {
     this.category = this.dsmap.get(this.selected_category);
   }
+  onSelectCategory(category: string): void {
+    this.selected_category = category;
+    this.category = this.dsmap.get(category);
+  }
 }

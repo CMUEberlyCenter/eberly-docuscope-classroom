@@ -15,6 +15,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+// import { MatSelectModule} from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
@@ -43,6 +45,7 @@ import { RankGraphComponent } from './rank-graph/rank-graph.component';
 import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
+import { CategorySelectComponent } from './category-select/category-select.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +67,7 @@ import { TextViewComponent } from './text-view/text-view.component';
     HeaderComponent,
     ComparisonComponent,
     ComparePatternsTableComponent,
+    CategorySelectComponent,
   ],
   entryComponents: [
     AboutComponent,
@@ -86,6 +90,8 @@ import { TextViewComponent } from './text-view/text-view.component';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
+    // MatSelectModule,
     MatSidenavModule,
     MatSnackBarModule,
     MatSortModule,

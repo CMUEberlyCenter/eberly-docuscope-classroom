@@ -7,12 +7,13 @@
     <mat-card-subtitle>The bar represents the difference from the median value and is the average number of instances per {{unit}} words.</mat-card-subtitle>
     <mat-card-content *ngIf="data">
       <aside class="select_category_box">
-        <mat-form-field>
+        <app-category-select [selectedCategory]="selected_category" (selectedCategoryChange)="onSelectCategory($event)"></app-category-select>
+        <!-- <mat-form-field>
           <mat-label for="select_category">Category</mat-label>
           <select matNativeControl required id="select_category" [(ngModel)]="selected_category" (ngModelChange)="on_select($event)">
             <option *ngFor="let c of categories" [value]="c.id">{{c.name}}</option>
           </select>
-        </mat-form-field>
+        </mat-form-field> -->
       </aside>
       <article>
         <app-rank-graph *ngIf="category" [data]="data" [unit]="unit" [category]="category"></app-rank-graph>
