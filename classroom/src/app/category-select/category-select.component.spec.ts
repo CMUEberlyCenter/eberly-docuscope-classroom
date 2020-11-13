@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CategorySelectComponent } from './category-select.component';
@@ -8,7 +9,8 @@ describe('CategorySelectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CategorySelectComponent ]
+      declarations: [ CategorySelectComponent ],
+      imports: [ HttpClientTestingModule ]
     })
     .compileComponents();
   });
