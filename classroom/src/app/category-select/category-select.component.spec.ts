@@ -11,8 +11,7 @@ describe('CategorySelectComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ CategorySelectComponent ],
       imports: [ HttpClientTestingModule ]
-    })
-    .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

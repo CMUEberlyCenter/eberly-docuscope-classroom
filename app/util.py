@@ -101,10 +101,9 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     if ds_stats.empty:
         logging.error("Failed to retrieve stats for corpus: %s", documents)
         raise HTTPException(
-            detail="Document(s) submitted for analysis are " +
-            "not tagged, please close this window and wait " +
-            "a couple of minutes. " +
-            "If problem persists, please contact technical support.",
+            detail=(f"Document(s) submitted for analysis are not tagged, "
+                    f"please close this window and wait a couple of minutes. "
+                    f"If problem persists, please contact technical support."),
             status_code=HTTP_503_SERVICE_UNAVAILABLE)
     ds_dictionaries = ds_stats.loc['dictionary_id'].unique()
     if len(ds_dictionaries) != 1:
@@ -124,6 +123,9 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     tones = DocuScopeTones(frame.ds_dictionary)
     data = {}
     tone_lats = []
+    # TODO: add leveled stats
+    # TODO: move this analysis to tagging
+    # TODO: read leveled JSON common dictionary
     if frame.level == LevelEnum.dimension:
         tone_lats = tones.map_dimension_to_lats().items()
     elif frame.level == LevelEnum.cluster:

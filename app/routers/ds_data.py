@@ -11,8 +11,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from util import get_db_session, get_stats, LevelFrame
-from response import DictionaryInformation, ERROR_RESPONSES
+from util import get_db_session, get_stats
+from response import DictionaryInformation, ERROR_RESPONSES, LevelFrame
 
 router = APIRouter()
 
