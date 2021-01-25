@@ -5,14 +5,14 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from pandas import DataFrame, Series
-import pandas
+from pandas import DataFrame, Series, merge, concat
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from util import get_db_session, get_stats
-from response import DictionaryInformation, ERROR_RESPONSES, LevelFrame
+from lat_frame import LAT_FRAME
+from util import get_db_session, get_documents
+from response import ERROR_RESPONSES
 
 router = APIRouter()
 
@@ -27,9 +27,9 @@ class DocumentData(BaseModel):
         """ Configuration settings for DocumentData. """
         extra = 'allow'
 
-class CategoryData(DictionaryInformation):
+class CategoryData(BaseModel):
     """ Schema for category metadata. """
-    #id: str = ...
+    id: str = ...
     #name: str = ...
     #description: str = None
     q1: float = ...
@@ -48,43 +48,44 @@ class DocuScopeData(BaseModel):
     categories: List[CategoryData] = []
     data: List[DocumentData] = []
 
-def calculate_data(stats: LevelFrame) -> DocuScopeData:
+def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
     """Generate the boxplot data for this request."""
-    sframe = DataFrame.from_dict(stats.frame)
-    frame = sframe.drop('title').drop('ownedby', errors='ignore')
-    frame = frame.apply(lambda x: x.divide(x['total_words'])
-                        if x['total_words'] else Series(0, index=x.index))
-    frame = frame.drop('total_words').drop('Other', errors='ignore')
-    frame = frame.transpose()
-    frame = frame.fillna(0)
-    quantiles = frame.quantile(q=[0, 0.25, 0.5, 0.75, 1])
-    iqr = quantiles.loc[0.75] - quantiles.loc[0.25]
-    upper_inner_fence = quantiles.loc[0.75] + 1.5 * iqr
-    lower_inner_fence = (quantiles.loc[0.25] - 1.5 * iqr).apply(lambda x: 0 if x < 0 else x)
-    sframe = sframe.transpose()
-    dataf = pandas.concat([frame, sframe.loc[:, ['total_words', 'title', 'ownedby']]], axis=1)
-    #foutliers = frame[((frame < lower_inner_fence) | (frame > upper_inner_fence)).any(axis=1)]
-    #logging.warning(foutliers)
-    quants = DataFrame({
-        "q1": quantiles.loc[0.25],
-        "q2": quantiles.loc[0.5],
-        "q3": quantiles.loc[0.75],
-        "min": quantiles.loc[0],
-        "max": quantiles.loc[1],
+    data = DocuScopeData()
+    data.assignment = ", ".join(info.loc['assignment_name'].unique())
+    data.course = ", ".join(info.loc['course_name'].unique())
+    data.instructor = ", ".join(info.loc['instructor_name'].unique())
+    ### Categories ###
+    hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
+    hdata['lat'] = hdata['lat'].astype("string") # fix typing from merge
+    # Columns: category, subcategory, cluster, dimension, lat, uuid+
+    docs = range(5, len(hdata.columns))
+    cstats = concat([hdata.iloc[:, [i, *docs]].groupby(c).sum()
+                     for i, c in enumerate(hdata.columns[0:3])])
+    nstats = cstats / info.loc['total_words'].astype('Int64')
+    nstats = nstats.fillna(0)
+    quants = nstats.transpose().quantile(q=[0, 0.25, 0.5, 0.75, 1])
+    mins = quants.loc[0]
+    maxs = quants.loc[1]
+    iqr = quants.loc[0.75] - quants.loc[0.25]
+    upper_inner_fence = quants.loc[0.75] + 1.5 * iqr
+    upper_inner_fence = upper_inner_fence.clip(lower=mins, upper=maxs)
+    lower_inner_fence = quants.loc[0.25] - 1.5 * iqr
+    lower_inner_fence = lower_inner_fence.clip(lower=mins, upper=maxs)
+    categories = DataFrame({
+        "q1": quants.loc[0.25],
+        "q2": quants.loc[0.5],
+        "q3": quants.loc[0.75],
+        "min": quants.loc[0],
+        "max": quants.loc[1],
         "uifence": upper_inner_fence,
         "lifence": lower_inner_fence
     }).fillna(0)
-    data = DocuScopeData()
-    if 'assignments' in stats.__fields_set__:
-        data.assignment = ", ".join(stats.assignments)
-    if 'courses' in stats.__fields_set__:
-        data.course = ", ".join(stats.courses)
-    if 'instructors' in stats.__fields_set__:
-        data.instructor = ", ".join(stats.instructors)
-    qud = quants.to_dict('index')
-    data.categories = [{**di, **qud[di['id']]} for di in stats.categories]
+    data.categories = [{'id': i, **d} for i, d in categories.iterrows()]
+
     # want frequency not raw
-    data.data = [{'id': k, **v} for k, v in dataf.to_dict('index').items()]
+    data.data = [{'id': k, **v}
+                 for k, v in concat([info, nstats]).to_dict().items()]
+
     logging.info("Returned data: %s", data)
     return data
 
@@ -98,7 +99,8 @@ async def get_ds_data(corpus: List[UUID],
                             status_code=HTTP_400_BAD_REQUEST)
     logging.info("Metadata request for %s", corpus)
     try:
-        data = calculate_data(get_stats(corpus, db_session))
+        stats, info = get_documents(corpus, db_session)
+        data = calculate_data(stats, info)
     except Exception as exp:
         traceback.print_exc()
         logging.error(exp)

@@ -54,6 +54,7 @@ class Filesystem(BASE): #pylint: disable=R0903
         return "<File(id='{}', state='{}'>"\
             .format(self.id, self.state)
 
+#depricate this
 class DSDictionary(BASE): #pylint: disable=R0903
     """The valid dictionaries in the docuscope database."""
     __tablename__ = 'dictionaries'
@@ -72,8 +73,8 @@ class Assignment(BASE): #pylint: disable=R0903
 
     id = Column(Integer, primary_key=True)
     oli_id = Column(VARBINARY(20))
-    dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
-    Dictionary = relationship("DSDictionary")
+    #dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
+    #Dictionary = relationship("DSDictionary")
     name = Column(TINY_TEXT)
     course = Column(TINY_TEXT)
     instructor = Column(TINY_TEXT)

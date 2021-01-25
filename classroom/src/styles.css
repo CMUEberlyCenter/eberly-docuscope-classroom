@@ -3,6 +3,7 @@
 
 /* angular material */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+/*@import "~@circlon/angular-tree-component/css/angular-tree-component.css";*/
 
 .cluster_id {
   background: lightgrey;

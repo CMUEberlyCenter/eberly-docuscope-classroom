@@ -1,6 +1,6 @@
 """ General utility functions for DocuScope classroom """
 import logging
-from typing import List
+from typing import List, Tuple
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -13,7 +13,8 @@ from starlette.status import \
 from sqlalchemy.orm import Session
 
 from ds_db import Assignment, DSDictionary, Filesystem
-from ds_tones import DocuScopeTones
+#from ds_tones import DocuScopeTones
+from lat_frame import LAT_FRAME
 from response import LevelEnum, LevelFrame
 
 def get_db_session(request: Request) -> Session:
@@ -36,7 +37,7 @@ def queue_length(db_session: Session):
 def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
                          db_session: Session):
     """ Raises HTTPExceptions when the status is problematic. """
-    logging.warning('%s, %s, %s', status, uuid, filename)
+    logging.debug('%s, %s, %s', status, uuid, filename)
     if status == 'error':
         logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
         raise HTTPException(
@@ -60,10 +61,11 @@ def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
             detail=f"No tagging data for {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
-def get_documents(documents: List[UUID], db_session: Session) -> DataFrame:
+def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame, DataFrame]:
     """ Retrieve the documents and preprocess each one. """
     docs = {}
-    for doc, fullname, ownedby, filename, doc_id, state, ds_dictionary, \
+    info = {}
+    for doc, fullname, ownedby, filename, doc_id, state, \
         a_name, a_course, a_instructor in \
         db_session.query(Filesystem.processed,
                          Filesystem.fullname,
@@ -71,33 +73,35 @@ def get_documents(documents: List[UUID], db_session: Session) -> DataFrame:
                          Filesystem.name,
                          Filesystem.id,
                          Filesystem.state,
-                         DSDictionary.name,
+                         #DSDictionary.name,
                          Assignment.name,
                          Assignment.course,
                          Assignment.instructor)\
                   .filter(Filesystem.id.in_(documents))\
-                  .filter(Assignment.id == Filesystem.assignment)\
-                  .filter(DSDictionary.id == Assignment.dictionary):
+                  .filter(Assignment.id == Filesystem.assignment):#\
+                  #.filter(DSDictionary.id == Assignment.dictionary):
         document_state_check(state, doc_id, filename, doc, db_session)
         ser = Series({key: val['num_tags'] for key, val in
                       doc['ds_tag_dict'].items()})
-        ser['total_words'] = doc['ds_num_word_tokens']
-        #ser['doc_id'] = doc_id
-        ser['title'] = fullname if ownedby == 'student' and fullname \
+        desc = Series()
+        desc['total_words'] = doc['ds_num_word_tokens']
+        desc['doc_id'] = doc_id
+        desc['title'] = fullname if ownedby == 'student' and fullname \
             else '.'.join(filename.split('.')[0:-1])
-        ser['ownedby'] = ownedby
-        ser['dictionary_id'] = ds_dictionary
-        ser['course_name'] = a_course
-        ser['assignment_name'] = a_name
-        ser['instructor_name'] = a_instructor
+        desc['ownedby'] = ownedby
+        desc['dictionary_id'] = 'default' #ds_dictionary
+        desc['course_name'] = a_course
+        desc['assignment_name'] = a_name
+        desc['instructor_name'] = a_instructor
         docs[doc_id] = ser
-    return DataFrame(data=docs)
+        info[doc_id] = desc
+    return DataFrame(data=docs, dtype="Int64"), DataFrame(data=info)
 
 def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     """Retrieve the tagging statistics for the given set of documents."""
     logging.info("Generating Frame for %s", documents)
     frame = LevelFrame(corpus=documents)
-    ds_stats = get_documents(documents, db_session)
+    ds_stats, ds_info = get_documents(documents, db_session)
     if ds_stats.empty:
         logging.error("Failed to retrieve stats for corpus: %s", documents)
         raise HTTPException(
@@ -105,7 +109,8 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
                     f"please close this window and wait a couple of minutes. "
                     f"If problem persists, please contact technical support."),
             status_code=HTTP_503_SERVICE_UNAVAILABLE)
-    ds_dictionaries = ds_stats.loc['dictionary_id'].unique()
+    # TODO: remove dictionary check as only 1 is used.
+    ds_dictionaries = ds_info.loc['dictionary_id'].unique()
     if len(ds_dictionaries) != 1:
         logging.error("Inconsistant dictionaries in corpus %s", documents)
         raise HTTPException(
@@ -114,13 +119,14 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
                     f"({', '.join(ds_dictionaries)})."),
             status_code=HTTP_400_BAD_REQUEST)
     frame.ds_dictionary = ds_dictionaries[0]
-    frame.courses = list(ds_stats.loc['course_name'].unique())
-    frame.assignments = list(ds_stats.loc['assignment_name'].unique())
-    frame.instructors = list(ds_stats.loc['instructor_name'].unique())
-    ds_info = get_ds_info(frame.ds_dictionary, db_session)
-    frame.categories = ds_info['cluster']
+    frame.courses = list(ds_info.loc['course_name'].unique())
+    frame.assignments = list(ds_info.loc['assignment_name'].unique())
+    frame.instructors = list(ds_info.loc['instructor_name'].unique())
+    #ds_info = get_ds_info("default", db_session)
+    #frame.categories = ds_info['cluster']
     ds_stats = ds_stats.transpose()
-    tones = DocuScopeTones(frame.ds_dictionary)
+    logging.debug(ds_stats)
+    #tones = DocuScopeTones() #frame.ds_dictionary)
     data = {}
     tone_lats = []
     # TODO: add leveled stats
@@ -135,9 +141,9 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
         data[category] = sumframe.transpose().sum()
     logging.debug(data)
     dframe = DataFrame(data)
-    dframe['total_words'] = ds_stats['total_words']
-    dframe['title'] = ds_stats['title']
-    dframe['ownedby'] = ds_stats['ownedby']
+    dframe['total_words'] = ds_info['total_words']
+    dframe['title'] = ds_info['title']
+    dframe['ownedby'] = ds_info['ownedby']
     logging.debug(dframe)
     frame.frame = dframe.transpose().to_dict()
     return frame

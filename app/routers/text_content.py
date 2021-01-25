@@ -15,7 +15,9 @@ from starlette.status import \
     HTTP_503_SERVICE_UNAVAILABLE
 
 from ds_db import Assignment, Filesystem
-from ds_tones import DocuScopeTones, ToneParser
+#from ds_tones import DocuScopeTones
+from lat_frame import LAT_FRAME
+from tone_parser import ToneParser
 from response import AssignmentData, DictionaryInformation, ERROR_RESPONSES
 from util import get_db_session, get_ds_info
 
@@ -71,9 +73,9 @@ def get_tagged_text(file_id: UUID,
     html_content = doc['ds_output']
     html_content = re.sub(r'(\n|\s)+', ' ', html_content)
     html = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p"
-    tones = DocuScopeTones(doc['ds_dictionary'])
+    #tones = DocuScopeTones(doc['ds_dictionary'])
     buf = io.StringIO()
-    parser = ToneParser(tones, buf)
+    parser = ToneParser(LAT_FRAME, buf)
     parser.feed(html)
     parser.close()
     res.html_content = buf.getvalue()

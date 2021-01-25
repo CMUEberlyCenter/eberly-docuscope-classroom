@@ -16,7 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-// import { MatSelectModule} from '@angular/material/select';
+// import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
@@ -25,6 +25,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TagCloudModule } from 'angular-tag-cloud-module';
+//import { TreeModule } from '@circlon/angular-tree-component';
 
 import { AboutComponent } from './about/about.component';
 import { AppComponent } from './app.component';
@@ -99,7 +100,8 @@ import { CategorySelectComponent } from './category-select/category-select.compo
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
-    TagCloudModule
+    TagCloudModule,
+    //TreeModule
   ],
   providers: [
   ],

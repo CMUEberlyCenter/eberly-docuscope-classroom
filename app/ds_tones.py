@@ -11,12 +11,16 @@ except ImportError:
     import json
 import logging
 import os
-from typing import List
+from typing import Dict, List
 from fastapi import HTTPException
-#from marshmallow import Schema, fields, post_load, ValidationError
+from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from default_settings import Config
+
+class DocuScopeToneTree(BaseModel):
+    """A DocuScope Tone tree."""
+    __root__: Dict[str, Dict[str, List[str]]]
 
 class DocuScopeTone(BaseModel): #pylint: disable=R0903
     """A DocuScope Tone entry."""
@@ -29,55 +33,49 @@ class DocuScopeTone(BaseModel): #pylint: disable=R0903
         """Returns the index lat (first one) in the lats."""
         return self.lats[0]
 
-#class DocuScopeToneSchema(Schema):
-#    """A Schema for validating tones."""
-#    cluster = fields.String()
-#    dimension = fields.String()
-#    lats = fields.List(fields.String())
-
-#    @post_load
-#    def make_lat(self, data): #pylint: disable=R0201
-#        """Convert json data to a DocuScopeTone object."""
-#        return DocuScopeTone(**data)
-#DST_SCHEMA = DocuScopeToneSchema(many=True)
-
-def get_local_tones(dictionary_name="default"):
+def get_local_tones(dictionary_name="default") -> List[DocuScopeTone]:
     """Retrieve the DocuScope tones data for a dictionary from a local file."""
     try:
         tone_path = os.path.join(Config.DICTIONARY_HOME,
-                                 "{}_tones.json.gz".format(dictionary_name))
+                                 f"{dictionary_name}_tones.json.gz")
         with gzip.open(tone_path, 'rt') as jin:
             data = json.loads(jin.read())
     except ValueError as enc_error:
         logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail="Error reading {}_tones.json.gz: {}".format(
-                                dictionary_name, enc_error)) from enc_error
+                            detail=f"Error reading {dictionary_name}_tones.json.gz: {enc_error}") from enc_error
     except OSError as os_error:
         logging.error("Error reading %s tones: %s", dictionary_name, os_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail="Error reading {}_tones.json.gz: {}".format(
-                                dictionary_name, os_error)) from os_error
+                            detail=f"Error reading {dictionary_name}_tones.json.gz: {os_error}") from os_error
     try:
-        tones = [DocuScopeTone(**d) for d in data]
+        #tones = [DocuScopeTone(**d) for d in data]
+        tones = DocuScopeToneTree.parse_obj(data)
     except ValidationError as err:
         logging.error("Validation Error parsing tones for %s", dictionary_name)
         raise HTTPException(
             status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Errors in parsing tones for {}: {}".format(dictionary_name,
-                                                               err)) from err
+            detail=f"Errors in parsing tones for {dictionary_name}: {err}") from err
     except ValueError as v_err:
         logging.error("Invalid JSON returned for %s", dictionary_name)
         logging.error("%s", v_err)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail="Errors decoding tones for {}: {}".format(
-                                dictionary_name, v_err)) from v_err
+                            detail=f"Errors decoding tones for {dictionary_name}: {v_err}") from v_err
     if not tones:
         logging.error("No tones were retrieved for %s.", dictionary_name)
         raise HTTPException(
             status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="No tones were retrieved for {}.".format(dictionary_name))
-    return tones
+            detail="No tones were retrieved for {dictionary_name}.")
+    return [DocuScopeTone(cluster=cat, dimension=dim, lats=lats)
+            for (cat,dims) in data.items()
+            for dim,lats in dims.items()]
+    #return tones
+
+def get_tones_frame(dictionary_name="default") -> DataFrame:
+    tones = get_local_tones(dictionary_name)
+    return DataFrame([{"cluster": tone.cluster, "dimension": tone.dimension, "lat": lat} for tone in tones for lat in tone.lats], dtype="string")
+
+TONES_FRAME = get_tones_frame()
 
 class DocuScopeTones():
     """A collection of DocuScope tones/lats."""
@@ -158,39 +156,3 @@ class DocuScopeTones():
 #        if not self._dim_to_clust:
 #            self._dim_to_clust = self.map_dimension_to_cluster()
 #        return self._dim_to_clust[dimension]
-
-class ToneParser(HTMLParser):
-    """ An HTML parser that converts data-key=<lat> to <cluster>. """
-    def __init__(self, tones: DocuScopeTones, out: io.StringIO):
-        super().__init__()
-        self.tones = tones
-        self.out = out
-    def error(self, message):
-        """On error: raise the error."""
-        logging.error(message)
-        raise RuntimeError(message)
-    def handle_starttag(self, tag, attrs):
-        """On start tag: update data-key to cluster name."""
-        self.out.write(f"<{tag}")
-        for attr in attrs:
-            if attr[0] == 'data-key':
-                cluster = self.tones.get_lat_cluster(attr[1])
-                if cluster != 'Other':
-                    self.out.write(f' {attr[0]}="{cluster}"')
-            else:
-                self.out.write(f' {attr[0]}="{attr[1]}"'
-                               if len(attr) > 1 else
-                               f' {attr[0]}')
-        self.out.write(">")
-    def handle_endtag(self, tag):
-        """On end tag: preserve end tag."""
-        self.out.write(f"</{tag}>")
-    def handle_data(self, data):
-        """On data: preserve data."""
-        self.out.write(data)
-    def handle_comment(self, data):
-        """On comment: preserve comments."""
-        self.out.write(f"<!-- {data} -->")
-    def handle_decl(self, decl):
-        """On declaration: preserve declaration."""
-        self.out.write(f"<!{decl}>")

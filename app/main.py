@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker
 from default_settings import Config
 from routers import document, ds_data, generate_reports, groups, patterns, text_content
 
-# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Setup database sesson manager
 ENGINE = create_engine(
@@ -80,10 +80,12 @@ async def add_custom_header(request, call_next):
     if response.status_code == 404:
         return FileResponse('static/index.html')
     return response
+
 @app.exception_handler(404)
 def not_found(_request, _exc):
     """Handler for 404 error which instead returns index.html"""
     return FileResponse('static/index.html')
+
 app.mount("/classroom", StaticFiles(directory="static", html=True), name="static")
 
 #if __name__ == '__main__':

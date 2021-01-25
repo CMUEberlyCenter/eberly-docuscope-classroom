@@ -11,8 +11,10 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from ds_db import Assignment, Filesystem
-from ds_tones import DocuScopeTones, ToneParser
+#from ds_tones import DocuScopeTones
+from lat_frame import LAT_FRAME
 from response import AssignmentData, ERROR_RESPONSES
+from tone_parser import ToneParser
 from util import document_state_check, get_db_session, get_ds_info
 
 router = APIRouter()
@@ -46,7 +48,7 @@ async def get_documents(corpus: List[UUID],
                             status_code=HTTP_400_BAD_REQUEST)
     logging.info("Document request for %s", corpus)
     ds_dict = None
-    tones = None
+    #tones = None
     docs = []
     course = set()
     assignment = set()
@@ -74,10 +76,10 @@ async def get_documents(corpus: List[UUID],
         assignment.add(a_name)
         html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
         html = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
-        if tones is None:
-            tones = DocuScopeTones(ds_dict)
+        #if tones is None:
+        #    tones = DocuScopeTones(ds_dict)
         buf = io.StringIO()
-        parser = ToneParser(tones, buf)
+        parser = ToneParser(LAT_FRAME, buf)
         parser.feed(html)
         parser.close()
         docs.append(Document(

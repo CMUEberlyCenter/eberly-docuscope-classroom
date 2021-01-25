@@ -21,11 +21,6 @@ class DictionaryInformation(BaseModel): #pylint: disable=too-few-public-methods
     # included: bool = True
     # max?: float # this would be useful for rank, scatter might benefit as well
 
-#class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
-#    """Schema for dictionary information."""
-#    cluster: List[DictionaryInformation] = []
-#    dimension: List[DictionaryInformation] = []
-
 class LevelEnum(str, Enum):
     """Enumeration of the possible analysis levels."""
     dimension = "Dimension"
@@ -39,7 +34,7 @@ class LevelFrame(BaseModel): #pylint: disable=too-few-public-methods
     assignments: List[str] = []
     courses: List[str] = []
     instructors: List[str] = []
-    categories: List[DictionaryInformation] = None
+    #categories: List[DictionaryInformation] = None
     frame: dict = None
 
 class AssignmentData(BaseModel): #pylint: disable=too-few-public-methods
@@ -47,7 +42,7 @@ class AssignmentData(BaseModel): #pylint: disable=too-few-public-methods
     assignment: str = None
     course: str = None
     instructor: str = None
-    categories: List[DictionaryInformation] = None
+    #categories: List[DictionaryInformation] = None
 
 ERROR_RESPONSES = {
     HTTP_400_BAD_REQUEST: {
