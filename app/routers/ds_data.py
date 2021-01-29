@@ -61,6 +61,7 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
     docs = range(5, len(hdata.columns))
     cstats = concat([hdata.iloc[:, [i, *docs]].groupby(c).sum()
                      for i, c in enumerate(hdata.columns[0:3])])
+    cstats = cstats.drop('Other') # Drop Other cluster
     nstats = cstats / info.loc['total_words'].astype('Int64')
     nstats = nstats.fillna(0)
     quants = nstats.transpose().quantile(q=[0, 0.25, 0.5, 0.75, 1])

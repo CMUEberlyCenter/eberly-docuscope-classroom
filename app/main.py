@@ -73,6 +73,10 @@ app.include_router(generate_reports.router)
 app.include_router(text_content.router)
 
 ## Serve static files.
+@app.get("/common_dictionary")
+async def common_dictionary():
+    return FileResponse('dictionaries/common_dict.json')
+
 @app.middleware("http")
 async def add_custom_header(request, call_next):
     """Serve the classroom web application from static."""
