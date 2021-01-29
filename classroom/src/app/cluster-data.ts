@@ -1,3 +1,4 @@
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
 import { CategoryPatternData, PatternData } from './patterns.service';
 
 export function instance_count(patterns: PatternData[]): number {

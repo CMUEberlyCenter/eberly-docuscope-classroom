@@ -14,6 +14,7 @@ import { defer } from 'rxjs';
 
 /** Create async observable that emits-once and completes
  *  after a JS engine turn */
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function asyncData<T>(data: T) {
   return defer(() => Promise.resolve(data));
 }

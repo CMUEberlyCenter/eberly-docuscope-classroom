@@ -10,6 +10,7 @@ export class PatternData {
   pattern: string;
   count: number;
 }
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function pattern_compare(a: PatternData, b: PatternData): number {
   if (a.count === b.count) {
     if (a.pattern < b.pattern) {
