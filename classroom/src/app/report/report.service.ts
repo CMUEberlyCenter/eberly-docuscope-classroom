@@ -29,15 +29,15 @@ export class ReportService {
   getReports(corpus: string[], intro: string, stv_intro: string): Observable<Blob> {
     this.messageService.add('Generating Reports...');
     const query: ReportsSchema = {
-      corpus: corpus,
-      intro: intro,
-      stv_intro: stv_intro
+      corpus,
+      intro,
+      stv_intro
     };
     return this.http.post<Blob>(this._server, query,
       {responseType: 'blob' as 'json'})
       .pipe(
         tap(() => this.messageService.add('Report Generation Successful!')),
-        catchError(this.handleError('getReports', <Blob>{}))
+        catchError(this.handleError('getReports', {} as Blob))
       );
   }
 }

@@ -98,7 +98,7 @@ describe('HeaderComponent', () => {
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 
-  it('getSettings', waitForAsync(async() => {
+  it('getSettings', waitForAsync(async () => {
     expect(component.institution).toBe('@ CMU');
     component.getSettings();
     fixture.detectChanges();

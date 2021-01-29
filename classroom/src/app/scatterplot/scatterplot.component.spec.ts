@@ -32,12 +32,12 @@ describe('ScatterplotComponent', () => {
     const dataService_spy = jasmine.createSpyObj('DsDataService', ['getData']);
     dataService_spy.getData.and.returnValue(asyncData({
       categories: [
-        {'q1': .1, 'q2': .2, 'q3': .3, 'min': 0, 'max': .4,
-          'uifence': .6, 'lifence': 0,
-          'id': 'STUB_X', 'name': 'Stub X'},
-        {'q1': .2, 'q2': .3, 'q3': .4, 'min': 0, 'max': .5,
-          'uifence': .6, 'lifence': 0.1,
-          'id': 'STUB_Y', 'name': 'Stub Y'}],
+        {q1: .1, q2: .2, q3: .3, min: 0, max: .4,
+          uifence: .6, lifence: 0,
+          id: 'STUB_X', name: 'Stub X'},
+        {q1: .2, q2: .3, q3: .4, min: 0, max: .5,
+          uifence: .6, lifence: 0.1,
+          id: 'STUB_Y', name: 'Stub Y'}],
       data: [{
         id: 'bogus_index', text: 'bogus text', ownedby: 'student',
         bogus: 0.5, STUB_X: 0.1, STUB_Y: 0.2, total_words: 2
@@ -84,7 +84,7 @@ describe('ScatterplotComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getData', waitForAsync(async() => {
+  it('getData', waitForAsync(async () => {
     component.getData();
     await fixture.whenStable().then(() => expect(component.data).toBeDefined());
   }));

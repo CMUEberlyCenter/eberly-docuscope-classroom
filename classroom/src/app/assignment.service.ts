@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 /*
 Service for passing descriptive information about the assignment:
 - Assignment name
@@ -8,9 +9,7 @@ Need a service as the relevant information is packed into various other request
 responses and needs to be passed to the header.
 */
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, Subject } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 import { AssignmentData } from './assignment-data';
 

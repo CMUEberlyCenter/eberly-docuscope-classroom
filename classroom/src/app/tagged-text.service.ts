@@ -38,7 +38,7 @@ export class TaggedTextService {
           .pipe(
             publishReplay(1),
             refCount(),
-            catchError(this.handleError('getTaggedText', <TextContent>{})))
+            catchError(this.handleError('getTaggedText', {} as TextContent)))
       );
     }
     return this.tag_data.get(doc_id);

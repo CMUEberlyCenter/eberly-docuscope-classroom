@@ -27,7 +27,9 @@ export class RankGraphComponent implements OnChanges, OnInit {
     this.ds_data = ds_data;
     this._max_cache = null;
   }
-  get data(): DocuScopeData { return this.ds_data; }
+  get data(): DocuScopeData {
+    return this.ds_data;
+  }
   @Input() category: CategoryData;
   @Input() unit: number;
   @ViewChild('rankSort') sort: MatSort;
@@ -60,7 +62,9 @@ export class RankGraphComponent implements OnChanges, OnInit {
     }
   }
 
-  get median(): number { return this.unit * this.category.q2; }
+  get median(): number {
+    return this.unit * this.category.q2;
+  }
 
   get max_value(): number {
     if (!this._max_cache) {
@@ -82,8 +86,12 @@ export class RankGraphComponent implements OnChanges, OnInit {
     const sign: string = diff >= 0 ? 'more' : 'less';
     return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
   }
-  get left(): number { return this.options.margins.left; }
-  get right(): number { return this.options.width - this.options.margins.right; }
+  get left(): number {
+    return this.options.margins.left;
+  }
+  get right(): number {
+    return this.options.width - this.options.margins.right;
+  }
   get x() {
     return d3.scaleLinear().domain([0, this.max_value])
       .range([this.left, this.right]).nice().clamp(true);

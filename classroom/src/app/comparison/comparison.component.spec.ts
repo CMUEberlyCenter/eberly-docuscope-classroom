@@ -147,7 +147,7 @@ describe('ComparisonComponent', () => {
     // TODO: test if routed
   });
 
-  it('getCorpus too many', waitForAsync(async() => {
+  it('getCorpus too many', waitForAsync(async () => {
     corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b', 'c']));
     await component.getCorpus();
     expect(component.corpus).toEqual(['a', 'b']);

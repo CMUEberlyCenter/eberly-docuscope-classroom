@@ -16,7 +16,8 @@
         </mat-form-field> -->
       </aside>
       <article>
-        <app-rank-graph *ngIf="category" [data]="data" [unit]="unit" [category]="category"></app-rank-graph>
+        <app-rank-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category"></app-rank-graph>
+        <ng-template #noData><mat-error>No data for the selected category: {{selected_category}}</mat-error></ng-template>
         <!--<google-chart #rankTable *ngIf="rank_data"
             [type]="'Table'"
             [columnNames]="['Name', 'Frequency']"

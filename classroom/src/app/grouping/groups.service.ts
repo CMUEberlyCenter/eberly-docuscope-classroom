@@ -29,9 +29,9 @@ export class GroupsService {
 
   getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
     return this.http.post<GroupsData>(this.groups_server,
-      {corpus: corpus, group_size: group_size})
-      .pipe(catchError(this.handleError('getGroupsData', <GroupsData>{
+      {corpus, group_size})
+      .pipe(catchError(this.handleError('getGroupsData', {
         groups: [[]], grp_qualities: [], quality: 0
-      })));
+      } as GroupsData)));
   }
 }

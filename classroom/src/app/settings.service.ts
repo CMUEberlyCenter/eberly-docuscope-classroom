@@ -11,7 +11,7 @@ interface Settings {
   scatter: {width: number; height: number};
   boxplot: {cloud: boolean};
   stv: {max_clusters: number};
-  mtv: {horizontal: boolean, documentColors: string[]};
+  mtv: {horizontal: boolean; documentColors: string[]};
 }
 
 const default_settings: Settings = {

@@ -97,7 +97,7 @@ describe('BoxplotComponent', () => {
     expect(component.selected_category).toBe(null);
   });
 
-  it('bogus rank', waitForAsync(async() => {
+  it('bogus rank', waitForAsync(async () => {
     await component.onSelectCategory({
       id: 'bogus',
       name: 'Bogus Data',

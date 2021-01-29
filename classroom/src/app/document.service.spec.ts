@@ -40,8 +40,8 @@ describe('DocumentService', () => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule, MatSnackBarModule ],
       providers: [
-         DocumentService,
-         { provide: HttpErrorHandlerService, useValue: errorServiceMock }
+        DocumentService,
+        { provide: HttpErrorHandlerService, useValue: errorServiceMock }
       ]
     });
     service = TestBed.inject(DocumentService);

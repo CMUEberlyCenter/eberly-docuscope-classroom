@@ -13,8 +13,12 @@ export class PatternClusterData implements ClusterData {
   name: string;
   description?: string;
   patterns: PatternData[];
-  get count(): number { return instance_count(this.patterns); }
-  get pattern_count(): number { return this.patterns.length; }
+  get count(): number {
+ return instance_count(this.patterns);
+}
+  get pattern_count(): number {
+ return this.patterns.length;
+}
   constructor(cluster: CategoryPatternData) {
     this.id = cluster.category.id;
     this.name = cluster.category.name;

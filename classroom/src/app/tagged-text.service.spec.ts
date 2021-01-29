@@ -29,7 +29,7 @@ describe('TaggedTextService', () => {
       text_id: 'fubar',
       word_count: 4,
       html_content: '<p>a somewhat short sentence.</p>',
-      dictionary: {'short': {dimension: 'descriptive', cluster: 'adjective'}},
+      dictionary: {short: {dimension: 'descriptive', cluster: 'adjective'}},
       dict_info: {}
     };
 

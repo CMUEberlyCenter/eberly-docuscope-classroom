@@ -26,7 +26,7 @@ export function pattern_compare(a: PatternData, b: PatternData): number {
 export class ComparePatternData extends PatternData {
   pattern: string;
   counts: number[];
-  /*get count(): number {
+  /* get count(): number {
     return this.counts.reduce((t: number, c: number): number => t + c, 0);
   }*/
   constructor(pattern: string, counts: number[]) {
@@ -35,8 +35,12 @@ export class ComparePatternData extends PatternData {
     this.counts = counts;
     this.count = this.counts.reduce((t: number, c: number): number => t + c, 0);
   }
-  get count0(): number { return this.counts[0]; }
-  get count1(): number { return this.counts[1]; }
+  get count0(): number {
+    return this.counts[0];
+  }
+  get count1(): number {
+    return this.counts[1];
+  }
 }
 
 export class CategoryPatternData {

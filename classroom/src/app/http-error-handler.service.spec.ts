@@ -45,31 +45,31 @@ describe('HttpErrorHandlerService', () => {
     const service: HttpErrorHandlerService = TestBed.inject(HttpErrorHandlerService);
     const handler: HandleError = service.createHandleError('http-service-spec');
     const error: HttpErrorResponse = new HttpErrorResponse({});
-    handler('handle_error', <any>{})(error).subscribe(data => {
+    handler('handle_error', {} as any)(error).subscribe(data => {
       expect(data).toEqual({});
     });
     const error0: HttpErrorResponse = new HttpErrorResponse({
       error: {detail: 'I am a bat bug'}
     });
-    handler('handle_error', <any>{})(error0).subscribe(data => {
+    handler('handle_error', {} as any)(error0).subscribe(data => {
       expect(data).toEqual({});
     });
     const error1: HttpErrorResponse = new HttpErrorResponse({
       error: {detail: [{msg: 'I am a bat bug'}]}
     });
-    handler('handle_error', <any>{})(error1).subscribe(data => {
+    handler('handle_error', {} as any)(error1).subscribe(data => {
       expect(data).toEqual({});
     });
     const error2: HttpErrorResponse = new HttpErrorResponse({
       error: new ErrorEvent('I am an error!')
     });
-    handler('handle_error', <any>{})(error2).subscribe(data => {
+    handler('handle_error', {} as any)(error2).subscribe(data => {
       expect(data).toEqual({});
     });
     const error3: HttpErrorResponse = new HttpErrorResponse({
       error: 'String Error'
     });
-    handler('handle_error', <any>{})(error3).subscribe(data => {
+    handler('handle_error', {} as any)(error3).subscribe(data => {
       expect(data).toEqual({});
     });
   });

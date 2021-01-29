@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, publishReplay, refCount } from 'rxjs/operators';
 
 import { environment } from './../environments/environment';
-import { AssignmentData, DictionaryInformation } from './assignment-data';
+import { AssignmentData } from './assignment-data';
 import { HandleError, HttpErrorHandlerService } from './http-error-handler.service';
 
 export class DocumentData {
@@ -23,7 +23,8 @@ export function category_value(category: CategoryData | string, datum: DocumentD
   return 0.0;
 }
 
-export class CategoryData extends DictionaryInformation {
+export class CategoryData {
+  id: string;
   q1: number;
   q2: number;
   q3: number;
@@ -36,6 +37,14 @@ export class CategoryData extends DictionaryInformation {
 export class DocuScopeData extends AssignmentData {
   categories?: CategoryData[];
   data: DocumentData[];
+}
+export type CategoryInfoMap = Map<string, CategoryData>;
+export function genCategoryDataMap(data: DocuScopeData): CategoryInfoMap {
+  const cmap = new Map<string, CategoryData>();
+  for (const clust of data.categories) {
+    cmap.set(clust.id, clust);
+  }
+  return cmap;
 }
 
 export function max_boxplot_value(data: DocuScopeData): number {

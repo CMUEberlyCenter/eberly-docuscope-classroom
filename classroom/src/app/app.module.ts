@@ -25,7 +25,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TagCloudModule } from 'angular-tag-cloud-module';
-//import { TreeModule } from '@circlon/angular-tree-component';
+// import { TreeModule } from '@circlon/angular-tree-component';
 
 import { AboutComponent } from './about/about.component';
 import { AppComponent } from './app.component';
@@ -76,7 +76,7 @@ import { CategorySelectComponent } from './category-select/category-select.compo
   imports: [
     BrowserModule,
     AppRoutingModule,
-    AngularSplitModule.forRoot(),
+    AngularSplitModule,
     BrowserAnimationsModule,
     DragDropModule,
     FormsModule,
@@ -101,7 +101,7 @@ import { CategorySelectComponent } from './category-select/category-select.compo
     MatToolbarModule,
     MatTooltipModule,
     TagCloudModule,
-    //TreeModule
+    // TreeModule
   ],
   providers: [
   ],

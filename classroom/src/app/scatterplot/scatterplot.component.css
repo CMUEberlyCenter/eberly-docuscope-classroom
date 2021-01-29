@@ -18,10 +18,10 @@ app-nav {
   padding-right: 10px;
 }
 .axis_selection {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  align-content: center;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-around;
 }
 .axis_select {
   padding: 10px;

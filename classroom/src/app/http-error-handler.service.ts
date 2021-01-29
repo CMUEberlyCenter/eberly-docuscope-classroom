@@ -19,9 +19,9 @@ export class HttpErrorHandlerService {
 
   createHandleError = (serviceName = '') =>
     <T> (operation = 'operation', result = {} as T) =>
-      this.handleError(serviceName, operation, result)
+      this.handleError(serviceName, operation, result);
 
-  handleError<T> (serviceName = '', operation = 'operation', result = {} as T) {
+  handleError<T>(serviceName = '', operation = 'operation', result = {} as T) {
     return (error: HttpErrorResponse):
     Observable<T> => {
       console.error(error);

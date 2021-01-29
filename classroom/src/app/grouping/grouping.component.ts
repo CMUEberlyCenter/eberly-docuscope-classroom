@@ -57,7 +57,9 @@ export class GroupingComponent implements OnInit {
     this.getCorpus();
   }
 
-  get num_documents(): number { return this.corpus ? this.corpus.length : 0; }
+  get num_documents(): number {
+    return this.corpus ? this.corpus.length : 0;
+  }
   generate_groups(e): void {
     if (this.group_size) {
       if (this.num_documents < 4) {
