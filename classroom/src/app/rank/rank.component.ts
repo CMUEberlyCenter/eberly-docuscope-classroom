@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
-import { CategoryInfoMap, genCategoryInfoMap } from '../assignment-data';
+import { Category } from '../common-dictionary';
+// import { CategoryInfoMap, genCategoryInfoMap } from '../assignment-data';
 import { CorpusService } from '../corpus.service';
-import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { CategoryData, DocuScopeData, DsDataService, CategoryInfoMap, genCategoryDataMap } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
 @Component({
@@ -15,12 +16,14 @@ import { SettingsService } from '../settings.service';
 export class RankComponent implements OnInit {
   corpus: string[];
   data: DocuScopeData;
-  dsmap; // TODO: fix typing
+  dsmap: CategoryInfoMap;
   category: CategoryData;
   selected_category: string;
   unit = 100;
 
-  get categories(): CategoryData[] { return this.data.categories; }
+  get categories(): CategoryData[] {
+    return this.data.categories;
+  }
 
   constructor(
     private _assignment_service: AssignmentService,
@@ -45,9 +48,10 @@ export class RankComponent implements OnInit {
       .subscribe(data => {
         this.data = data;
         this._assignment_service.setAssignmentData(data);
-        this.dsmap = genCategoryInfoMap(data);
+        this.dsmap = genCategoryDataMap(data);
+        console.log(this.dsmap);
         this.category = this.categories[0];
-        this.selected_category = this.category.id;
+        this.selected_category = this.category.id; // FIXME get label from common_dictionary
         this._spinner.stop();
       });
   }
@@ -60,11 +64,13 @@ export class RankComponent implements OnInit {
     this.getSettings();
     this.getCorpus();
   }
-  on_select(event): void {
+  /* on_select(event: Event): void {
     this.category = this.dsmap.get(this.selected_category);
-  }
+  } */
   onSelectCategory(category: string): void {
+    // console.log(category);
     this.selected_category = category;
     this.category = this.dsmap.get(category);
+    // console.log(this.category);
   }
 }

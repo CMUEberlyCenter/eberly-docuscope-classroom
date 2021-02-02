@@ -15,7 +15,9 @@ export class ScatterplotComponent implements OnInit {
   corpus: string[];
   data: DocuScopeData;
   scatter_data: [number, number, string, string, string][];
-  get categories(): CategoryData[] { return this.data.categories; }
+  get categories(): CategoryData[] {
+    return this.data.categories;
+  }
   x_categories: Set<CategoryData>;
   x_axis: string;
   x_category: CategoryData;
@@ -99,7 +101,8 @@ export class ScatterplotComponent implements OnInit {
   genPoints(): void {
     if (this.x_axis && this.y_axis && this.x_axis !== this.y_axis) {
       const model = 'point {fill-color: blue; dataOpacity:0.4}';
-      const xLabel = this.x_category.name, yLabel = this.y_category.name;
+      const xLabel = this.x_category.id;
+      const yLabel = this.y_category.id; // FIXME: use label from common
       const xVal = (x: DocumentData): number => this.unit * category_value(this.x_category, x);
       const yVal = (y: DocumentData): number => this.unit * category_value(this.y_category, y);
       const max_val: number = Math.ceil(this.data.data.reduce((a, p) => Math.max(a, xVal(p), yVal(p)), 0));
@@ -122,15 +125,24 @@ export class ScatterplotComponent implements OnInit {
     this.getSettings();
     this.getCorpus();
   }
-  on_select(event): void {
+  on_select_x(clust: string): void {
+    this.x_category = this.get_category(clust);
+    this.genPoints();
+  }
+  on_select_y(clust: string): void {
+    this.y_category = this.get_category(clust);
+    this.genPoints();
+  }
+  on_select(): void {
     this.x_category = this.get_category(this.x_axis);
     this.y_category = this.get_category(this.y_axis);
-    const x_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    x_cat.delete(this.y_category);
-    this.x_categories = x_cat;
-    const y_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    y_cat.delete(this.x_category);
-    this.y_categories = y_cat;
+    console.log(this.x_category.id, this.y_category.id);
+    // const x_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
+    // x_cat.delete(this.y_category);
+    // this.x_categories = x_cat;
+    // const y_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
+    // y_cat.delete(this.x_category);
+    // this.y_categories = y_cat;
     this.genPoints();
   }
   get_category(category: string): CategoryData {

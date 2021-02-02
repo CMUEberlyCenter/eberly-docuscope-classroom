@@ -1,23 +1,32 @@
-/** Component for displaying a list of boxplots, one for each category.
+/* Component for displaying a list of boxplots, one for each category.
 
 Takes as input a DocuScopeData object and a unit scale which are used to
 construct and scale the boxplots.
 Emits when a category is selected by clicking on it.
 The boxplots are also user sortable based on category name.
-*/
+ */
 import { SelectionModel } from '@angular/cdk/collections';
+import { NestedTreeControl } from '@angular/cdk/tree';
 import { AfterViewChecked, Component, EventEmitter, OnInit, Input, Output, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 
 import * as d3 from 'd3';
+import { CommonDictionary } from '../common-dictionary';
+import { DictionaryTreeService } from '../dictionary-tree.service';
 
-import { genCategoryInfoMap, CategoryInfoMap } from '../assignment-data';
 import { CategoryData, category_value, DocumentData, DocuScopeData, max_boxplot_value } from '../ds-data.service';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
   constructor(public id: string, public title: string, public value: number) {}
+}
+
+interface BoxTreeNode extends CategoryData {
+  label: string;
+  help: string;
+  children?: BoxTreeNode[];
 }
 
 @Component({
@@ -32,9 +41,12 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     this.max_value = 0.0;
     this.outliers = new Map<string, Outlier[]>();
     if (data) {
-      this.boxplot_data = new MatTableDataSource(this.ds_data.categories);
-      if (this.sort) { this.boxplot_data.sort = this.sort; }
+       this.boxplot_data = new MatTableDataSource(this.ds_data.categories);
+      if (this.sort) {
+        this.boxplot_data.sort = this.sort;
+      }
       this.max_value = max_boxplot_value(data);
+      this.setData();
     }
     this.scale_x = d3.scaleLinear().domain([0, this.max_value])
       .range([this.left, this.right]).nice().clamp(true);
@@ -46,20 +58,28 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     this.x = d3.scaleLinear().domain([0, this.max_value * this._unit])
       .range([this.left, this.right]).nice().clamp(true);
   }
+  get unit(): number {
+    return this._unit;
+  }
   @Output() selected_category = new EventEmitter<CategoryData>();
   @ViewChild('boxplotSort') sort: MatSort;
 
   boxplot_data: MatTableDataSource<CategoryData>;
-  get data(): DocuScopeData { return this.ds_data; }
+  commonDictionary: CommonDictionary;
+  get data(): DocuScopeData {
+    return this.ds_data;
+  }
   ds_data: DocuScopeData;
   displayColumns: string[] = [ 'name', 'boxplot' ];
   max_value = 0.0;
   outliers: Map<string, Outlier[]>;
   selection = new SelectionModel<CategoryData>(false, []);
-  scale_y;
-  scale_x;
-  get unit(): number { return this._unit; }
-  x;
+  scale_y: d3.ScaleLinear<number, number, never>;
+  scale_x: d3.ScaleLinear<number, number, never>;
+  x: d3.ScaleLinear<number, number, never>;
+
+  treeControl = new NestedTreeControl<BoxTreeNode>(node => node.children);
+  treeData = new MatTreeNestedDataSource<BoxTreeNode>();
 
   options = {
     width: 500,
@@ -74,7 +94,9 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
 
   private _unit = 100;
 
-  constructor() { }
+  constructor(
+    private commonDictionaryService: DictionaryTreeService,
+  ) { }
 
   // get options(): { width; height } {
   //  return this.options; /* = {
@@ -95,23 +117,55 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   scale(value: number): string {
     return `${(this.unit * value).toFixed(2)}`;
   }
-  get left(): number { return this.options.margin.left; }
-  get right(): number { return this.options.width - this.options.margin.right; }
-  get top(): number { return this.options.margin.top; }
-  get bottom(): number { return this.options.height - this.options.margin.bottom; }
+  get left(): number {
+    return this.options.margin.left;
+  }
+  get right(): number {
+    return this.options.width - this.options.margin.right;
+  }
+  get top(): number {
+    return this.options.margin.top;
+  }
+  get bottom(): number {
+    return this.options.height - this.options.margin.bottom;
+  }
+
+  getCommonDictionary(): void {
+    this.commonDictionaryService.getJSON().subscribe(data => {
+      this.commonDictionary = data;
+      this.setData();
+    });
+  }
+  setData() {
+    if (this.ds_data && this.commonDictionary) {
+    const dfsmap = (node) => ({
+      label: node.label, help: node.help,
+      children: node.children?.map(dfsmap),
+      ...this.getCategoryData(node.id ?? node.label)
+    });
+    this.treeData.data = this.commonDictionary.tree.map(dfsmap);
+  }
+  }
+  getCategoryData(id: string) {
+    return this.ds_data?.categories.filter(c => c.id === id)[0];
+  }
 
   get_outliers(category: CategoryData): Outlier[] {
     if (!this.outliers.has(category.id)) {
-      const uf: number = category.uifence, lf: number = category.lifence;
-      const outs: Outlier[] = this.data.data.map(
+      const uf: number = category.uifence; const lf: number = category.lifence;
+      const outs: Outlier[] = this.data?.data.map(
         (datum: DocumentData): Outlier => new Outlier(datum.id, datum.title, category_value(category, datum))
       ).filter(
         (out: Outlier): boolean => (out.value > uf) || (out.value < lf)
       );
       // console.log(`outliers for ${category.id}, ${lf}, ${uf}:`, outs);
-      this.outliers.set(category.id, outs);
+      this.outliers.set(category.id, outs??[]);
     }
     return this.outliers.get(category.id);
+  }
+
+  hasChild(_: number, node: BoxTreeNode): boolean {
+    return !!node.children && node.children.length > 0;
   }
 
   open(doc_id: string): void {
@@ -119,8 +173,11 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   }
   ngOnInit() {
     this.scale_y = d3.scaleLinear().domain([0, 1]).range([this.top, this.bottom]);
+    this.getCommonDictionary();
   }
   ngAfterViewChecked() {
-    if (this.sort) { this.boxplot_data.sort = this.sort; }
+    if (this.sort) {
+      this.boxplot_data.sort = this.sort;
+    }
   }
 }

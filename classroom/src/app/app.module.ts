@@ -22,6 +22,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTreeModule } from '@angular/material/tree';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TagCloudModule } from 'angular-tag-cloud-module';
@@ -98,6 +99,7 @@ import { CategorySelectComponent } from './category-select/category-select.compo
     MatSortModule,
     MatTableModule,
     MatTabsModule,
+    MatTreeModule,
     MatToolbarModule,
     MatTooltipModule,
     TagCloudModule,
