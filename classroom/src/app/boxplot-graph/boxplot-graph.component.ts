@@ -27,6 +27,17 @@ interface BoxTreeNode extends CategoryData {
   label: string;
   help: string;
   children?: BoxTreeNode[];
+  documents?: DocBox[];
+}
+
+interface DocBox {
+  label: string;
+  id: string;
+  instructor: boolean;
+  value: number;
+  median: number;
+  start: number;
+  width: number;
 }
 
 @Component({
@@ -138,16 +149,33 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   }
   setData() {
     if (this.ds_data && this.commonDictionary) {
-    const dfsmap = (node) => ({
-      label: node.label, help: node.help,
-      children: node.children?.map(dfsmap),
-      ...this.getCategoryData(node.id ?? node.label)
-    });
-    this.treeData.data = this.commonDictionary.tree.map(dfsmap);
-  }
+      const dfsmap = (node) => ({
+        label: node.id??node.label, help: node.help,
+        children: node.children?.map(dfsmap),
+        ...this.getCategoryData(node.id ?? node.label),
+        documents: node.id ? this.getDocumentData(node.id) : []
+      });
+      this.treeData.data = this.commonDictionary.tree.map(dfsmap);
+    }
   }
   getCategoryData(id: string) {
     return this.ds_data?.categories.filter(c => c.id === id)[0];
+  }
+  getDocumentData(category: string): DocBox[] {
+    const cat = this.getCategoryData(category);
+    if (!cat) {
+      return [];
+    }
+    const median: number = cat.q2;
+    return this.ds_data?.data.map(d => ({
+      label: d.title,
+      id: d.id,
+      median,
+      start: Math.min(d[category]??0, median),
+      width: Math.abs((d[category]??0) - median),
+      value: d[category]??0,
+      instructor: d.ownedby === 'instructor'
+    }));
   }
 
   get_outliers(category: CategoryData): Outlier[] {
@@ -166,6 +194,9 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
 
   hasChild(_: number, node: BoxTreeNode): boolean {
     return !!node.children && node.children.length > 0;
+  }
+  hasDocuments(_: number, node: BoxTreeNode): boolean {
+    return !!node.documents && node.documents.length > 0;
   }
 
   open(doc_id: string): void {

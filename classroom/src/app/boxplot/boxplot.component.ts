@@ -8,7 +8,9 @@ import { CloudData } from 'angular-tag-cloud-module';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionary } from '../common-dictionary';
 import { CorpusService } from '../corpus.service';
+// import { DictionaryTreeService } from '../dictionary-tree.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
@@ -19,6 +21,7 @@ import { SettingsService } from '../settings.service';
 })
 export class BoxplotComponent implements OnInit {
   cloud_data: CloudData[];
+  commonDictionary: CommonDictionary;
   corpus: string[];
   data: DocuScopeData;
   show_cloud = true;
@@ -27,13 +30,21 @@ export class BoxplotComponent implements OnInit {
 
   constructor(
     private assignmentService: AssignmentService,
+    // private commonDictionaryService: DictionaryTreeService,
     private corpusService: CorpusService,
     private dataService: DsDataService,
     private settingsService: SettingsService,
     private spinner: NgxUiLoaderService
   ) { }
 
-  /** Retrieve the list of document ids to analyze */
+  /** Retrieve the category hierarchy and help. */
+  // getCommonDictionary(): void {
+  //  this.commonDictionaryService.getJSON().subscribe(data => {
+  //    this.commonDictionary = data;
+  //  });
+  // }
+
+  /** Retrieve the list of document ids to analyze. */
   getCorpus(): void {
     this.spinner.start();
     this.corpusService.getCorpus()
@@ -54,7 +65,7 @@ export class BoxplotComponent implements OnInit {
         this.cloud_data = this.data.categories.map(
           (bpd: CategoryData): CloudData =>
             // TODO: check for empty category/name
-            ({text: bpd.name, weight: bpd.q2} as CloudData));
+            ({text: bpd.id, weight: bpd.q2} as CloudData));
         // this.max_value = max_boxplot_value(data);
         this.spinner.stop();
       });
@@ -71,6 +82,7 @@ export class BoxplotComponent implements OnInit {
   /** On component initialization, initiate information retrieval. */
   ngOnInit() {
     this.getSettings();
+    // this.getCommonDictionary();
     this.getCorpus();
   }
 

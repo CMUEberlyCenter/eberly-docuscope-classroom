@@ -56,6 +56,38 @@
       </ul>
     </li>
   </mat-nested-tree-node>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasDocuments">
+    <li>
+      <div class="mat-tree-node tree-node">
+        <div>
+          <button mat-icon-button matTreeNodeToggle
+            [attr.aria-label]="'Toggle ' + node.label">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+          </button>
+          {{node.label}}
+          <button mat-icon-button matTooltip="{{node.help}}" matTooltipPosition="after">
+            <mat-icon class="tooltip-icon">comment</mat-icon>
+          </button>
+        </div>
+        <div>
+          <ng-container [ngTemplateOutlet]="svgboxplot"
+            [ngTemplateOutletContext]="{row:node}"></ng-container>
+        </div>
+      </div>
+      <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+        <li *ngFor="let doc of node.documents">
+          <div class="mat-tree-node tree-node">
+            <a [ngClass]="{'student_col': true, 'model_entry': doc.instructor}"
+              (click)="open(doc.id)">{{doc.label}}</a>
+            <ng-container [ngTemplateOutlet]="docbox"
+              [ngTemplateOutletContext]="{row:doc}"></ng-container>
+          </div>
+        </li>
+      </ul>
+    </li>
+  </mat-tree-node>
 </mat-tree>
 <!--<mat-table *ngIf="commonDictionary" [dataSource]="commonDictionary.categories">
   <ng-container matColumnDef="label">
@@ -241,5 +273,23 @@
            matTooltip="{{out.title}}: {{scale(out.value)}}"/>
     </a>
   </g>
+  </svg>
+</ng-template>
+<ng-template #docbox let-row="row">
+  <svg [attr.width]="options.width+'px'"
+    [attr.height]="options.height+'px'"
+    [attr.data-value]="row.value">
+    <desc>A bar that shows the difference of {{row.value}}
+      from the median of {{row.median}}.
+    </desc>
+    <line [attr.x1]="scale_x(row.median)" [attr.x2]="scale_x(row.median)"
+      [attr.y1]="0" [attr.y2]="'100%'"
+      [style.stroke]="'black'" [style.stroke-width]="'1px'"/>
+    <rect [attr.x]="scale_x(row.start)"
+      [attr.y]="options.margin.top"
+      [attr.height]="options.height-(options.margin.top+options.margin.bottom)"
+      [attr.width]="scale_x(row.width)-scale_x(0)"
+      [attr.fill]="row.instructor ? 'rgba(0,0,255,.4)' : '#EEEEEE'"
+      [attr.stroke]="'#3C3C3C'" [attr.stroke-width]="1"/>
   </svg>
 </ng-template>

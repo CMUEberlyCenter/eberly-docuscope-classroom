@@ -45,7 +45,7 @@ export class ComparePatternData extends PatternData {
 }
 
 export class CategoryPatternData {
-  category: DictionaryInformation;
+  category: string;
   patterns?: PatternData[];
 }
 

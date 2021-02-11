@@ -7,39 +7,58 @@ from typing import List
 from uuid import UUID
 
 from bs4 import BeautifulSoup as bs
+from bs4.element import Tag
+from deprecation import deprecated
 from fastapi import APIRouter, Depends, HTTPException
+from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from ds_db import Filesystem
-from ds_tones import DocuScopeTones
-from response import DictionaryInformation, ERROR_RESPONSES
-from util import document_state_check, get_db_session, get_ds_info
+from lat_frame import LAT_FRAME
+from response import ERROR_RESPONSES
+from util import document_state_check, get_db_session
 
 router = APIRouter()
 
-def count_patterns(node, ds_dict, patterns_all):
+LMAP = LAT_FRAME[['cluster','lat']].set_index('lat').to_dict('index')
+
+def fast_count_patterns(node, patterns_all):
+    """ Accumulate patterns for each cluster into patterns_all. """
+    lat_cluster = LAT_FRAME
+    for child in node.xpath("//*[@data-key]"):
+        lat = child.get('data-key')
+        key = ' '.join(child.xpath('string()').split()).lower()
+        cluster = LMAP.get(lat, {'cluster': '?'})['cluster']
+        if cluster != 'Other':
+            patterns_all[cluster].update([key])
+
+@deprecated(deprecated_in="5.0.0", detail="Use fast_count_patterns instead")
+def count_patterns(node, patterns_all):
     """Accumulate patterns for each category into patterns_all."""
     content = ''
     for child in node.children:
-        if getattr(child, 'name', None):
-            if 'class' in child.attrs and 'tag' in child.attrs['class']:
-                words = count_patterns(child, ds_dict, patterns_all)
-                key = ' '.join(words).lower().strip()
-                content += ' ' + key
-                cluster = ds_dict[child.attrs['data-key']].get('cluster', '?')
-                if cluster != 'Other':
-                    patterns_all[cluster].update([key])
-            elif 'token' in child.attrs['class']:
-                if child.text.isspace():
-                    content += child.text
-                else:
-                    content += child.text.strip()
+        if isinstance(child, Tag): #'name' in child: #getattr(child, 'name', None):
+            if 'class' in child.attrs:
+                if 'tag' in child['class']:
+                    words = count_patterns(child, patterns_all)
+                    key = ' '.join(words).lower().strip()
+                    content = f'{content} {key}'
+                    cluster_row = LAT_FRAME[LAT_FRAME.lat == child.attrs['data-key']].head(1)
+                    cluster = cluster_row.cluster.iloc[0] if not cluster_row.empty else '?'
+                    if cluster != 'Other':
+                        patterns_all[cluster].update([key])
+                elif 'token' in child['class']:
+                    text = child.get_text()
+                    if text.isspace():
+                        content = f'{content}{text}'
+                    else:
+                        content = f'{content}{text.strip()}'
         else:
             try:
                 if not child.isspace():
-                    content += child
+                    content = f'{content}{child}'
             except (AttributeError, TypeError) as exc:
                 logging.error("Node: %s, Error: %s", child, exc)
     return content.split('PZPZPZ')
@@ -51,7 +70,7 @@ class PatternData(BaseModel): #pylint: disable=too-few-public-methods
 
 class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data for each category."""
-    category: DictionaryInformation = ...
+    category: str = ...
     patterns: List[PatternData] = []
 
 @router.post('/patterns', response_model=List[CategoryPatternData],
@@ -63,29 +82,15 @@ def patterns(corpus: List[UUID],
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     pats = defaultdict(Counter)
-    tones = None
-    ds_dictionary = ''
     for (uuid, doc, filename, status) in db_session.query(
             Filesystem.id, Filesystem.processed, Filesystem.name,
             Filesystem.state).filter(Filesystem.id.in_(corpus)):
         document_state_check(status, uuid, filename, doc, db_session)
-        ds_dictionary = doc['ds_dictionary'] # Check for dictionary consistency
-        if not tones or tones.dictionary_name != ds_dictionary:
-            tones = DocuScopeTones(ds_dictionary)
         if doc and doc['ds_tag_dict']:
-            lats = {
-                lat: {"dimension": tones.get_dimension(lat),
-                      "cluster": tones.get_lat_cluster(lat)}
-                for lat in doc['ds_tag_dict'].keys()
-            }
-            count_patterns(bs(doc['ds_output'], 'html.parser'), lats, pats)
-    ds_info = get_ds_info(ds_dictionary, db_session)
-    dsi = ds_info['cluster'] + ds_info['dimension']
-    for clust in ds_info['cluster']: # assumes cluster view.
-        pats[clust['id']].update([])
+            etr = etree.fromstring(f"<body>{doc['ds_output']}</body>")
+            fast_count_patterns(etr, pats)
     return [
-        {'category': next(filter(partial(lambda cur, c: c['id'] == cur, cat), dsi),
-                          {'id': cat, 'name': cat.capitalize()}),
+        {'category': cat,
          'patterns': sorted(
              sorted([{'pattern': word, 'count': count}
                      for (word, count) in cpats.items()],

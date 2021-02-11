@@ -3,7 +3,8 @@
     <mat-card-title>Dictionary Categories</mat-card-title>
     <mat-card-subtitle>Select up to {{max_selected_clusters}}:</mat-card-subtitle>
     <mat-card-content>
-      <table mat-table matSort #clusterTable
+      <!--<tree-root *ngIf="dictionary" [nodes]="dictionary.tree"></tree-root>-->
+      <!--<table mat-table matSort #clusterTable
              #TableSort=matSort  [dataSource]="clusters"
              matSortDisableClear multiTemplateDataRows>
         <ng-container matColumnDef="name">
@@ -57,13 +58,13 @@
             [class.cluster-expanded-row]="clust === expanded"></tr>
         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
             class="cluster-detail-row"></tr>
-      </table>
+      </table>-->
     </mat-card-content>
   </mat-card>
   <mat-card *ngIf="tagged_text" class="text_card">
     <mat-card-title class="text_head">ID:&nbsp;{{tagged_text.text_id}}</mat-card-title>
     <mat-card-content>
-      <article class="text_content" [innerHTML]="html_content"
+      <article class="text_content" [innerHTML]="htmlContent"
                (click)="click_select($event)"></article>
     </mat-card-content>
   </mat-card>

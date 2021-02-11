@@ -37,15 +37,18 @@ class TextClusterData implements ClusterData {
     }
     return [0];
   }
-  get max_count(): number { return Math.max(...this.counts); }
-  left(max: number): number { return 50 * this.count0 / max; }
-  right(max: number): number { return 50 * this.count1 / max; }
-  col_count(col: number): number {
-    return this.patterns.reduce((t: number, c: ComparePatternData): number => t + c.counts[col], 0);
+  get max_count(): number {
+    return Math.max(...this.counts);
   }
-  get count0(): number { return this.col_count(0); }
-  get count1(): number { return this.col_count(1); }
-  get pattern_count(): number { return this.patterns.length; }
+  get count0(): number {
+    return this.col_count(0);
+  }
+  get count1(): number {
+    return this.col_count(1);
+  }
+  get pattern_count(): number {
+    return this.patterns.length;
+  }
   constructor(di: DictionaryInformation, patterns: Map<string, number[]>) {
     this.id = di.id;
     this.name = di.name;
@@ -54,6 +57,15 @@ class TextClusterData implements ClusterData {
       (pc): ComparePatternData => new ComparePatternData(pc[0], pc[1]));
     pats.sort(pattern_compare);
     this.patterns = pats;
+  }
+  left(max: number): number {
+    return 50 * this.count0 / max;
+  }
+  right(max: number): number {
+    return 50 * this.count1 / max;
+  }
+  col_count(col: number): number {
+    return this.patterns.reduce((t: number, c: ComparePatternData): number => t + c.counts[col], 0);
   }
 }
 
@@ -180,11 +192,11 @@ export class ComparisonComponent implements OnInit {
         this.html_content = docs.documents.map(
           doc => this._sanitizer.bypassSecurityTrustHtml(doc.html_content));
         this.cluster_info = new Map<string, DictionaryInformation>();
-        if (docs && docs.categories) {
+        /* if (docs && docs.categories) {
           for (const cluster of docs.categories) {
             this.cluster_info.set(cluster.id, cluster);
           }
-        }
+        }*/ // FIXME need to get from common_dictionary.
         const cluster_ids = new Set<string>(this.cluster_info.keys());
         cluster_ids.delete('Other');
 

@@ -4,6 +4,7 @@ import logging
 import traceback
 
 from fastapi import FastAPI
+from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, FileResponse
@@ -33,6 +34,7 @@ app = FastAPI( #pylint: disable=invalid-name
         'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
     })
 
+app.add_middleware(PyInstrumentProfilerMiddleware)
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 

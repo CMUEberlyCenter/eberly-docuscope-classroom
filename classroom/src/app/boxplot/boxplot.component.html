@@ -7,7 +7,7 @@
     <mat-card-content class="graph_container">
       <app-boxplot-graph [boxplot]="data" [unit]="unit" (selected_category)="onSelectCategory($event)"></app-boxplot-graph>
       <div>
-        <angular-tag-cloud *ngIf="cloud_data && show_cloud" [data]="cloud_data"></angular-tag-cloud>
+        <!--<angular-tag-cloud *ngIf="cloud_data && show_cloud" [data]="cloud_data"></angular-tag-cloud>-->
         <app-rank-graph *ngIf="selected_category" [data]="data" [category]="selected_category" [unit]="unit"></app-rank-graph>
       </div>
     </mat-card-content>

@@ -21,6 +21,14 @@ export interface ICommonDictionary {
   timestamp: string;
   categories: ICategory[];
 }
+
+export interface CommonDictionaryTreeNode {
+  id?: string;
+  label: string;
+  help?: string;
+  children?: CommonDictionaryTreeNode[];
+}
+
 export class CommonDictionary implements ICommonDictionary {
   default_dict: string;
   custom_dict: string;
@@ -60,7 +68,7 @@ export class CommonDictionary implements ICommonDictionary {
     return this.#memoCluster.get(category);
   }
 
-  get tree() {
+  get tree(): CommonDictionaryTreeNode[] {
     //let id = 0;
     return this.categories.map((category: ICategory) => ({
       label: category.label,
