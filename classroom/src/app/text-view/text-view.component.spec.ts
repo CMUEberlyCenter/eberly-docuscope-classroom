@@ -49,7 +49,7 @@ describe('TextViewComponent', () => {
     ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', ['start', 'stop']);
     tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', ['getTaggedText']);
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData(
-      {'text_id': 'stub_id', word_count: 2,
+      {text_id: 'stub_id', word_count: 2,
         html_content: test_html,
         categories: [
           {
@@ -159,7 +159,7 @@ describe('TextViewComponent', () => {
     await fixture.whenStable().then(() => {
       expect(component.clusters.data[0]).toBeDefined();
       expect(component.tagged_text).toBeDefined();
-      expect(component.html_content).toBeDefined();
+      expect(component.htmlContent).toBeDefined();
       // const article: HTMLElement = fixture.nativeElement.querySelector('.text_content');
       // expect(article.textContent).toMatch(/stub\w+text/);
       // expect(article.innerHTML).toMatch(/stub\w+text/);

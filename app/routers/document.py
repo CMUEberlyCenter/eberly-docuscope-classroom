@@ -1,4 +1,5 @@
 """ Handle /document requests. """
+from collections import defaultdict, Counter
 import io
 import logging
 import re
@@ -6,6 +7,7 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -16,6 +18,7 @@ from lat_frame import LAT_FRAME
 from response import AssignmentData, ERROR_RESPONSES
 from tone_parser import ToneParser
 from util import document_state_check, get_db_session, get_ds_info
+from count_patterns import fast_count_patterns, CategoryPatternData, sort_patterns
 
 router = APIRouter()
 
@@ -26,6 +29,7 @@ class Document(BaseModel):
     ownedby: str = ...
     word_count: int = 0
     html_content: str = ""
+    patterns: List[CategoryPatternData]
 
 class Documents(AssignmentData):
     """ Schema for a collection of tagged documents. """
@@ -47,8 +51,6 @@ async def get_documents(corpus: List[UUID],
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     logging.info("Document request for %s", corpus)
-    ds_dict = None
-    #tones = None
     docs = []
     course = set()
     assignment = set()
@@ -63,14 +65,14 @@ async def get_documents(corpus: List[UUID],
                   .filter(Filesystem.id.in_(corpus))\
                   .filter(Assignment.id == Filesystem.assignment):
         document_state_check(state, doc_id, filename, doc, db_session)
-        if ds_dict is None:
-            ds_dict = doc['ds_dictionary']
-        if ds_dict != doc['ds_dictionary']:
-            logging.error('Dictionary incompatibility: %s != %s',
-                          ds_dict, doc['ds_dictionary'])
-            raise HTTPException(
-                detail="Submitted documents are tagged with incompatible dictionaries.",
-                status_code=HTTP_400_BAD_REQUEST)
+        #if ds_dict is None:
+        #    ds_dict = doc['ds_dictionary']
+        #if ds_dict != doc['ds_dictionary']:
+        #    logging.error('Dictionary incompatibility: %s != %s',
+        #                  ds_dict, doc['ds_dictionary'])
+        #    raise HTTPException(
+        #        detail="Submitted documents are tagged with incompatible dictionaries.",
+        #        status_code=HTTP_400_BAD_REQUEST)
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
@@ -82,15 +84,19 @@ async def get_documents(corpus: List[UUID],
         parser = ToneParser(LAT_FRAME, buf)
         parser.feed(html)
         parser.close()
+        pats = defaultdict(Counter)
+        etr = etree.fromstring(f"<body>{html_content}</body>")
+        fast_count_patterns(etr, pats)
         docs.append(Document(
             text_id=filename,
             owner=fullname,
             ownedby=ownedby,
             word_count=doc['ds_num_word_tokens'],
-            html_content=buf.getvalue()
+            html_content=buf.getvalue(),
+            patterns=sort_patterns(pats)
         ))
         buf.close()
-    ds_info = get_ds_info(ds_dict, db_session)
+    #ds_info = get_ds_info(ds_dict, db_session)
     if len(course) > 1 or len(instructor) > 1 or len(assignment) > 1:
         raise HTTPException(
             detail="Specified documents are from different sections and cannot be compared.",
@@ -99,6 +105,6 @@ async def get_documents(corpus: List[UUID],
         course=course.pop() if course else None,
         instructor=instructor.pop() if instructor else None,
         assignment=assignment.pop() if assignment else None,
-        categories=ds_info['cluster'],
+        #categories=ds_info['cluster'],
         documents=docs
     )

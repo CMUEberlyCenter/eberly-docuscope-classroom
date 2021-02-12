@@ -6,7 +6,7 @@ import logging
 import os
 from typing import List, Set, Tuple
 from fastapi import HTTPException
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from default_settings import Config

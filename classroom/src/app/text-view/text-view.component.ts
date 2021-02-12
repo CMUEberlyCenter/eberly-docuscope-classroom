@@ -16,14 +16,25 @@ import { PatternData, pattern_compare } from '../patterns.service';
 import { TaggedTextService, TextContent } from '../tagged-text.service';
 import { DictionaryInformation } from '../assignment-data';
 import { SettingsService } from '../settings.service';
+import { DictionaryTreeService } from '../dictionary-tree.service';
+import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
+import { Documents, DocumentService } from '../document.service';
+import { forkJoin } from 'rxjs';
+import { PatternTreeNode } from '../patterns/patterns.component';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 
 class TextClusterData implements ClusterData {
   id: string;
   name: string;
   description?: string;
   patterns: PatternData[];
-  get count(): number { return instance_count(this.patterns); }
-  get pattern_count(): number { return this.patterns.length; }
+  get count(): number {
+    return instance_count(this.patterns);
+  }
+  get pattern_count(): number {
+    return this.patterns.length;
+  }
   // expand: boolean = false; // to be used for multiple expansion.
 
   constructor(di: DictionaryInformation, patterns: Map<string, number>) {
@@ -60,12 +71,15 @@ class TextClusterData implements ClusterData {
 export class TextViewComponent implements OnInit {
   @ViewChild('TableSort', {static: true}) sort: MatSort;
 
-  tagged_text: TextContent;
+  tagged_text: Documents;
+  treeControl = new NestedTreeControl<PatternTreeNode>(node => node.children);
+  treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   cluster_columns = ['name', 'count', 'expand'];
   clusters: MatTableDataSource<TextClusterData>;
+  dictionary: CommonDictionary;
   expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;
-  html_content: SafeHtml;
+  htmlContent: SafeHtml;
   max_clusters = 4;
   selection = new SelectionModel<TextClusterData>(true, []);
 
@@ -90,10 +104,11 @@ export class TextViewComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _assignmentService: AssignmentService,
+    private _dictionary: DictionaryTreeService,
     private _sanitizer: DomSanitizer,
     private _settings_service: SettingsService,
     private _spinner: NgxUiLoaderService,
-    private _text_service: TaggedTextService
+    private _text_service: DocumentService
   ) { }
 
   show_expanded(clust: TextClusterData|null) {
@@ -116,55 +131,93 @@ export class TextViewComponent implements OnInit {
   getTaggedText() {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
-    return this._text_service.getTaggedText(id)
+    return this._text_service.getData([id])
       .subscribe(txt => {
         this.tagged_text = txt;
         this._assignmentService.setAssignmentData(txt);
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
-        this.html_content = this._sanitizer.bypassSecurityTrustHtml(txt.html_content);
-        this._cluster_info = new Map<string, DictionaryInformation>();
-        if (this.tagged_text && this.tagged_text.categories) {
-          for (const clust of this.tagged_text.categories) {
-            this._cluster_info.set(clust.id, clust);
-          }
-        }
+        this.htmlContent = this._sanitizer.bypassSecurityTrustHtml(txt.documents[0].html_content);
+        //this._cluster_info = new Map<string, DictionaryInformation>();
+        //if (this.tagged_text && this.tagged_text.categories) {
+        //  for (const clust of this.tagged_text.categories) {
+        //    this._cluster_info.set(clust.id, clust);
+        //  }
+        //}
         // get ids from dictionary information to get all of them.
-        const cluster_ids = new Set<string>(this._cluster_info.keys());
-        cluster_ids.delete('Other');
+        //const cluster_ids = new Set<string>(this._cluster_info.keys());
+        //cluster_ids.delete('Other');
 
-        const pats = new Map<string, Map<string, number>>();
-        cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
+        //const pats = new Map<string, Map<string, number>>();
+        //cluster_ids.forEach((cl) => pats.set(cl, new Map<string, number>()));
 
         // const tv = this;
-        $(this.html_content['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
-          const cluster: string = $(this).attr('data-key');
+        //$(this.htmlContent['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
+        //  const cluster: string = $(this).attr('data-key');
           // const cluster: string = lat;
           // const cluster_name: string = tv.get_cluster_name(cluster);
-          const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
+        //  const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
 
-          if (pats.has(cluster)) {
-            if (pats.get(cluster).has(example)) {
-              const p_val: number = pats.get(cluster).get(example);
-              pats.get(cluster).set(example, p_val + 1);
-            } else {
-              pats.get(cluster).set(example, 1);
-            }
-          }
-        });
-        this.patterns = pats;
-        const clusters: TextClusterData[] = Array.from(cluster_ids)
-          .map((cid: string): TextClusterData =>
-            new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
-        clusters.sort(cluster_compare);
-        this.clusters = new MatTableDataSource(clusters);
-        if (this.sort) { this.clusters.sort = this.sort; }
-        // this.html_content = this._sanitizer.bypassSecurityTrustHtml($html);
+        //  if (pats.has(cluster)) {
+        //    if (pats.get(cluster).has(example)) {
+        //      const p_val: number = pats.get(cluster).get(example);
+        //      pats.get(cluster).set(example, p_val + 1);
+        //    } else {
+        //      pats.get(cluster).set(example, 1);
+        //    }
+        //  }
+        //});
+        //this.patterns = pats;
+        //const clusters: TextClusterData[] = Array.from(cluster_ids)
+        //  .map((cid: string): TextClusterData =>
+        //    new TextClusterData(this.get_cluster_info(cid), pats.get(cid)));
+        //clusters.sort(cluster_compare);
+        //this.clusters = new MatTableDataSource(clusters);
+        //if (this.sort) {
+        //  this.clusters.sort = this.sort;
+        //}
+        // this.htmlContent = this._sanitizer.bypassSecurityTrustHtml($html);
         this._spinner.stop();
       });
   }
+  getCommonDictionary() {
+    this._dictionary.getJSON().subscribe(data => {
+      this.dictionary = data;
+      console.log(this.dictionary.tree);
+    });
+  }
+
   ngOnInit() {
-    this.getSettings();
-    this.getTaggedText();
+    this._spinner.start();
+    const id = this._route.snapshot.paramMap.get('doc');
+    forkJoin([this._settings_service.getSettings(),
+      this._dictionary.getJSON(),
+      this._text_service.getData([id])
+    ]).subscribe(
+      (results: [{stv: {max_clusters: number}}, CommonDictionary, Documents]) => {
+        const [settings, common, documents] = results;
+        this.max_clusters = settings.stv.max_clusters;
+        this.dictionary = common;
+        this._assignmentService.setAssignmentData(documents);
+        const doc = documents.documents[0];
+        this.tagged_text = documents;
+        // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
+        this.htmlContent = this._sanitizer.bypassSecurityTrustHtml(doc.html_content);
+        const cpmap = new Map<string, PatternData[]>(doc.patterns.map(
+          d => [d.category, d.patterns]));
+        const dfsmap = (node: CommonDictionaryTreeNode): PatternTreeNode =>
+          new PatternTreeNode(node,
+            node.children?.map(dfsmap),
+            cpmap.get(node.id??node.label));
+        this.treeData.data =common.tree.map(dfsmap);
+        this._spinner.stop();
+      }
+    );
+  }
+  hasChild(_: number, node: PatternTreeNode): boolean {
+    return !!node.children && node.children.length > 0;
+  }
+  hasPatterns(_: number, node: PatternTreeNode): boolean {
+    return !!node.patterns && node.patterns.length > 0;
   }
 
   click_select($event) {

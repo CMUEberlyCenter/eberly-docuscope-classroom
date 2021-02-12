@@ -33,7 +33,7 @@ export class PatternClusterData {
     this.patterns = cluster.patterns;
   }
 }
-class PatternTreeNode {
+export class PatternTreeNode {
   label: string;
   help: string;
   children?: PatternTreeNode[];

@@ -23,16 +23,6 @@ from util import get_db_session, get_ds_info
 
 router = APIRouter()
 
-class DictionaryEntry(BaseModel): #pylint: disable=too-few-public-methods
-    """Schema for dimension->cluster mapping."""
-    dimension: str = ...
-    cluster: str = ...
-
-class DictInfo(BaseModel): #pylint: disable=too-few-public-methods
-    """Schema for dictionary information."""
-    cluster: List[DictionaryInformation] = []
-    dimension: List[DictionaryInformation] = []
-
 class TextContent(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for text_content data."""
     text_id: str = ...

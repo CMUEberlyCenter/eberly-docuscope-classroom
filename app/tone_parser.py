@@ -7,12 +7,13 @@ import logging
 from html.parser import HTMLParser
 from pandas import DataFrame
 
+
 class ToneParser(HTMLParser):
     """ An HTML parser that converts data-key=<lat> to <cluster> and
     adds class="<category> <subcategory> <cluster>" attribute."""
     def __init__(self, tones: DataFrame, out: io.StringIO):
         super().__init__()
-        self.tones = tones
+        self.tones = tones[["category", "subcategory", "cluster", "lat"]].set_index('lat').to_dict('index')
         self.out = out
     def error(self, message):
         """On error: raise the error."""
@@ -24,19 +25,21 @@ class ToneParser(HTMLParser):
         classes = [] # store so any existing do not get clobbered
         for attr in attrs:
             if attr[0] == 'data-key':
-                cats = self.tones[self.tones["lat"] == attr[1]][["category", "subcategory", "cluster"]]
-                if len(cats.index) == 1:
-                    cluster = cats['cluster'].values[0]
-                    if clust != 'Other': # Filter out Other
+                cats = self.tones[attr[1]]
+                if cats:
+                    cluster = cats['cluster']
+                    if cluster != 'Other': # Filter out Other
                         # Remove NaN
-                        classes.extend(filter(lambda i: isinstance(i, str),
-                                              cats.values.tolist()[0]))
+                        #classes.extend(filter(lambda i: isinstance(i, str),
+                        #                      cats.values.tolist()[0]))
+                        classes.extend(cats.values())
                         self.out.write(f' {attr[0]}="{cluster}"')
                         #self.out.write(f' class="{classes}"')
                 else:
-                    logging.warning(f"{len(cats.index)} mappings for {attr[1]}.")
+                    # Eat unmatched LAT
+                    logging.info(f"No category mappings for {attr[1]}.")
             elif attr[0] == 'class':
-                classes.push(attr[1])
+                classes.append(attr[1])
             else:
                 self.out.write(f' {attr[0]}="{attr[1]}"'
                                if len(attr) > 1 else
