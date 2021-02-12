@@ -48,7 +48,7 @@
         <button mat-icon-button matTooltip="{{node.help}}" matTooltipPosition="after">
           <mat-icon class="tooltip-icon">comment</mat-icon>
         </button></div>
-        <div><ng-container [ngTemplateOutlet]="svgboxplot"
+        <div [class.tree-node-invisible]="treeControl.isExpanded(node)"><ng-container [ngTemplateOutlet]="svgboxplot"
         [ngTemplateOutletContext]="{row:node}"></ng-container></div>
       </div>
       <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">

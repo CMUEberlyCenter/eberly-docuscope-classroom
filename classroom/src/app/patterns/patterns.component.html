@@ -30,9 +30,10 @@
           <ng-container [ngTemplateOutlet]="patternlabel"
           [ngTemplateOutletContext]="{row:node}"></ng-container>
         </div>
-        <div>{{node.count}}</div>
+        <div [class.tree-node-invisible]="treeControl.isExpanded(node)">{{node.count}}</div>
       </div>
-      <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+      <ul
+        [class.tree-node-invisible]="!treeControl.isExpanded(node)">
         <ng-container matTreeNodeOutlet></ng-container>
       </ul>
     </li>
@@ -52,9 +53,11 @@
         </div>
         <div>{{node.count}}</div>
       </div>
-      <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+      <div
+        [class.pattern-table]="true"
+        [class.tree-node-invisible]="!treeControl.isExpanded(node)">
         <app-patterns-table [patterns]="node.patterns"></app-patterns-table>
-      </ul>
+      </div>
     </li>
   </mat-tree-node>
 </mat-tree>

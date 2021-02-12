@@ -13,7 +13,7 @@ import * as $ from 'jquery';
 import { AssignmentService } from '../assignment.service';
 import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
 import { PatternData, pattern_compare } from '../patterns.service';
-import { TaggedTextService, TextContent } from '../tagged-text.service';
+//import { TaggedTextService, TextContent } from '../tagged-text.service';
 import { DictionaryInformation } from '../assignment-data';
 import { SettingsService } from '../settings.service';
 import { DictionaryTreeService } from '../dictionary-tree.service';
