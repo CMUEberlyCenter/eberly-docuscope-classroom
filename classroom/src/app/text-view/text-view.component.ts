@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -73,14 +72,14 @@ export class TextViewComponent implements OnInit {
   tagged_text: Documents;
   treeControl = new NestedTreeControl<PatternTreeNode>(node => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  cluster_columns = ['name', 'count', 'expand'];
-  clusters: MatTableDataSource<TextClusterData>;
+  // cluster_columns = ['name', 'count', 'expand'];
+  // clusters: MatTableDataSource<TextClusterData>;
   dictionary: CommonDictionary;
-  expanded: TextClusterData | null = null;
+  // expanded: TextClusterData | null = null;
   patterns: Map<string, Map<string, number>>;
   htmlContent: SafeHtml;
   max_clusters = 4;
-  selection = new SelectionModel<TextClusterData>(true, []);
+  selection = new SelectionModel<PatternTreeNode>(true, []);
 
   _cluster_info: Map<string, DictionaryInformation>;
 
@@ -110,23 +109,23 @@ export class TextViewComponent implements OnInit {
     private _text_service: DocumentService
   ) { }
 
-  show_expanded(clust: TextClusterData|null) {
+  /*show_expanded(clust: TextClusterData|null) {
     if (this.expanded && clust && clust.id === this.expanded.id) {
       return 'expanded';
     }
     return 'collapsed';
-  }
+  }*/
 
-  expand_handler($event, cluster: TextClusterData|null) {
+  /*expand_handler($event, cluster: TextClusterData|null) {
     this.expanded = this.expanded === cluster ? null : cluster;
     $event.stopPropagation();
-  }
+  }*/
 
-  getSettings(): void {
+  /*getSettings(): void {
     this._settings_service.getSettings().subscribe(settings => {
       this.max_clusters = settings.stv.max_clusters;
     });
-  }
+  }*/
   getTaggedText() {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
@@ -208,6 +207,7 @@ export class TextViewComponent implements OnInit {
             node.children?.map(dfsmap),
             cpmap.get(node.id??node.label));
         this.treeData.data =common.tree.map(dfsmap);
+        this.treeControl.dataNodes = this.treeData.data; // needed to get expand all to work
         this._spinner.stop();
       }
     );
@@ -264,19 +264,19 @@ export class TextViewComponent implements OnInit {
     return `${this.get_cluster_name(cluster)} (${this.get_pattern_count(cluster)})`;
   }
 
-  selection_change($event, cluster: TextClusterData) {
-    if ($event && cluster) {
+  selection_change($event, node: PatternTreeNode) {
+    if ($event && node) {
       if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
         $event.source.checked = false;
       } else {
-        this.selection.toggle(cluster);
+        this.selection.toggle(node);
       }
-      const css_class = this.get_cluster_class(cluster.id);
-      if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
-        this._css_classes.unshift(this._selected_clusters.get(cluster.id));
-        this._selected_clusters.delete(cluster.id);
+      const css_class = this.get_cluster_class(node.label);
+      if (!$event.source.checked && this._selected_clusters.has(node.label)) {
+        this._css_classes.unshift(this._selected_clusters.get(node.label));
+        this._selected_clusters.delete(node.label);
       }
-      d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
+      d3.selectAll(`.${node.label}`).classed(css_class, $event.source.checked);
     }
   }
 
