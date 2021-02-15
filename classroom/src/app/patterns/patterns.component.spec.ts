@@ -6,12 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
 
 import { CorpusService } from '../corpus.service';
-import { PatternsComponent, PatternClusterData } from './patterns.component';
+import { PatternsComponent } from './patterns.component';
 import { PatternData, PatternsService } from '../patterns.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
@@ -35,12 +36,15 @@ describe('PatternsComponent', () => {
       intro: 'stub',
       stv_intro: 'stub'
     }));
+    const commonDictionaryService_spy = jasmine.createSpyObj('CommonDictionaryService', ['getJSON']);
+    commonDictionaryService_spy.getJSON.and.returnValue(asyncData(
+      FAKE_COMMON_DICTIONARY
+    ));
     const patternsService_spy = jasmine.createSpyObj('PatternsService', ['getPatterns']);
     patternsService_spy.getPatterns.and.returnValue(asyncData(
       [
         {
-          category: { id: 'future', name: 'Future',
-            description: 'To the future and beyond!!!!'},
+          category: 'future',
           patterns: [
             { pattern: 'i will', count: 4 },
             { pattern: 'future of', count: 1 },
@@ -48,7 +52,7 @@ describe('PatternsComponent', () => {
           ]
         },
         {
-          category: {id: 'facilitate', name: 'Facilitate'},
+          category: 'facilitate',
           patterns: [
             { pattern: 'allowed me', count: 2 },
             { pattern: 'assisted', count: 2 }
@@ -70,6 +74,7 @@ describe('PatternsComponent', () => {
       ],
       providers: [
         { provide: CorpusService, useValue: corpusService_spy },
+        { provide: CommonDictionaryService, useValue: commonDictionaryService_spy },
         { provide: PatternsService, useValue: patternsService_spy },
         { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }
       ]
@@ -87,10 +92,9 @@ describe('PatternsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('count', () => {
+  /*it('count', () => {
     const pat_data = new PatternClusterData({
-      category: { id: 'future', name: 'Future',
-        description: 'To the future and beyond!!!!'},
+      category: 'future',
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },
@@ -98,12 +102,11 @@ describe('PatternsComponent', () => {
       ]
     });
     expect(pat_data.count).toBe(6);
-  });
+  });*/
 
-  it('pattern_count', () => {
+  /*it('pattern_count', () => {
     const pat_data = new PatternClusterData({
-      category: { id: 'future', name: 'Future',
-        description: 'To the future and beyond!!!!'},
+      category: 'future',
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },
@@ -111,5 +114,5 @@ describe('PatternsComponent', () => {
       ]
     });
     expect(pat_data.pattern_count).toBe(3);
-  });
+  });*/
 });

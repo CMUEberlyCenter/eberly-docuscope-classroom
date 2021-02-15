@@ -2,16 +2,16 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 
-import { DictionaryTreeService } from './dictionary-tree.service';
+import { CommonDictionaryService } from './common-dictionary.service';
 
-describe('DictionaryTreeService', () => {
-  let service: DictionaryTreeService;
+describe('CommonDictionaryService', () => {
+  let service: CommonDictionaryService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule, MatMenuModule ]
     });
-    service = TestBed.inject(DictionaryTreeService);
+    service = TestBed.inject(CommonDictionaryService);
   });
 
   it('should be created', () => {

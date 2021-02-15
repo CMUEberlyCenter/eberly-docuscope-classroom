@@ -1,21 +1,21 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MatSort } from '@angular/material/sort';
+// import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { ClusterData, instance_count } from '../cluster-data';
+import { instance_count } from '../cluster-data';
 import { CorpusService } from '../corpus.service';
 import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
-import { DictionaryTreeService } from '../dictionary-tree.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { forkJoin } from 'rxjs';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
 
-export class PatternClusterData {
+/*export class PatternClusterData {
   id: string;
   // name: string;
   // description?: string;
@@ -32,7 +32,8 @@ export class PatternClusterData {
     // this.description = cluster.category.description;
     this.patterns = cluster.patterns;
   }
-}
+}*/
+
 export class PatternTreeNode {
   label: string;
   help: string;
@@ -88,13 +89,13 @@ export class PatternsComponent implements OnInit {
   svg;
   treeControl = new NestedTreeControl<PatternTreeNode>(node => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  patterns_data: MatTableDataSource<PatternClusterData>;
+  //patterns_data: MatTableDataSource<PatternClusterData>;
   sundata: any;
   //expanded: PatternClusterData | null;
   //cluster_columns = ['name', /* 'pattern_count',*/ 'count', 'expand'];
 
   constructor(
-    private commonDictionaryService: DictionaryTreeService,
+    private commonDictionaryService: CommonDictionaryService,
     private corpusService: CorpusService,
     private dataService: PatternsService,
     private spinner: NgxUiLoaderService) { }
@@ -130,6 +131,7 @@ export class PatternsComponent implements OnInit {
                 node.children?.map(sunmap)
             });
             this.sundata = {name: 'root', children: common.tree.map(sunmap)};
+            //this.sundata = common.tree.map(sunmap);
             //const sundata = common.tree.map(sunmap);
             this.drawChart(this.sundata);
             this.spinner.stop();
@@ -172,7 +174,7 @@ export class PatternsComponent implements OnInit {
     this.svg = d3.select(/*this.sunburst.nativeElement*/'figure#sunburst')
       .append('svg')
       .attr('viewBox', `0 0 ${width} ${width}`)
-      .style('font', '10px open-sans');
+      .style('font', '12px open-sans');
     const g = this.svg.append('g')
       .attr('transform', `translate(${width / 2},${width / 2})`);
     const path = g.append('g')

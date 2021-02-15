@@ -4,13 +4,15 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { asyncData, FAKE_COMMON_DICTIONARY } from 'src/testing';
+import { CommonDictionaryService } from '../common-dictionary.service';
 
 import { BoxplotGraphComponent } from './boxplot-graph.component';
 
 const data = {
   categories: [{q1: 1, q2: 2, q3: 3, min: 0, max: 4,
     uifence: 3.5, lifence: 0.5,
-    id: 'bogus', name: 'Bogus Data'}],
+    id: 'bogus'}],
   data: [{
     id: 'over_outlier', title: 'High Bogus Outlier', bogus: 4.5,
     total_words: 100, ownedby: 'student'
@@ -37,6 +39,10 @@ describe('BoxplotGraphComponent', () => {
   let fixture: ComponentFixture<TestBoxplotComponent>;
 
   beforeEach(waitForAsync(() => {
+    const commonDictionaryService = jasmine.createSpyObj('CommonDictionaryService', ['getJSON']);
+    commonDictionaryService.getJSON.and.returnValue(asyncData(
+      FAKE_COMMON_DICTIONARY
+    ));
     TestBed.configureTestingModule({
       imports: [
         MatSortModule,
@@ -45,7 +51,10 @@ describe('BoxplotGraphComponent', () => {
         NoopAnimationsModule
       ],
       declarations: [ BoxplotGraphComponent, TestBoxplotComponent ],
-      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
+      schemas: [ /* NO_ERRORS_SCHEMA*/ ],
+      providers: [
+        { provide: CommonDictionaryService, useValue: commonDictionaryService },
+      ]
     })
       .compileComponents();
   }));

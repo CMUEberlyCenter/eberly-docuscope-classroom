@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from './../environments/environment';
+import { environment } from '../environments/environment';
 import { CommonDictionary, ICommonDictionary } from './common-dictionary';
 import { shareReplay } from 'rxjs/operators';
 // import { catchError } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { shareReplay } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class DictionaryTreeService {
+export class CommonDictionaryService {
   private _common_dict = `${environment.backend_server}/common_dictionary`;
 
   constructor(private http: HttpClient) { }

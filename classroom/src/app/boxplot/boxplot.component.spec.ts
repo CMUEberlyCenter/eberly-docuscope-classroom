@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { TagCloudModule } from 'angular-tag-cloud-module';
 import { asyncData } from '../../testing';
@@ -9,7 +8,7 @@ import { BoxplotComponent } from './boxplot.component';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DsDataService, DocuScopeData} from '../ds-data.service';
 import { SettingsService } from '../settings.service';
-import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({selector: 'app-boxplot-graph', template: ''})
 class BoxplotGraphStubComponent {
@@ -45,8 +44,6 @@ describe('BoxplotComponent', () => {
     dataService_spy.getData.and.returnValue(asyncData({
       categories: [{
         id: 'bogus',
-        name: 'Bogus Data',
-        description: 'A completely bogus category.',
         q1: 1, q2: 2, q3: 3, min: 0, max: 4,
         uifence: 3.5, lifence: 0.5,
       }],
@@ -100,8 +97,6 @@ describe('BoxplotComponent', () => {
   it('bogus rank', waitForAsync(async () => {
     await component.onSelectCategory({
       id: 'bogus',
-      name: 'Bogus Data',
-      description: 'A completely bogus category.',
       q1: 1, q2: 2, q3: 3, min: 0, max: 4,
       uifence: 3.5, lifence: 0.5,
     });

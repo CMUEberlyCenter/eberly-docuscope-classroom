@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { MatCardModule } from '@angular/material/card';
@@ -8,8 +8,8 @@ import { asyncData } from '../../testing';
 
 import { ScatterplotComponent } from './scatterplot.component';
 import { CorpusService } from '../corpus.service';
-import { DocuScopeData, DsDataService } from '../ds-data.service';
-import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
+import { DsDataService } from '../ds-data.service';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { SettingsService } from '../settings.service';
 
 @Component({selector: 'app-nav', template: ''})
@@ -98,7 +98,7 @@ describe('ScatterplotComponent', () => {
   });
 
   it('on_select', () => fixture.whenStable().then(() => {
-    expect(() => component.on_select({})).not.toThrow();
+    expect(() => component.on_select()).not.toThrow();
   }));
 
   it('select_point', () => {

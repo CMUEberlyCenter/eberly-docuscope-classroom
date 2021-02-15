@@ -16,7 +16,7 @@ import { PatternData, pattern_compare } from '../patterns.service';
 //import { TaggedTextService, TextContent } from '../tagged-text.service';
 import { DictionaryInformation } from '../assignment-data';
 import { SettingsService } from '../settings.service';
-import { DictionaryTreeService } from '../dictionary-tree.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
 import { Documents, DocumentService } from '../document.service';
 import { forkJoin } from 'rxjs';
@@ -104,7 +104,7 @@ export class TextViewComponent implements OnInit {
   constructor(
     private _route: ActivatedRoute,
     private _assignmentService: AssignmentService,
-    private _dictionary: DictionaryTreeService,
+    private _dictionary: CommonDictionaryService,
     private _sanitizer: DomSanitizer,
     private _settings_service: SettingsService,
     private _spinner: NgxUiLoaderService,

@@ -27,7 +27,7 @@ describe('PatternsService', () => {
     const corpus = ['a', 'b', 'c'];
     const pattern_data = [
       {
-        category: {id: 'test', name: 'Test Pattern', description: 'rrrgggbbb'},
+        category: 'test',
         patterns: [
           {pattern: 'a', count: 1},
           {pattern: 'a', count: 3},
@@ -36,7 +36,7 @@ describe('PatternsService', () => {
       }
     ];
     service.getPatterns(corpus).subscribe(data => {
-      expect(data[0].category.id).toBe('test');
+      expect(data[0].category).toBe('test');
     });
     const req = httpMock.expectOne(`${environment.backend_server}/patterns`);
     expect(req.request.method).toBe('POST');
@@ -44,7 +44,7 @@ describe('PatternsService', () => {
 
     // check caching
     service.getPatterns(corpus).subscribe(data => {
-      expect(data[0].category.id).toBe('test');
+      expect(data[0].category).toBe('test');
     });
   });
 });

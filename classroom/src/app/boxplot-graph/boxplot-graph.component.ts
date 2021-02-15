@@ -14,7 +14,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 
 import * as d3 from 'd3';
 import { CommonDictionary } from '../common-dictionary';
-import { DictionaryTreeService } from '../dictionary-tree.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 
 import { CategoryData, category_value, DocumentData, DocuScopeData, max_boxplot_value } from '../ds-data.service';
 
@@ -106,7 +106,7 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   private _unit = 100;
 
   constructor(
-    private commonDictionaryService: DictionaryTreeService,
+    private commonDictionaryService: CommonDictionaryService,
   ) { }
 
   // get options(): { width; height } {

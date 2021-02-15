@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Category, CommonDictionary, Entry, ICluster } from '../common-dictionary';
-import { DictionaryTreeService } from '../dictionary-tree.service';
+import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 
 @Component({
   selector: 'app-category-select',
@@ -12,7 +12,7 @@ export class CategorySelectComponent implements OnInit {
   @Output() selectedCategoryChange = new EventEmitter<string>();
   data: CommonDictionary;
   constructor(
-    private _dictionary: DictionaryTreeService,
+    private _dictionary: CommonDictionaryService,
   ) { }
 
   ngOnInit(): void {
