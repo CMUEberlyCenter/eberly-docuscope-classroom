@@ -18,5 +18,4 @@ export class NavComponent implements OnInit {
     return qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0;
   }
   ngOnInit() { }
-
 }

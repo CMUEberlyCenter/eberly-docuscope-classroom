@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { Type } from '@angular/core';
 
 import { AssignmentService } from './assignment.service';
 import { AssignmentData } from './assignment-data';

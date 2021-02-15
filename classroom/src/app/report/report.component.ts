@@ -43,7 +43,7 @@ export class ReportComponent implements OnInit {
     this.getIntro();
   }
 
-  generate_report($event): void {
+  generate_report(_$event): void {
     this._spinner.start();
     this.reportService.getReports(this.corpus, this.intro, this.stv_intro).subscribe(data => {
       if (data) {

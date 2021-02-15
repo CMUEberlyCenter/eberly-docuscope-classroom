@@ -1,4 +1,3 @@
-import { /* NO_ERRORS_SCHEMA,*/ NgModule } from '@angular/core';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';

@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
-import { AssignmentData } from '../assignment-data';
 import { SettingsService } from '../settings.service';
 
 @Component({

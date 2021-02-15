@@ -57,62 +57,6 @@
           </li>
         </mat-tree-node>
       </mat-tree>
-      <!--<tree-root *ngIf="dictionary" [nodes]="dictionary.tree"></tree-root>-->
-      <!--<table mat-table matSort #clusterTable
-             #TableSort=matSort  [dataSource]="clusters"
-             matSortDisableClear multiTemplateDataRows>
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
-          <td mat-cell *matCellDef="let clust;">
-            <mat-checkbox
-                (click)="$event.stopPropagation()"
-                (change)="selection_change($event, clust)"
-                [checked]="selection.isSelected(clust)"
-                [value]="clust.id"
-                [aria-label]="clust.name">
-              <span class="cluster-name">
-                <span [attr.data-key]="clust.id">{{clust.name}}</span>
-                <button mat-icon-button
-                        matTooltip="{{clust.description}}"
-                        matTooltipPosition="after">
-                  <mat-icon class="tooltip-icon">speaker_notes</mat-icon>
-                </button>
-              </span>
-            </mat-checkbox>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
-          <td mat-cell *matCellDef="let clust;">{{clust.count}}</td>
-        </ng-container>
-        <ng-container matColumnDef="expand">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let clust;">
-            <button mat-icon-button (click)="expand_handler($event, clust)">
-              <mat-icon [@indicatorRotate]="show_expanded(clust)">expand_more</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="expandedDetail">
-          <td mat-cell *matCellDef="let clust"
-              [attr.colspan]="cluster_columns.length">
-            <div class="cluster-detail" [style.height]="0"
-                 [@detailExpand]="show_expanded(clust)">
-              <div class="pattern-table">
-                <app-patterns-table [patterns]="clust.patterns"></app-patterns-table>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="cluster_columns"></tr>
-        <tr mat-row *matRowDef="let clust; columns: cluster_columns;"
-            class="cluster-row"
-            [class.cluster-expanded-row]="clust === expanded"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
-            class="cluster-detail-row"></tr>
-      </table>-->
     </mat-card-content>
   </mat-card>
   <mat-card *ngIf="tagged_text" class="text_card">

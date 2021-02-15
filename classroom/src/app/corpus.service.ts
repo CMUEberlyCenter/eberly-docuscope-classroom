@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'

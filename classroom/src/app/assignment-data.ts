@@ -8,7 +8,6 @@ export class AssignmentData {
   course?: string;
   assignment?: string;
   instructor?: string;
-  // categories?: DictionaryInformation[];
 }
 
 export type CategoryInfoMap = Map<string, DictionaryInformation>;

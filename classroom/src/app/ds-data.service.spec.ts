@@ -23,7 +23,6 @@ const data = {
 
 describe('DsDataService', () => {
   let service: DsDataService;
-  // const corpus = ['1', '2', '3'];
   let httpMock: HttpTestingController;
   const server = `${environment.backend_server}/ds_data`;
 

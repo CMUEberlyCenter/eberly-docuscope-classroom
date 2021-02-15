@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
-import { Category } from '../common-dictionary';
-// import { CategoryInfoMap, genCategoryInfoMap } from '../assignment-data';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService, CategoryInfoMap, genCategoryDataMap } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
@@ -64,9 +62,6 @@ export class RankComponent implements OnInit {
     this.getSettings();
     this.getCorpus();
   }
-  /* on_select(event: Event): void {
-    this.category = this.dsmap.get(this.selected_category);
-  } */
   onSelectCategory(category: string): void {
     // console.log(category);
     this.selected_category = category;

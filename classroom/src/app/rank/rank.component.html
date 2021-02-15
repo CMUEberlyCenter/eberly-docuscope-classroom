@@ -1,19 +1,12 @@
 <div class="tool">
   <app-nav></app-nav>
   <mat-card *ngIf="corpus" class="container">
-    <!--<h2>\{\{corpus.course\}\} - \{\{corpus.assignment\}\} Rankings</h2>-->
     <mat-card-title>Frequency</mat-card-title>
     <mat-card-subtitle>Frequency of the selected category for each document.</mat-card-subtitle>
     <mat-card-subtitle>The bar represents the difference from the median value and is the average number of instances per {{unit}} words.</mat-card-subtitle>
     <mat-card-content *ngIf="data">
       <aside class="select_category_box">
         <app-category-select [selectedCategory]="selected_category" (selectedCategoryChange)="onSelectCategory($event)"></app-category-select>
-        <!-- <mat-form-field>
-          <mat-label for="select_category">Category</mat-label>
-          <select matNativeControl required id="select_category" [(ngModel)]="selected_category" (ngModelChange)="on_select($event)">
-            <option *ngFor="let c of categories" [value]="c.id">{{c.name}}</option>
-          </select>
-        </mat-form-field> -->
       </aside>
       <article>
         <app-rank-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category"></app-rank-graph>

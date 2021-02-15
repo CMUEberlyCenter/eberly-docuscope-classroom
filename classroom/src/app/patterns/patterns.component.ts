@@ -3,7 +3,6 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { instance_count } from '../cluster-data';
 import { CorpusService } from '../corpus.service';
 import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -40,18 +39,12 @@ interface SunburstNode {
   ],
 })
 export class PatternsComponent implements OnInit {
-  //@ViewChild('clusterTableSort', {static: true}) sort: MatSort;
   @ViewChild('sunburst', {static: true}) sunburst: ElementRef;
 
-  //commonDictionary: CommonDictionary;
-  //corpus: string[];
   svg;
   treeControl = new NestedTreeControl<PatternTreeNode>(node => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  //patterns_data: MatTableDataSource<PatternClusterData>;
   sundata: any;
-  //expanded: PatternClusterData | null;
-  //cluster_columns = ['name', /* 'pattern_count',*/ 'count', 'expand'];
 
   constructor(
     private commonDictionaryService: CommonDictionaryService,
@@ -69,7 +62,6 @@ export class PatternsComponent implements OnInit {
   ngOnInit() {
     this.spinner.start();
     this.corpusService.getCorpus().subscribe(corpus => {
-      //this.corpus = corpus;
       forkJoin([this.dataService.getPatterns(corpus),
           this.commonDictionaryService.getJSON()]).subscribe(
             (results: [CategoryPatternData[], CommonDictionary]) => {

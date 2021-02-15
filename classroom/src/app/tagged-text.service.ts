@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, retry, publishReplay, refCount } from 'rxjs/operators';
+import { catchError, publishReplay, refCount } from 'rxjs/operators';
 import { environment } from './../environments/environment';
 import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 import { DictionaryInformation } from './assignment-data';

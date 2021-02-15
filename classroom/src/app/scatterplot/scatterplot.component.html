@@ -10,18 +10,6 @@
         <mat-label class="grid-item">Y Axis: </mat-label>
         <app-category-select class="grid-item" [selectedCategory]="x_axis" (selectedCategoryChange)="on_select_x($event)"></app-category-select>
         <app-category-select class="grid-item" [selectedCategory]="y_axis" (selectedCategoryChange)="on_select_y($event)"></app-category-select>
-        <!--<mat-form-field class="axis_select">
-          <mat-label>Y Axis</mat-label>
-          <select matNativeControl required [(ngModel)]="y_axis" (ngModelChange)="on_select($event)" ngOptions>
-            <option *ngFor="let y of y_categories" [value]="y.id">{{y.name}}</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field class="axis_select">
-          <mat-label>X Axis</mat-label>
-          <select matNativeControl required [(ngModel)]="x_axis" (ngModelChange)="on_select($event)">
-            <option *ngFor="let x of x_categories" [value]="x.id">{{x.name}}</option>
-          </select>
-        </mat-form-field>-->
       </div><!-- category.id => name(category.id) -->
       <google-chart #scatterplot *ngIf="scatter_data"
                     [title]="x_category.id+' vs '+y_category.id"
