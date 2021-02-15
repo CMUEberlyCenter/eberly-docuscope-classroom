@@ -1,7 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-// import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
@@ -14,46 +12,7 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { forkJoin } from 'rxjs';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
-
-/*export class PatternClusterData {
-  id: string;
-  // name: string;
-  // description?: string;
-  patterns: PatternData[];
-  get count(): number {
-    return instance_count(this.patterns);
-  }
-  get pattern_count(): number {
-    return this.patterns.length;
-  }
-  constructor(cluster: CategoryPatternData) {
-    this.id = cluster.category;
-    // this.name = cluster.category.name;
-    // this.description = cluster.category.description;
-    this.patterns = cluster.patterns;
-  }
-}*/
-
-export class PatternTreeNode {
-  label: string;
-  help: string;
-  children?: PatternTreeNode[];
-  patterns?: PatternData[];
-  constructor(node: CommonDictionaryTreeNode, children: PatternTreeNode[], patterns: PatternData[]) {
-    this.label = node.label;
-    this.help = node.help;
-    this.children = children;
-    this.patterns = patterns;
-  }
-  get count(): number {
-    if (this.patterns) {
-      return instance_count(this.patterns);
-    } else if (this.children) {
-      return this.children.reduce((tot, cur) => tot + cur.count, 0);
-    }
-    return 0;
-  }
-}
+import { PatternTreeNode } from '../pattern-tree-node';
 
 interface SunburstNode {
   name: string;

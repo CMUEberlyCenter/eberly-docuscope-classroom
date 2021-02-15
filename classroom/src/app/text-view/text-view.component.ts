@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material/sort';
@@ -11,18 +11,17 @@ import * as d3 from 'd3';
 import * as $ from 'jquery';
 
 import { AssignmentService } from '../assignment.service';
-import { ClusterData, cluster_compare, instance_count } from '../cluster-data';
+import { ClusterData, instance_count } from '../cluster-data';
 import { PatternData, pattern_compare } from '../patterns.service';
-//import { TaggedTextService, TextContent } from '../tagged-text.service';
 import { DictionaryInformation } from '../assignment-data';
 import { SettingsService } from '../settings.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
 import { Documents, DocumentService } from '../document.service';
 import { forkJoin } from 'rxjs';
-import { PatternTreeNode } from '../patterns/patterns.component';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { PatternTreeNode } from '../pattern-tree-node';
 
 class TextClusterData implements ClusterData {
   id: string;
