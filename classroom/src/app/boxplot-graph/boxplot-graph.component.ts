@@ -155,7 +155,7 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
         ...this.getCategoryData(node.id ?? node.label),
         documents: node.id ? this.getDocumentData(node.id) : []
       });
-      this.treeData.data = this.commonDictionary.tree.map(dfsmap);
+      this.treeData.data = this.commonDictionary.tree?.map(dfsmap);
     }
   }
   getCategoryData(id: string) {

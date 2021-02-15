@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
@@ -14,9 +14,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { asyncData } from '../../testing';
 import { ComparisonComponent } from './comparison.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
-import { Documents, DocumentService } from '../document.service';
+import { DocumentService } from '../document.service';
 import { ComparePatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 

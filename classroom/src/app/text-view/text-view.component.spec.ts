@@ -17,6 +17,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { TaggedTextService } from '../tagged-text.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({selector: 'app-patterns-table', template: ''})
 class PatternsTableStubComponent {
@@ -92,6 +93,7 @@ describe('TextViewComponent', () => {
         MatCardModule,
         MatCheckboxModule,
         MatIconModule,
+        MatSnackBarModule,
         MatSortModule,
         MatTableModule,
         MatTooltipModule,
