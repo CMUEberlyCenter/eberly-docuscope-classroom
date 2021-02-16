@@ -100,7 +100,7 @@
   </mat-card>
 </div>
 <ng-template #patternlabel let-row="row">
-  {{row.label}}
+  <span class="pattern_label">{{row.label}}</span>
   <button *ngIf="row.help" mat-icon-button matTooltip="{{row.help}}"
     matTooltipPosition="after">
     <mat-icon class="tooltip-icon">comment</mat-icon>

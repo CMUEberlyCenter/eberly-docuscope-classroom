@@ -17,6 +17,7 @@ import { forkJoin } from 'rxjs';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { PatternTreeNode } from '../pattern-tree-node';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-text-view',
@@ -96,21 +97,23 @@ export class TextViewComponent implements OnInit {
     return !!node.patterns && node.patterns.length > 0;
   }
 
-  click_select($event) {
-    const parent = $event.target.parentNode;
-    const parent_key = parent.getAttribute('data-key');
-    if (parent_key && this.tagged_text) {
-      const lat = parent_key.trim();
-      if (lat) {
+  click_select($event: MouseEvent) {
+    let target: HTMLElement | null = $event.target as HTMLElement;
+    while (target && !target.getAttribute('data-key')) {
+      target = target.parentElement;
+    }
+    if (target && this.tagged_text) {
+      const key = target?.getAttribute('data-key');
+      if (key && key.trim()) {
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').classed('d_none', true);
-        d3.select(parent).classed('selected_text', true);
-        d3.select(parent).select('sup.cluster_id').classed('d_none', false);
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
 
-  selection_change($event, node: PatternTreeNode) {
+  selection_change($event: MatCheckboxChange, node: PatternTreeNode) {
     if ($event && node) {
       if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
         $event.source.checked = false;
@@ -124,6 +127,7 @@ export class TextViewComponent implements OnInit {
         this._selected_clusters.delete(id);
       }
       d3.selectAll(`.${id}`).classed(css_class, $event.source.checked);
+      d3.select(`#${$event.source.id} .pattern_label`).classed(css_class, $event.source.checked);
     }
   }
 
