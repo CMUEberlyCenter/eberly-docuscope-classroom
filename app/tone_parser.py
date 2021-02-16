@@ -33,6 +33,7 @@ class ToneParser(HTMLParser):
                         #classes.extend(filter(lambda i: isinstance(i, str),
                         #                      cats.values.tolist()[0]))
                         classes.extend(cats.values())
+                        cpath = f"{cats['category']} > {cats['subcategory']} > {cluster}"
                         self.out.write(f' {attr[0]}="{cluster}"')
                         #self.out.write(f' class="{classes}"')
                 else:

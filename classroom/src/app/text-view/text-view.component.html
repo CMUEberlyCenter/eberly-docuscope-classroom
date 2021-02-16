@@ -52,9 +52,9 @@
                     [ngTemplateOutletContext]="{row:node}"></ng-container>
                 </mat-checkbox>
               </div>
-              <div [class.tree-node-invisible]="treeControl.isExpanded(node)">{{node.count}}</div>
+              <div [class.d_none]="treeControl.isExpanded(node)">{{node.count}}</div>
             </div>
-            <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+            <ul [class.d_none]="!treeControl.isExpanded(node)">
               <ng-container matTreeNodeOutlet></ng-container>
             </ul>
           </li>
@@ -71,6 +71,7 @@
                 </button>
                 <mat-checkbox [checked]="selection.isSelected(node)"
                     (click)="$event.stopPropagation()"
+                    (change)="selection_change($event, node)"
                     [value]="node"
                     [disabled]="node.count === 0"
                     [aria-label]="node.label">
@@ -82,7 +83,7 @@
             </div>
             <div
               [class.pattern-table]="true"
-              [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+              [class.d_none]="!treeControl.isExpanded(node)">
               <app-patterns-table [patterns]="node.patterns"></app-patterns-table>
             </div>
           </li>

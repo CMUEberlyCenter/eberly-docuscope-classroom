@@ -9,9 +9,6 @@
   overflow-y: auto;
 }
 
-.tree-node-invisible {
-  display: none;
-}
 .tree ul,
 .tree li {
   margin-top: 0;
@@ -66,4 +63,8 @@ tr.cluster-detail-row {
   max-width: 6.5in;
   padding-left: 18px;
   padding-right: 18px;
+}
+
+.d_none {
+  display: none;
 }

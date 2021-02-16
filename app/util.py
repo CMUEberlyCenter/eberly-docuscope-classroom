@@ -13,8 +13,6 @@ from starlette.status import \
 from sqlalchemy.orm import Session
 
 from ds_db import Assignment, DSDictionary, Filesystem
-#from ds_tones import DocuScopeTones
-from lat_frame import LAT_FRAME
 from response import LevelEnum, LevelFrame
 
 def get_db_session(request: Request) -> Session:

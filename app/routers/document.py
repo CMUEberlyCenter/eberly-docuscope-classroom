@@ -8,17 +8,16 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from lxml import etree
+from lxml.html import Classes
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from ds_db import Assignment, Filesystem
-#from ds_tones import DocuScopeTones
-from lat_frame import LAT_FRAME
+from lat_frame import LAT_MAP
 from response import AssignmentData, ERROR_RESPONSES
-from tone_parser import ToneParser
 from util import document_state_check, get_db_session, get_ds_info
-from count_patterns import fast_count_patterns, CategoryPatternData, sort_patterns
+from count_patterns import count_patterns, CategoryPatternData, sort_patterns
 
 router = APIRouter()
 
@@ -77,26 +76,45 @@ async def get_documents(corpus: List[UUID],
         instructor.add(a_instructor)
         assignment.add(a_name)
         html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
-        html = "<p>" + html_content.replace("PZPZPZ", "</p><p>") + "</p>"
-        #if tones is None:
-        #    tones = DocuScopeTones(ds_dict)
-        buf = io.StringIO()
-        parser = ToneParser(LAT_FRAME, buf)
-        parser.feed(html)
-        parser.close()
+        html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>", "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
-        etr = etree.fromstring(f"<body>{html_content}</body>")
-        fast_count_patterns(etr, pats)
+        try:
+            etr = etree.fromstring(html)
+        except Exception as exp:
+            logging.error(html)
+            raise exp
+        count_patterns(etr, pats)
+        for tag in etr.iterfind(".//*[@data-key]"):
+            lat = tag.get('data-key')
+            categories = LAT_MAP[lat]
+            #TODO: clear bad lats from data-key?
+            #tag.set('data-key', None)
+            if categories:
+                if categories['cluster'] != 'Other': # Filter out Other
+                    cats = [categories['category'],
+                            categories['subcategory'],
+                            categories['cluster']]
+                    cpath = " > ".join([categories['category'],
+                                        categories['subcategory'],
+                                        categories['cluster_label']])
+                    sup = etree.SubElement(tag, "sup")
+                    sup.text = "{" + cpath + "}"
+                    sclasses = Classes(sup.attrib)
+                    sclasses |= cats
+                    sclasses |= ['d_none', 'cluster_id']
+                    tclasses = Classes(tag.attrib)
+                    tclasses |= cats
+                    tag.set('data-key', cpath)
+            else:
+                logging.info(f"No category mapping for {lat}.")
         docs.append(Document(
             text_id=filename,
             owner=fullname,
             ownedby=ownedby,
             word_count=doc['ds_num_word_tokens'],
-            html_content=buf.getvalue(),
+            html_content=etree.tostring(etr),
             patterns=sort_patterns(pats)
         ))
-        buf.close()
-    #ds_info = get_ds_info(ds_dict, db_session)
     if len(course) > 1 or len(instructor) > 1 or len(assignment) > 1:
         raise HTTPException(
             detail="Specified documents are from different sections and cannot be compared.",

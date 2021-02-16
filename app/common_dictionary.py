@@ -64,7 +64,7 @@ def get_common_dictionary() -> CommonDictionary:
 
 def common_frame() -> DataFrame:
     dscommon = get_common_dictionary()
-    dsc = [{"category": cat.label, "subcategory": sub.label, "cluster": clust.name} for cat in dscommon.categories for sub in cat.subcategories for clust in sub.clusters]
+    dsc = [{"category": cat.label, "subcategory": sub.label, "cluster": clust.name, "cluster_label": clust.label} for cat in dscommon.categories for sub in cat.subcategories for clust in sub.clusters]
     return DataFrame(dsc, dtype="string")
 
 COMMON_DICTIONARY_FRAME = common_frame()

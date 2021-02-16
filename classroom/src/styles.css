@@ -8,7 +8,7 @@
 .cluster_id {
   background: lightgrey;
   border: 1px solid grey;
-  display: none;
+  /*display: none;*/
   padding: 3px;
 }
 .cluster_default {
@@ -52,6 +52,10 @@
   border-bottom-style: solid;
   border-bottom-width: 3px;
 }
+.d_none {
+  display: none;
+}
+
 .selected_text {
   background-color: pink;
 }

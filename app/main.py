@@ -13,7 +13,7 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from default_settings import Config
-from routers import document, ds_data, generate_reports, groups, patterns, text_content
+from routers import document, ds_data, generate_reports, groups, patterns
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -72,7 +72,6 @@ app.include_router(ds_data.router) # boxplot, rank, and scatter use ds_data
 app.include_router(groups.router)
 app.include_router(patterns.router)
 app.include_router(generate_reports.router)
-app.include_router(text_content.router)
 
 ## Serve static files.
 @app.get("/common_dictionary")
