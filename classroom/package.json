@@ -20,9 +20,7 @@
     "build_prod": "ng build --base-href=/docuscope/classroom/ --output-hashing none --configuration=deploy",
     "test": "ng test",
     "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage=true",
-    "lint": "ng lint",
-    "eslint": "eslint -c .eslintrc.js --ext .ts src",
-    "codeclimate": "ng lint --format=json | node ./formatters/codeclimateFormatter.js > gl-codequality.json",
+    "lint": "eslint -c .eslintrc.json --ext .ts src",
     "e2e": "ng e2e"
   },
   "private": true,
@@ -72,6 +70,7 @@
     "codelyzer": "^6.0.1",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.0.0",
+    "eslint-formatter-gitlab": "^2.2.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "^32.2.0",
     "eslint-plugin-prefer-arrow": "1.2.3",

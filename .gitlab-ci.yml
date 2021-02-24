@@ -40,8 +40,9 @@ classroom_lint:
   script:
     - cd classroom
     - npm ci
-    - npm run codeclimate
-    - npm run lint
+    - npx eslint --format gitlab src
+    #- npm run codeclimate
+    #- npm run lint
   artifacts:
     reports:
       codequality: classroom/gl-codequality.json
