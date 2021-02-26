@@ -1,60 +1,60 @@
-import { Component, Input } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatCardModule } from "@angular/material/card";
-import { TagCloudModule } from "angular-tag-cloud-module";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { asyncData } from "../../testing";
-import { CorpusService } from "../corpus.service";
-import { CategoryData, DocuScopeData, DsDataService } from "../ds-data.service";
-import { SettingsService } from "../settings.service";
-import { BoxplotComponent } from "./boxplot.component";
+import { Component, Input } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatCardModule } from '@angular/material/card';
+import { TagCloudModule } from 'angular-tag-cloud-module';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
+import { CorpusService } from '../corpus.service';
+import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { SettingsService } from '../settings.service';
+import { BoxplotComponent } from './boxplot.component';
 
-@Component({ selector: "app-boxplot-graph", template: "" })
+@Component({ selector: 'app-boxplot-graph', template: '' })
 class BoxplotGraphStubComponent {
   @Input() boxplot: DocuScopeData;
   @Input() unit: number;
 }
 
-@Component({ selector: "app-nav", template: "" })
+@Component({ selector: 'app-nav', template: '' })
 class NavStubComponent {}
 
-@Component({ selector: "app-rank-graph", template: "" })
+@Component({ selector: 'app-rank-graph', template: '' })
 class RankGraphStubComponent {
   @Input() data: DocuScopeData;
   @Input() category: CategoryData;
   @Input() unit: number;
 }
 
-describe("BoxplotComponent", () => {
+describe('BoxplotComponent', () => {
   let component: BoxplotComponent;
   let fixture: ComponentFixture<BoxplotComponent>;
 
   beforeEach(
     waitForAsync(() => {
       const ngx_spinner_service_spy = jasmine.createSpyObj(
-        "NgxSpinnerService",
-        ["start", "stop"]
+        'NgxSpinnerService',
+        ['start', 'stop']
       );
-      const corpusService_spy = jasmine.createSpyObj("CorpusService", [
-        "getCorpus",
+      const corpusService_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
       ]);
       corpusService_spy.getCorpus.and.returnValue(
         asyncData({
-          course: "stub",
-          assignment: "stub",
-          documents: ["1", "2", "3"],
-          intro: "stub",
-          stv_intro: "stub",
+          course: 'stub',
+          assignment: 'stub',
+          documents: ['1', '2', '3'],
+          intro: 'stub',
+          stv_intro: 'stub',
         })
       );
-      const dataService_spy = jasmine.createSpyObj("DsDataService", [
-        "getData",
+      const dataService_spy = jasmine.createSpyObj('DsDataService', [
+        'getData',
       ]);
       dataService_spy.getData.and.returnValue(
         asyncData({
           categories: [
             {
-              id: "bogus",
+              id: 'bogus',
               q1: 1,
               q2: 2,
               q3: 3,
@@ -66,25 +66,25 @@ describe("BoxplotComponent", () => {
           ],
           data: [
             {
-              id: "bogus_index",
-              text: "bogus text",
-              ownedby: "student",
+              id: 'bogus_index',
+              text: 'bogus text',
+              ownedby: 'student',
               bogus: 0.5,
               total_words: 2,
             },
           ],
         })
       );
-      const settings_spy = jasmine.createSpyObj("SettingsService", [
-        "getSettings",
+      const settings_spy = jasmine.createSpyObj('SettingsService', [
+        'getSettings',
       ]);
       settings_spy.getSettings.and.returnValue(
         asyncData({
-          title: "DocuScope Classroom",
-          institution: "CMU",
+          title: 'DocuScope Classroom',
+          institution: 'CMU',
           unit: 100,
           homepage:
-            "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
           scatter: { width: 400, height: 400 },
           boxplot: { cloud: true },
           stv: { max_clusters: 4 },
@@ -115,20 +115,20 @@ describe("BoxplotComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("null select", () => {
+  it('null select', () => {
     component.onSelectCategory(null);
     expect(component.selected_category).toBe(null);
   });
 
   it(
-    "bogus rank",
+    'bogus rank',
     waitForAsync(async () => {
       await component.onSelectCategory({
-        id: "bogus",
+        id: 'bogus',
         q1: 1,
         q2: 2,
         q3: 3,

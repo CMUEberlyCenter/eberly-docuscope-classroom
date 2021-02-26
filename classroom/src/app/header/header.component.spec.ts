@@ -1,35 +1,35 @@
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatDialog } from "@angular/material/dialog";
-import { MatIconModule } from "@angular/material/icon";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { asyncData } from "../../testing";
-import { AboutComponent } from "../about/about.component";
-import { AssignmentService } from "../assignment.service";
-import { SettingsService } from "../settings.service";
-import { HeaderComponent } from "./header.component";
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { asyncData } from '../../testing';
+import { AboutComponent } from '../about/about.component';
+import { AssignmentService } from '../assignment.service';
+import { SettingsService } from '../settings.service';
+import { HeaderComponent } from './header.component';
 
-@Component({ selector: "app-about", template: "" })
+@Component({ selector: 'app-about', template: '' })
 class AboutStubComponent {}
 
-describe("HeaderComponent", () => {
+describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let service: AssignmentService;
   let settings_spy;
-  const mat_dialog_spy = jasmine.createSpyObj("MatDialog", ["open"]);
+  const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
 
   beforeEach(
     waitForAsync(() => {
-      settings_spy = jasmine.createSpyObj("SettingsService", ["getSettings"]);
+      settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
       settings_spy.getSettings.and.returnValue(
         asyncData({
-          title: "DocuScope Classroom",
-          institution: "Home",
+          title: 'DocuScope Classroom',
+          institution: 'Home',
           unit: 100,
           homepage:
-            "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
           scatter: { width: 400, height: 400 },
           boxplot: { cloud: true },
           stv: { max_clusters: 4 },
@@ -54,69 +54,69 @@ describe("HeaderComponent", () => {
     service = TestBed.inject(AssignmentService);
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should have as title 'DocuScope Classroom @ CMU'", () => {
-    expect(component.title).toEqual("DocuScope Classroom");
-    expect(component.institution).toEqual("@ CMU");
+  it('should have as title \'DocuScope Classroom @ CMU\'', () => {
+    expect(component.title).toEqual('DocuScope Classroom');
+    expect(component.institution).toEqual('@ CMU');
   });
 
-  it("check assignment", () => {
-    service.setAssignment("assignment");
+  it('check assignment', () => {
+    service.setAssignment('assignment');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
       const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector("#assignment_name").textContent).toContain(
-        "assignment"
+      expect(compiled.querySelector('#assignment_name').textContent).toContain(
+        'assignment'
       );
     });
   });
-  it("check course", () => {
-    service.setCourse("course");
+  it('check course', () => {
+    service.setCourse('course');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
       const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector("#course_name").textContent).toContain(
-        "course"
+      expect(compiled.querySelector('#course_name').textContent).toContain(
+        'course'
       );
     });
   });
-  it("check instructor", () => {
-    service.setInstructor("instructor");
+  it('check instructor', () => {
+    service.setInstructor('instructor');
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
       const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector("#instructor_name").textContent).toContain(
-        "instructor"
+      expect(compiled.querySelector('#instructor_name').textContent).toContain(
+        'instructor'
       );
     });
   });
 
-  it("about", () => {
+  it('about', () => {
     component.openAbout();
     expect(mat_dialog_spy.open).toHaveBeenCalled();
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 
   it(
-    "getSettings",
+    'getSettings',
     waitForAsync(async () => {
-      expect(component.institution).toBe("@ CMU");
+      expect(component.institution).toBe('@ CMU');
       component.getSettings();
       fixture.detectChanges();
       await fixture.whenStable().then(() => {
-        expect(component.institution).toBe("@ Home");
+        expect(component.institution).toBe('@ Home');
       });
 
       settings_spy.getSettings.and.returnValue(
         asyncData({
-          title: "DocuScope Classroom",
-          institution: "",
+          title: 'DocuScope Classroom',
+          institution: '',
           unit: 100,
           homepage:
-            "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
           scatter: { width: 400, height: 400 },
           boxplot: { cloud: true },
           stv: { max_clusters: 4 },
@@ -125,7 +125,7 @@ describe("HeaderComponent", () => {
       component.getSettings();
       fixture.detectChanges();
       await fixture.whenStable().then(() => {
-        expect(component.institution).toBe("");
+        expect(component.institution).toBe('');
       });
     })
   );

@@ -1,16 +1,16 @@
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MessageService } from "../message.service";
-import { MessagesComponent } from "./messages.component";
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MessageService } from '../message.service';
+import { MessagesComponent } from './messages.component';
 
-describe("MessagesComponent", () => {
+describe('MessagesComponent', () => {
   let component: MessagesComponent;
   let fixture: ComponentFixture<MessagesComponent>;
 
   beforeEach(
     waitForAsync(() => {
-      const message_service_spy = jasmine.createSpyObj("MessageService", [
-        "add",
-        "clear",
+      const message_service_spy = jasmine.createSpyObj('MessageService', [
+        'add',
+        'clear',
       ]);
       message_service_spy.messages = [];
 
@@ -27,7 +27,7 @@ describe("MessagesComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

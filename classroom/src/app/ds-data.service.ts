@@ -1,14 +1,14 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError, publishReplay, refCount } from "rxjs/operators";
-import { environment } from "./../environments/environment";
-import { AssignmentData } from "./assignment-data";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError, publishReplay, refCount } from 'rxjs/operators';
+import { environment } from './../environments/environment';
+import { AssignmentData } from './assignment-data';
 import {
   HandleError,
   HttpErrorHandlerService,
-} from "./http-error-handler.service";
+} from './http-error-handler.service';
 
 export class DocumentData {
   id: string;
@@ -22,7 +22,7 @@ export function category_value(
   category: CategoryData | string,
   datum: DocumentData
 ): number {
-  const cat: string = typeof category === "string" ? category : category.id;
+  const cat: string = typeof category === 'string' ? category : category.id;
   if (cat in datum) {
     return datum[cat];
   }
@@ -65,7 +65,7 @@ export function max_boxplot_value(data: DocuScopeData): number {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class DsDataService {
   server = `${environment.backend_server}/ds_data`;
@@ -76,7 +76,7 @@ export class DsDataService {
     private http: HttpClient,
     httpErrorHandler: HttpErrorHandlerService
   ) {
-    this.handleError = httpErrorHandler.createHandleError("DsDataService");
+    this.handleError = httpErrorHandler.createHandleError('DsDataService');
   }
 
   getData(corpus: string[]): Observable<DocuScopeData> {
@@ -86,7 +86,7 @@ export class DsDataService {
         .pipe(
           publishReplay(1),
           refCount(),
-          catchError(this.handleError("getData", { categories: [], data: [] }))
+          catchError(this.handleError('getData', { categories: [], data: [] }))
         );
     }
     return this.data;

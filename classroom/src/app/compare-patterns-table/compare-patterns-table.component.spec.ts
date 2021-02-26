@@ -1,16 +1,16 @@
-import { Component, ViewChild } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatCardModule } from "@angular/material/card";
-import { MatIconModule } from "@angular/material/icon";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ComparePatternsTableComponent } from "./compare-patterns-table.component";
+import { Component, ViewChild } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ComparePatternsTableComponent } from './compare-patterns-table.component';
 
 const data = {};
 @Component({
-  selector: "app-fake-compare-patterns-table",
+  selector: 'app-fake-compare-patterns-table',
   template: `<app-compare-patterns-table
     patterns="${data}"
     colors="['red','blue']"
@@ -21,7 +21,7 @@ class TestComparePatternsTableComponent {
   public table: ComparePatternsTableComponent;
 }
 
-describe("ComparePatternsTableComponent", () => {
+describe('ComparePatternsTableComponent', () => {
   let component: ComparePatternsTableComponent;
   let fixture: ComponentFixture<ComparePatternsTableComponent>;
   let tcomponent: TestComparePatternsTableComponent;
@@ -52,11 +52,11 @@ describe("ComparePatternsTableComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should create with colors", () => {
+  it('should create with colors', () => {
     tfixture = TestBed.createComponent(TestComparePatternsTableComponent);
     tcomponent = tfixture.componentInstance;
     tfixture.detectChanges();

@@ -8,15 +8,15 @@ Service for passing descriptive information about the assignment:
 Need a service as the relevant information is packed into various other request
 responses and needs to be passed to the header.
 */
-import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
-import { AssignmentData } from "./assignment-data";
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+import { AssignmentData } from './assignment-data';
 
 /**
  * Service for passing descriptive assignment information around.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AssignmentService {
   /** Storage for current assignment data */

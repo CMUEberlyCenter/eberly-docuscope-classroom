@@ -1,31 +1,31 @@
-import { HttpClientTestingModule } from "@angular/common/http/testing";
-import { Component, Input } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatButtonToggleModule } from "@angular/material/button-toggle";
-import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatIconModule } from "@angular/material/icon";
-import { MatSnackBarModule } from "@angular/material/snack-bar";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { RouterTestingModule } from "@angular/router/testing";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { asyncData } from "../../testing";
-import { CorpusService } from "../corpus.service";
-import { DocumentService } from "../document.service";
-import { ComparePatternData } from "../patterns.service";
-import { SettingsService } from "../settings.service";
-import { ComparisonComponent } from "./comparison.component";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Component, Input } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
+import { CorpusService } from '../corpus.service';
+import { DocumentService } from '../document.service';
+import { ComparePatternData } from '../patterns.service';
+import { SettingsService } from '../settings.service';
+import { ComparisonComponent } from './comparison.component';
 
-@Component({ selector: "app-compare-patterns-table" })
+@Component({ selector: 'app-compare-patterns-table' })
 class ComparePatternsTableStubComponent {
   @Input() colors: string[];
   @Input() patterns: ComparePatternData[];
 }
 
-describe("ComparisonComponent", () => {
+describe('ComparisonComponent', () => {
   let component: ComparisonComponent;
   let fixture: ComponentFixture<ComparisonComponent>;
   // let assignment_service_spy;
@@ -52,58 +52,58 @@ describe("ComparisonComponent", () => {
 
   beforeEach(
     waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj("CorpusService", ["getCorpus"]);
-      corpus_service_spy.getCorpus.and.returnValue(asyncData(["a", "b"]));
-      ngx_spinner_service_spy = jasmine.createSpyObj("NgxUiLoaderService", [
-        "start",
-        "stop",
+      corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+      corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b']));
+      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
+        'start',
+        'stop',
       ]);
-      documents_service_spy = jasmine.createSpyObj("DocumentService", [
-        "getData",
+      documents_service_spy = jasmine.createSpyObj('DocumentService', [
+        'getData',
       ]);
       documents_service_spy.getData.and.returnValue(
         asyncData({
-          course: "bogus_course",
-          assignment: "bogus_assignment",
-          instructor: "test_instructor",
+          course: 'bogus_course',
+          assignment: 'bogus_assignment',
+          instructor: 'test_instructor',
           categories: [
             {
-              id: "bogus_cluster",
-              name: "Bogus Cluster",
-              description: "bogus",
+              id: 'bogus_cluster',
+              name: 'Bogus Cluster',
+              description: 'bogus',
             },
-            { id: "no_cluster", name: "No Cluster", description: "null" },
+            { id: 'no_cluster', name: 'No Cluster', description: 'null' },
           ],
           documents: [
             {
-              text_id: "a",
-              owner: "astudent",
-              ownedby: "student",
+              text_id: 'a',
+              owner: 'astudent',
+              ownedby: 'student',
               word_count: 2,
               html_content: test_html,
             },
             {
-              text_id: "b",
-              owner: "ata",
-              ownedby: "instructor",
+              text_id: 'b',
+              owner: 'ata',
+              ownedby: 'instructor',
               word_count: 2,
               html_content: test_html,
             },
           ],
         })
       );
-      settings_spy = jasmine.createSpyObj("SettingsService", ["getSettings"]);
+      settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
       settings_spy.getSettings.and.returnValue(
         asyncData({
-          title: "DocuScope Classroom",
-          institution: "CMU",
+          title: 'DocuScope Classroom',
+          institution: 'CMU',
           unit: 2,
           homepage:
-            "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
           scatter: { width: 400, height: 400 },
           boxplot: { cloud: true },
           stv: { max_clusters: 4 },
-          mtv: { horizontal: false, documentColors: ["#1c66aa", "#639c54"] },
+          mtv: { horizontal: false, documentColors: ['#1c66aa', '#639c54'] },
         })
       );
 
@@ -138,57 +138,57 @@ describe("ComparisonComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("getSettings", () => {
+  it('getSettings', () => {
     settings_spy.getSettings.and.returnValue(
       asyncData({
-        title: "DocuScope Classroom",
-        institution: "CMU",
+        title: 'DocuScope Classroom',
+        institution: 'CMU',
         unit: 100,
         homepage:
-          "https://www.cmu.edu/dietrich/english/research/docuscope.html",
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
         scatter: { width: 400, height: 400 },
         boxplot: { cloud: true },
         stv: { max_clusters: 4 },
-        mtv: { horizontal: true, documentColors: ["#1c66aa", "#639c54"] },
+        mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
       })
     );
     expect(() => component.getSettings()).not.toThrow();
   });
 
-  it("max_selected_clusters", () => {
+  it('max_selected_clusters', () => {
     expect(component.max_selected_clusters).toBe(4);
   });
 
-  it("getCorpus empty", () => {
+  it('getCorpus empty', () => {
     corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
     expect(() => component.getCorpus()).not.toThrow();
   });
 
-  it("getCorpus singular", () => {
-    corpus_service_spy.getCorpus.and.returnValue(asyncData(["a"]));
+  it('getCorpus singular', () => {
+    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a']));
     expect(() => component.getCorpus()).not.toThrow();
     // TODO: test if routed
   });
 
   it(
-    "getCorpus too many",
+    'getCorpus too many',
     waitForAsync(async () => {
-      corpus_service_spy.getCorpus.and.returnValue(asyncData(["a", "b", "c"]));
+      corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b', 'c']));
       await component.getCorpus();
-      expect(component.corpus).toEqual(["a", "b"]);
+      expect(component.corpus).toEqual(['a', 'b']);
     })
   );
 
-  it("click_select invalid", () =>
+  it('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
           parentNode: {
-            getAttribute: () => "invalid",
+            getAttribute: () => 'invalid',
             classed: () => {},
             select: () => ({ style: () => {} }),
           },
@@ -198,7 +198,7 @@ describe("ComparisonComponent", () => {
       // fixture.whenStable().then(() => expect(fixture.debugElement.nativeElement.querySelectorAll('.cluster_id')).toBe(true));
     }));
 
-  it("click_select null", () =>
+  it('click_select null', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
@@ -213,12 +213,12 @@ describe("ComparisonComponent", () => {
       // return fixture.whenStable().then(() => expect(true).toBe(true));
     }));
 
-  it("click_select bogus", () =>
+  it('click_select bogus', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
           parentNode: {
-            getAttribute: () => "bogus_cluster",
+            getAttribute: () => 'bogus_cluster',
             classed: () => {},
             select: () => ({ style: () => {} }),
             setAttribute: () => true,
@@ -231,7 +231,7 @@ describe("ComparisonComponent", () => {
       // return fixture.whenStable().then(() => expect(true).toBe(true));
     }));
 
-  it("TextClusterData", () =>
+  it('TextClusterData', () =>
     fixture.whenStable().then(() => {
       const tcd = component.clusters.data[0];
       expect(tcd.left(4)).toBe(25);
@@ -239,7 +239,7 @@ describe("ComparisonComponent", () => {
       expect(tcd.pattern_count).toBe(1);
     }));
 
-  it("selection_change", () =>
+  it('selection_change', () =>
     fixture.whenStable().then(() => {
       const evt = {
         source: {
@@ -253,20 +253,20 @@ describe("ComparisonComponent", () => {
       expect(() => component.selection_change(null, null)).not.toThrow();
     }));
 
-  it("show_expanded", () => {
-    expect(component.show_expanded(null)).toBe("collapsed");
+  it('show_expanded', () => {
+    expect(component.show_expanded(null)).toBe('collapsed');
     return fixture.whenStable().then(() => {
-      const fake_event = jasmine.createSpyObj("event", ["stopPropagation"]);
+      const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
       const clust = component.clusters.data[0];
       component.expand_handler(fake_event, clust);
-      expect(component.show_expanded(null)).toBe("collapsed");
-      expect(component.show_expanded(clust)).toBe("expanded");
+      expect(component.show_expanded(null)).toBe('collapsed');
+      expect(component.show_expanded(clust)).toBe('expanded');
     });
   });
 
-  it("expand_handler", () =>
+  it('expand_handler', () =>
     fixture.whenStable().then(() => {
-      const fake_event = jasmine.createSpyObj("event", ["stopPropagation"]);
+      const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
       expect(component.expanded).toBe(null);
       component.expand_handler(fake_event, null);
       expect(component.expanded).toBe(null);

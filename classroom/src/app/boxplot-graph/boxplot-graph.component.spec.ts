@@ -1,12 +1,12 @@
-import { Component, ViewChild } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { asyncData, FAKE_COMMON_DICTIONARY } from "src/testing";
-import { CommonDictionaryService } from "../common-dictionary.service";
-import { BoxplotGraphComponent } from "./boxplot-graph.component";
+import { Component, ViewChild } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { asyncData, FAKE_COMMON_DICTIONARY } from 'src/testing';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { BoxplotGraphComponent } from './boxplot-graph.component';
 
 const data = {
   categories: [
@@ -18,36 +18,36 @@ const data = {
       max: 4,
       uifence: 3.5,
       lifence: 0.5,
-      id: "bogus",
+      id: 'bogus',
     },
   ],
   data: [
     {
-      id: "over_outlier",
-      title: "High Bogus Outlier",
+      id: 'over_outlier',
+      title: 'High Bogus Outlier',
       bogus: 4.5,
       total_words: 100,
-      ownedby: "student",
+      ownedby: 'student',
     },
     {
-      id: "under_outlier",
-      title: "Low Bogus Outlier",
+      id: 'under_outlier',
+      title: 'Low Bogus Outlier',
       bogus: 0.25,
       total_words: 100,
-      ownedby: "student",
+      ownedby: 'student',
     },
     {
-      id: "noutlier",
-      title: "Non-Outlier",
+      id: 'noutlier',
+      title: 'Non-Outlier',
       bogus: 2,
       total_words: 100,
-      ownedby: "instructor",
+      ownedby: 'instructor',
     },
   ],
 };
 
 @Component({
-  selector: "app-fake-boxplot-component",
+  selector: 'app-fake-boxplot-component',
   template: `<app-boxplot-graph
     boxplot="${data}"
     unit="100"
@@ -58,15 +58,15 @@ class TestBoxplotComponent {
   public boxplot: BoxplotGraphComponent;
 }
 
-describe("BoxplotGraphComponent", () => {
+describe('BoxplotGraphComponent', () => {
   let component: TestBoxplotComponent;
   let fixture: ComponentFixture<TestBoxplotComponent>;
 
   beforeEach(
     waitForAsync(() => {
       const commonDictionaryService = jasmine.createSpyObj(
-        "CommonDictionaryService",
-        ["getJSON"]
+        'CommonDictionaryService',
+        ['getJSON']
       );
       commonDictionaryService.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
@@ -98,12 +98,12 @@ describe("BoxplotGraphComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeDefined();
     expect(component.boxplot).toBeDefined();
   });
 
-  it("boxplot", () =>
+  it('boxplot', () =>
     fixture.whenStable().then(() => {
       component.boxplot.boxplot = data;
       expect(component.boxplot.data).toEqual(data);
@@ -111,14 +111,14 @@ describe("BoxplotGraphComponent", () => {
       expect(component.boxplot.data).toBeNull();
     }));
 
-  it("get options", () => {
+  it('get options', () => {
     expect(component.boxplot.options.width).toEqual(500);
     expect(component.boxplot.options.height).toEqual(50);
   });
 
-  it("handle_selection", () =>
+  it('handle_selection', () =>
     fixture.whenStable().then(() => {
-      component.boxplot.selected_category.emit = jasmine.createSpy("emit");
+      component.boxplot.selected_category.emit = jasmine.createSpy('emit');
       component.boxplot.handle_selection(data.categories[0]);
       expect(component.boxplot.selected_category.emit).toHaveBeenCalledWith(
         data.categories[0]
@@ -129,37 +129,37 @@ describe("BoxplotGraphComponent", () => {
       );
     }));
 
-  it("scale", () => {
-    expect(component.boxplot.scale(0.2)).toBe("20.00");
-    expect(component.boxplot.scale(0.25678)).toBe("25.68");
-    expect(component.boxplot.scale(0)).toBe("0.00");
+  it('scale', () => {
+    expect(component.boxplot.scale(0.2)).toBe('20.00');
+    expect(component.boxplot.scale(0.25678)).toBe('25.68');
+    expect(component.boxplot.scale(0)).toBe('0.00');
   });
 
-  it("open", () => {
-    window.open = jasmine.createSpy("open");
-    component.boxplot.open("stv/123");
-    expect(window.open).toHaveBeenCalledWith("stv/123");
+  it('open', () => {
+    window.open = jasmine.createSpy('open');
+    component.boxplot.open('stv/123');
+    expect(window.open).toHaveBeenCalledWith('stv/123');
   });
 
-  it("positions", () => {
+  it('positions', () => {
     expect(component.boxplot.left).toBe(10);
     expect(component.boxplot.right).toBe(490);
     expect(component.boxplot.top).toBe(2);
     expect(component.boxplot.bottom).toBe(48);
   });
 
-  it("scale_x", () => {
+  it('scale_x', () => {
     component.boxplot.boxplot = data;
     expect(component.boxplot.scale_x(0)).toBe(10);
     expect(component.boxplot.scale_x(1000)).toBe(490);
   });
 
-  it("scale_y", () => {
+  it('scale_y', () => {
     expect(component.boxplot.scale_y(0)).toBe(2);
     expect(component.boxplot.scale_y(1)).toBe(48);
   });
 
-  it("get_outliers", () =>
+  it('get_outliers', () =>
     fixture.whenStable().then(() => {
       component.boxplot.boxplot = data;
       const outlier0 = component.boxplot.get_outliers(data.categories[0])[0];
@@ -174,7 +174,7 @@ describe("BoxplotGraphComponent", () => {
       // {id: 'no_lat', name: "NULL", q1:0, q2:0, q3:0, min:0, max:1, lifence:0, uifence:0})).toEqual([]);
     }));
 
-  it("ngAfterViewChecked", () =>
+  it('ngAfterViewChecked', () =>
     fixture.whenStable().then(() => {
       component.boxplot.sort = null;
       expect(() => component.boxplot.ngAfterViewChecked()).not.toThrow();

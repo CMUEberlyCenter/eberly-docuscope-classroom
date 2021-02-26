@@ -7,8 +7,8 @@ construct and scale the boxplots.
 Emits when a category is selected by clicking on it.
 The boxplots are also user sortable based on category name.
  */
-import { SelectionModel } from "@angular/cdk/collections";
-import { NestedTreeControl } from "@angular/cdk/tree";
+import { SelectionModel } from '@angular/cdk/collections';
+import { NestedTreeControl } from '@angular/cdk/tree';
 import {
   AfterViewChecked,
   Component,
@@ -17,23 +17,23 @@ import {
   OnInit,
   Output,
   ViewChild,
-} from "@angular/core";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
-import { MatTreeNestedDataSource } from "@angular/material/tree";
-import * as d3 from "d3";
+} from '@angular/core';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import * as d3 from 'd3';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode,
-} from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import {
   CategoryData,
   category_value,
   DocumentData,
   DocuScopeData,
   max_boxplot_value,
-} from "../ds-data.service";
+} from '../ds-data.service';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
@@ -58,9 +58,9 @@ interface DocBox {
 }
 
 @Component({
-  selector: "app-boxplot-graph",
-  templateUrl: "./boxplot-graph.component.html",
-  styleUrls: ["./boxplot-graph.component.css"],
+  selector: 'app-boxplot-graph',
+  templateUrl: './boxplot-graph.component.html',
+  styleUrls: ['./boxplot-graph.component.css'],
 })
 export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
   /** When the boxplot data parameter is set, update relevant fields. */
@@ -102,7 +102,7 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
     return this._unit;
   }
   @Output() selected_category = new EventEmitter<CategoryData>();
-  @ViewChild("boxplotSort") sort: MatSort;
+  @ViewChild('boxplotSort') sort: MatSort;
 
   boxplot_data: MatTableDataSource<CategoryData>;
   commonDictionary: CommonDictionary;
@@ -202,7 +202,7 @@ export class BoxplotGraphComponent implements OnInit, AfterViewChecked {
       start: Math.min(d[category] ?? 0, median),
       width: Math.abs((d[category] ?? 0) - median),
       value: d[category] ?? 0,
-      instructor: d.ownedby === "instructor",
+      instructor: d.ownedby === 'instructor',
     }));
   }
 

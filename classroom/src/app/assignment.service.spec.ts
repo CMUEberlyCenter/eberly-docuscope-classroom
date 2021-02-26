@@ -1,8 +1,8 @@
-import { TestBed } from "@angular/core/testing";
-import { AssignmentData } from "./assignment-data";
-import { AssignmentService } from "./assignment.service";
+import { TestBed } from '@angular/core/testing';
+import { AssignmentData } from './assignment-data';
+import { AssignmentService } from './assignment.service';
 
-describe("AssignmentService", () => {
+describe('AssignmentService', () => {
   let service: AssignmentService;
 
   beforeEach(() => {
@@ -13,33 +13,33 @@ describe("AssignmentService", () => {
     service = TestBed.inject(AssignmentService);
   });
 
-  it("should be created", () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it("setAssignment", () => {
-    const data = "Set Assignment";
+  it('setAssignment', () => {
+    const data = 'Set Assignment';
     service.assignment$.subscribe((assign) => expect(assign).toEqual(data));
     service.setAssignment(data);
   });
 
-  it("setCourse", () => {
-    const data = "Set Course";
+  it('setCourse', () => {
+    const data = 'Set Course';
     service.course$.subscribe((course) => expect(course).toEqual(data));
     service.setCourse(data);
   });
 
-  it("setInstructor", () => {
-    const data = "Testy Tester";
+  it('setInstructor', () => {
+    const data = 'Testy Tester';
     service.instructor$.subscribe((inst) => expect(inst).toEqual(data));
     service.setInstructor(data);
   });
 
-  it("setAssignmentData", () => {
+  it('setAssignmentData', () => {
     const stub: AssignmentData = {
-      course: "course_stub",
-      assignment: "assignment_stub",
-      instructor: "Testy Tester",
+      course: 'course_stub',
+      assignment: 'assignment_stub',
+      instructor: 'Testy Tester',
     };
     service.assignment$.subscribe((assign) =>
       expect(assign).toEqual(stub.assignment)

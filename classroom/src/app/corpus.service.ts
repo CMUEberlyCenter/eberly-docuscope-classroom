@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Observable, of } from "rxjs";
+import { Injectable } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class CorpusService {
   private _corpus: string[];
@@ -12,13 +12,13 @@ export class CorpusService {
 
   getDocumentIds(): string[] {
     const str_ids: string = this.activatedRoute.snapshot.queryParamMap.get(
-      "ids"
+      'ids'
     );
     let ids: string[] = [];
     if (str_ids) {
-      ids = str_ids.split(",");
+      ids = str_ids.split(',');
     } else {
-      console.error("CorpusService.getCorpus() => no document ids provided!");
+      console.error('CorpusService.getCorpus() => no document ids provided!');
     }
     return ids;
   }

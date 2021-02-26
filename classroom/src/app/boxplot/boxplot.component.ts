@@ -3,20 +3,20 @@ Component for displaying the boxplot analysis page.
 This includes a list of boxplots, a word cloud based on category frequency,
 and ranking list based on the currently selected category.
 */
-import { NestedTreeControl } from "@angular/cdk/tree";
-import { Component, OnInit } from "@angular/core";
-import { MatTreeNestedDataSource } from "@angular/material/tree";
-import { CloudData } from "angular-tag-cloud-module";
-import * as d3 from "d3";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { forkJoin } from "rxjs";
-import { AssignmentService } from "../assignment.service";
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { Component, OnInit } from '@angular/core';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { CloudData } from 'angular-tag-cloud-module';
+import * as d3 from 'd3';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
+import { AssignmentService } from '../assignment.service';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode,
-} from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
-import { CorpusService } from "../corpus.service";
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { CorpusService } from '../corpus.service';
 // import { DictionaryTreeService } from '../dictionary-tree.service';
 import {
   CategoryData,
@@ -25,8 +25,8 @@ import {
   DocuScopeData,
   DsDataService,
   max_boxplot_value,
-} from "../ds-data.service";
-import { SettingsService } from "../settings.service";
+} from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
@@ -50,9 +50,9 @@ interface DocBox {
 }
 
 @Component({
-  selector: "app-boxplot",
-  templateUrl: "./boxplot.component.html",
-  styleUrls: ["./boxplot.component.css"],
+  selector: 'app-boxplot',
+  templateUrl: './boxplot.component.html',
+  styleUrls: ['./boxplot.component.css'],
 })
 export class BoxplotComponent implements OnInit {
   cloud_data: CloudData[];
@@ -144,7 +144,7 @@ export class BoxplotComponent implements OnInit {
             start: Math.min(d[category] ?? 0, median),
             width: Math.abs((d[category] ?? 0) - median),
             value: d[category] ?? 0,
-            instructor: d.ownedby === "instructor",
+            instructor: d.ownedby === 'instructor',
           }));
         };
         const dfsmap = (node: CommonDictionaryTreeNode): BoxTreeNode => ({

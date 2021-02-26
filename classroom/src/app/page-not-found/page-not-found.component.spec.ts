@@ -1,12 +1,12 @@
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { MatCardModule } from "@angular/material/card";
-import { PageNotFoundComponent } from "./page-not-found.component";
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatCardModule } from '@angular/material/card';
+import { PageNotFoundComponent } from './page-not-found.component';
 
-@Component({ selector: "app-nav", template: "" })
+@Component({ selector: 'app-nav', template: '' })
 class NavStubComponent {}
 
-describe("PageNotFoundComponent", () => {
+describe('PageNotFoundComponent', () => {
   let component: PageNotFoundComponent;
   let fixture: ComponentFixture<PageNotFoundComponent>;
 
@@ -25,7 +25,7 @@ describe("PageNotFoundComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

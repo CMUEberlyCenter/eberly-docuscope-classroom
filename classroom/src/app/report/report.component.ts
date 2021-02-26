@@ -1,17 +1,17 @@
-import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
-import { NgxUiLoaderService } from "ngx-ui-loader";
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { CorpusService } from "../corpus.service";
-import { ReportIntroductionService } from "./report-introduction.service";
-import { ReportService } from "./report.service";
+import { CorpusService } from '../corpus.service';
+import { ReportIntroductionService } from './report-introduction.service';
+import { ReportService } from './report.service';
 
 @Component({
-  selector: "app-report",
-  templateUrl: "./report.component.html",
-  styleUrls: ["./report.component.css"],
+  selector: 'app-report',
+  templateUrl: './report.component.html',
+  styleUrls: ['./report.component.css'],
 })
 export class ReportComponent implements OnInit {
-  @ViewChild("download_link") download_link: ElementRef;
+  @ViewChild('download_link') download_link: ElementRef;
   corpus: string[];
   intro: string;
   stv_intro: string;
@@ -52,7 +52,7 @@ export class ReportComponent implements OnInit {
           const url = window.URL.createObjectURL(data);
           const link = this.download_link.nativeElement;
           link.href = url;
-          link.download = "reports.zip";
+          link.download = 'reports.zip';
           this._spinner.stop();
           link.click();
           window.URL.revokeObjectURL(url);

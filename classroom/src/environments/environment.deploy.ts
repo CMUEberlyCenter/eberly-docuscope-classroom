@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  backend_server: "/docuscope",
+  backend_server: '/docuscope',
 };

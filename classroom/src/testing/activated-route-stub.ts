@@ -1,8 +1,8 @@
 // export for convenience.
-export { ActivatedRoute } from "@angular/router";
+export { ActivatedRoute } from '@angular/router';
 
-import { convertToParamMap, ParamMap, Params } from "@angular/router";
-import { ReplaySubject } from "rxjs";
+import { convertToParamMap, ParamMap, Params } from '@angular/router';
+import { ReplaySubject } from 'rxjs';
 
 /**
  * An ActivateRoute test double with a `paramMap` observable.

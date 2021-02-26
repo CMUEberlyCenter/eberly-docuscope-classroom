@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, OnInit, ViewChild } from "@angular/core";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 
-import * as d3 from "d3";
+import * as d3 from 'd3';
 
 import {
   CategoryData,
@@ -10,7 +10,7 @@ import {
   DocuScopeData,
   category_value,
   max_boxplot_value,
-} from "../ds-data.service";
+} from '../ds-data.service';
 
 interface Options {
   width: number;
@@ -24,9 +24,9 @@ interface Options {
 }
 
 @Component({
-  selector: "app-rank-graph",
-  templateUrl: "./rank-graph.component.html",
-  styleUrls: ["./rank-graph.component.css"],
+  selector: 'app-rank-graph',
+  templateUrl: './rank-graph.component.html',
+  styleUrls: ['./rank-graph.component.css'],
 })
 export class RankGraphComponent implements OnChanges, OnInit {
   @Input() set data(ds_data: DocuScopeData) {
@@ -38,7 +38,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
   }
   @Input() category: CategoryData;
   @Input() unit: number;
-  @ViewChild("rankSort") sort: MatSort;
+  @ViewChild('rankSort') sort: MatSort;
   ranking: MatTableDataSource<DocumentData>;
 
   options: Options = {
@@ -47,9 +47,9 @@ export class RankGraphComponent implements OnChanges, OnInit {
     margins: { left: 10, top: 5, bottom: 5, right: 10 },
   };
   displayedColumns: string[] = [
-    /* 'position',*/ "title",
-    "value",
-    "meanbar" /* , 'bar'*/,
+    /* 'position',*/ 'title',
+    'value',
+    'meanbar' /* , 'bar'*/,
   ];
 
   private _max_cache: number;
@@ -97,7 +97,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
     const val: string = value.toFixed(2);
     const avg: string = this.median.toFixed(2);
     const d: string = Math.abs(diff).toFixed(2);
-    const sign: string = diff >= 0 ? "more" : "less";
+    const sign: string = diff >= 0 ? 'more' : 'less';
     return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
   }
   get left(): number {
@@ -115,7 +115,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
       .clamp(true);
   }
   open(doc_id: string): void {
-    if (doc_id !== "") {
+    if (doc_id !== '') {
       window.open(`stv/${doc_id}`);
     }
   }

@@ -1,21 +1,21 @@
-import { Component, OnInit } from "@angular/core";
-import { NgxUiLoaderService } from "ngx-ui-loader";
+import { Component, OnInit } from '@angular/core';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
-import { AssignmentService } from "../assignment.service";
-import { CorpusService } from "../corpus.service";
+import { AssignmentService } from '../assignment.service';
+import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
   DocuScopeData,
   DsDataService,
   CategoryInfoMap,
   genCategoryDataMap,
-} from "../ds-data.service";
-import { SettingsService } from "../settings.service";
+} from '../ds-data.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: "app-rank",
-  templateUrl: "./rank.component.html",
-  styleUrls: ["./rank.component.css"],
+  selector: 'app-rank',
+  templateUrl: './rank.component.html',
+  styleUrls: ['./rank.component.css'],
 })
 export class RankComponent implements OnInit {
   corpus: string[];

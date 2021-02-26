@@ -1,13 +1,13 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { environment } from "../../environments/environment";
-import { AssignmentData } from "../assignment-data";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { AssignmentData } from '../assignment-data';
 import {
   HandleError,
   HttpErrorHandlerService,
-} from "../http-error-handler.service";
+} from '../http-error-handler.service';
 
 export class GroupsData extends AssignmentData {
   groups: string[][];
@@ -16,7 +16,7 @@ export class GroupsData extends AssignmentData {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class GroupsService {
   private handleError: HandleError;
@@ -26,7 +26,7 @@ export class GroupsService {
     private http: HttpClient,
     httpErrorHandler: HttpErrorHandlerService
   ) {
-    this.handleError = httpErrorHandler.createHandleError("GroupsService");
+    this.handleError = httpErrorHandler.createHandleError('GroupsService');
   }
 
   getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
@@ -34,7 +34,7 @@ export class GroupsService {
       .post<GroupsData>(this.groups_server, { corpus, group_size })
       .pipe(
         catchError(
-          this.handleError("getGroupsData", {
+          this.handleError('getGroupsData', {
             groups: [[]],
             grp_qualities: [],
             quality: 0,

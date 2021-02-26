@@ -1,28 +1,28 @@
-import { SelectionModel } from "@angular/cdk/collections";
-import { NestedTreeControl } from "@angular/cdk/tree";
-import { Component, OnInit } from "@angular/core";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MatTreeNestedDataSource } from "@angular/material/tree";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { ActivatedRoute } from "@angular/router";
-import * as d3 from "d3";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { forkJoin } from "rxjs";
-import { AssignmentService } from "../assignment.service";
+import { SelectionModel } from '@angular/cdk/collections';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { Component, OnInit } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import * as d3 from 'd3';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
+import { AssignmentService } from '../assignment.service';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode,
-} from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
-import { Documents, DocumentService } from "../document.service";
-import { PatternTreeNode } from "../pattern-tree-node";
-import { PatternData } from "../patterns.service";
-import { SettingsService } from "../settings.service";
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { Documents, DocumentService } from '../document.service';
+import { PatternTreeNode } from '../pattern-tree-node';
+import { PatternData } from '../patterns.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: "app-text-view",
-  templateUrl: "./text-view.component.html",
-  styleUrls: ["./text-view.component.css"],
+  selector: 'app-text-view',
+  templateUrl: './text-view.component.html',
+  styleUrls: ['./text-view.component.css'],
 })
 export class TextViewComponent implements OnInit {
   tagged_text: Documents;
@@ -34,12 +34,12 @@ export class TextViewComponent implements OnInit {
   selection = new SelectionModel<PatternTreeNode>(true, []);
 
   private _css_classes: string[] = [
-    "cluster_0",
-    "cluster_1",
-    "cluster_2",
-    "cluster_3",
-    "cluster_4",
-    "cluster_5",
+    'cluster_0',
+    'cluster_1',
+    'cluster_2',
+    'cluster_3',
+    'cluster_4',
+    'cluster_5',
   ];
   private _css_classes_length = this._css_classes.length;
 
@@ -62,7 +62,7 @@ export class TextViewComponent implements OnInit {
 
   ngOnInit() {
     this._spinner.start();
-    const id = this._route.snapshot.paramMap.get("doc");
+    const id = this._route.snapshot.paramMap.get('doc');
     forkJoin([
       this._settings_service.getSettings(),
       this._dictionary.getJSON(),
@@ -100,16 +100,16 @@ export class TextViewComponent implements OnInit {
 
   click_select($event: MouseEvent) {
     let target: HTMLElement | null = $event.target as HTMLElement;
-    while (target && !target.getAttribute("data-key")) {
+    while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
     if (target && this.tagged_text) {
-      const key = target?.getAttribute("data-key");
+      const key = target?.getAttribute('data-key');
       if (key && key.trim()) {
-        d3.selectAll(".selected_text").classed("selected_text", false);
-        d3.selectAll(".cluster_id").classed("d_none", true);
-        d3.select(target).classed("selected_text", true);
-        d3.select(target).select("sup.cluster_id").classed("d_none", false);
+        d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').classed('d_none', true);
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -145,6 +145,6 @@ export class TextViewComponent implements OnInit {
       this._selected_clusters.set(cluster, this._css_classes.shift());
       return this._selected_clusters.get(cluster);
     }
-    return "cluster_default";
+    return 'cluster_default';
   }
 }

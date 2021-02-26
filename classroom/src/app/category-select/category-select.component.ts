@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { CommonDictionary, Entry, ICluster } from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 
 @Component({
-  selector: "app-category-select",
-  templateUrl: "./category-select.component.html",
-  styleUrls: ["./category-select.component.css"],
+  selector: 'app-category-select',
+  templateUrl: './category-select.component.html',
+  styleUrls: ['./category-select.component.css'],
 })
 export class CategorySelectComponent implements OnInit {
   @Input() selectedCategory: string;

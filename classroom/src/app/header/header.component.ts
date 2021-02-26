@@ -1,17 +1,17 @@
-import { Component, OnInit } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { AboutComponent } from "../about/about.component";
-import { AssignmentService } from "../assignment.service";
-import { SettingsService } from "../settings.service";
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AboutComponent } from '../about/about.component';
+import { AssignmentService } from '../assignment.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: "app-header",
-  templateUrl: "./header.component.html",
-  styleUrls: ["./header.component.css"],
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-  title = "DocuScope Classroom";
-  institution = "@ CMU";
+  title = 'DocuScope Classroom';
+  institution = '@ CMU';
   course: string;
   assignment: string;
   instructor: string;
@@ -32,7 +32,7 @@ export class HeaderComponent implements OnInit {
       if (settings.institution) {
         this.institution = `@ ${settings.institution}`;
       } else {
-        this.institution = "";
+        this.institution = '';
       }
     });
   }

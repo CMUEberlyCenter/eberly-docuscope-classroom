@@ -1,6 +1,6 @@
-import { instance_count } from "./cluster-data";
-import { CommonDictionaryTreeNode } from "./common-dictionary";
-import { PatternData } from "./patterns.service";
+import { instance_count } from './cluster-data';
+import { CommonDictionaryTreeNode } from './common-dictionary';
+import { PatternData } from './patterns.service';
 
 export class PatternTreeNode {
   id?: string;

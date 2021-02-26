@@ -1,13 +1,13 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { catchError, publishReplay, refCount } from "rxjs/operators";
-import { environment } from "./../environments/environment";
-import { DictionaryInformation } from "./assignment-data";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError, publishReplay, refCount } from 'rxjs/operators';
+import { environment } from './../environments/environment';
+import { DictionaryInformation } from './assignment-data';
 import {
   HandleError,
   HttpErrorHandlerService,
-} from "./http-error-handler.service";
+} from './http-error-handler.service';
 
 export interface TextContent {
   text_id: string;
@@ -20,7 +20,7 @@ export interface TextContent {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class TaggedTextService {
   private server = `${environment.backend_server}/text_content`;
@@ -35,7 +35,7 @@ export class TaggedTextService {
     private _http: HttpClient,
     httpErrorHandler: HttpErrorHandlerService
   ) {
-    this.handleError = httpErrorHandler.createHandleError("TaggedTextService");
+    this.handleError = httpErrorHandler.createHandleError('TaggedTextService');
   }
 
   getTaggedText(doc_id: string): Observable<TextContent> {
@@ -47,7 +47,7 @@ export class TaggedTextService {
           .pipe(
             publishReplay(1),
             refCount(),
-            catchError(this.handleError("getTaggedText", {} as TextContent))
+            catchError(this.handleError('getTaggedText', {} as TextContent))
           )
       );
     }

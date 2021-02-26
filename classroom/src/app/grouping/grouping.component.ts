@@ -2,18 +2,18 @@ import {
   CdkDragDrop,
   moveItemInArray,
   transferArrayItem,
-} from "@angular/cdk/drag-drop";
-import { Component, OnInit } from "@angular/core";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { AssignmentService } from "../assignment.service";
-import { CorpusService } from "../corpus.service";
-import { GroupsData, GroupsService } from "./groups.service";
+} from '@angular/cdk/drag-drop';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { AssignmentService } from '../assignment.service';
+import { CorpusService } from '../corpus.service';
+import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
-  selector: "app-grouping",
-  templateUrl: "./grouping.component.html",
-  styleUrls: ["./grouping.component.css"],
+  selector: 'app-grouping',
+  templateUrl: './grouping.component.html',
+  styleUrls: ['./grouping.component.css'],
 })
 export class GroupingComponent implements OnInit {
   size_min = 2;
@@ -67,24 +67,24 @@ export class GroupingComponent implements OnInit {
     if (this.group_size) {
       if (this.num_documents < 4) {
         this._snack_bar.open(
-          "There needs to be at least four documents in order to form groups.",
-          "\u2612"
+          'There needs to be at least four documents in order to form groups.',
+          '\u2612'
         );
       } else if (this.group_size < this.size_min) {
         this._snack_bar.open(
           `The group size needs to be at least ${this.size_min}.`,
-          "\u2612"
+          '\u2612'
         );
       } else if (this.group_size > this.size_max) {
         this._snack_bar.open(
           `The group size can not be greater than half the number of documents (${this.size_max}).`,
-          "\u2612"
+          '\u2612'
         );
       } else {
         this.getGroupsData();
       }
     } else {
-      this._snack_bar.open("Please set a group size.", "\u2612");
+      this._snack_bar.open('Please set a group size.', '\u2612');
     }
   }
 

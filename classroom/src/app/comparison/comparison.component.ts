@@ -4,30 +4,30 @@ import {
   style,
   transition,
   trigger,
-} from "@angular/animations";
-import { SelectionModel } from "@angular/cdk/collections";
-import { NestedTreeControl } from "@angular/cdk/tree";
-import { Component, OnInit } from "@angular/core";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatTreeNestedDataSource } from "@angular/material/tree";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { Router } from "@angular/router";
-import * as d3 from "d3";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { forkJoin } from "rxjs";
-import { DictionaryInformation } from "../assignment-data";
-import { AssignmentService } from "../assignment.service";
-import { ClusterData } from "../cluster-data";
+} from '@angular/animations';
+import { SelectionModel } from '@angular/cdk/collections';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { Component, OnInit } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import * as d3 from 'd3';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
+import { DictionaryInformation } from '../assignment-data';
+import { AssignmentService } from '../assignment.service';
+import { ClusterData } from '../cluster-data';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode,
-} from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
-import { CorpusService } from "../corpus.service";
-import { Documents, DocumentService } from "../document.service";
-import { ComparePatternData, pattern_compare } from "../patterns.service";
-import { Settings, SettingsService } from "../settings.service";
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { CorpusService } from '../corpus.service';
+import { Documents, DocumentService } from '../document.service';
+import { ComparePatternData, pattern_compare } from '../patterns.service';
+import { Settings, SettingsService } from '../settings.service';
 
 class CompareTreeNode {
   id?: string;
@@ -125,25 +125,25 @@ class TextClusterData implements ClusterData {
 }
 
 @Component({
-  selector: "app-comparison",
-  templateUrl: "./comparison.component.html",
-  styleUrls: ["./comparison.component.css"],
+  selector: 'app-comparison',
+  templateUrl: './comparison.component.html',
+  styleUrls: ['./comparison.component.css'],
   animations: [
-    trigger("detailExpand", [
-      state("collapsed, void", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
+    trigger('detailExpand', [
+      state('collapsed, void', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
       transition(
-        "expanded <=> collapsed, void => collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+        'expanded <=> collapsed, void => collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
       ),
       // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
     ]),
-    trigger("indicatorRotate", [
-      state("collapsed, void", style({ transform: "rotate(0deg)" })),
-      state("expanded", style({ transform: "rotate(180deg)" })),
+    trigger('indicatorRotate', [
+      state('collapsed, void', style({ transform: 'rotate(0deg)' })),
+      state('expanded', style({ transform: 'rotate(180deg)' })),
       transition(
-        "expanded <=> collapsed, void => collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+        'expanded <=> collapsed, void => collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
       ),
     ]),
   ],
@@ -153,9 +153,9 @@ export class ComparisonComponent implements OnInit {
 
   corpus: string[];
   dictionary: CommonDictionary;
-  doc_colors = ["#1c66aa", "#639c54"]; // ['royalblue', 'seagreen'];
+  doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
   documents: Documents;
-  direction: "horizontal" | "vertical" = "horizontal";
+  direction: 'horizontal' | 'vertical' = 'horizontal';
   max_clusters = 4;
   max_count = 1;
   selection = new SelectionModel<CompareTreeNode>(true, []);
@@ -171,12 +171,12 @@ export class ComparisonComponent implements OnInit {
   //patterns: Map<string, Map<string, number[]>>;
 
   private _css_classes: string[] = [
-    "cluster_0",
-    "cluster_1",
-    "cluster_2",
-    "cluster_3",
-    "cluster_4",
-    "cluster_5",
+    'cluster_0',
+    'cluster_1',
+    'cluster_2',
+    'cluster_3',
+    'cluster_4',
+    'cluster_5',
   ];
   private _css_classes_length = this._css_classes.length;
   get max_selected_clusters(): number {
@@ -202,20 +202,20 @@ export class ComparisonComponent implements OnInit {
       this.corpus = corpus;
       if (corpus.length === 0) {
         // ERROR: no documents
-        this.reportError("No documents specified!");
+        this.reportError('No documents specified!');
         return;
       } else if (corpus.length === 1) {
         // WARNING: not enough documents
         this.reportError(
-          "Only one document specified, need two for comparison."
+          'Only one document specified, need two for comparison.'
         );
         this._spinner.stop();
-        this._router.navigate(["/stv", corpus[0]]);
+        this._router.navigate(['/stv', corpus[0]]);
         return;
       } else if (corpus.length > 2) {
         // WARNING: too many documents
         this.reportError(
-          "More than two documents specified, only showing the first two."
+          'More than two documents specified, only showing the first two.'
         );
         this.corpus = corpus.slice(0, 2);
       }
@@ -227,7 +227,7 @@ export class ComparisonComponent implements OnInit {
         const [settings, common, documents] = results;
         // Settings
         this.max_clusters = settings.stv.max_clusters;
-        this.direction = settings.mtv.horizontal ? "horizontal" : "vertical"; // split layout
+        this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
         this.doc_colors = settings.mtv.documentColors;
         this.unit = settings.unit;
         // Dictionary
@@ -284,16 +284,16 @@ export class ComparisonComponent implements OnInit {
 
   click_select($event: MouseEvent) {
     let target: HTMLElement | null = $event.target as HTMLElement;
-    while (target && !target.getAttribute("data-key")) {
+    while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
     if (target && this.documents) {
-      const key = target?.getAttribute("data-key");
+      const key = target?.getAttribute('data-key');
       if (key && key.trim()) {
-        d3.selectAll(".selected_text").classed("selected_text", false);
-        d3.selectAll(".cluster_id").classed("d_none", true);
-        d3.select(target).classed("selected_text", true);
-        d3.select(target).select("sup.cluster_id").classed("d_none", false);
+        d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').classed('d_none', true);
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -332,7 +332,7 @@ export class ComparisonComponent implements OnInit {
       );
   }*/
   reportError(message: string): void {
-    this._snackBar.open(message, "\u2612");
+    this._snackBar.open(message, '\u2612');
   }
   get_cluster_class(cluster: string): string {
     if (this._selected_clusters.has(cluster)) {
@@ -342,7 +342,7 @@ export class ComparisonComponent implements OnInit {
       this._selected_clusters.set(cluster, this._css_classes.shift());
       return this._selected_clusters.get(cluster);
     }
-    return "cluster_default";
+    return 'cluster_default';
   }
   selection_change($event: MatCheckboxChange, node: CompareTreeNode) {
     if ($event && node) {
@@ -380,8 +380,8 @@ export class ComparisonComponent implements OnInit {
   get is_safari(): boolean {
     // return true;
     return (
-      navigator.userAgent.indexOf("Safari") !== -1 &&
-      navigator.userAgent.indexOf("Chrome") === -1
+      navigator.userAgent.indexOf('Safari') !== -1 &&
+      navigator.userAgent.indexOf('Chrome') === -1
     );
   }
 }

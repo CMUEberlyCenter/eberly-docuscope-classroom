@@ -10,7 +10,7 @@
  *
  * Using `asap` scheduler - as in `of(value, asap)` - doesn't work either.
  */
-import { defer } from "rxjs";
+import { defer } from 'rxjs';
 
 /** Create async observable that emits-once and completes
  *  after a JS engine turn */

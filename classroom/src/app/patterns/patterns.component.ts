@@ -4,26 +4,26 @@ import {
   style,
   transition,
   trigger,
-} from "@angular/animations";
-import { NestedTreeControl } from "@angular/cdk/tree";
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { MatTreeNestedDataSource } from "@angular/material/tree";
-import * as d3 from "d3";
-import { HierarchyRectangularNode } from "d3";
-import { NgxUiLoaderService } from "ngx-ui-loader";
-import { forkJoin } from "rxjs";
+} from '@angular/animations';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import * as d3 from 'd3';
+import { HierarchyRectangularNode } from 'd3';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode,
-} from "../common-dictionary";
-import { CommonDictionaryService } from "../common-dictionary.service";
-import { CorpusService } from "../corpus.service";
-import { PatternTreeNode } from "../pattern-tree-node";
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { CorpusService } from '../corpus.service';
+import { PatternTreeNode } from '../pattern-tree-node';
 import {
   CategoryPatternData,
   PatternData,
   PatternsService,
-} from "../patterns.service";
+} from '../patterns.service';
 
 interface SunburstNode {
   name: string;
@@ -32,34 +32,34 @@ interface SunburstNode {
 }
 
 @Component({
-  selector: "app-patterns",
-  templateUrl: "./patterns.component.html",
-  styleUrls: ["./patterns.component.css"],
+  selector: 'app-patterns',
+  templateUrl: './patterns.component.html',
+  styleUrls: ['./patterns.component.css'],
   animations: [
-    trigger("detailExpand", [
-      state("collapsed, void", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
+    trigger('detailExpand', [
+      state('collapsed, void', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
       transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
       ),
       transition(
-        "expanded <=> void",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+        'expanded <=> void',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
       ),
     ]),
-    trigger("indicatorRotate", [
-      state("collapsed, void", style({ transform: "rotate(0deg)" })),
-      state("expanded", style({ transform: "rotate(180deg)" })),
+    trigger('indicatorRotate', [
+      state('collapsed, void', style({ transform: 'rotate(0deg)' })),
+      state('expanded', style({ transform: 'rotate(180deg)' })),
       transition(
-        "expanded <=> collapsed, void => collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+        'expanded <=> collapsed, void => collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
       ),
     ]),
   ],
 })
 export class PatternsComponent implements OnInit {
-  @ViewChild("sunburst", { static: true }) sunburst: ElementRef;
+  @ViewChild('sunburst', { static: true }) sunburst: ElementRef;
 
   svg;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
@@ -107,7 +107,7 @@ export class PatternsComponent implements OnInit {
               }))
             : node.children?.map(sunmap),
         });
-        this.sundata = { name: "root", children: common.tree.map(sunmap) };
+        this.sundata = { name: 'root', children: common.tree.map(sunmap) };
         //this.sundata = common.tree.map(sunmap);
         //const sundata = common.tree.map(sunmap);
         this.drawChart(this.sundata);
@@ -132,7 +132,7 @@ export class PatternsComponent implements OnInit {
       .padRadius(radius * 1.5)
       .innerRadius((d) => d.y0 * radius)
       .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
-    const format = d3.format(",d");
+    const format = d3.format(',d');
     const partition = (pdata: any): HierarchyRectangularNode<SunburstNode> => {
       const r = d3
         .hierarchy(pdata)
@@ -160,61 +160,61 @@ export class PatternsComponent implements OnInit {
     const root = partition(data);
     root.each((d) => (d.data.current = d));
     this.svg = d3
-      .select(/*this.sunburst.nativeElement*/ "figure#sunburst")
-      .append("svg")
-      .attr("viewBox", `0 0 ${width} ${width}`)
-      .style("font", "12px open-sans");
+      .select(/*this.sunburst.nativeElement*/ 'figure#sunburst')
+      .append('svg')
+      .attr('viewBox', `0 0 ${width} ${width}`)
+      .style('font', '12px open-sans');
     const g = this.svg
-      .append("g")
-      .attr("transform", `translate(${width / 2},${width / 2})`);
+      .append('g')
+      .attr('transform', `translate(${width / 2},${width / 2})`);
     const path = g
-      .append("g")
-      .selectAll("path")
+      .append('g')
+      .selectAll('path')
       .data(root.descendants().slice(1))
-      .join("path")
-      .attr("fill", (d: HierarchyRectangularNode<SunburstNode>) => {
+      .join('path')
+      .attr('fill', (d: HierarchyRectangularNode<SunburstNode>) => {
         while (d.depth > 1) {
           d = d.parent;
         }
         return color(d.data.name);
       })
-      .attr("fill-opacity", (d) =>
+      .attr('fill-opacity', (d) =>
         arcVisible(d.data.current) ? (d.children ? 0.6 : 0.4) : 0
       )
-      .attr("d", (d: HierarchyRectangularNode<SunburstNode>) =>
+      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
         arc(d.data.current)
       );
     path
       .filter((d) => d.children)
-      .style("cursor", "pointer")
-      .on("click", clicked);
-    path.append("title").text(
+      .style('cursor', 'pointer')
+      .on('click', clicked);
+    path.append('title').text(
       (d) =>
         `${d
           .ancestors()
           .map((dn: HierarchyRectangularNode<SunburstNode>) => dn.data.name)
           .reverse()
-          .join("/")}\n${format(d.value)}`
+          .join('/')}\n${format(d.value)}`
     );
     const label = g
-      .append("g")
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-      .style("user-select", "none")
-      .selectAll("text")
+      .append('g')
+      .attr('pointer-events', 'none')
+      .attr('text-anchor', 'middle')
+      .style('user-select', 'none')
+      .selectAll('text')
       .data(root.descendants().slice(1))
-      .join("text")
-      .attr("dy", "0.35em")
-      .attr("fill-opacity", (d) => +labelVisible(d.data.current))
-      .attr("transform", (d) => labelTransform(d.data.current))
+      .join('text')
+      .attr('dy', '0.35em')
+      .attr('fill-opacity', (d) => +labelVisible(d.data.current))
+      .attr('transform', (d) => labelTransform(d.data.current))
       .text((d) => d.data.name);
     const parent = g
-      .append("circle")
+      .append('circle')
       .datum(root)
-      .attr("r", radius)
-      .attr("fill", "none")
-      .attr("pointer-events", "all")
-      .on("click", clicked);
+      .attr('r', radius)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all')
+      .on('click', clicked);
     // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
     function clicked(_event, p) {
       parent.datum(p.parent || root);
@@ -236,28 +236,28 @@ export class PatternsComponent implements OnInit {
       const trans = g.transition().duration(750);
       path
         .transition(trans)
-        .tween("data", (d) => {
+        .tween('data', (d) => {
           const i = d3.interpolate(d.data.current, d.data.target);
           return (t) => (d.data.current = i(t));
         })
-        .filter(function (d) {
+        .filter(function(d) {
           return (
-            +this.getAttribute("fill-opacity") || arcVisible(d.data.target)
+            +this.getAttribute('fill-opacity') || arcVisible(d.data.target)
           );
         })
-        .attr("fill-opacity", (d) =>
+        .attr('fill-opacity', (d) =>
           arcVisible(d.data.target) ? (d.children ? 0.6 : 0.4) : 0
         )
-        .attrTween("d", (d) => () => arc(d.data.current));
+        .attrTween('d', (d) => () => arc(d.data.current));
       label
-        .filter(function (d) {
+        .filter(function(d) {
           return (
-            +this.getAttribute("fill-opacity") || labelVisible(d.data.target)
+            +this.getAttribute('fill-opacity') || labelVisible(d.data.target)
           );
         })
         .transition(trans)
-        .attr("fill-opacity", (d) => +labelVisible(d.data.target))
-        .attrTween("transform", (d) => () => labelTransform(d.data.current));
+        .attr('fill-opacity', (d) => +labelVisible(d.data.target))
+        .attrTween('transform', (d) => () => labelTransform(d.data.current));
     }
   }
 }
