@@ -4,7 +4,7 @@ except ImportError:
     import json
 import logging
 import os
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 from fastapi import HTTPException
 from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
@@ -12,11 +12,14 @@ from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from default_settings import Config
 
 class Entry(BaseModel):
+    name: Optional[str]
     label: str
     help: str
 
 class Cluster(Entry):
     name: str
+    label: str
+    help: str
 
 class Subcategory(Entry):
     clusters: List[Cluster]
@@ -64,7 +67,7 @@ def get_common_dictionary() -> CommonDictionary:
 
 def common_frame() -> DataFrame:
     dscommon = get_common_dictionary()
-    dsc = [{"category": cat.label, "subcategory": sub.label, "cluster": clust.name, "cluster_label": clust.label} for cat in dscommon.categories for sub in cat.subcategories for clust in sub.clusters]
+    dsc = [{"category": cat.name or cat.label, "subcategory": sub.name or sub.label, "cluster": clust.name, "cluster_label": clust.label} for cat in dscommon.categories for sub in cat.subcategories for clust in sub.clusters]
     return DataFrame(dsc, dtype="string")
 
 COMMON_DICTIONARY_FRAME = common_frame()
