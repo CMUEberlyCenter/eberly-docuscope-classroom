@@ -1,17 +1,15 @@
-import {} from 'jasmine';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-
-import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
-
-import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterTestingModule } from '@angular/router/testing';
+import { } from 'jasmine';
+import { NgxUiLoaderModule } from 'ngx-ui-loader';
+import { AppComponent } from './app.component';
+import { HeaderComponent } from './header/header.component';
 
 @Component({selector: 'app-messages', template: ''})
 class MessagesStubComponent {}

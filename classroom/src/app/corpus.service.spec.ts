@@ -1,9 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../testing';
-
-import { CorpusService } from './corpus.service';
 import { AssignmentService } from './assignment.service';
+import { CorpusService } from './corpus.service';
 
 describe('CorpusService', () => {
   let service: CorpusService;

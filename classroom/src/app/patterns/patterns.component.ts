@@ -1,17 +1,16 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
-
-import { CorpusService } from '../corpus.service';
-import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
-import { CommonDictionaryService } from '../common-dictionary.service';
-import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { forkJoin } from 'rxjs';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
+import { CommonDictionary, CommonDictionaryTreeNode } from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { CorpusService } from '../corpus.service';
 import { PatternTreeNode } from '../pattern-tree-node';
+import { CategoryPatternData, PatternData, PatternsService } from '../patterns.service';
 
 interface SunburstNode {
   name: string;

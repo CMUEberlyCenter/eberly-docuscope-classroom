@@ -1,7 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
-
 import { CommonDictionaryService } from './common-dictionary.service';
 
 describe('CommonDictionaryService', () => {

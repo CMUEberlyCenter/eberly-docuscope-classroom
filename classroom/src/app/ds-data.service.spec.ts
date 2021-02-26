@@ -1,8 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-
-import { category_value, DsDataService } from './ds-data.service';
+import { TestBed } from '@angular/core/testing';
 import { environment } from './../environments/environment';
+import { category_value, DsDataService } from './ds-data.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 
 const data = {

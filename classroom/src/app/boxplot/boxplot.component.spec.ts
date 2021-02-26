@@ -1,14 +1,13 @@
 import { Component, Input } from '@angular/core';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { TagCloudModule } from 'angular-tag-cloud-module';
-import { asyncData } from '../../testing';
-
-import { BoxplotComponent } from './boxplot.component';
-import { CorpusService } from '../corpus.service';
-import { CategoryData, DsDataService, DocuScopeData} from '../ds-data.service';
-import { SettingsService } from '../settings.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
+import { CorpusService } from '../corpus.service';
+import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
+import { SettingsService } from '../settings.service';
+import { BoxplotComponent } from './boxplot.component';
 
 @Component({selector: 'app-boxplot-graph', template: ''})
 class BoxplotGraphStubComponent {

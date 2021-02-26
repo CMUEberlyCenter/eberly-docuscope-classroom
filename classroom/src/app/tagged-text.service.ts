@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, publishReplay, refCount } from 'rxjs/operators';
 import { environment } from './../environments/environment';
-import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
 import { DictionaryInformation } from './assignment-data';
+import { HandleError, HttpErrorHandlerService } from './http-error-handler.service';
 
 export interface TextContent {
   text_id: string;

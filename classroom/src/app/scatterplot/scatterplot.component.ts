@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ChartType } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
-import { CategoryData, DocumentData, DocuScopeData, DsDataService, category_value } from '../ds-data.service';
+import { CategoryData, category_value, DocumentData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
 @Component({
@@ -25,6 +25,7 @@ export class ScatterplotComponent implements OnInit {
   y_axis: string;
   y_category: CategoryData;
   unit = 100;
+  chartType: ChartType = ChartType.ScatterChart;
   chart_width = 400;
   chart_height = 400;
 

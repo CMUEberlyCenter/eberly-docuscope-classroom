@@ -1,23 +1,23 @@
-import { Component, Input } from '@angular/core';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Component, Input } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { asyncData } from '../../testing';
-import { ComparisonComponent } from './comparison.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
 import { CorpusService } from '../corpus.service';
 import { DocumentService } from '../document.service';
 import { ComparePatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
+import { ComparisonComponent } from './comparison.component';
 
 @Component({selector: 'app-compare-patterns-table'})
 class ComparePatternsTableStubComponent {

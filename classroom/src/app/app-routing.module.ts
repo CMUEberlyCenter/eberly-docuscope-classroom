@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
+import { RouterModule, Routes } from '@angular/router';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { ComparisonComponent } from './comparison/comparison.component';
 import { GroupingComponent } from './grouping/grouping.component';

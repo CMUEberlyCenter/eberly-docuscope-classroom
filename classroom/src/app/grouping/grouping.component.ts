@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupsData, GroupsService } from './groups.service';

@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-
-import { AssignmentService } from './assignment.service';
 import { AssignmentData } from './assignment-data';
+import { AssignmentService } from './assignment.service';
 
 describe('AssignmentService', () => {
   let service: AssignmentService;

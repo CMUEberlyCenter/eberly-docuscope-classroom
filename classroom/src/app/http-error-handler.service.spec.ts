@@ -1,8 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { TestBed } from '@angular/core/testing';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-
 import { HandleError, HttpErrorHandlerService } from './http-error-handler.service';
 
 describe('HttpErrorHandlerService', () => {

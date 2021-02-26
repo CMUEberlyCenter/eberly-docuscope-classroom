@@ -10,7 +10,6 @@ responses and needs to be passed to the header.
 */
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-
 import { AssignmentData } from './assignment-data';
 
 /**

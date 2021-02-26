@@ -1,7 +1,6 @@
 /* Component for displaying the "About" page content. */
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-
 import { SettingsService } from '../settings.service';
 
 @Component({

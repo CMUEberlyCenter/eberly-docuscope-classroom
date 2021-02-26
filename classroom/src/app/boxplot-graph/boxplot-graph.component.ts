@@ -7,15 +7,13 @@ The boxplots are also user sortable based on category name.
  */
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { AfterViewChecked, Component, EventEmitter, OnInit, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-
 import * as d3 from 'd3';
 import { CommonDictionary } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
-
 import { CategoryData, category_value, DocumentData, DocuScopeData, max_boxplot_value } from '../ds-data.service';
 
 /** Class for storing boxplot outliers. */

@@ -1,9 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { DocumentService } from './document.service';
 import { environment } from './../environments/environment';
+import { DocumentService } from './document.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 
 const data = {

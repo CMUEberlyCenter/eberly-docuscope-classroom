@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/quotes */
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { CommonDictionary, ICommonDictionary } from './common-dictionary';
-import { shareReplay } from 'rxjs/operators';
 // import { catchError } from 'rxjs/operators';
 
 @Injectable({

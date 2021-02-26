@@ -1,9 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { ComparePatternData, PatternsService, pattern_compare } from './patterns.service';
 import { environment } from './../environments/environment';
+import { ComparePatternData, PatternsService, pattern_compare } from './patterns.service';
 
 describe('PatternsService', () => {
   let service: PatternsService;

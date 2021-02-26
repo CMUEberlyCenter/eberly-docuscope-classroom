@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-
 import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
 import { SettingsService } from '../settings.service';

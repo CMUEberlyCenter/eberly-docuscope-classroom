@@ -1,9 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { environment } from '../../environments/environment';
 import { HttpErrorHandlerService } from '../http-error-handler.service';
 import { GroupsService } from './groups.service';
-import { environment } from '../../environments/environment';
 
 describe('GroupsService', () => {
   let service: GroupsService;

@@ -1,18 +1,17 @@
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
-
-import { CorpusService } from '../corpus.service';
-import { PatternsComponent } from './patterns.component';
-import { PatternData, PatternsService } from '../patterns.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
+import { CorpusService } from '../corpus.service';
+import { PatternData, PatternsService } from '../patterns.service';
+import { PatternsComponent } from './patterns.component';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}

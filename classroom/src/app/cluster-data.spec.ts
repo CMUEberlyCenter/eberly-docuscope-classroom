@@ -1,4 +1,4 @@
-import { ClusterData, instance_count, cluster_compare } from './cluster-data';
+import { cluster_compare, instance_count } from './cluster-data';
 
 describe('ClusterData', () => {
   it('instance_count', () => {

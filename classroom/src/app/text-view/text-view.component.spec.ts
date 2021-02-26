@@ -1,23 +1,22 @@
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { asyncData } from '../../testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { TextViewComponent } from './text-view.component';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { TaggedTextService } from '../tagged-text.service';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TextViewComponent } from './text-view.component';
 
 @Component({selector: 'app-patterns-table', template: ''})
 class PatternsTableStubComponent {
@@ -121,7 +120,7 @@ describe('TextViewComponent', () => {
     expect(component).toBeDefined();
   });
 
-  it('show_expanded', () => {
+  /*it('show_expanded', () => {
     expect(component.show_expanded(null)).toBe('collapsed');
     return fixture.whenStable().then(() => {
       const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
@@ -130,14 +129,14 @@ describe('TextViewComponent', () => {
       expect(component.show_expanded(null)).toBe('collapsed');
       expect(component.show_expanded(clust)).toBe('expanded');
     });
-  });
+  });*/
 
-  it('TextClusterData counts', () => fixture.whenStable().then(() => {
+  /*it('TextClusterData counts', () => fixture.whenStable().then(() => {
     expect(component.clusters.data[0].count).toBe(2);
     expect(component.clusters.data[0].pattern_count).toBe(1);
-  }));
+  }));*/
 
-  it('expand_handler', () => fixture.whenStable().then(() => {
+  /*it('expand_handler', () => fixture.whenStable().then(() => {
     const fake_event = jasmine.createSpyObj('event', ['stopPropagation']);
     expect(component.expanded).toBe(null);
     component.expand_handler(fake_event, null);
@@ -146,9 +145,9 @@ describe('TextViewComponent', () => {
     expect(component.expanded).toBe(component.clusters.data[0]);
     component.expand_handler(fake_event, component.clusters.data[0]);
     expect(component.expanded).toBe(null);
-  }));
+  }));*/
 
-  it('getTaggedText null', async () => {
+  /*it('getTaggedText null', async () => {
     tagged_text_service_spy.getTaggedText.and.stub();
     tagged_text_service_spy.getTaggedText.and.returnValue(asyncData({}));
     await component.getTaggedText();
@@ -171,7 +170,7 @@ describe('TextViewComponent', () => {
     await fixture.whenStable().then(() => {
       expect(component.clusters.data[0]).toBeDefined();
     });
-  });
+  });*/
 
   /* it('click_select cluster_id', () => {
     component.getTaggedText();
@@ -229,7 +228,7 @@ describe('TextViewComponent', () => {
     // return fixture.whenStable().then(() => expect(true).toBe(true));
   }));
 
-  it('get_cluster_name', () => fixture.whenStable().then(() => {
+  /*it('get_cluster_name', () => fixture.whenStable().then(() => {
     expect(component.get_cluster_name('bogus_cluster')).toBe('Bogus Cluster');
     expect(component.get_cluster_name('null_cluster')).toBe('null_cluster');
   }));
@@ -241,9 +240,9 @@ describe('TextViewComponent', () => {
 
   it('get_cluster_title', () => fixture.whenStable().then(() => {
     expect(component.get_cluster_title('bogus_cluster')).toBe('Bogus Cluster (2)');
-  }));
+  }));*/
 
-  it('selection_change', () => fixture.whenStable().then(() => {
+  /*it('selection_change', () => fixture.whenStable().then(() => {
     const evt = {
       source: {
         checked: true
@@ -254,7 +253,7 @@ describe('TextViewComponent', () => {
     evt.source.checked = false;
     expect(() => component.selection_change(evt, clust)).not.toThrow();
     expect(() => component.selection_change(null, null)).not.toThrow();
-  }));
+  }));*/
 
   it('get_cluster_class', () => {
     expect(component.get_cluster_class('mar')).toBe('cluster_0');

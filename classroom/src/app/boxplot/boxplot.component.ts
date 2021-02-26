@@ -6,7 +6,6 @@ and ranking list based on the currently selected category.
 import { Component, OnInit } from '@angular/core';
 import { CloudData } from 'angular-tag-cloud-module';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary } from '../common-dictionary';
 import { CorpusService } from '../corpus.service';

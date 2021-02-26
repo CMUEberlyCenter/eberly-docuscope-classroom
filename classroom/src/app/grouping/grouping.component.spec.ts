@@ -1,19 +1,17 @@
+import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { CdkDragDrop, CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { asyncData } from '../../testing';
-
-import { GroupingComponent } from './grouping.component';
-import { CorpusService } from '../corpus.service';
-import { GroupsService } from './groups.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing';
+import { CorpusService } from '../corpus.service';
+import { GroupingComponent } from './grouping.component';
+import { GroupsService } from './groups.service';
 
 @Component({selector: 'app-nav', template: ''})
 class NavStubComponent {}
