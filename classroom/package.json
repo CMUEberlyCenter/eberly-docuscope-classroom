@@ -20,7 +20,8 @@
     "build_prod": "ng build --base-href=/docuscope/classroom/ --output-hashing none --configuration=deploy",
     "test": "ng test",
     "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage=true",
-    "lint": "eslint -c .eslintrc.json --ext .ts src",
+    "lint": "eslint -c .eslintrc.json src",
+    "prettier": "prettier -w src",
     "e2e": "ng e2e"
   },
   "private": true,

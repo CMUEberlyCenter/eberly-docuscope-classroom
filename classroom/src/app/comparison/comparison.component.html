@@ -197,23 +197,22 @@
       </table>-->
     </mat-card-content>
   </mat-card>
-  <div class="document_area" *ngIf="!is_safari">
+  <div class="document_area" *ngIf="!is_safari && documents">
     <nav class="layout mat-accent">
       <mat-button-toggle-group [(value)]="direction">
-        <mat-button-toggle value="vertical" aria-label="Top-Bottom View"
-          ><mat-icon>view_stream</mat-icon></mat-button-toggle
-        >
-        <mat-button-toggle value="horizontal" aria-label="Left-Right View"
-          ><mat-icon>view_column</mat-icon></mat-button-toggle
-        >
+        <mat-button-toggle value="vertical" aria-label="Top-Bottom View">
+          <mat-icon>view_stream</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="horizontal" aria-label="Left-Right View">
+          <mat-icon>view_column</mat-icon>
+        </mat-button-toggle>
       </mat-button-toggle-group>
     </nav>
     <main *ngIf="documents" class="text_cards">
       <as-split unit="percent" [direction]="direction">
         <as-split-area
           *ngFor="let doc of documents.documents; index as i"
-          [style.overflow]="'hidden'"
-        >
+          [style.overflow]="'hidden'">
           <div class="document_entry">
             <div class="text_head" [style.background]="doc_colors[i]">
               <span>ID:&nbsp;{{ doc.text_id }}</span>
@@ -231,7 +230,7 @@
       </as-split>
     </main>
   </div>
-  <ng-container *ngIf="is_safari">
+  <ng-container *ngIf="is_safari && documents">
     <main
       class="safari_entry"
       *ngFor="let doc of documents.documents; index as i"

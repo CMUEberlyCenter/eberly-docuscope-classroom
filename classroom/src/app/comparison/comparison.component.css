@@ -11,6 +11,20 @@
   flex: 0 0 auto;
   overflow-y: auto;
 }
+.tree ul,
+.tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+.tree-node {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 
 .cluster-name {
   white-space: nowrap;

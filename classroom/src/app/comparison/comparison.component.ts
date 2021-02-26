@@ -47,15 +47,15 @@ class CompareTreeNode {
     this.patterns = patterns;
   }
   get counts(): number[] {
-    const zero: number[] = this.patterns[0].counts.map(() => 0);
-    if (this.patterns) {
+    const zero: number[] = [0, 0]; //this.patterns[0].counts.map(() => 0);
+    if (this.patterns?.length) {
       return this.patterns.reduce(
-        (totals, current) => totals.map((t, i) => t + current[i]),
+        (totals, current) => totals.map((t, i) => t + current.counts[i]),
         zero
       );
-    } else if (this.children) {
+    } else if (this.children?.length) {
       return this.children.reduce(
-        (tot, cur) => tot.map((t, i) => t + cur[i]),
+        (tot, cur) => tot.map((t, i) => t + cur.counts[i]),
         zero
       );
     }
@@ -233,6 +233,7 @@ export class ComparisonComponent implements OnInit {
         // Dictionary
         this.dictionary = common;
         // Documents
+        this.documents = documents;
         this._assignmentService.setAssignmentData(documents);
         // have to bypass some security otherwise the id's and data-key's get stripped. TODO: annotate html so it is safe.
         this.html_content = documents.documents.map((doc) =>
@@ -262,14 +263,11 @@ export class ComparisonComponent implements OnInit {
               ([pat, counts]) => new ComparePatternData(pat, counts)
             )
           );
-        console.log(common.tree.map(dfsmap));
         this.treeData.data = common.tree.map(dfsmap);
         this.treeControl.dataNodes = this.treeData.data;
         this.max_count = Math.max(
           ...this.treeData.data.map((root) => root.max_count)
         );
-        console.log(this.treeData.data);
-        console.log(this.max_count);
         this._spinner.stop();
       });
     });
@@ -297,40 +295,6 @@ export class ComparisonComponent implements OnInit {
       }
     }
   }
-  /*getTaggedText() {
-    this._spinner.start();
-    return this._doc_service.getData(this.corpus)
-      .subscribe(docs => {
-        const cluster_ids = new Set<string>(this.cluster_info.keys());
-        cluster_ids.delete('Other');
-
-        const pats = new Map<string, Map<string, number[]>>();
-        cluster_ids.forEach(c => pats.set(c, new Map<string, number[]>()));
-        let i = 0;
-        const zero: number[] = this.html_content.map((): number => 0);
-        for (const doc of this.html_content) {
-          const weight = this.unit / docs.documents[i].word_count;
-          $(doc['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
-            const cluster: string = $(this).attr('data-key');
-            const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
-            if (pats.has(cluster)) {
-              if (!pats.get(cluster).has(example)) {
-                pats.get(cluster).set(example, zero.slice());
-              }
-              const p_val: number[] = pats.get(cluster).get(example);
-              p_val[i] = p_val[i] + weight;
-            }
-          });
-          i++;
-        }
-        this.patterns = pats;
-        const clusters: TextClusterData[] = Array.from(cluster_ids).map(
-          (cid: string): TextClusterData =>
-            new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
-        clusters.sort(cluster_compare);
-      }
-      );
-  }*/
   reportError(message: string): void {
     this._snackBar.open(message, '\u2612');
   }
@@ -367,16 +331,6 @@ export class ComparisonComponent implements OnInit {
       );
     }
   }
-  /*show_expanded(cluster: TextClusterData | null) {
-    if (this.expanded && cluster && cluster.id === this.expanded.id) {
-      return 'expanded';
-    }
-    return 'collapsed';
-  }
-  expand_handler($event, cluster: TextClusterData | null) {
-    this.expanded = this.expanded === cluster ? null : cluster;
-    $event.stopPropagation();
-  }*/
   get is_safari(): boolean {
     // return true;
     return (
