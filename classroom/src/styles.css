@@ -72,8 +72,14 @@ circle.dot.model {
   filter: opacity(40%);
 }
 
-html, body { height: 100vh; }
-body { font-family: Roboto, "Helvetica Neue", sans-serif; margin: 0; }
+html,
+body {
+  height: 100vh;
+}
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+}
 app-root {
   display: flex;
   flex-flow: column;

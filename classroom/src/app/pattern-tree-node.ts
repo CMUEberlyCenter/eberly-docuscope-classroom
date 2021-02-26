@@ -1,6 +1,6 @@
-import { instance_count } from './cluster-data';
-import { CommonDictionaryTreeNode } from './common-dictionary';
-import { PatternData } from './patterns.service';
+import { instance_count } from "./cluster-data";
+import { CommonDictionaryTreeNode } from "./common-dictionary";
+import { PatternData } from "./patterns.service";
 
 export class PatternTreeNode {
   id?: string;
@@ -8,7 +8,11 @@ export class PatternTreeNode {
   help: string;
   children?: PatternTreeNode[];
   patterns?: PatternData[];
-  constructor(node: CommonDictionaryTreeNode, children: PatternTreeNode[], patterns: PatternData[]) {
+  constructor(
+    node: CommonDictionaryTreeNode,
+    children: PatternTreeNode[],
+    patterns: PatternData[]
+  ) {
     this.id = node.id;
     this.label = node.label;
     this.help = node.help;

@@ -13,9 +13,6 @@
 .rank {
   flex: 0 1 60px;
 }
-.name {
-  /*flex: 0 1 auto;*/
-}
 .value {
   flex: 0 1 60px;
 }

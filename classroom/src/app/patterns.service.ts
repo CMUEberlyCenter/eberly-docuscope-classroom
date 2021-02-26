@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError, publishReplay, refCount } from 'rxjs/operators';
-import { environment } from './../environments/environment';
-import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { catchError, publishReplay, refCount } from "rxjs/operators";
+import { environment } from "./../environments/environment";
+import {
+  HttpErrorHandlerService,
+  HandleError,
+} from "./http-error-handler.service";
 
 export class PatternData {
   pattern: string;
@@ -49,25 +52,29 @@ export class CategoryPatternData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class PatternsService {
   private server = `${environment.backend_server}/patterns`;
   private handleError: HandleError;
   private pattern_data: Observable<CategoryPatternData[]>;
 
-  constructor(private _http: HttpClient,
-    httpErrorHandler: HttpErrorHandlerService) {
-    this.handleError = httpErrorHandler.createHandleError('PatternsService');
+  constructor(
+    private _http: HttpClient,
+    httpErrorHandler: HttpErrorHandlerService
+  ) {
+    this.handleError = httpErrorHandler.createHandleError("PatternsService");
   }
 
   getPatterns(corpus: string[]): Observable<CategoryPatternData[]> {
     if (!this.pattern_data) {
-      this.pattern_data = this._http.post<CategoryPatternData[]>(this.server, corpus)
+      this.pattern_data = this._http
+        .post<CategoryPatternData[]>(this.server, corpus)
         .pipe(
           publishReplay(1),
           refCount(),
-          catchError(this.handleError('Retrieve Patterns Data', [])));
+          catchError(this.handleError("Retrieve Patterns Data", []))
+        );
     }
     return this.pattern_data;
   }

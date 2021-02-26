@@ -1,9 +1,11 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
-import { PatternData } from './patterns.service';
+import { PatternData } from "./patterns.service";
 
 export function instance_count(patterns: PatternData[]): number {
   return patterns.reduce(
-    (total: number, current: PatternData) => total + current.count, 0);
+    (total: number, current: PatternData) => total + current.count,
+    0
+  );
 }
 
 export interface ClusterData {

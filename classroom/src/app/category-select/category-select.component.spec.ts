@@ -1,15 +1,15 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CategorySelectComponent } from './category-select.component';
+import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { CategorySelectComponent } from "./category-select.component";
 
-describe('CategorySelectComponent', () => {
+describe("CategorySelectComponent", () => {
   let component: CategorySelectComponent;
   let fixture: ComponentFixture<CategorySelectComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CategorySelectComponent ],
-      imports: [ HttpClientTestingModule ]
+      declarations: [CategorySelectComponent],
+      imports: [HttpClientTestingModule],
     }).compileComponents();
   });
 
@@ -19,7 +19,7 @@ describe('CategorySelectComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

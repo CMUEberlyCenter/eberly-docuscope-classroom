@@ -1,46 +1,67 @@
 <div class="container">
   <mat-card class="sidebar">
     <mat-card-title>Dictionary Categories</mat-card-title>
-    <mat-card-subtitle>Select up to {{max_clusters}}:</mat-card-subtitle>
+    <mat-card-subtitle>Select up to {{ max_clusters }}:</mat-card-subtitle>
     <mat-card-content>
-      <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="tree">
+      <mat-tree
+        [dataSource]="treeData"
+        [treeControl]="treeControl"
+        class="tree"
+      >
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
           <li class="mat-tree-node tree-node">
             <div>
               <button mat-icon-button disabled></button>
-              <mat-checkbox [checked]="selection.isSelected(node)"
+              <mat-checkbox
+                [checked]="selection.isSelected(node)"
                 (click)="$event.stopPropagation()"
                 [value]="node"
                 [disabled]="node.max_count === 0"
-                [aria-label]="node.label">
-                <ng-container [ngTemplateOutlet]="patternlabel"
-                  [ngTemplateOutletContext]="{row:node}"></ng-container>
+                [aria-label]="node.label"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="patternlabel"
+                  [ngTemplateOutletContext]="{ row: node }"
+                ></ng-container>
               </mat-checkbox>
             </div>
-            <div>{{node.counts}}</div>
+            <div>{{ node.counts }}</div>
           </li>
         </mat-tree-node>
         <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
           <li>
             <div class="mat-tree-node tree-node">
               <div>
-                <button mat-icon-button matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label">
+                <button
+                  mat-icon-button
+                  matTreeNodeToggle
+                  [attr.aria-label]="'Toggle ' + node.label"
+                >
                   <mat-icon class="mat-icon-rtl-mirror">
-                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    {{
+                      treeControl.isExpanded(node)
+                        ? "expand_more"
+                        : "chevron_right"
+                    }}
                   </mat-icon>
                 </button>
-                <mat-checkbox [checked]="selection.isSelected(node)"
-                    (click)="$event.stopPropagation()"
-                    (change)="selection_change($event, node)"
-                    [disabled]="node.max_count === 0"
-                    [value]="node"
-                    [aria-label]="node.label">
-                  <ng-container [ngTemplateOutlet]="patternlabel"
-                    [ngTemplateOutletContext]="{row:node}"></ng-container>
+                <mat-checkbox
+                  [checked]="selection.isSelected(node)"
+                  (click)="$event.stopPropagation()"
+                  (change)="selection_change($event, node)"
+                  [disabled]="node.max_count === 0"
+                  [value]="node"
+                  [aria-label]="node.label"
+                >
+                  <ng-container
+                    [ngTemplateOutlet]="patternlabel"
+                    [ngTemplateOutletContext]="{ row: node }"
+                  ></ng-container>
                 </mat-checkbox>
               </div>
-              <div [class.d_none]="treeControl.isExpanded(node)">{{node.counts}}</div>
+              <div [class.d_none]="treeControl.isExpanded(node)">
+                {{ node.counts }}
+              </div>
             </div>
             <ul [class.d_none]="!treeControl.isExpanded(node)">
               <ng-container matTreeNodeOutlet></ng-container>
@@ -51,35 +72,49 @@
           <li [style.width]="'100%'">
             <div class="mat-tree-node tree-node">
               <div>
-                <button mat-icon-button matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label">
+                <button
+                  mat-icon-button
+                  matTreeNodeToggle
+                  [attr.aria-label]="'Toggle ' + node.label"
+                >
                   <mat-icon class="mat-icon-rtl-mirror">
-                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    {{
+                      treeControl.isExpanded(node)
+                        ? "expand_more"
+                        : "chevron_right"
+                    }}
                   </mat-icon>
                 </button>
-                <mat-checkbox [checked]="selection.isSelected(node)"
-                    (click)="$event.stopPropagation()"
-                    (change)="selection_change($event, node)"
-                    [value]="node"
-                    [disabled]="node.max_count === 0"
-                    [aria-label]="node.label">
-                  <ng-container [ngTemplateOutlet]="patternlabel"
-                    [ngTemplateOutletContext]="{row:node}"></ng-container>
+                <mat-checkbox
+                  [checked]="selection.isSelected(node)"
+                  (click)="$event.stopPropagation()"
+                  (change)="selection_change($event, node)"
+                  [value]="node"
+                  [disabled]="node.max_count === 0"
+                  [aria-label]="node.label"
+                >
+                  <ng-container
+                    [ngTemplateOutlet]="patternlabel"
+                    [ngTemplateOutletContext]="{ row: node }"
+                  ></ng-container>
                 </mat-checkbox>
               </div>
-              <div>{{node.counts}}</div>
+              <div>{{ node.counts }}</div>
             </div>
             <div
               [class.pattern-table]="true"
-              [class.d_none]="!treeControl.isExpanded(node)">
+              [class.d_none]="!treeControl.isExpanded(node)"
+            >
               <app-compare-patterns-table
-                [patterns]="node.patterns" [colors]="doc_colors">
+                [patterns]="node.patterns"
+                [colors]="doc_colors"
+              >
               </app-compare-patterns-table>
             </div>
           </li>
         </mat-tree-node>
       </mat-tree>
-<!--      <table mat-table matSort #clusterTable
+      <!--      <table mat-table matSort #clusterTable
              #TableSort=matSort  [dataSource]="clusters"
              matSortDisableClear multiTemplateDataRows>
         <ng-container matColumnDef="name">
@@ -165,22 +200,31 @@
   <div class="document_area" *ngIf="!is_safari">
     <nav class="layout mat-accent">
       <mat-button-toggle-group [(value)]="direction">
-        <mat-button-toggle value="vertical" aria-label="Top-Bottom View"><mat-icon>view_stream</mat-icon></mat-button-toggle>
-        <mat-button-toggle value="horizontal" aria-label="Left-Right View"><mat-icon>view_column</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="vertical" aria-label="Top-Bottom View"
+          ><mat-icon>view_stream</mat-icon></mat-button-toggle
+        >
+        <mat-button-toggle value="horizontal" aria-label="Left-Right View"
+          ><mat-icon>view_column</mat-icon></mat-button-toggle
+        >
       </mat-button-toggle-group>
     </nav>
     <main *ngIf="documents" class="text_cards">
       <as-split unit="percent" [direction]="direction">
-        <as-split-area *ngFor="let doc of documents.documents; index as i" [style.overflow]="'hidden'">
+        <as-split-area
+          *ngFor="let doc of documents.documents; index as i"
+          [style.overflow]="'hidden'"
+        >
           <div class="document_entry">
             <div class="text_head" [style.background]="doc_colors[i]">
-              <span>ID:&nbsp;{{doc.text_id}}</span>
-              <span>Owner:&nbsp;{{doc.owner}}</span>
+              <span>ID:&nbsp;{{ doc.text_id }}</span>
+              <span>Owner:&nbsp;{{ doc.owner }}</span>
             </div>
             <div class="document_body">
-            <article class="text_content" [innerHTML]="html_content[i]"
-                     (click)="click_select($event)">
-            </article>
+              <article
+                class="text_content"
+                [innerHTML]="html_content[i]"
+                (click)="click_select($event)"
+              ></article>
             </div>
           </div>
         </as-split-area>
@@ -188,22 +232,31 @@
     </main>
   </div>
   <ng-container *ngIf="is_safari">
-    <main class="safari_entry"
-          *ngFor="let doc of documents.documents; index as i">
+    <main
+      class="safari_entry"
+      *ngFor="let doc of documents.documents; index as i"
+    >
       <div class="safari_head" [style.background]="doc_colors[i]">
-        <span>ID:&nbsp;{{doc.text_id}}</span>
-        <span>Owner:&nbsp;{{doc.owner}}</span>
+        <span>ID:&nbsp;{{ doc.text_id }}</span>
+        <span>Owner:&nbsp;{{ doc.owner }}</span>
       </div>
-      <article class="text_content" [innerHTML]="html_content[i]"
-               (click)="click_select($event)"></article>
+      <article
+        class="text_content"
+        [innerHTML]="html_content[i]"
+        (click)="click_select($event)"
+      ></article>
     </main>
   </ng-container>
 </div>
 
 <ng-template #patternlabel let-row="row">
-  <span class="pattern_label">{{row.label}}</span>
-  <button *ngIf="row.help" mat-icon-button matTooltip="{{row.help}}"
-    matTooltipPosition="after">
+  <span class="pattern_label">{{ row.label }}</span>
+  <button
+    *ngIf="row.help"
+    mat-icon-button
+    matTooltip="{{ row.help }}"
+    matTooltipPosition="after"
+  >
     <mat-icon class="tooltip-icon">comment</mat-icon>
   </button>
 </ng-template>

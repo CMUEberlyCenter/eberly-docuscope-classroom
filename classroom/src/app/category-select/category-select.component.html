@@ -1,20 +1,37 @@
 <ng-container *ngIf="data">
-    <button mat-raised-button color="primary" [matMenuTriggerFor]="categoryMenu">Category<span *ngIf="selectedCategory">: {{selectedCategory}}</span></button>
-    <mat-menu #categoryMenu="matMenu">
-        <ng-container *ngFor="let category of data.categories">
-            <button mat-menu-item [matMenuTriggerFor]="subcat"
-                (click)="selectCategory(category)">{{category.label}}</button>
-            <mat-menu #subcat="matMenu">
-                <ng-container *ngFor="let sub of category.subcategories">
-                    <button mat-menu-item [matMenuTriggerFor]="cluster"
-                        (click)="selectCategory(sub)">{{sub.label}}</button>
-                    <mat-menu #cluster>
-                        <button mat-menu-item *ngFor="let cluster of sub.clusters"
-                            (click)="selectCluster(cluster)"
-                            [value]="cluster.name">{{cluster.label}}</button>
-                    </mat-menu>
-                </ng-container>
-            </mat-menu>
+  <button mat-raised-button color="primary" [matMenuTriggerFor]="categoryMenu">
+    Category<span *ngIf="selectedCategory">: {{ selectedCategory }}</span>
+  </button>
+  <mat-menu #categoryMenu="matMenu">
+    <ng-container *ngFor="let category of data.categories">
+      <button
+        mat-menu-item
+        [matMenuTriggerFor]="subcat"
+        (click)="selectCategory(category)"
+      >
+        {{ category.label }}
+      </button>
+      <mat-menu #subcat="matMenu">
+        <ng-container *ngFor="let sub of category.subcategories">
+          <button
+            mat-menu-item
+            [matMenuTriggerFor]="cluster"
+            (click)="selectCategory(sub)"
+          >
+            {{ sub.label }}
+          </button>
+          <mat-menu #cluster>
+            <button
+              mat-menu-item
+              *ngFor="let cluster of sub.clusters"
+              (click)="selectCluster(cluster)"
+              [value]="cluster.name"
+            >
+              {{ cluster.label }}
+            </button>
+          </mat-menu>
         </ng-container>
-    </mat-menu>
+      </mat-menu>
+    </ng-container>
+  </mat-menu>
 </ng-container>

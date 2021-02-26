@@ -1,14 +1,17 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
-import { SettingsService } from './settings.service';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
+import { SettingsService } from "./settings.service";
 
-describe('SettingsService', () => {
+describe("SettingsService", () => {
   let service: SettingsService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule ]
+      imports: [HttpClientTestingModule],
     });
     service = TestBed.inject(SettingsService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -16,30 +19,33 @@ describe('SettingsService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('should be created', () => {
+  it("should be created", () => {
     expect(service).toBeTruthy();
   });
 
-  it('getSettings', () => {
-    service.getSettings().subscribe(data => {
-      expect(data.title).toBe('DocuScope Classroom');
+  it("getSettings", () => {
+    service.getSettings().subscribe((data) => {
+      expect(data.title).toBe("DocuScope Classroom");
       expect(data.unit).toBe(100);
     });
-    const ereq = httpMock.expectOne('assets/settings.json');
-    expect(ereq.request.method).toBe('GET');
-    ereq.error(new ErrorEvent('fail'), {status: 404});
+    const ereq = httpMock.expectOne("assets/settings.json");
+    expect(ereq.request.method).toBe("GET");
+    ereq.error(new ErrorEvent("fail"), { status: 404 });
 
-    service.getSettings().subscribe(data => {
-      expect(data.title).toBe('TestScope');
+    service.getSettings().subscribe((data) => {
+      expect(data.title).toBe("TestScope");
       expect(data.unit).toBe(1);
     });
-    const req = httpMock.expectOne('assets/settings.json');
-    expect(req.request.method).toBe('GET');
+    const req = httpMock.expectOne("assets/settings.json");
+    expect(req.request.method).toBe("GET");
     req.flush({
-      title: 'TestScope', institution: 'TEST', unit: 1,
-      homepage: 'http://localhost/',
-      scatter: {width: 4, height: 4},
-      boxplot: {cloud: true},
-      stv: {max_clusters: 4}});
+      title: "TestScope",
+      institution: "TEST",
+      unit: 1,
+      homepage: "http://localhost/",
+      scatter: { width: 4, height: 4 },
+      boxplot: { cloud: true },
+      stv: { max_clusters: 4 },
+    });
   });
 });

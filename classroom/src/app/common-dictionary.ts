@@ -1,9 +1,12 @@
 export interface Entry {
+  name?: string;
   label: string;
   help: string;
 }
-export interface ICluster extends Entry {
+export interface ICluster {
   name: string;
+  label: string;
+  help: string;
 }
 export interface Category extends Entry {
   clusters: ICluster[];
@@ -42,7 +45,7 @@ export class CommonDictionary implements ICommonDictionary {
     Object.assign(this, data);
   }
 
-  genCluster(category: string): Category {
+  /*genCluster(category: string): Category {
     for (const cat of this.categories) {
       if (cat.label === category) {
         const clusters = cat.subcategories.reduce(
@@ -66,16 +69,18 @@ export class CommonDictionary implements ICommonDictionary {
       this.#memoCluster.set(category, this.genCluster(category));
     }
     return this.#memoCluster.get(category);
-  }
+  }*/
 
   get tree(): CommonDictionaryTreeNode[] {
     //let id = 0;
     return this.categories.map((category: ICategory) => ({
+      id: category.name ?? category.label,
       label: category.label,
       //id: id++,
       help: category.help,
       children: category.subcategories.map((subcategory: ISubcategory) => ({
         label: subcategory.label,
+        id: subcategory.name ?? subcategory.label,
         //id: id++,
         help: subcategory.help,
         children: subcategory.clusters.map((cluster: ICluster) => ({
@@ -84,8 +89,8 @@ export class CommonDictionary implements ICommonDictionary {
           //id: id++,
           help: cluster.help,
           // hasChildren: true
-        }))
-      }))
+        })),
+      })),
     }));
   }
   /* getClusters(category: string): ICluster[] {
