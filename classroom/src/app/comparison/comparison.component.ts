@@ -149,8 +149,6 @@ class TextClusterData implements ClusterData {
   ],
 })
 export class ComparisonComponent implements OnInit {
-  //@ViewChild('TableSort', { static: true }) sort: MatSort;
-
   corpus: string[];
   dictionary: CommonDictionary;
   doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
@@ -163,12 +161,7 @@ export class ComparisonComponent implements OnInit {
   treeData = new MatTreeNestedDataSource<CompareTreeNode>();
   unit = 100;
 
-  //cluster_columns = ['name', 'bar', 'expand'];
-  //cluster_info: Map<string, DictionaryInformation>;
-  //clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
-  //expanded: TextClusterData | null = null;
   html_content: SafeHtml[];
-  //patterns: Map<string, Map<string, number[]>>;
 
   private _css_classes: string[] = [
     'cluster_0',

@@ -11,6 +11,10 @@
   /*display: none;*/
   padding: 3px;
 }
+.cluster {
+  border-bottom-width: 3px;
+  border-bottom-style: solid;
+}
 .cluster_default {
   border-bottom-color: black;
   border-bottom-style: solid;

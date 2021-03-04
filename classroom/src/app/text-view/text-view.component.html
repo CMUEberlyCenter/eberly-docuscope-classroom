@@ -67,9 +67,10 @@
                   </mat-icon>
                 </button>
                 <mat-checkbox
-                  [checked]="selection.isSelected(node)"
+                  [checked]="descendantsAllSelected(node)"
+                  [indeterminate]="descendantsPartiallySelected(node)"
                   (click)="$event.stopPropagation()"
-                  (change)="selection_change($event, node)"
+                  (change)="selectionChange($event, node)"
                   [disabled]="node.count === 0"
                   [value]="node"
                   [aria-label]="node.label"
@@ -109,7 +110,7 @@
                 <mat-checkbox
                   [checked]="selection.isSelected(node)"
                   (click)="$event.stopPropagation()"
-                  (change)="selection_change($event, node)"
+                  (change)="selectionLeafChange($event, node)"
                   [value]="node"
                   [disabled]="node.count === 0"
                   [aria-label]="node.label"
@@ -149,7 +150,7 @@
   </mat-card>
 </div>
 <ng-template #patternlabel let-row="row">
-  <span class="pattern_label">{{ row.label }}</span>
+  <span [class]="getCategories(row)">{{ row.label }}</span>
   <button
     *ngIf="row.help"
     mat-icon-button

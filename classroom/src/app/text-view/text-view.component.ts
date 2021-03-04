@@ -1,3 +1,4 @@
+import { animateChild } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
@@ -32,6 +33,7 @@ export class TextViewComponent implements OnInit {
   htmlContent: SafeHtml;
   max_clusters = 4;
   selection = new SelectionModel<PatternTreeNode>(true, []);
+  colors = d3.scaleOrdinal(d3.schemeCategory10);
 
   private _css_classes: string[] = [
     'cluster_0',
@@ -97,8 +99,66 @@ export class TextViewComponent implements OnInit {
   hasPatterns(_: number, node: PatternTreeNode): boolean {
     return !!node.patterns && node.patterns.length > 0;
   }
+  descendantsAllSelected(node: PatternTreeNode): boolean {
+    const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
+    return descendants.length > 0 && descendants.every(
+      child => this.selection.isSelected(child)
+    );
+  }
+  descendantsPartiallySelected(node: PatternTreeNode): boolean {
+    const descendants = this.treeControl.getDescendants(node);
+    return descendants.some(child => this.selection.isSelected(child)) &&
+      !this.descendantsAllSelected(node);
+  }
+  getParentNode(node: PatternTreeNode): PatternTreeNode | null {
+    for (const root of this.treeControl.dataNodes) {
+      if (root.children?.includes(node)) {
+        return root;
+      }
+      const desc = this.treeControl.getDescendants(root).find(c => c.children?.includes(node));
+      if (desc) {
+        return desc;
+      }
+    }
+    return null;
+  }
+  getAncestors(node: PatternTreeNode): PatternTreeNode[] {
+    const ancstors: PatternTreeNode[] = [];
+    let parent: PatternTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      ancstors.push(parent);
+      parent = this.getParentNode(parent);
+    }
+    return ancstors;
+  }
+  getCategories(node: PatternTreeNode): string[] {
+    return ['pattern_label', node.id, ...this.getAncestors(node).map(a => a.id)];
+  }
+  checkRootNodeSelection(node: PatternTreeNode): void {
+    const nodeSelected = this.selection.isSelected(node);
+    const descendants = this.treeControl.getDescendants(node).filter(c=>c.count>0);
+    const descAllSel = descendants.length > 0 && descendants.every(c => this.selection.isSelected(c));
+    if (nodeSelected && !descAllSel) {
+      this.selection.deselect(node);
+    } else if (!nodeSelected && descAllSel) {
+      this.selection.select(node);
+    }
+  }
+  checkAllParentsSelection(node: PatternTreeNode): void {
+    let parent: PatternTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      this.checkRootNodeSelection(parent);
+      parent = this.getParentNode(parent);
+    }
+  }
 
-  click_select($event: MouseEvent) {
+  /**
+   * Handler for click event on the document text.
+   * It reveals the categorization path annotation.
+   *
+   * @param $event a MouseEvent like clicking.
+   */
+  click_select($event: MouseEvent): void {
     let target: HTMLElement | null = $event.target as HTMLElement;
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
@@ -114,6 +174,54 @@ export class TextViewComponent implements OnInit {
     }
   }
 
+  selectionChange($event: MatCheckboxChange, node: PatternTreeNode) {
+    if ($event && node) {
+      this.selection.toggle(node);
+      const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
+      if (this.selection.isSelected(node)) {
+        this.selection.select(...descendants);
+      } else {
+        this.selection.deselect(...descendants);
+      }
+      descendants.forEach(child => this.selection.isSelected(child));
+      this.checkAllParentsSelection(node);
+      this.highlightSelection();
+    }
+  }
+  selectionLeafChange($event: MatCheckboxChange, node: PatternTreeNode) {
+    if ($event && node) {
+      this.selection.toggle(node);
+      this.checkAllParentsSelection(node);
+      this.highlightSelection();
+    }
+  }
+  highlightSelection() {
+    this.colors.range(d3.schemeCategory10);
+    d3.selectAll('.cluster').classed('cluster', false);
+    for (const root of this.treeControl.dataNodes) {
+      const id = root.id || root.label;
+      if (this.selection.isSelected(root)) {
+        d3.selectAll(`.${id}`).classed('cluster', true)
+        .style('border-bottom-color', this.colors(id));
+      } else {
+        for (const sub of root.children) {
+          const subId = sub.id || sub.label;
+          if (this.selection.isSelected(sub)) {
+            d3.selectAll(`.${subId}`).classed('cluster', true)
+            .style('border-bottom-color', this.colors(subId));
+          } else {
+            for (const cat of sub.children) {
+              const catId = cat.id || cat.label;
+              if (this.selection.isSelected(cat)) {
+                d3.selectAll(`.${catId}`).classed('cluster', true)
+                .style('border-bottom-color', this.colors(catId));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   selection_change($event: MatCheckboxChange, node: PatternTreeNode) {
     if ($event && node) {
       if (
@@ -135,6 +243,8 @@ export class TextViewComponent implements OnInit {
         css_class,
         $event.source.checked
       );
+      const descendants = this.treeControl.getDescendants(node);
+      //this.selection.isSelected(node)
     }
   }
 
