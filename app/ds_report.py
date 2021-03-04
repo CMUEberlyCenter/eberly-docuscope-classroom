@@ -2,37 +2,37 @@
 # coding: utf-8
 # PDF REPORT
 
-# system
-from collections import defaultdict, Counter
 import copy
 import html
 import io
+from collections import Counter, defaultdict
+
 try:
     import ujson as json
 except ImportError:
     import json
+
 import logging
 import math
 import os
 import time
 import zipfile
 
-# reportlab
-from reportlab.platypus.flowables import Flowable
+from bs4 import BeautifulSoup as bs
 from reportlab.lib.colors import black, red
-from reportlab.lib.units import inch, pica
-
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import BaseDocTemplate, PageTemplate,\
-    NextPageTemplate, FrameBreak
-from reportlab.platypus import Frame, Paragraph, Spacer, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-
-from bs4 import BeautifulSoup as bs
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch, pica
+from reportlab.platypus import (BaseDocTemplate, Frame, FrameBreak,
+                                NextPageTemplate, PageBreak, PageTemplate,
+                                Paragraph, Spacer)
+# reportlab
+from reportlab.platypus.flowables import Flowable
 
 from default_settings import Config
 from routers.ds_data import DocuScopeData
+
 
 class Divider(Flowable):
     """A Divider."""

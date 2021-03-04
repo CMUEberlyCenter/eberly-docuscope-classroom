@@ -1,10 +1,11 @@
 """Schemas for the SQL DocuScope sidecar database."""
 import uuid
-from sqlalchemy import Boolean, Column, Enum, Integer, JSON, ForeignKey, \
-    LargeBinary, SmallInteger, String, TIMESTAMP, VARBINARY
+
+from sqlalchemy import (JSON, TIMESTAMP, VARBINARY, Boolean, Column, Enum,
+                        ForeignKey, Integer, LargeBinary, SmallInteger, String)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator
 
 BASE = declarative_base()
 TINY_TEXT = String(255)

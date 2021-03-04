@@ -2,21 +2,26 @@
 Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
-import io
 import gzip
+import io
 from html.parser import HTMLParser
+
 try:
     import ujson as json
 except ImportError:
     import json
+
 import logging
 import os
 from typing import Dict, List
+
 from fastapi import HTTPException
 from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
+
 from default_settings import Config
+
 
 class DocuScopeToneTree(BaseModel):
     """A DocuScope Tone tree."""

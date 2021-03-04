@@ -1,7 +1,10 @@
 from operator import itemgetter
 from typing import List
+
 from pydantic import BaseModel
+
 from lat_frame import LAT_MAP
+
 
 class PatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data."""

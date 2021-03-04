@@ -4,10 +4,10 @@ from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel
-from starlette.status import \
-    HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR, \
-    HTTP_503_SERVICE_UNAVAILABLE
+from starlette.status import (HTTP_400_BAD_REQUEST,
+                              HTTP_500_INTERNAL_SERVER_ERROR,
+                              HTTP_503_SERVICE_UNAVAILABLE)
+
 
 class ErrorResponse(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for error response."""

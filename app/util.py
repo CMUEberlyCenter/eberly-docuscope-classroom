@@ -5,15 +5,15 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from pandas import DataFrame, Series
-from starlette.requests import Request
-from starlette.status import \
-    HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR, \
-    HTTP_503_SERVICE_UNAVAILABLE
 from sqlalchemy.orm import Session
+from starlette.requests import Request
+from starlette.status import (HTTP_400_BAD_REQUEST,
+                              HTTP_500_INTERNAL_SERVER_ERROR,
+                              HTTP_503_SERVICE_UNAVAILABLE)
 
 from ds_db import Assignment, DSDictionary, Filesystem
 from response import LevelEnum, LevelFrame
+
 
 def get_db_session(request: Request) -> Session:
     """Get the database session from the given request."""

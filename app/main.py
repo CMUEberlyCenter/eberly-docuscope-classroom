@@ -5,13 +5,14 @@ import traceback
 
 from fastapi import FastAPI
 from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
-from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import Response, FileResponse
-from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import FileResponse, Response
+from starlette.staticfiles import StaticFiles
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+
 from default_settings import Config
 from routers import document, ds_data, generate_reports, groups, patterns
 

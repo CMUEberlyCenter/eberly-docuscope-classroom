@@ -5,14 +5,13 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from pandas import DataFrame, Series, merge, concat
+from lat_frame import LAT_FRAME
+from pandas import DataFrame, Series, concat, merge
 from pydantic import BaseModel
+from response import ERROR_RESPONSES
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
-
-from lat_frame import LAT_FRAME
 from util import get_db_session, get_documents
-from response import ERROR_RESPONSES
 
 router = APIRouter()
 
@@ -57,8 +56,8 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
     ### Categories ###
     hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
     hdata['lat'] = hdata['lat'].astype("string") # fix typing from merge
-    # Columns: category, subcategory, cluster, dimension, lat, uuid+
-    docs = range(5, len(hdata.columns))
+    # Columns: category, subcategory, cluster, cluster_label, dimension, lat, uuid+
+    docs = range(6, len(hdata.columns))
     cstats = concat([hdata.iloc[:, [i, *docs]].groupby(c).sum()
                      for i, c in enumerate(hdata.columns[0:3])])
     cstats = cstats.drop('Other') # Drop Other cluster

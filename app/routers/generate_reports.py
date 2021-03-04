@@ -5,21 +5,19 @@ import traceback
 from typing import List
 from uuid import UUID
 
+from ds_db import Filesystem
+from ds_report import generate_pdf_reports
+from ds_tones import DocuScopeTones
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pandas import DataFrame
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from starlette.status import \
-    HTTP_200_OK, \
-    HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR
-
-from ds_db import Filesystem
-from ds_report import generate_pdf_reports
-from ds_tones import DocuScopeTones
-from util import document_state_check, get_db_session, get_stats
 from response import ERROR_RESPONSES
+from sqlalchemy.orm import Session
+from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
+                              HTTP_500_INTERNAL_SERVER_ERROR)
+from util import document_state_check, get_db_session, get_stats
+
 from routers.ds_data import calculate_data
 
 router = APIRouter()

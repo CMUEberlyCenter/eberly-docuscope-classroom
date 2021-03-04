@@ -1,23 +1,22 @@
 """ Handle /document requests. """
-from collections import defaultdict, Counter
 import io
 import logging
 import re
+from collections import Counter, defaultdict
 from typing import List
 from uuid import UUID
 
+from count_patterns import CategoryPatternData, count_patterns, sort_patterns
+from ds_db import Assignment, Filesystem
 from fastapi import APIRouter, Depends, HTTPException
+from lat_frame import LAT_MAP
 from lxml import etree
 from lxml.html import Classes
 from pydantic import BaseModel
+from response import ERROR_RESPONSES, AssignmentData
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
-
-from ds_db import Assignment, Filesystem
-from lat_frame import LAT_MAP
-from response import AssignmentData, ERROR_RESPONSES
 from util import document_state_check, get_db_session, get_ds_info
-from count_patterns import count_patterns, CategoryPatternData, sort_patterns
 
 router = APIRouter()
 

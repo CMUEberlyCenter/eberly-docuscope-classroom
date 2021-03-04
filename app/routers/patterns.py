@@ -1,17 +1,16 @@
 """ Handles /patterns requests. """
-from collections import defaultdict, Counter
 import logging
+from collections import Counter, defaultdict
 from typing import List
 from uuid import UUID
 
+from count_patterns import CategoryPatternData, count_patterns, sort_patterns
+from ds_db import Filesystem
 from fastapi import APIRouter, Depends, HTTPException
 from lxml import etree
+from response import ERROR_RESPONSES
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
-
-from count_patterns import count_patterns, CategoryPatternData, sort_patterns
-from ds_db import Filesystem
-from response import ERROR_RESPONSES
 from util import document_state_check, get_db_session
 
 router = APIRouter()
