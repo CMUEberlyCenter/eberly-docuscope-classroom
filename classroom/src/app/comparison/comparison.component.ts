@@ -9,9 +9,7 @@ import { Router } from '@angular/router';
 import * as d3 from 'd3';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
-import { DictionaryInformation } from '../assignment-data';
 import { AssignmentService } from '../assignment.service';
-import { ClusterData } from '../cluster-data';
 import {
   CommonDictionary,
   CommonDictionaryTreeNode
@@ -37,6 +35,7 @@ class CompareTreeNode {
     this.label = node.label;
     this.help = node.help;
     this.children = children;
+    patterns.sort(pattern_compare);
     this.patterns = patterns;
   }
   get count(): number {
@@ -67,64 +66,6 @@ class CompareTreeNode {
     return (50 * this.counts[1]) / max;
   }
 }
-class TextClusterData implements ClusterData {
-  id: string;
-  name: string;
-  description?: string;
-  patterns: ComparePatternData[];
-  get count(): number {
-    return this.patterns.reduce(
-      (total: number, current: ComparePatternData): number =>
-        total + current.count,
-      0
-    );
-  }
-  get counts(): number[] {
-    if (this.patterns.length) {
-      const zero: number[] = this.patterns[0].counts.map(() => 0);
-      return this.patterns.reduce(
-        (t: number[], p: ComparePatternData): number[] =>
-          t.map((x: number, i: number): number => x + p.counts[i]),
-        zero
-      );
-    }
-    return [0];
-  }
-  get max_count(): number {
-    return Math.max(...this.counts);
-  }
-  get count0(): number {
-    return this.col_count(0);
-  }
-  get count1(): number {
-    return this.col_count(1);
-  }
-  get pattern_count(): number {
-    return this.patterns.length;
-  }
-  constructor(di: DictionaryInformation, patterns: Map<string, number[]>) {
-    this.id = di.id;
-    this.name = di.name;
-    this.description = di.description;
-    const pats: ComparePatternData[] = Array.from(patterns.entries()).map(
-      (pc): ComparePatternData => new ComparePatternData(pc[0], pc[1])
-    );
-    pats.sort(pattern_compare);
-    this.patterns = pats;
-  }
-  left(max: number): number {
-    return (50 * this.count0) / max;
-  }
-  right(max: number): number {
-    return (50 * this.count1) / max;
-  }
-  col_count(col: number): number {
-    return this.patterns.reduce(
-      (t: number, c: ComparePatternData): number => t + c.counts[col],
-      0
-    );
-  }
-}
 
 @Component({
   selector: 'app-comparison',
@@ -146,20 +87,6 @@ export class ComparisonComponent implements OnInit {
   treeData = new MatTreeNestedDataSource<CompareTreeNode>();
 
   html_content: SafeHtml[];
-
-  private _css_classes: string[] = [
-    'cluster_0',
-    'cluster_1',
-    'cluster_2',
-    'cluster_3',
-    'cluster_4',
-    'cluster_5',
-  ];
-  private _css_classes_length = this._css_classes.length;
-  get max_selected_clusters(): number {
-    return Math.min(this.max_clusters, this._css_classes_length);
-  }
-  private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
     private _assignmentService: AssignmentService,
@@ -331,39 +258,6 @@ export class ComparisonComponent implements OnInit {
   }
   reportError(message: string): void {
     this._snackBar.open(message, '\u2612');
-  }
-  get_cluster_class(cluster: string): string {
-    if (this._selected_clusters.has(cluster)) {
-      return this._selected_clusters.get(cluster);
-    }
-    if (this._css_classes.length) {
-      this._selected_clusters.set(cluster, this._css_classes.shift());
-      return this._selected_clusters.get(cluster);
-    }
-    return 'cluster_default';
-  }
-  selection_change($event: MatCheckboxChange, node: CompareTreeNode) {
-    if ($event && node) {
-      if (
-        $event.checked &&
-        this.selection.selected.length >= this.max_selected_clusters
-      ) {
-        $event.source.checked = false;
-      } else {
-        this.selection.toggle(node);
-      }
-      const id = node.id ?? node.label;
-      const css_class = this.get_cluster_class(id);
-      if (!$event.source.checked && this._selected_clusters.has(id)) {
-        this._css_classes.unshift(this._selected_clusters.get(id));
-        this._selected_clusters.delete(id);
-      }
-      d3.selectAll(`.{id}`).classed(css_class, $event.source.checked);
-      d3.select(`#${$event.source.id} .pattern_label`).classed(
-        css_class,
-        $event.source.checked
-      );
-    }
   }
   get is_safari(): boolean {
     // return true;
