@@ -1,4 +1,3 @@
-import { animateChild } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
@@ -12,7 +11,7 @@ import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode,
+  CommonDictionaryTreeNode
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { Documents, DocumentService } from '../document.service';
@@ -26,31 +25,14 @@ import { SettingsService } from '../settings.service';
   styleUrls: ['./text-view.component.css'],
 })
 export class TextViewComponent implements OnInit {
+  colors = d3.scaleOrdinal(d3.schemeCategory10);
+  dictionary: CommonDictionary;
+  htmlContent: SafeHtml;
   tagged_text: Documents;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  dictionary: CommonDictionary;
-  htmlContent: SafeHtml;
-  max_clusters = 4;
+  max_clusters = d3.schemeCategory10.length;
   selection = new SelectionModel<PatternTreeNode>(true, []);
-  colors = d3.scaleOrdinal(d3.schemeCategory10);
-
-  private _css_classes: string[] = [
-    'cluster_0',
-    'cluster_1',
-    'cluster_2',
-    'cluster_3',
-    'cluster_4',
-    'cluster_5',
-  ];
-  private _css_classes_length = this._css_classes.length;
-
-  get max_selected_clusters(): number {
-    // maximum of the total number of original _css_classes or settings value.
-    return Math.min(this.max_clusters, this._css_classes_length);
-  }
-
-  private _selected_clusters: Map<string, string> = new Map<string, string>();
 
   constructor(
     private _route: ActivatedRoute,
@@ -70,7 +52,7 @@ export class TextViewComponent implements OnInit {
       this._dictionary.getJSON(),
       this._text_service.getData([id]),
     ]).subscribe(([settings, common, documents]) => {
-      this.max_clusters = settings.stv.max_clusters;
+      // this.max_clusters = settings.stv.max_clusters;
       this.dictionary = common;
       this._assignmentService.setAssignmentData(documents);
       const doc = documents.documents[0];
@@ -111,13 +93,15 @@ export class TextViewComponent implements OnInit {
       !this.descendantsAllSelected(node);
   }
   getParentNode(node: PatternTreeNode): PatternTreeNode | null {
-    for (const root of this.treeControl.dataNodes) {
-      if (root.children?.includes(node)) {
-        return root;
-      }
-      const desc = this.treeControl.getDescendants(root).find(c => c.children?.includes(node));
-      if (desc) {
-        return desc;
+    if (this.treeControl?.dataNodes) {
+      for (const root of this.treeControl.dataNodes) {
+        if (root.children?.includes(node)) {
+          return root;
+        }
+        const desc = this.treeControl.getDescendants(root).find(c => c.children?.includes(node));
+        if (desc) {
+          return desc;
+        }
       }
     }
     return null;
@@ -154,7 +138,7 @@ export class TextViewComponent implements OnInit {
 
   /**
    * Handler for click event on the document text.
-   * It reveals the categorization path annotation.
+   * It reveals or hids the categorization path annotation.
    *
    * @param $event a MouseEvent like clicking.
    */
@@ -166,10 +150,13 @@ export class TextViewComponent implements OnInit {
     if (target && this.tagged_text) {
       const key = target?.getAttribute('data-key');
       if (key && key.trim()) {
+        const isSelected = d3.select(target).classed('selected_text');
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').classed('d_none', true);
-        d3.select(target).classed('selected_text', true);
-        d3.select(target).select('sup.cluster_id').classed('d_none', false);
+        if (!isSelected) {
+          d3.select(target).classed('selected_text', true);
+          d3.select(target).select('sup.cluster_id').classed('d_none', false);
+        }
       }
     }
   }
@@ -221,40 +208,5 @@ export class TextViewComponent implements OnInit {
         }
       }
     }
-  }
-  selection_change($event: MatCheckboxChange, node: PatternTreeNode) {
-    if ($event && node) {
-      if (
-        $event.checked &&
-        this.selection.selected.length >= this.max_selected_clusters
-      ) {
-        $event.source.checked = false;
-      } else {
-        this.selection.toggle(node);
-      }
-      const id = node.id ?? node.label;
-      const css_class = this.get_cluster_class(id);
-      if (!$event.source.checked && this._selected_clusters.has(id)) {
-        this._css_classes.unshift(this._selected_clusters.get(id));
-        this._selected_clusters.delete(id);
-      }
-      d3.selectAll(`.${id}`).classed(css_class, $event.source.checked);
-      d3.select(`#${$event.source.id} .pattern_label`).classed(
-        css_class,
-        $event.source.checked
-      );
-      const descendants = this.treeControl.getDescendants(node);
-      //this.selection.isSelected(node)
-    }
-  }
-
-  get_cluster_class(cluster: string): string {
-    if (this._selected_clusters.has(cluster)) {
-      return this._selected_clusters.get(cluster);
-    } else if (this._css_classes.length) {
-      this._selected_clusters.set(cluster, this._css_classes.shift());
-      return this._selected_clusters.get(cluster);
-    }
-    return 'cluster_default';
   }
 }

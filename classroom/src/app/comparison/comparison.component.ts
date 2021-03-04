@@ -1,10 +1,3 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
@@ -21,7 +14,7 @@ import { AssignmentService } from '../assignment.service';
 import { ClusterData } from '../cluster-data';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode,
+  CommonDictionaryTreeNode
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -46,6 +39,9 @@ class CompareTreeNode {
     this.children = children;
     this.patterns = patterns;
   }
+  get count(): number {
+    return this.counts.reduce((p, c) => p + c, 0);
+  }
   get counts(): number[] {
     const zero: number[] = [0, 0]; //this.patterns[0].counts.map(() => 0);
     if (this.patterns?.length) {
@@ -63,6 +59,12 @@ class CompareTreeNode {
   }
   get max_count(): number {
     return Math.max(...this.counts);
+  }
+  left(max: number): number {
+    return (50 * this.counts[0]) / max;
+  }
+  right(max: number): number {
+    return (50 * this.counts[1]) / max;
   }
 }
 class TextClusterData implements ClusterData {
@@ -128,38 +130,20 @@ class TextClusterData implements ClusterData {
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
   styleUrls: ['./comparison.component.css'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed, void', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed, void => collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
-    ]),
-    trigger('indicatorRotate', [
-      state('collapsed, void', style({ transform: 'rotate(0deg)' })),
-      state('expanded', style({ transform: 'rotate(180deg)' })),
-      transition(
-        'expanded <=> collapsed, void => collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class ComparisonComponent implements OnInit {
   corpus: string[];
   dictionary: CommonDictionary;
-  doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
+  colors = d3.scaleOrdinal(d3.schemeCategory10);
+  dColors = ['#1c66aa', '#639c54'];
+  doc_colors = d3.scaleOrdinal(this.dColors); // ['royalblue', 'seagreen'];
   documents: Documents;
   direction: 'horizontal' | 'vertical' = 'horizontal';
-  max_clusters = 4;
+  max_clusters = d3.schemeCategory10.length;
   max_count = 1;
   selection = new SelectionModel<CompareTreeNode>(true, []);
   treeControl = new NestedTreeControl<CompareTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<CompareTreeNode>();
-  unit = 100;
 
   html_content: SafeHtml[];
 
@@ -219,10 +203,9 @@ export class ComparisonComponent implements OnInit {
       ]).subscribe((results: [Settings, CommonDictionary, Documents]): void => {
         const [settings, common, documents] = results;
         // Settings
-        this.max_clusters = settings.stv.max_clusters;
+        //this.max_clusters = settings.stv.max_clusters;
         this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
-        this.doc_colors = settings.mtv.documentColors;
-        this.unit = settings.unit;
+        this.doc_colors = d3.scaleOrdinal(settings.mtv.documentColors);
         // Dictionary
         this.dictionary = common;
         // Documents
@@ -273,6 +256,61 @@ export class ComparisonComponent implements OnInit {
     return !!node.patterns && node.patterns.length > 0;
   }
 
+  descendantsAllSelected(node: CompareTreeNode): boolean {
+    const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
+    return descendants.length > 0 && descendants.every(
+      child => this.selection.isSelected(child)
+    );
+  }
+  descendantsPartiallySelected(node: CompareTreeNode): boolean {
+    const descendants = this.treeControl.getDescendants(node);
+    return descendants.some(child => this.selection.isSelected(child)) &&
+      !this.descendantsAllSelected(node);
+  }
+  getParentNode(node: CompareTreeNode): CompareTreeNode | null {
+    if (this.treeControl?.dataNodes && this.treeData) {
+      for (const root of this.treeControl.dataNodes) {
+        if (root.children?.includes(node)) {
+          return root;
+        }
+        const desc = this.treeControl.getDescendants(root).find(c => c.children?.includes(node));
+        if (desc) {
+          return desc;
+        }
+      }
+    }
+    return null;
+  }
+  getAncestors(node: CompareTreeNode): CompareTreeNode[] {
+    const ancstors: CompareTreeNode[] = [];
+    let parent: CompareTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      ancstors.push(parent);
+      parent = this.getParentNode(parent);
+    }
+    return ancstors;
+  }
+  getCategories(node: CompareTreeNode): string[] {
+    return ['pattern_label', node.id, ...this.getAncestors(node).map(a => a.id)];
+  }
+  checkRootNodeSelection(node: CompareTreeNode): void {
+    const nodeSelected = this.selection.isSelected(node);
+    const descendants = this.treeControl.getDescendants(node).filter(c=>c.count>0);
+    const descAllSel = descendants.length > 0 && descendants.every(c => this.selection.isSelected(c));
+    if (nodeSelected && !descAllSel) {
+      this.selection.deselect(node);
+    } else if (!nodeSelected && descAllSel) {
+      this.selection.select(node);
+    }
+  }
+  checkAllParentsSelection(node: CompareTreeNode): void {
+    let parent: CompareTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      this.checkRootNodeSelection(parent);
+      parent = this.getParentNode(parent);
+    }
+  }
+
   click_select($event: MouseEvent) {
     let target: HTMLElement | null = $event.target as HTMLElement;
     while (target && !target.getAttribute('data-key')) {
@@ -281,10 +319,13 @@ export class ComparisonComponent implements OnInit {
     if (target && this.documents) {
       const key = target?.getAttribute('data-key');
       if (key && key.trim()) {
+        const isSelected = d3.select(target).classed('selected_text');
         d3.selectAll('.selected_text').classed('selected_text', false);
         d3.selectAll('.cluster_id').classed('d_none', true);
-        d3.select(target).classed('selected_text', true);
-        d3.select(target).select('sup.cluster_id').classed('d_none', false);
+        if (!isSelected) {
+          d3.select(target).classed('selected_text', true);
+          d3.select(target).select('sup.cluster_id').classed('d_none', false);
+        }
       }
     }
   }
@@ -330,5 +371,53 @@ export class ComparisonComponent implements OnInit {
       navigator.userAgent.indexOf('Safari') !== -1 &&
       navigator.userAgent.indexOf('Chrome') === -1
     );
+  }
+  selectionChange($event: MatCheckboxChange, node: CompareTreeNode) {
+    if ($event && node) {
+      this.selection.toggle(node);
+      const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
+      if (this.selection.isSelected(node)) {
+        this.selection.select(...descendants);
+      } else {
+        this.selection.deselect(...descendants);
+      }
+      descendants.forEach(child => this.selection.isSelected(child));
+      this.checkAllParentsSelection(node);
+      this.highlightSelection();
+    }
+  }
+  selectionLeafChange($event: MatCheckboxChange, node: CompareTreeNode) {
+    if ($event && node) {
+      this.selection.toggle(node);
+      this.checkAllParentsSelection(node);
+      this.highlightSelection();
+    }
+  }
+  highlightSelection() {
+    this.colors.range(d3.schemeCategory10);
+    d3.selectAll('.cluster').classed('cluster', false);
+    for (const root of this.treeControl.dataNodes) {
+      const id = root.id || root.label;
+      if (this.selection.isSelected(root)) {
+        d3.selectAll(`.${id}`).classed('cluster', true)
+        .style('border-bottom-color', this.colors(id));
+      } else {
+        for (const sub of root.children) {
+          const subId = sub.id || sub.label;
+          if (this.selection.isSelected(sub)) {
+            d3.selectAll(`.${subId}`).classed('cluster', true)
+            .style('border-bottom-color', this.colors(subId));
+          } else {
+            for (const cat of sub.children) {
+              const catId = cat.id || cat.label;
+              if (this.selection.isSelected(cat)) {
+                d3.selectAll(`.${catId}`).classed('cluster', true)
+                .style('border-bottom-color', this.colors(catId));
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

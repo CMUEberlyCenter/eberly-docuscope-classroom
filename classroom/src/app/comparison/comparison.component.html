@@ -1,7 +1,10 @@
 <div class="container">
   <mat-card class="sidebar">
     <mat-card-title>Dictionary Categories</mat-card-title>
-    <mat-card-subtitle>Select up to {{ max_clusters }}:</mat-card-subtitle>
+    <mat-card-subtitle>
+      Select categories to highlight instances in the text.<br/>
+      Colors will start to repeat after {{ max_clusters }} selections:
+    </mat-card-subtitle>
     <mat-card-content>
       <mat-tree
         [dataSource]="treeData"
@@ -25,7 +28,8 @@
                 ></ng-container>
               </mat-checkbox>
             </div>
-            <div>{{ node.counts }}</div>
+            <!--<div>{{ node.counts }}</div>-->
+            <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{row:node}"></ng-container>
           </li>
         </mat-tree-node>
         <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
@@ -46,9 +50,10 @@
                   </mat-icon>
                 </button>
                 <mat-checkbox
-                  [checked]="selection.isSelected(node)"
+                  [checked]="descendantsAllSelected(node)"
+                  [indeterminate]="descendantsPartiallySelected(node)"
                   (click)="$event.stopPropagation()"
-                  (change)="selection_change($event, node)"
+                  (change)="selectionChange($event, node)"
                   [disabled]="node.max_count === 0"
                   [value]="node"
                   [aria-label]="node.label"
@@ -59,9 +64,10 @@
                   ></ng-container>
                 </mat-checkbox>
               </div>
-              <div [class.d_none]="treeControl.isExpanded(node)">
+              <!--<div [class.d_none]="treeControl.isExpanded(node)">
                 {{ node.counts }}
-              </div>
+              </div>-->
+              <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{row:node}"></ng-container>
             </div>
             <ul [class.d_none]="!treeControl.isExpanded(node)">
               <ng-container matTreeNodeOutlet></ng-container>
@@ -88,7 +94,7 @@
                 <mat-checkbox
                   [checked]="selection.isSelected(node)"
                   (click)="$event.stopPropagation()"
-                  (change)="selection_change($event, node)"
+                  (change)="selectionLeafChange($event, node)"
                   [value]="node"
                   [disabled]="node.max_count === 0"
                   [aria-label]="node.label"
@@ -99,7 +105,8 @@
                   ></ng-container>
                 </mat-checkbox>
               </div>
-              <div>{{ node.counts }}</div>
+              <!--<div>{{ node.counts }}</div>-->
+              <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{row:node}"></ng-container>
             </div>
             <div
               [class.pattern-table]="true"
@@ -107,7 +114,7 @@
             >
               <app-compare-patterns-table
                 [patterns]="node.patterns"
-                [colors]="doc_colors"
+                [colors]="dColors"
               >
               </app-compare-patterns-table>
             </div>
@@ -214,7 +221,7 @@
           *ngFor="let doc of documents.documents; index as i"
           [style.overflow]="'hidden'">
           <div class="document_entry">
-            <div class="text_head" [style.background]="doc_colors[i]">
+            <div class="text_head" [style.background]="doc_colors(doc.text_id)">
               <span>ID:&nbsp;{{ doc.text_id }}</span>
               <span>Owner:&nbsp;{{ doc.owner }}</span>
             </div>
@@ -235,7 +242,7 @@
       class="safari_entry"
       *ngFor="let doc of documents.documents; index as i"
     >
-      <div class="safari_head" [style.background]="doc_colors[i]">
+      <div class="safari_head" [style.background]="doc_colors(doc.text_id)">
         <span>ID:&nbsp;{{ doc.text_id }}</span>
         <span>Owner:&nbsp;{{ doc.owner }}</span>
       </div>
@@ -249,7 +256,7 @@
 </div>
 
 <ng-template #patternlabel let-row="row">
-  <span class="pattern_label">{{ row.label }}</span>
+  <span [class]="getCategories(row)">{{ row.label }}</span>
   <button
     *ngIf="row.help"
     mat-icon-button
@@ -258,4 +265,17 @@
   >
     <mat-icon class="tooltip-icon">comment</mat-icon>
   </button>
+</ng-template>
+<ng-template #patterncount let-row="row">
+  <div  [class.d_none]="!hasPatterns(0,row) && treeControl.isExpanded(row)" matTooltip="{{row.count}}: {{row.counts[0]}} vs {{row.counts[1]}}" matTooltipPosition="after">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         [style.width]="'80px'" [style.height]="'32px'">
+      <desc>{{row.counts.join(' vs ')}}</desc>
+      <rect [attr.x]="(50-row.left(max_count))+'%'" y="7" height="18" [attr.width]="row.left(max_count)+'%'"
+            [attr.fill]="dColors[0]" stroke-width="1"/>
+      <rect x="50%" y="7" height="18" [attr.width]="row.right(max_count)+'%'"
+            [attr.fill]="dColors[1]" stroke-width="1"/>
+      <line stroke="black" x1="50%" x2="50%" y1="0" y2="32"/>
+    </svg>
+  </div>
 </ng-template>
