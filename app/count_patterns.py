@@ -1,3 +1,4 @@
+""" Utility functions for dealing with patterns. """
 from operator import itemgetter
 from typing import List
 
@@ -26,6 +27,7 @@ def count_patterns(node, patterns_all):
             patterns_all[cluster].update([key])
 
 def sort_patterns(patterns_all) -> List[CategoryPatternData]:
+    """ Sort the patterns by count and secondarily alphabetically. """
     return [
         {'category': cat,
          'patterns': sorted(

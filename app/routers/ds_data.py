@@ -6,7 +6,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_FRAME
-from pandas import DataFrame, Series, concat, merge
+from pandas import DataFrame, concat, merge
 from pydantic import BaseModel
 from response import ERROR_RESPONSES
 from sqlalchemy.orm import Session

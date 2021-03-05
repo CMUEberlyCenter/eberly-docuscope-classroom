@@ -1,5 +1,5 @@
 """ Handles /patterns requests. """
-import logging
+# import logging
 from collections import Counter, defaultdict
 from typing import List
 from uuid import UUID

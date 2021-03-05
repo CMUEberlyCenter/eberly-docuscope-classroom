@@ -1,3 +1,4 @@
+""" Reads the common dictionary file and converts it to a DataFrame. """
 try:
     import ujson as json
 except ImportError:
@@ -16,23 +17,28 @@ from default_settings import Config
 
 
 class Entry(BaseModel):
+    """ An general schema for entries in the common dictionary. """
     name: Optional[str]
     label: str
     help: str
 
 class Cluster(Entry):
+    """ Schema for a cluster entry. """
     name: str
     label: str
     help: str
 
 class Subcategory(Entry):
+    """ Schema for a subcategory entry. """
     clusters: List[Cluster]
 
 class Category(Entry):
+    """ Schema for a category entry. """
     subcategories: List[Subcategory]
 
 LevelMap = List[Tuple[str, Set[str]]]
 class CommonDictionary(BaseModel):
+    """ Schema for the common dictionary file. """
     default_dict: str
     custom_dict: str
     use_default_dict: bool
@@ -46,23 +52,27 @@ def get_common_dictionary() -> CommonDictionary:
                                "common_dict.json")) as cin:
             data = json.load(cin)
     except ValueError as enc_error:
-        logging.error(f"While parsing common_dictionary: {enc_error}")
+        logging.error("While parsing common_dictionary: %s", enc_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"Error parsing common_dict.json: {enc_error}") from enc_error
+                            detail=f"Error parsing common_dict.json: {enc_error}") \
+                            from enc_error
     except OSError as os_error:
-        logging.error(f"While loading common_dictionary: {os_error}")
+        logging.error("While loading common_dictionary: %s", os_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"Error reading common_dict.json: {os_error}") from os_error
+                            detail=f"Error reading common_dict.json: {os_error}") \
+                            from os_error
     try:
         dscommon = CommonDictionary(**data)
     except ValidationError as err:
-        logging.error(f"While validating common_dict.json: {err}")
+        logging.error("While validating common_dict.json: %s", err)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                           detail=f"Error validating common_dict.json: {err}") from err
+                            detail=f"Error validating common_dict.json: {err}") \
+                            from err
     except ValueError as v_err:
-        logging.error(f"Invalid JSON in common_dict.json: {v_err}")
+        logging.error("Invalid JSON in common_dict.json: %s", v_err)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"JSON error in common_dict.json: {v_err}") from v_err
+                            detail=f"JSON error in common_dict.json: {v_err}") \
+                            from v_err
     if not dscommon:
         logging.error("Empty common dictionary")
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
@@ -70,8 +80,15 @@ def get_common_dictionary() -> CommonDictionary:
     return dscommon
 
 def common_frame() -> DataFrame:
+    """ Compose the DataFrame by reading the common dictionary file. """
     dscommon = get_common_dictionary()
-    dsc = [{"category": cat.name or cat.label, "subcategory": sub.name or sub.label, "cluster": clust.name, "cluster_label": clust.label} for cat in dscommon.categories for sub in cat.subcategories for clust in sub.clusters]
+    dsc = [{"category": cat.name or cat.label,
+            "subcategory": sub.name or sub.label,
+            "cluster": clust.name,
+            "cluster_label": clust.label}
+           for cat in dscommon.categories
+           for sub in cat.subcategories
+           for clust in sub.clusters]
     return DataFrame(dsc, dtype="string")
 
 COMMON_DICTIONARY_FRAME = common_frame()

@@ -1,5 +1,4 @@
 """ Handle /document requests. """
-import io
 import logging
 import re
 from collections import Counter, defaultdict
@@ -16,7 +15,7 @@ from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
-from util import document_state_check, get_db_session, get_ds_info
+from util import document_state_check, get_db_session
 
 router = APIRouter()
 
@@ -75,7 +74,8 @@ async def get_documents(corpus: List[UUID],
         instructor.add(a_instructor)
         assignment.add(a_name)
         html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
-        html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>", "</p><p>", html_content) + "</p></body>"
+        html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
+                                    "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
         try:
             etr = etree.fromstring(html)
@@ -105,7 +105,7 @@ async def get_documents(corpus: List[UUID],
                     tclasses |= cats
                     tag.set('data-key', cpath)
             else:
-                logging.info(f"No category mapping for {lat}.")
+                logging.info("No category mapping for %s.", lat)
         docs.append(Document(
             text_id=filename,
             owner=fullname,

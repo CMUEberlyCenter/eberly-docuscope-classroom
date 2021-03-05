@@ -12,7 +12,7 @@ from starlette.status import (HTTP_400_BAD_REQUEST,
                               HTTP_503_SERVICE_UNAVAILABLE)
 
 from ds_db import Assignment, DSDictionary, Filesystem
-from response import LevelEnum, LevelFrame
+from response import LevelFrame
 
 
 def get_db_session(request: Request) -> Session:
@@ -103,9 +103,9 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     if ds_stats.empty:
         logging.error("Failed to retrieve stats for corpus: %s", documents)
         raise HTTPException(
-            detail=(f"Document(s) submitted for analysis are not tagged, "
-                    f"please close this window and wait a couple of minutes. "
-                    f"If problem persists, please contact technical support."),
+            detail=("Document(s) submitted for analysis are not tagged, "
+                    "please close this window and wait a couple of minutes. "
+                    "If problem persists, please contact technical support."),
             status_code=HTTP_503_SERVICE_UNAVAILABLE)
     # TODO: remove dictionary check as only 1 is used.
     ds_dictionaries = ds_info.loc['dictionary_id'].unique()
@@ -126,17 +126,18 @@ def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
     logging.debug(ds_stats)
     #tones = DocuScopeTones() #frame.ds_dictionary)
     data = {}
-    tone_lats = []
+    #tone_lats = []
     # TODO: add leveled stats
     # TODO: move this analysis to tagging
     # TODO: read leveled JSON common dictionary
-    if frame.level == LevelEnum.dimension:
-        tone_lats = tones.map_dimension_to_lats().items()
-    elif frame.level == LevelEnum.cluster:
-        tone_lats = tones.map_cluster_to_lats().items()
-    for category, lats in tone_lats:
-        sumframe = ds_stats.filter(lats)
-        data[category] = sumframe.transpose().sum()
+    # if frame.level == LevelEnum.dimension:
+    #    tone_lats = tones.map_dimension_to_lats().items()
+    #elif frame.level == LevelEnum.cluster:
+    #    tone_lats = tones.map_cluster_to_lats().items()
+    #for category, lats in tone_lats:
+    #    sumframe = ds_stats.filter(lats)
+    #    data[category] = sumframe.transpose().sum()
+    #hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True
     logging.debug(data)
     dframe = DataFrame(data)
     dframe['total_words'] = ds_info['total_words']

@@ -30,7 +30,7 @@ class ReportsSchema(BaseModel):
 
 def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     """Generate the report for this corpus."""
-    stats = get_stats(ids, db_session)
+    stats, info = get_stats(ids, db_session)
     tones = DocuScopeTones(stats.ds_dictionary)
     documents = {}
     for (uuid, doc, filename, status) in db_session.query(
@@ -58,8 +58,8 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     }
     return generate_pdf_reports(DataFrame.from_dict(stats.frame),
                                 documents,
-                                stats.ds_dictionary,
-                                calculate_data(stats),
+                                "default",
+                                calculate_data(stats, info),
                                 descriptions)
 
 @router.post('/generate_reports',

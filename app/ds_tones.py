@@ -3,8 +3,6 @@ Defines class DocuScopeTones which is used to retrieve and parse tones
 for a dictionary.
 """
 import gzip
-import io
-from html.parser import HTMLParser
 
 try:
     import ujson as json
@@ -48,11 +46,13 @@ def get_local_tones(dictionary_name="default") -> List[DocuScopeTone]:
     except ValueError as enc_error:
         logging.error("Error reading %s tones: %s", dictionary_name, enc_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"Error reading {dictionary_name}_tones.json.gz: {enc_error}") from enc_error
+                            detail=f"Error reading {dictionary_name}_tones.json.gz: {enc_error}") \
+                            from enc_error
     except OSError as os_error:
         logging.error("Error reading %s tones: %s", dictionary_name, os_error)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"Error reading {dictionary_name}_tones.json.gz: {os_error}") from os_error
+                            detail=f"Error reading {dictionary_name}_tones.json.gz: {os_error}")\
+                            from os_error
     try:
         #tones = [DocuScopeTone(**d) for d in data]
         tones = DocuScopeToneTree.parse_obj(data)
@@ -65,7 +65,8 @@ def get_local_tones(dictionary_name="default") -> List[DocuScopeTone]:
         logging.error("Invalid JSON returned for %s", dictionary_name)
         logging.error("%s", v_err)
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail=f"Errors decoding tones for {dictionary_name}: {v_err}") from v_err
+                            detail=f"Errors decoding tones for {dictionary_name}: {v_err}")\
+                            from v_err
     if not tones:
         logging.error("No tones were retrieved for %s.", dictionary_name)
         raise HTTPException(
@@ -77,8 +78,12 @@ def get_local_tones(dictionary_name="default") -> List[DocuScopeTone]:
     #return tones
 
 def get_tones_frame(dictionary_name="default") -> DataFrame:
+    """ Read in the tones file and convert it to a DataFrame. """
     tones = get_local_tones(dictionary_name)
-    return DataFrame([{"cluster": tone.cluster, "dimension": tone.dimension, "lat": lat} for tone in tones for lat in tone.lats], dtype="string")
+    return DataFrame([{"cluster": tone.cluster,
+                       "dimension": tone.dimension,
+                       "lat": lat} for tone in tones for lat in tone.lats],
+                     dtype="string")
 
 TONES_FRAME = get_tones_frame()
 

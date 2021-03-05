@@ -16,7 +16,7 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from default_settings import Config
 from routers import document, ds_data, generate_reports, groups, patterns
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 # Setup database sesson manager
 ENGINE = create_engine(
@@ -77,6 +77,7 @@ app.include_router(generate_reports.router)
 ## Serve static files.
 @app.get("/common_dictionary")
 async def common_dictionary():
+    """Serve the common dictionary information."""
     return FileResponse('dictionaries/common_dict.json')
 
 @app.middleware("http")

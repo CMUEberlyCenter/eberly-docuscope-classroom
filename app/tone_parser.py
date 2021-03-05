@@ -14,7 +14,8 @@ class ToneParser(HTMLParser):
     adds class="<category> <subcategory> <cluster>" attribute."""
     def __init__(self, tones: DataFrame, out: io.StringIO):
         super().__init__()
-        self.tones = tones[["category", "subcategory", "cluster", "lat"]].set_index('lat').to_dict('index')
+        self.tones = tones[["category", "subcategory", "cluster", "lat"]]\
+            .set_index('lat').to_dict('index')
         self.out = out
     def error(self, message):
         """On error: raise the error."""
@@ -39,9 +40,9 @@ class ToneParser(HTMLParser):
                         #self.out.write(f' class="{classes}"')
                 else:
                     # Eat unmatched LAT
-                    logging.info(f"No category mappings for {attr[1]}.")
+                    logging.info("No category mappings for %s.", attr[1])
             elif attr[0] == 'class':
-                classes.append(attr[1])
+                classes.append(cpath)
             else:
                 self.out.write(f' {attr[0]}="{attr[1]}"'
                                if len(attr) > 1 else
