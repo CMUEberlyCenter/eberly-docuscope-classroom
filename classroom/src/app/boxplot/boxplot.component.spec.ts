@@ -3,17 +3,14 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { TagCloudModule } from 'angular-tag-cloud-module';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
+import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
+import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { AssignmentService } from '../assignment.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
-
-@Component({ selector: 'app-boxplot-graph', template: '' })
-class BoxplotGraphStubComponent {
-  @Input() boxplot: DocuScopeData;
-  @Input() unit: number;
-}
 
 @Component({ selector: 'app-nav', template: '' })
 class NavStubComponent {}
@@ -51,29 +48,7 @@ describe('BoxplotComponent', () => {
         'getData',
       ]);
       dataService_spy.getData.and.returnValue(
-        asyncData({
-          categories: [
-            {
-              id: 'bogus',
-              q1: 1,
-              q2: 2,
-              q3: 3,
-              min: 0,
-              max: 4,
-              uifence: 3.5,
-              lifence: 0.5,
-            },
-          ],
-          data: [
-            {
-              id: 'bogus_index',
-              text: 'bogus text',
-              ownedby: 'student',
-              bogus: 0.5,
-              total_words: 2,
-            },
-          ],
-        })
+        asyncData(FAKE_DS_DATA)
       );
       const settings_spy = jasmine.createSpyObj('SettingsService', [
         'getSettings',
@@ -90,19 +65,33 @@ describe('BoxplotComponent', () => {
           stv: { max_clusters: 4 },
         })
       );
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      );
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [
           BoxplotComponent,
-          BoxplotGraphStubComponent,
           NavStubComponent,
           RankGraphStubComponent,
         ],
         imports: [MatCardModule, TagCloudModule],
         providers: [
-          { provide: SettingsService, useValue: settings_spy },
-          { provide: DsDataService, useValue: dataService_spy },
+          { provide: AssignmentService, useValue: assignment_spy },
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy
+          },
           { provide: CorpusService, useValue: corpusService_spy },
+          { provide: DsDataService, useValue: dataService_spy },
+          { provide: SettingsService, useValue: settings_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         ],
       }).compileComponents();

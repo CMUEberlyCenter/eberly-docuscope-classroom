@@ -1,10 +1,3 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
@@ -35,28 +28,6 @@ interface SunburstNode {
   selector: 'app-patterns',
   templateUrl: './patterns.component.html',
   styleUrls: ['./patterns.component.css'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed, void', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-      transition(
-        'expanded <=> void',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-    trigger('indicatorRotate', [
-      state('collapsed, void', style({ transform: 'rotate(0deg)' })),
-      state('expanded', style({ transform: 'rotate(180deg)' })),
-      transition(
-        'expanded <=> collapsed, void => collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class PatternsComponent implements OnInit {
   @ViewChild('sunburst', { static: true }) sunburst: ElementRef;
@@ -140,9 +111,7 @@ export class PatternsComponent implements OnInit {
         .sort((a, b) => b.value - a.value);
       return d3.partition<SunburstNode>().size([2 * Math.PI, r.height + 1])(r);
     };
-    const color = d3.scaleOrdinal(
-      d3.quantize(d3.interpolateRainbow, data.children.length + 1)
-    );
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
     const arcVisible = (d: HierarchyRectangularNode<SunburstNode>) =>
       d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
     const labelVisible = (d: HierarchyRectangularNode<SunburstNode>) =>

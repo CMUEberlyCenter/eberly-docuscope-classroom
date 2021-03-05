@@ -51,7 +51,6 @@ export class RankComponent implements OnInit {
       this.data = data;
       this._assignment_service.setAssignmentData(data);
       this.dsmap = genCategoryDataMap(data);
-      console.log(this.dsmap);
       this.category = this.categories[0];
       this.selected_category = this.category.id; // FIXME get label from common_dictionary
       this._spinner.stop();
@@ -67,9 +66,7 @@ export class RankComponent implements OnInit {
     this.getCorpus();
   }
   onSelectCategory(category: string): void {
-    // console.log(category);
     this.selected_category = category;
     this.category = this.dsmap.get(category);
-    // console.log(this.category);
   }
 }

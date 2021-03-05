@@ -141,9 +141,9 @@ export class BoxplotComponent implements OnInit {
             label: d.title,
             id: d.id,
             median,
-            start: Math.min(d[category] ?? 0, median),
-            width: Math.abs((d[category] ?? 0) - median),
-            value: d[category] ?? 0,
+            start: Math.min(category_value(category, d), median),
+            width: Math.abs(category_value(category, d) - median),
+            value: category_value(category, d),
             instructor: d.ownedby === 'instructor',
           }));
         };

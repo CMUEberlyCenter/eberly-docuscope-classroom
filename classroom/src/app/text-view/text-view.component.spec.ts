@@ -12,7 +12,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { AssignmentService } from '../assignment.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
+import { DocumentService } from '../document.service';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { TaggedTextService } from '../tagged-text.service';
@@ -52,27 +55,25 @@ describe('TextViewComponent', () => {
         'stop',
       ]);
       tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', [
-        'getTaggedText',
+        'getData',
       ]);
-      tagged_text_service_spy.getTaggedText.and.returnValue(
+      tagged_text_service_spy.getData.and.returnValue(
         asyncData({
+          documents: [{
           text_id: 'stub_id',
           word_count: 2,
           html_content: test_html,
-          categories: [
+          ownedby: 'student',
+          owner: 'TEST',
+          patterns: [
             {
-              id: 'bogus_cluster',
-              name: 'Bogus Cluster',
-              description: 'This is a bogus cluster.',
+              category: 'bogus_cluster',
+              patterns: [{pattern: 'text', count: 1}]
             },
-            {
-              id: 'no_cluster',
-              name: 'No Cluster',
-              description: 'Cluster does not appear.',
-            },
-          ],
-        })
-      );
+          ]
+        }
+      ]
+    }));
       const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
       const activatedRoute = jasmine.createSpyObj('ActivatedRoute', [
         'paramMap',
@@ -105,6 +106,16 @@ describe('TextViewComponent', () => {
           mtv: { horizontal: false },
         })
       );
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      );
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [TextViewComponent, PatternsTableStubComponent],
@@ -120,11 +131,13 @@ describe('TextViewComponent', () => {
           NoopAnimationsModule,
         ],
         providers: [
-          { provide: DomSanitizer, useValue: sanitizer },
           { provide: ActivatedRoute, useValue: activatedRoute },
+          { provide: AssignmentService, useValue: assignment_spy },
+          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy },
+          { provide: DomSanitizer, useValue: sanitizer },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
-          { provide: TaggedTextService, useValue: tagged_text_service_spy },
+          { provide: DocumentService, useValue: tagged_text_service_spy },
         ],
         schemas: [
           /* NO_ERRORS_SCHEMA*/
@@ -206,7 +219,7 @@ describe('TextViewComponent', () => {
     });
   }); */
 
-  it('click_select invalid', () =>
+  /*t('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
@@ -219,9 +232,9 @@ describe('TextViewComponent', () => {
       };
       expect(() => component.click_select(evt)).not.toThrow();
       // fixture.whenStable().then(() => expect(fixture.debugElement.nativeElement.querySelectorAll('.cluster_id')).toBe(true));
-    }));
+    }));*/
 
-  it('click_select null', () =>
+  /*it('click_select null', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
@@ -252,7 +265,7 @@ describe('TextViewComponent', () => {
       expect(() => component.click_select(evt)).not.toThrow();
       // return fixture.whenStable().then(() => expect(() => component.click_select(evt)).not.toThrow());
       // return fixture.whenStable().then(() => expect(true).toBe(true));
-    }));
+    }));*/
 
   /*it('get_cluster_name', () => fixture.whenStable().then(() => {
     expect(component.get_cluster_name('bogus_cluster')).toBe('Bogus Cluster');
@@ -281,14 +294,4 @@ describe('TextViewComponent', () => {
     expect(() => component.selection_change(null, null)).not.toThrow();
   }));*/
 
-  it('get_cluster_class', () => {
-    expect(component.get_cluster_class('mar')).toBe('cluster_0');
-    expect(component.get_cluster_class('mar')).toBe('cluster_0');
-    expect(component.get_cluster_class('mar1')).toBe('cluster_1');
-    expect(component.get_cluster_class('mar2')).toBe('cluster_2');
-    expect(component.get_cluster_class('mar3')).toBe('cluster_3');
-    expect(component.get_cluster_class('mar4')).toBe('cluster_4');
-    expect(component.get_cluster_class('mar5')).toBe('cluster_5');
-    expect(component.get_cluster_class('mar6')).toBe('cluster_default');
-  });
 });

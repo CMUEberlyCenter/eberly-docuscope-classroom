@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData } from '../../testing';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupingComponent } from './grouping.component';
 import { GroupsService } from './groups.service';
@@ -99,6 +100,9 @@ describe('GroupingComponent', () => {
         'stop',
       ]);
       snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [GroupingComponent, NavStubComponent],
@@ -112,6 +116,7 @@ describe('GroupingComponent', () => {
           NoopAnimationsModule,
         ],
         providers: [
+          { provide: AssignmentService, useValue: assignment_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: GroupsService, useValue: groups_data_service_spy },

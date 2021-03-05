@@ -1,4 +1,6 @@
-export const FAKE_COMMON_DICTIONARY = {
+import { CommonDictionary } from 'src/app/common-dictionary';
+
+export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
   default_dict: 'fake_dict',
   custom_dict: 'bogus_dict',
   use_default_dict: false,
@@ -27,29 +29,31 @@ export const FAKE_COMMON_DICTIONARY = {
       subcategories: [
         {
           label: 'Future Tense',
+          name: 'FutureTense',
           help: 'To the future and beyond.',
           clusters: [
             {
-              id: 'future',
+              name: 'future',
               help: 'the future is now',
               label: 'Future',
             },
           ],
         },
+      ],
+    },
+    {
+      label: 'Helpers',
+      help: 'Not for you',
+      subcategories: [
         {
-          label: 'Helpers',
-          help: 'Not for you',
-          subcategories: [
+          label: 'Somewhat Helpful',
+          name: 'Somewhat',
+          help: 'Only a little bit.',
+          clusters: [
             {
-              label: 'Somewhat Helpful',
-              help: 'Only a little bit.',
-              clusters: [
-                {
-                  id: 'facilitate',
-                  label: 'Facilitate',
-                  help: 'Please help me, I am stuck in a testing script!',
-                },
-              ],
+              name: 'facilitate',
+              label: 'Facilitate',
+              help: 'Please help me, I am stuck in a testing script!',
             },
           ],
         },
@@ -57,14 +61,16 @@ export const FAKE_COMMON_DICTIONARY = {
     },
     {
       label: 'Fake Category',
+      name: 'FakeCategory',
       help: 'No help on fake',
       subcategories: [
         {
           label: 'False Subcategory',
+          name: 'FalseSubcategory',
           help: 'Not true',
           clusters: [
             {
-              id: 'bogus',
+              name: 'bogus',
               label: 'Bogus Data',
               help: 'A completely bogus category.',
             },
@@ -73,4 +79,4 @@ export const FAKE_COMMON_DICTIONARY = {
       ],
     },
   ],
-};
+});

@@ -11,6 +11,7 @@ import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { AssignmentService } from '../assignment.service';
 
 @Component({ selector: 'app-rank-graph', template: '' })
 class RankGraphStubComponent {
@@ -91,6 +92,9 @@ describe('RankComponent', () => {
           stv: { max_clusters: 4 },
         })
       );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [RankComponent, NavStubComponent, RankGraphStubComponent],
@@ -101,6 +105,7 @@ describe('RankComponent', () => {
           MatFormFieldModule,
         ],
         providers: [
+          { provide: AssignmentService, useValue: assignment_spy },
           { provide: SettingsService, useValue: settings_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

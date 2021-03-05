@@ -11,6 +11,7 @@ import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { SettingsService } from '../settings.service';
+import { AssignmentService } from '../assignment.service';
 
 @Component({ selector: 'app-nav', template: '' })
 class NavStubComponent {}
@@ -103,6 +104,9 @@ describe('ScatterplotComponent', () => {
           stv: { max_clusters: 4 },
         })
       );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [ScatterplotComponent, NavStubComponent],
@@ -114,6 +118,7 @@ describe('ScatterplotComponent', () => {
         ],
         providers: [
           { provide: CorpusService, useValue: corpusService_spy },
+          { provide: AssignmentService, useValue: assignment_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
           { provide: DsDataService, useValue: dataService_spy },

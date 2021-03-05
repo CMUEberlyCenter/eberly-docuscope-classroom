@@ -12,7 +12,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { AssignmentService } from '../assignment.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { DocumentService } from '../document.service';
 import { ComparePatternData } from '../patterns.service';
@@ -66,14 +68,6 @@ describe('ComparisonComponent', () => {
           course: 'bogus_course',
           assignment: 'bogus_assignment',
           instructor: 'test_instructor',
-          categories: [
-            {
-              id: 'bogus_cluster',
-              name: 'Bogus Cluster',
-              description: 'bogus',
-            },
-            { id: 'no_cluster', name: 'No Cluster', description: 'null' },
-          ],
           documents: [
             {
               text_id: 'a',
@@ -81,6 +75,11 @@ describe('ComparisonComponent', () => {
               ownedby: 'student',
               word_count: 2,
               html_content: test_html,
+              patterns: [{
+                category: 'bogus',
+                patterns: [{pattern: 'text', count: 1}]
+              },
+              ]
             },
             {
               text_id: 'b',
@@ -88,6 +87,11 @@ describe('ComparisonComponent', () => {
               ownedby: 'instructor',
               word_count: 2,
               html_content: test_html,
+              patterns: [{
+                category: 'bogus',
+                patterns: [{pattern: 'text', count: 1}]
+              },
+              ]
             },
           ],
         })
@@ -106,6 +110,16 @@ describe('ComparisonComponent', () => {
           mtv: { horizontal: false, documentColors: ['#1c66aa', '#639c54'] },
         })
       );
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      );
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData'
+      ]);
 
       TestBed.configureTestingModule({
         declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
@@ -123,7 +137,9 @@ describe('ComparisonComponent', () => {
           RouterTestingModule,
         ],
         providers: [
+          { provide: AssignmentService, useValue: assignment_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
+          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy },
           { provide: DocumentService, useValue: documents_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
@@ -142,48 +158,7 @@ describe('ComparisonComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getSettings', () => {
-    settings_spy.getSettings.and.returnValue(
-      asyncData({
-        title: 'DocuScope Classroom',
-        institution: 'CMU',
-        unit: 100,
-        homepage:
-          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-        scatter: { width: 400, height: 400 },
-        boxplot: { cloud: true },
-        stv: { max_clusters: 4 },
-        mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
-      })
-    );
-    expect(() => component.getSettings()).not.toThrow();
-  });
-
-  it('max_selected_clusters', () => {
-    expect(component.max_selected_clusters).toBe(4);
-  });
-
-  it('getCorpus empty', () => {
-    corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    expect(() => component.getCorpus()).not.toThrow();
-  });
-
-  it('getCorpus singular', () => {
-    corpus_service_spy.getCorpus.and.returnValue(asyncData(['a']));
-    expect(() => component.getCorpus()).not.toThrow();
-    // TODO: test if routed
-  });
-
-  it(
-    'getCorpus too many',
-    waitForAsync(async () => {
-      corpus_service_spy.getCorpus.and.returnValue(asyncData(['a', 'b', 'c']));
-      await component.getCorpus();
-      expect(component.corpus).toEqual(['a', 'b']);
-    })
-  );
-
-  it('click_select invalid', () =>
+  /*it('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {
         target: {
@@ -229,11 +204,11 @@ describe('ComparisonComponent', () => {
       expect(() => component.click_select(evt)).not.toThrow();
       // return fixture.whenStable().then(() => expect(() => component.click_select(evt)).not.toThrow());
       // return fixture.whenStable().then(() => expect(true).toBe(true));
-    }));
+    }));*/
 
-  it('TextClusterData', () =>
+  /*it('TextClusterData', () =>
     fixture.whenStable().then(() => {
-      const tcd = component.clusters.data[0];
+      const tcd = component.treeData.data[0];
       expect(tcd.left(4)).toBe(25);
       expect(tcd.right(4)).toBe(25);
       expect(tcd.pattern_count).toBe(1);
@@ -274,5 +249,5 @@ describe('ComparisonComponent', () => {
       expect(component.expanded).toBe(component.clusters.data[0]);
       component.expand_handler(fake_event, component.clusters.data[0]);
       expect(component.expanded).toBe(null);
-    }));
+    }));*/
 });

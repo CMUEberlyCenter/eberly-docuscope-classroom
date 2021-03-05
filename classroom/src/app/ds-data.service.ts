@@ -11,6 +11,7 @@ import {
 } from './http-error-handler.service';
 
 export class DocumentData {
+  [category: string]: number|string;
   id: string;
   title: string;
   ownedby: string;
@@ -24,7 +25,7 @@ export function category_value(
 ): number {
   const cat: string = typeof category === 'string' ? category : category.id;
   if (cat in datum) {
-    return datum[cat];
+    return Number(datum[cat]) ?? 0.0;
   }
   return 0.0;
 }
