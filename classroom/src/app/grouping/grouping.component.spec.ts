@@ -101,7 +101,7 @@ describe('GroupingComponent', () => {
       ]);
       snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData'
+        'setAssignmentData',
       ]);
 
       TestBed.configureTestingModule({

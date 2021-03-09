@@ -105,7 +105,7 @@ describe('ScatterplotComponent', () => {
         })
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData'
+        'setAssignmentData',
       ]);
 
       TestBed.configureTestingModule({

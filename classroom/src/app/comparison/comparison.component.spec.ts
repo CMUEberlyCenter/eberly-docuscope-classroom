@@ -75,11 +75,12 @@ describe('ComparisonComponent', () => {
               ownedby: 'student',
               word_count: 2,
               html_content: test_html,
-              patterns: [{
-                category: 'bogus',
-                patterns: [{pattern: 'text', count: 1}]
-              },
-              ]
+              patterns: [
+                {
+                  category: 'bogus',
+                  patterns: [{ pattern: 'text', count: 1 }],
+                },
+              ],
             },
             {
               text_id: 'b',
@@ -87,11 +88,12 @@ describe('ComparisonComponent', () => {
               ownedby: 'instructor',
               word_count: 2,
               html_content: test_html,
-              patterns: [{
-                category: 'bogus',
-                patterns: [{pattern: 'text', count: 1}]
-              },
-              ]
+              patterns: [
+                {
+                  category: 'bogus',
+                  patterns: [{ pattern: 'text', count: 1 }],
+                },
+              ],
             },
           ],
         })
@@ -118,7 +120,7 @@ describe('ComparisonComponent', () => {
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData'
+        'setAssignmentData',
       ]);
 
       TestBed.configureTestingModule({
@@ -139,7 +141,10 @@ describe('ComparisonComponent', () => {
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
-          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy },
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
           { provide: DocumentService, useValue: documents_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },

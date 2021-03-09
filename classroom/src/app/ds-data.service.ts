@@ -11,7 +11,7 @@ import {
 } from './http-error-handler.service';
 
 export class DocumentData {
-  [category: string]: number|string;
+  [category: string]: number | string;
   id: string;
   title: string;
   ownedby: string;

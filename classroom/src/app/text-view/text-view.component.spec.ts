@@ -18,7 +18,6 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 import { DocumentService } from '../document.service';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
-import { TaggedTextService } from '../tagged-text.service';
 import { TextViewComponent } from './text-view.component';
 
 @Component({ selector: 'app-patterns-table', template: '' })
@@ -54,26 +53,28 @@ describe('TextViewComponent', () => {
         'start',
         'stop',
       ]);
-      tagged_text_service_spy = jasmine.createSpyObj('TaggedTextService', [
+      tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
         'getData',
       ]);
       tagged_text_service_spy.getData.and.returnValue(
         asyncData({
-          documents: [{
-          text_id: 'stub_id',
-          word_count: 2,
-          html_content: test_html,
-          ownedby: 'student',
-          owner: 'TEST',
-          patterns: [
+          documents: [
             {
-              category: 'bogus_cluster',
-              patterns: [{pattern: 'text', count: 1}]
+              text_id: 'stub_id',
+              word_count: 2,
+              html_content: test_html,
+              ownedby: 'student',
+              owner: 'TEST',
+              patterns: [
+                {
+                  category: 'bogus_cluster',
+                  patterns: [{ pattern: 'text', count: 1 }],
+                },
+              ],
             },
-          ]
-        }
-      ]
-    }));
+          ],
+        })
+      );
       const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
       const activatedRoute = jasmine.createSpyObj('ActivatedRoute', [
         'paramMap',
@@ -114,7 +115,7 @@ describe('TextViewComponent', () => {
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData'
+        'setAssignmentData',
       ]);
 
       TestBed.configureTestingModule({
@@ -133,7 +134,10 @@ describe('TextViewComponent', () => {
         providers: [
           { provide: ActivatedRoute, useValue: activatedRoute },
           { provide: AssignmentService, useValue: assignment_spy },
-          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy },
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
           { provide: DomSanitizer, useValue: sanitizer },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
@@ -293,5 +297,4 @@ describe('TextViewComponent', () => {
     expect(() => component.selection_change(evt, clust)).not.toThrow();
     expect(() => component.selection_change(null, null)).not.toThrow();
   }));*/
-
 });

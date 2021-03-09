@@ -23,10 +23,9 @@ describe('CategorySelectComponent', () => {
       providers: [
         {
           provide: CommonDictionaryService,
-          useValue: commonDictionaryService_spy
+          useValue: commonDictionaryService_spy,
         },
-
-      ]
+      ],
     }).compileComponents();
   });
 

@@ -7,6 +7,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from './../environments/environment';
 import {
   ComparePatternData,
+  instance_count,
   PatternsService,
   pattern_compare,
 } from './patterns.service';
@@ -79,4 +80,18 @@ describe('ComparePatternData', () => {
   it('count', () => expect(p.count).toBe(3));
   it('count0', () => expect(p.count0).toBe(1));
   it('count1', () => expect(p.count1).toBe(2));
+});
+
+describe('instance_count', () => {
+  it('instance_count', () => {
+    expect(instance_count([])).toBe(0);
+    expect(instance_count([{ pattern: 'foo', count: 3 }])).toBe(3);
+    expect(
+      instance_count([
+        { pattern: 'foo', count: 3 },
+        { pattern: 'bar', count: 6 },
+        { pattern: 'baz', count: 1 },
+      ])
+    ).toBe(10);
+  });
 });

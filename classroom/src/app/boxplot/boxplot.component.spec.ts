@@ -47,9 +47,7 @@ describe('BoxplotComponent', () => {
       const dataService_spy = jasmine.createSpyObj('DsDataService', [
         'getData',
       ]);
-      dataService_spy.getData.and.returnValue(
-        asyncData(FAKE_DS_DATA)
-      );
+      dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
       const settings_spy = jasmine.createSpyObj('SettingsService', [
         'getSettings',
       ]);
@@ -73,7 +71,7 @@ describe('BoxplotComponent', () => {
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData'
+        'setAssignmentData',
       ]);
 
       TestBed.configureTestingModule({
@@ -87,7 +85,7 @@ describe('BoxplotComponent', () => {
           { provide: AssignmentService, useValue: assignment_spy },
           {
             provide: CommonDictionaryService,
-            useValue: commonDictionaryService_spy
+            useValue: commonDictionaryService_spy,
           },
           { provide: CorpusService, useValue: corpusService_spy },
           { provide: DsDataService, useValue: dataService_spy },

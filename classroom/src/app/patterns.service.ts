@@ -12,8 +12,8 @@ export class PatternData {
   pattern: string;
   count: number;
 }
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function pattern_compare(a: PatternData, b: PatternData): number {
+
+export const pattern_compare = (a: PatternData, b: PatternData): number => {
   if (a.count === b.count) {
     if (a.pattern < b.pattern) {
       return -1;
@@ -24,7 +24,13 @@ export function pattern_compare(a: PatternData, b: PatternData): number {
     return 0;
   }
   return b.count - a.count;
-}
+};
+
+export const instance_count = (patterns: PatternData[]): number =>
+  patterns.reduce(
+    (total: number, current: PatternData) => total + current.count,
+    0
+  );
 
 export class ComparePatternData extends PatternData {
   pattern: string;

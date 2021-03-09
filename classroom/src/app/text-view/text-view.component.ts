@@ -11,7 +11,7 @@ import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode
+  CommonDictionaryTreeNode,
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { Documents, DocumentService } from '../document.service';
@@ -82,15 +82,20 @@ export class TextViewComponent implements OnInit {
     return !!node.patterns && node.patterns.length > 0;
   }
   descendantsAllSelected(node: PatternTreeNode): boolean {
-    const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
-    return descendants.length > 0 && descendants.every(
-      child => this.selection.isSelected(child)
+    const descendants = this.treeControl
+      .getDescendants(node)
+      .filter((c) => c.count > 0);
+    return (
+      descendants.length > 0 &&
+      descendants.every((child) => this.selection.isSelected(child))
     );
   }
   descendantsPartiallySelected(node: PatternTreeNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
-    return descendants.some(child => this.selection.isSelected(child)) &&
-      !this.descendantsAllSelected(node);
+    return (
+      descendants.some((child) => this.selection.isSelected(child)) &&
+      !this.descendantsAllSelected(node)
+    );
   }
   getParentNode(node: PatternTreeNode): PatternTreeNode | null {
     if (this.treeControl?.dataNodes) {
@@ -98,7 +103,9 @@ export class TextViewComponent implements OnInit {
         if (root.children?.includes(node)) {
           return root;
         }
-        const desc = this.treeControl.getDescendants(root).find(c => c.children?.includes(node));
+        const desc = this.treeControl
+          .getDescendants(root)
+          .find((c) => c.children?.includes(node));
         if (desc) {
           return desc;
         }
@@ -116,12 +123,20 @@ export class TextViewComponent implements OnInit {
     return ancstors;
   }
   getCategories(node: PatternTreeNode): string[] {
-    return ['pattern_label', node.id, ...this.getAncestors(node).map(a => a.id)];
+    return [
+      'pattern_label',
+      node.id,
+      ...this.getAncestors(node).map((a) => a.id),
+    ];
   }
   checkRootNodeSelection(node: PatternTreeNode): void {
     const nodeSelected = this.selection.isSelected(node);
-    const descendants = this.treeControl.getDescendants(node).filter(c=>c.count>0);
-    const descAllSel = descendants.length > 0 && descendants.every(c => this.selection.isSelected(c));
+    const descendants = this.treeControl
+      .getDescendants(node)
+      .filter((c) => c.count > 0);
+    const descAllSel =
+      descendants.length > 0 &&
+      descendants.every((c) => this.selection.isSelected(c));
     if (nodeSelected && !descAllSel) {
       this.selection.deselect(node);
     } else if (!nodeSelected && descAllSel) {
@@ -164,13 +179,15 @@ export class TextViewComponent implements OnInit {
   selectionChange($event: MatCheckboxChange, node: PatternTreeNode) {
     if ($event && node) {
       this.selection.toggle(node);
-      const descendants = this.treeControl.getDescendants(node).filter(c => c.count > 0);
+      const descendants = this.treeControl
+        .getDescendants(node)
+        .filter((c) => c.count > 0);
       if (this.selection.isSelected(node)) {
         this.selection.select(...descendants);
       } else {
         this.selection.deselect(...descendants);
       }
-      descendants.forEach(child => this.selection.isSelected(child));
+      descendants.forEach((child) => this.selection.isSelected(child));
       this.checkAllParentsSelection(node);
       this.highlightSelection();
     }
@@ -188,20 +205,23 @@ export class TextViewComponent implements OnInit {
     for (const root of this.treeControl.dataNodes) {
       const id = root.id || root.label;
       if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${id}`).classed('cluster', true)
-        .style('border-bottom-color', this.colors(id));
+        d3.selectAll(`.${id}`)
+          .classed('cluster', true)
+          .style('border-bottom-color', this.colors(id));
       } else {
         for (const sub of root.children) {
           const subId = sub.id || sub.label;
           if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${subId}`).classed('cluster', true)
-            .style('border-bottom-color', this.colors(subId));
+            d3.selectAll(`.${subId}`)
+              .classed('cluster', true)
+              .style('border-bottom-color', this.colors(subId));
           } else {
             for (const cat of sub.children) {
               const catId = cat.id || cat.label;
               if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${catId}`).classed('cluster', true)
-                .style('border-bottom-color', this.colors(catId));
+                d3.selectAll(`.${catId}`)
+                  .classed('cluster', true)
+                  .style('border-bottom-color', this.colors(catId));
               }
             }
           }
