@@ -165,7 +165,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
             const i = d3.interpolate(d.data.current, d.data.target);
             return (t) => (d.data.current = i(t));
           })
-          .filter(function (this: Element, d) {
+          .filter(function(this: Element, d) {
             return (
               Boolean(+this.getAttribute('fill-opacity')) ||
               arcVisible(d.data.target)
@@ -176,7 +176,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
           )
           .attrTween('d', (d) => () => arc(d.data.current));
         label
-          .filter(function (this: Element, d): boolean {
+          .filter(function(this: Element, d): boolean {
             return (
               Boolean(+this.getAttribute('fill-opacity')) ||
               labelVisible(d.data.target)

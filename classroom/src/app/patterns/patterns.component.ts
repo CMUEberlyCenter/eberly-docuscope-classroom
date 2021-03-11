@@ -201,7 +201,7 @@ export class PatternsComponent implements OnInit {
           const i = d3.interpolate(d.data.current, d.data.target);
           return (t) => (d.data.current = i(t));
         })
-        .filter(function (d) {
+        .filter(function(d) {
           return (
             +this.getAttribute('fill-opacity') || arcVisible(d.data.target)
           );
@@ -211,7 +211,7 @@ export class PatternsComponent implements OnInit {
         )
         .attrTween('d', (d) => () => arc(d.data.current));
       label
-        .filter(function (d) {
+        .filter(function(d) {
           return (
             +this.getAttribute('fill-opacity') || labelVisible(d.data.target)
           );
