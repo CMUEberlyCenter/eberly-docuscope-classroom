@@ -1,4 +1,11 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
 
@@ -13,16 +20,14 @@ export interface SunburstNode {
 const partition = (
   pdata: SunburstNode
 ): HierarchyRectangularNode<SunburstNode> => {
-  const r = d3
-    .hierarchy(pdata)
-    .sum((d) => d.value);
-    //.sort((a, b) => b.value - a.value);
+  const r = d3.hierarchy(pdata).sum((d) => d.value);
+  //.sort((a, b) => b.value - a.value);
   return d3.partition<SunburstNode>().size([2 * Math.PI, r.height + 1])(r);
 };
 const arcVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
-  (d.y1 <= 3) && (d.y0 >= 1) && (d.x1 > d.x0);
+  d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
 const labelVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
-  d.y1 <= 3 && d.y0 >= 1 && ((d.y1 - d.y0) * (d.x1 - d.x0)) > 0.03;
+  d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
 
 @Component({
   selector: 'app-sunburst-chart',
@@ -71,18 +76,21 @@ export class SunburstChartComponent implements OnInit, OnChanges {
     };
     const root = partition(this.data);
     root.each((d) => (d.data.current = d));
-    root.each((d) => (d.data.target = {
-      x0:
-      Math.max(0, Math.min(1, (d.x0 - root.x0) / (root.x1 - root.x0))) *
-      2 *
-      Math.PI,
-    x1:
-      Math.max(0, Math.min(1, (d.x1 - root.x0) / (root.x1 - root.x0))) *
-      2 *
-      Math.PI,
-    y0: Math.max(0, d.y0 - root.depth),
-    y1: Math.max(0, d.y1 - root.depth),
-    }));
+    root.each(
+      (d) =>
+        (d.data.target = {
+          x0:
+            Math.max(0, Math.min(1, (d.x0 - root.x0) / (root.x1 - root.x0))) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(0, Math.min(1, (d.x1 - root.x0) / (root.x1 - root.x0))) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0 - root.depth),
+          y1: Math.max(0, d.y1 - root.depth),
+        })
+    );
     const svg = d3
       .select(this.sunburst.nativeElement)
       .append('svg')
@@ -109,7 +117,9 @@ export class SunburstChartComponent implements OnInit, OnChanges {
         arc(d.data.current)
       );
     path
-      .filter((d: HierarchyRectangularNode<SunburstNode>) => d.children?.length > 0)
+      .filter(
+        (d: HierarchyRectangularNode<SunburstNode>) => d.children?.length > 0
+      )
       .style('cursor', 'pointer');
     const label = g
       .append('g')
@@ -129,7 +139,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
       .attr('r', radius)
       .attr('fill', 'none')
       .attr('pointer-events', 'all');
-      //.on('click', clicked);
+    //.on('click', clicked);
     const clicked = (_event, p) => {
       if (p.children) {
         parent.datum(p.parent || root);
@@ -155,24 +165,28 @@ export class SunburstChartComponent implements OnInit, OnChanges {
             const i = d3.interpolate(d.data.current, d.data.target);
             return (t) => (d.data.current = i(t));
           })
-          .filter(function(this: Element, d) {
-            return (Boolean(+this.getAttribute('fill-opacity')) || arcVisible(d.data.target));
+          .filter(function (this: Element, d) {
+            return (
+              Boolean(+this.getAttribute('fill-opacity')) ||
+              arcVisible(d.data.target)
+            );
           })
           .attr('fill-opacity', (d) =>
             arcVisible(d.data.target) ? (d.children ? 0.8 : 0.4) : 0
           )
           .attrTween('d', (d) => () => arc(d.data.current));
         label
-          .filter(function(this: Element, d): boolean {
+          .filter(function (this: Element, d): boolean {
             return (
-              Boolean(+this.getAttribute('fill-opacity')) || labelVisible(d.data.target)
+              Boolean(+this.getAttribute('fill-opacity')) ||
+              labelVisible(d.data.target)
             );
           })
           .transition(trans)
           .attr('fill-opacity', (d) => +labelVisible(d.data.target))
           .attrTween('transform', (d) => () => labelTransform(d.data.current));
-        }
-      };
+      }
+    };
     path.on('click', clicked);
     parent.on('click', clicked);
     path.append('title').text(
@@ -180,7 +194,8 @@ export class SunburstChartComponent implements OnInit, OnChanges {
         `${d
           .ancestors()
           .map((dn: HierarchyRectangularNode<SunburstNode>) => dn.data.name)
-          .reverse().slice(1)
+          .reverse()
+          .slice(1)
           .join('/')}\n${this.format(d.value)}`
     );
   }

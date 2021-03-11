@@ -47,8 +47,8 @@
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       treeControl.isExpanded(node)
-                        ? "expand_more"
-                        : "chevron_right"
+                        ? 'expand_more'
+                        : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>
@@ -92,8 +92,8 @@
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       treeControl.isExpanded(node)
-                        ? "expand_more"
-                        : "chevron_right"
+                        ? 'expand_more'
+                        : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>
@@ -206,7 +206,7 @@
       [style.width]="'80px'"
       [style.height]="'32px'"
     >
-      <desc>{{ row.counts.join(" vs ") }}</desc>
+      <desc>{{ row.counts.join(' vs ') }}</desc>
       <rect
         [attr.x]="50 - row.left(max_count) + '%'"
         y="7"

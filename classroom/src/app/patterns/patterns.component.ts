@@ -7,7 +7,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode
+  CommonDictionaryTreeNode,
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -15,7 +15,7 @@ import { PatternTreeNode } from '../pattern-tree-node';
 import {
   CategoryPatternData,
   PatternData,
-  PatternsService
+  PatternsService,
 } from '../patterns.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
@@ -94,7 +94,9 @@ export class PatternsComponent implements OnInit {
       .innerRadius((d) => d.y0 * radius)
       .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
     const format = d3.format(',d');
-    const partition = (pdata: SunburstNode): HierarchyRectangularNode<SunburstNode> => {
+    const partition = (
+      pdata: SunburstNode
+    ): HierarchyRectangularNode<SunburstNode> => {
       const r = d3
         .hierarchy(pdata)
         .sum((d) => d.value)
@@ -199,7 +201,7 @@ export class PatternsComponent implements OnInit {
           const i = d3.interpolate(d.data.current, d.data.target);
           return (t) => (d.data.current = i(t));
         })
-        .filter(function(d) {
+        .filter(function (d) {
           return (
             +this.getAttribute('fill-opacity') || arcVisible(d.data.target)
           );
@@ -209,7 +211,7 @@ export class PatternsComponent implements OnInit {
         )
         .attrTween('d', (d) => () => arc(d.data.current));
       label
-        .filter(function(d) {
+        .filter(function (d) {
           return (
             +this.getAttribute('fill-opacity') || labelVisible(d.data.target)
           );

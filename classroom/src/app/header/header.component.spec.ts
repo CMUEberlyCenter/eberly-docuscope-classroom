@@ -58,7 +58,7 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have as title \'DocuScope Classroom @ CMU\'', () => {
+  it("should have as title 'DocuScope Classroom @ CMU'", () => {
     expect(component.title).toEqual('DocuScope Classroom');
     expect(component.institution).toEqual('@ CMU');
   });

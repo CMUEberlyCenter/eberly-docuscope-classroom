@@ -3,11 +3,10 @@
   <mat-card class="container">
     <mat-card-title>Patterns</mat-card-title>
     <mat-card-subtitle>
-      Breakdown of the number of instances of each category across all documents.
+      Breakdown of the number of instances of each category across all
+      documents.
     </mat-card-subtitle>
-    <mat-card-subtitle>
-      Click on a category to expand it.
-    </mat-card-subtitle>
+    <mat-card-subtitle> Click on a category to expand it. </mat-card-subtitle>
     <mat-card-content class="patterns_container">
       <app-sunburst-chart [data]="sundata"></app-sunburst-chart>
       <mat-tree
@@ -39,8 +38,8 @@
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       treeControl.isExpanded(node)
-                        ? "expand_more"
-                        : "chevron_right"
+                        ? 'expand_more'
+                        : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>
@@ -70,8 +69,8 @@
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       treeControl.isExpanded(node)
-                        ? "expand_more"
-                        : "chevron_right"
+                        ? 'expand_more'
+                        : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>

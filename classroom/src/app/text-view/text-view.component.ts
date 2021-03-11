@@ -80,11 +80,11 @@ export class TextViewComponent implements OnInit {
         children: cpmap.get(node.id ?? node.label)
           ? cpmap.get(node.id ?? node.label).map((p) => ({
               name: p.pattern,
-              value: p.count
+              value: p.count,
             }))
-          : node.children?.map(sunmap)
+          : node.children?.map(sunmap),
       });
-      this.sundata = { name: 'root', children: common.tree.map(sunmap)};
+      this.sundata = { name: 'root', children: common.tree.map(sunmap) };
       this._spinner.stop();
     });
   }
