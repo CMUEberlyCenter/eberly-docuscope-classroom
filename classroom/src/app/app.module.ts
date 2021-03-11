@@ -46,6 +46,7 @@ import { RankComponent } from './rank/rank.component';
 import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
+import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { TextViewComponent } from './text-view/text-view.component';
     ComparisonComponent,
     ComparePatternsTableComponent,
     CategorySelectComponent,
+    SunburstChartComponent,
   ],
   entryComponents: [AboutComponent],
   imports: [

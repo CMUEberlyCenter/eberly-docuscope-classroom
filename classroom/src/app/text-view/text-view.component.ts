@@ -18,6 +18,7 @@ import { Documents, DocumentService } from '../document.service';
 import { PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
+import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
   selector: 'app-text-view',
@@ -33,6 +34,8 @@ export class TextViewComponent implements OnInit {
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   max_clusters = d3.schemeCategory10.length;
   selection = new SelectionModel<PatternTreeNode>(true, []);
+  sundata;
+  sunwidth = 300;
 
   constructor(
     private _route: ActivatedRoute,
@@ -72,6 +75,16 @@ export class TextViewComponent implements OnInit {
         );
       this.treeData.data = common.tree.map(dfsmap);
       this.treeControl.dataNodes = this.treeData.data; // needed to get expand all to work
+      const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
+        name: node.label,
+        children: cpmap.get(node.id ?? node.label)
+          ? cpmap.get(node.id ?? node.label).map((p) => ({
+              name: p.pattern,
+              value: p.count
+            }))
+          : node.children?.map(sunmap)
+      });
+      this.sundata = { name: 'root', children: common.tree.map(sunmap)};
       this._spinner.stop();
     });
   }

@@ -7,7 +7,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode,
+  CommonDictionaryTreeNode
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -15,14 +15,9 @@ import { PatternTreeNode } from '../pattern-tree-node';
 import {
   CategoryPatternData,
   PatternData,
-  PatternsService,
+  PatternsService
 } from '../patterns.service';
-
-interface SunburstNode {
-  name: string;
-  current?: any;
-  target?: any;
-}
+import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
   selector: 'app-patterns',
@@ -35,7 +30,7 @@ export class PatternsComponent implements OnInit {
   svg;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  sundata: any;
+  sundata: SunburstNode;
 
   constructor(
     private commonDictionaryService: CommonDictionaryService,
@@ -69,8 +64,8 @@ export class PatternsComponent implements OnInit {
             cpmap.get(node.id ?? node.label)
           );
         this.treeData.data = common.tree.map(dfsmap);
-        const sunmap = (node: CommonDictionaryTreeNode) => ({
-          name: node.id ?? node.label,
+        const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
+          name: node.label,
           children: cpmap.get(node.id ?? node.label)
             ? cpmap.get(node.id ?? node.label).map((p) => ({
                 name: p.pattern,
@@ -81,17 +76,12 @@ export class PatternsComponent implements OnInit {
         this.sundata = { name: 'root', children: common.tree.map(sunmap) };
         //this.sundata = common.tree.map(sunmap);
         //const sundata = common.tree.map(sunmap);
-        this.drawChart(this.sundata);
+        //this.drawChart(this.sundata);
         this.spinner.stop();
       });
     });
   }
 
-  ngAfterViewInit() {
-    //if (this.sundata) {
-    //  this.drawChart(this.sundata);
-    //}
-  }
   drawChart(data) {
     const width = 500;
     const radius = width / 6;
@@ -104,7 +94,7 @@ export class PatternsComponent implements OnInit {
       .innerRadius((d) => d.y0 * radius)
       .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
     const format = d3.format(',d');
-    const partition = (pdata: any): HierarchyRectangularNode<SunburstNode> => {
+    const partition = (pdata: SunburstNode): HierarchyRectangularNode<SunburstNode> => {
       const r = d3
         .hierarchy(pdata)
         .sum((d) => d.value)

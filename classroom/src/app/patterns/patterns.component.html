@@ -2,15 +2,14 @@
   <app-nav></app-nav>
   <mat-card class="container">
     <mat-card-title>Patterns</mat-card-title>
-    <mat-card-subtitle
-      >Number of instances of each category across all
-      documents.</mat-card-subtitle
-    >
-    <mat-card-subtitle
-      >Click on a row to get a breakdown of the patterns in each
-      cluster.</mat-card-subtitle
-    >
+    <mat-card-subtitle>
+      Breakdown of the number of instances of each category across all documents.
+    </mat-card-subtitle>
+    <mat-card-subtitle>
+      Click on a category to expand it.
+    </mat-card-subtitle>
     <mat-card-content class="patterns_container">
+      <app-sunburst-chart [data]="sundata"></app-sunburst-chart>
       <mat-tree
         [dataSource]="treeData"
         [treeControl]="treeControl"
@@ -94,8 +93,6 @@
           </li>
         </mat-tree-node>
       </mat-tree>
-
-      <figure id="sunburst"></figure>
     </mat-card-content>
   </mat-card>
 </div>
