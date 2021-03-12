@@ -40,6 +40,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
   @ViewChild('sunburst') sunburst: ElementRef;
 
   color = d3.scaleOrdinal(d3.schemeCategory10);
+  current_path = '';
   format = d3.format(',d');
 
   constructor() {}
@@ -143,6 +144,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
     const clicked = (_event, p) => {
       if (p.children) {
         parent.datum(p.parent || root);
+        this.current_path = (p || root).ancestors().reverse().slice(1).map(d => d.data.name).join(' / ');
         root.each(
           (d) =>
             (d.data.target = {
