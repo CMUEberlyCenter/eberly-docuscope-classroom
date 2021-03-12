@@ -32,12 +32,12 @@ class Documents(AssignmentData):
     """ Schema for a collection of tagged documents. """
     documents: List[Document]
 
-#@router.get('/document/{file_id}', response_model=Documents,
-#            responses=ERROR_RESPONSES)
-#def get_document(file_id: UUID,
-#                       db_session: Session = Depends(get_db_session)):
-#    """Get the tagged text information for the given file."""
-#    return get_documents([file_id], db_session)
+@router.get('/document/{file_id}', response_model=Documents,
+            responses=ERROR_RESPONSES)
+async def get_document(file_id: UUID,
+                       db_session: Session = Depends(get_db_session)):
+    """Get the tagged text information for the given file."""
+    return await get_documents([file_id], db_session)
 
 @router.post('/document', response_model=Documents, responses=ERROR_RESPONSES)
 async def get_documents(corpus: List[UUID],
