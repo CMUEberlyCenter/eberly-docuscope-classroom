@@ -16,7 +16,7 @@
         "createDefaultProgram": true
       },
       "extends": [
-	"prettier",
+        "prettier",
         "plugin:@angular-eslint/ng-cli-compat",
         "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
         "plugin:@angular-eslint/template/process-inline-templates"
@@ -34,7 +34,7 @@
             "accessibility": "explicit"
           }
         ],
-	"@typescript-eslint/naming-convention": "off",
+        "@typescript-eslint/naming-convention": "off",
         "brace-style": [
           "error",
           "1tbs"
