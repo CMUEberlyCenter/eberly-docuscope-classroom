@@ -2,9 +2,8 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
@@ -19,6 +18,12 @@ class NavStubComponent {}
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
   @Input() patterns: PatternData[];
+}
+
+@Component({ selector: 'app-sunburst-chart', template: '' })
+class SunburstStubComponent {
+  @Input() data: any;
+  @Input() width: number;
 }
 
 describe('PatternsComponent', () => {
@@ -77,14 +82,14 @@ describe('PatternsComponent', () => {
         declarations: [
           PatternsComponent,
           PatternsTableStubComponent,
+          SunburstStubComponent,
           NavStubComponent,
         ],
         imports: [
           NoopAnimationsModule,
           MatCardModule,
           MatIconModule,
-          MatSortModule,
-          MatTableModule,
+          MatTreeModule,
           MatTooltipModule,
         ],
         providers: [

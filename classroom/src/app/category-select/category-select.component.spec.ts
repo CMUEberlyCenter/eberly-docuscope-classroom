@@ -38,4 +38,15 @@ describe('CategorySelectComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('selectCategory', () => fixture.whenStable().then(() =>{
+    component.selectCategory({label: 'Insurection', help: ''});
+    expect(component.selectedCategory.label).toBe('Insurection');
+    component.selectCategory({name: 'foo', label:'foobar', help:''});
+    expect(component.selectedCategory.label).toBe('foobar');
+  }));
+  it('selectCluster', () => fixture.whenStable().then(() =>{
+    component.selectCluster({name: 'foo', label:'foobar', help:''});
+    expect(component.selectedCategory.label).toBe('foobar');
+  }));
 });

@@ -1,17 +1,16 @@
 import { Component, Input } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { asyncData } from '../../testing/async-observable-helpers';
-import { GoogleChartsModule } from 'angular-google-charts';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
-
-import { RankComponent } from './rank.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { GoogleChartsModule } from 'angular-google-charts';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData } from '../../testing/async-observable-helpers';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { AssignmentService } from '../assignment.service';
+import { RankComponent } from './rank.component';
 
 @Component({ selector: 'app-rank-graph', template: '' })
 class RankGraphStubComponent {
@@ -139,7 +138,9 @@ describe('RankComponent', () => {
   it('onSelectCategory', () => {
     component.ngOnInit();
     return fixture.whenStable().then(() => {
-      component.onSelectCategory('STUB_X');
+      component.onSelectCategory({label: 'STUB_X', help:''});
+      expect(component.category.id).toBe('STUB_X');
+      component.onSelectCategory({name: 'STUB_X', label: 'Stub X', help:''});
       expect(component.category.id).toBe('STUB_X');
     });
   });

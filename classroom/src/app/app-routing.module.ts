@@ -10,7 +10,7 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: 'boxplot', component: BoxplotComponent },
   { path: 'groups', component: GroupingComponent },
   { path: 'patterns', component: PatternsComponent },

@@ -8,8 +8,8 @@ import { CommonDictionaryService } from '../common-dictionary.service';
   styleUrls: ['./category-select.component.css'],
 })
 export class CategorySelectComponent implements OnInit {
-  @Input() selectedCategory: string;
-  @Output() selectedCategoryChange = new EventEmitter<string>();
+  @Input() selectedCategory: Entry;
+  @Output() selectedCategoryChange = new EventEmitter<Entry>();
   data: CommonDictionary;
   constructor(private _dictionary: CommonDictionaryService) {}
 
@@ -24,11 +24,11 @@ export class CategorySelectComponent implements OnInit {
   }
 
   selectCategory(cat: Entry): void {
-    this.selectedCategory = cat.name ?? cat.label;
+    this.selectedCategory = cat;
     this.selectedCategoryChange.emit(this.selectedCategory);
   }
   selectCluster(menuItem: ICluster): void {
-    this.selectedCategory = menuItem.name;
+    this.selectedCategory = menuItem;
     this.selectedCategoryChange.emit(this.selectedCategory);
   }
 }

@@ -29,7 +29,7 @@
       <google-chart
         #scatterplot
         *ngIf="scatter_data"
-        [title]="x_category.id + ' vs ' + y_category.id"
+        [title]="x_axis.label + ' vs ' + y_axis.label"
         [type]="chartType"
         [columns]="[
           x_category.id,

@@ -1,20 +1,19 @@
 import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { GoogleChartsModule } from 'angular-google-charts';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { GoogleChartsModule } from 'angular-google-charts';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData } from '../../testing';
-
-import { ScatterplotComponent } from './scatterplot.component';
+import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { SettingsService } from '../settings.service';
-import { AssignmentService } from '../assignment.service';
+import { ScatterplotComponent } from './scatterplot.component';
 
 @Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
+class NavStubComponent { }
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -155,11 +154,6 @@ describe('ScatterplotComponent', () => {
     });
   });
 
-  it('on_select', () =>
-    fixture.whenStable().then(() => {
-      expect(() => component.on_select()).not.toThrow();
-    }));
-
   it('select_point', () => {
     window.open = jasmine.createSpy('open');
     component.select_point(
@@ -172,4 +166,24 @@ describe('ScatterplotComponent', () => {
     );
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
+
+  it('on_select_x', () => fixture.whenStable().then(() => {
+    component.on_select_x({
+      name: 'STUB_X',
+      label: 'Stub X',
+      help: ''
+    });
+    expect(component.x_category.id).toBe('STUB_X');
+    component.on_select_x({
+      label: 'STUB_X',
+      help: ''
+    });
+    expect(component.x_category.id).toBe('STUB_X');
+  }));
+  it('on_select_y', () => fixture.whenStable().then(() => {
+    component.on_select_y({ name: 'STUB_Y', label: 'Stub Y', help: '' });
+    expect(component.y_category.id).toBe('STUB_Y');
+    component.on_select_y({ label: 'STUB_Y', help: '' });
+    expect(component.y_category.id).toBe('STUB_Y');
+  }));
 });

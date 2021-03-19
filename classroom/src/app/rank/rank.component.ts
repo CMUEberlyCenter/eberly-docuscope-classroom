@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import { AssignmentService } from '../assignment.service';
+import { Entry } from '../common-dictionary';
 import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
@@ -22,7 +23,7 @@ export class RankComponent implements OnInit {
   data: DocuScopeData;
   dsmap: CategoryInfoMap;
   category: CategoryData;
-  selected_category: string;
+  selected_category: Entry;
   unit = 100;
 
   get categories(): CategoryData[] {
@@ -52,7 +53,7 @@ export class RankComponent implements OnInit {
       this._assignment_service.setAssignmentData(data);
       this.dsmap = genCategoryDataMap(data);
       this.category = this.categories[0];
-      this.selected_category = this.category.id; // FIXME get label from common_dictionary
+      this.selected_category = {label: this.category.id, help: ''}; // FIXME get label from common_dictionary
       this._spinner.stop();
     });
   }
@@ -65,8 +66,8 @@ export class RankComponent implements OnInit {
     this.getSettings();
     this.getCorpus();
   }
-  onSelectCategory(category: string): void {
+  onSelectCategory(category: Entry): void {
     this.selected_category = category;
-    this.category = this.dsmap.get(category);
+    this.category = this.dsmap.get(category.name??category.label);
   }
 }

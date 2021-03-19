@@ -1,6 +1,6 @@
 <ng-container *ngIf="data">
   <button mat-raised-button color="primary" [matMenuTriggerFor]="categoryMenu">
-    Category<span *ngIf="selectedCategory">: {{ selectedCategory }}</span>
+    Category<span *ngIf="selectedCategory">: {{ selectedCategory.label }}</span>
   </button>
   <mat-menu #categoryMenu="matMenu">
     <ng-container *ngFor="let category of data.categories">

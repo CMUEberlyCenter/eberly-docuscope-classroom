@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { TagCloudModule } from 'angular-tag-cloud-module';
+import { MatTreeModule } from '@angular/material/tree';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
 import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
@@ -80,7 +80,7 @@ describe('BoxplotComponent', () => {
           NavStubComponent,
           RankGraphStubComponent,
         ],
-        imports: [MatCardModule, TagCloudModule],
+        imports: [MatCardModule, MatTreeModule],
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },
           {
@@ -127,4 +127,33 @@ describe('BoxplotComponent', () => {
       expect(component.selected_category).toBeTruthy();
     })
   );
+
+  it('open', () => {
+    window.open = jasmine.createSpy('open');
+    component.open('stv/123');
+    expect(window.open).toHaveBeenCalledWith('stv/123');
+  });
+  it('scale', () => {
+    expect(component.scale(.2)).toBe('20.00');
+    expect(component.scale(.25678)).toBe('25.68');
+    expect(component.scale(0)).toBe('0.00');
+  });
+  it('get_outliers', () => fixture.whenStable().then(() => {
+    expect(component.get_outliers(component.data.categories[0])).toBeTruthy();
+    expect(component.get_outliers(component.data.categories[0])).toBeTruthy(); // cache check
+    expect(component.get_outliers(component.data.categories[1])).toBeTruthy();
+
+    // handle null data
+    component.data = null;
+    expect(component.get_outliers({id: 'na', q1: 0, q2: 0, q3:0, uifence: 0, lifence: 0, min: 0, max: 0}));
+  }));
+  it('hasChild', () => fixture.whenStable().then(() => {
+    expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
+  }));
+  it('hasDocuments', () => fixture.whenStable().then(() => {
+    expect(component.hasDocuments(1, component.treeData.data[1])).toBeFalse();
+  }));
+  it('treeControl child acsesson', () => fixture.whenStable().then(() => {
+    expect(component.treeControl.getChildren(component.treeData.data[0])).toBeTruthy();
+  }));
 });

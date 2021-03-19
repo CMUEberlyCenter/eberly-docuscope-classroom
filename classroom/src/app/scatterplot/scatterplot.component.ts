@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChartType } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AssignmentService } from '../assignment.service';
+import { Entry } from '../common-dictionary';
 import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
@@ -24,11 +25,9 @@ export class ScatterplotComponent implements OnInit {
   get categories(): CategoryData[] {
     return this.data.categories;
   }
-  x_categories: Set<CategoryData>;
-  x_axis: string;
+  x_axis: Entry;
   x_category: CategoryData;
-  y_categories: Set<CategoryData>;
-  y_axis: string;
+  y_axis: Entry;
   y_category: CategoryData;
   unit = 100;
   chartType: ChartType = ChartType.ScatterChart;
@@ -84,12 +83,8 @@ export class ScatterplotComponent implements OnInit {
       this._assignment_service.setAssignmentData(data);
       this.x_category = this.categories[0];
       this.y_category = this.categories[1];
-      this.x_axis = this.x_category.id;
-      this.y_axis = this.y_category.id;
-      this.x_categories = new Set<CategoryData>(this.categories);
-      this.y_categories = new Set<CategoryData>(this.categories);
-      this.x_categories.delete(this.y_category);
-      this.y_categories.delete(this.x_category);
+      this.x_axis = {label: this.x_category.id, help: ''}; // betting on top level name==label
+      this.y_axis = {label: this.y_category.id, help: ''};
       this.genPoints();
       this._spinner.stop();
     });
@@ -104,10 +99,10 @@ export class ScatterplotComponent implements OnInit {
   }
 
   genPoints(): void {
-    if (this.x_axis && this.y_axis && this.x_axis !== this.y_axis) {
+    if (this.x_axis && this.y_axis) {
       const model = 'point {fill-color: blue; dataOpacity:0.4}';
-      const xLabel = this.x_category.id;
-      const yLabel = this.y_category.id; // FIXME: use label from common
+      const xLabel = this.x_axis.label;
+      const yLabel = this.y_axis.label;
       const xVal = (x: DocumentData): number =>
         this.unit * category_value(this.x_category, x);
       const yVal = (y: DocumentData): number =>
@@ -126,8 +121,8 @@ export class ScatterplotComponent implements OnInit {
         string,
         string
       ] => [
-        xVal(datum), // {v: xVal(datum), f: `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(2)}`},
-        yVal(datum), // {v: yVal(datum), f: `${yLabel}: ${yVal(datum).toFixed(2)}`},
+        xVal(datum),
+        yVal(datum),
         datum.id,
         datum.ownedby === 'instructor' ? model : null,
         `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
@@ -141,24 +136,14 @@ export class ScatterplotComponent implements OnInit {
     this.getSettings();
     this.getCorpus();
   }
-  on_select_x(clust: string): void {
-    this.x_category = this.get_category(clust);
+  on_select_x(clust: Entry): void {
+    this.x_axis = clust;
+    this.x_category = this.get_category(clust.name??clust.label);
     this.genPoints();
   }
-  on_select_y(clust: string): void {
-    this.y_category = this.get_category(clust);
-    this.genPoints();
-  }
-  on_select(): void {
-    this.x_category = this.get_category(this.x_axis);
-    this.y_category = this.get_category(this.y_axis);
-    console.log(this.x_category.id, this.y_category.id);
-    // const x_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    // x_cat.delete(this.y_category);
-    // this.x_categories = x_cat;
-    // const y_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    // y_cat.delete(this.x_category);
-    // this.y_categories = y_cat;
+  on_select_y(clust: Entry): void {
+    this.y_axis = clust;
+    this.y_category = this.get_category(clust.name??clust.label);
     this.genPoints();
   }
   get_category(category: string): CategoryData {

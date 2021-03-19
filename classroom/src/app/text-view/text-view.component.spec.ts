@@ -5,9 +5,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTreeModule } from '@angular/material/tree';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
@@ -23,6 +23,12 @@ import { TextViewComponent } from './text-view.component';
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
   @Input() patterns: PatternData[];
+}
+
+@Component({ selector: 'app-sunburst-chart', template: '' })
+class SunburstStubComponent {
+  @Input() data: any;
+  @Input() width: number;
 }
 
 const test_html = `
@@ -119,15 +125,15 @@ describe('TextViewComponent', () => {
       ]);
 
       TestBed.configureTestingModule({
-        declarations: [TextViewComponent, PatternsTableStubComponent],
+        declarations: [TextViewComponent, PatternsTableStubComponent, SunburstStubComponent],
         imports: [
           HttpClientTestingModule, // settings import requires.
           MatCardModule,
           MatCheckboxModule,
           MatIconModule,
           MatSnackBarModule,
-          MatSortModule,
-          MatTableModule,
+          MatTreeModule,
+          MatToolbarModule,
           MatTooltipModule,
           NoopAnimationsModule,
         ],

@@ -19,9 +19,9 @@ export class PatternTreeNode {
     this.patterns = patterns;
   }
   get count(): number {
-    if (this.patterns) {
+    if (this.patterns && this.patterns.length > 0) {
       return instance_count(this.patterns);
-    } else if (this.children) {
+    } else if (this.children && this.children.length > 0) {
       return this.children.reduce((tot, cur) => tot + cur.count, 0);
     }
     return 0;

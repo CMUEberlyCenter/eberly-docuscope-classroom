@@ -26,7 +26,7 @@ export interface ICommonDictionary {
 }
 
 export interface CommonDictionaryTreeNode {
-  id?: string;
+  id: string;
   label: string;
   help?: string;
   children?: CommonDictionaryTreeNode[];
@@ -39,37 +39,9 @@ export class CommonDictionary implements ICommonDictionary {
   timestamp: string;
   categories: ICategory[];
 
-  #memoCluster = new Map<string, Category>();
-
   constructor(data: ICommonDictionary) {
     Object.assign(this, data);
   }
-
-  /*genCluster(category: string): Category {
-    for (const cat of this.categories) {
-      if (cat.label === category) {
-        const clusters = cat.subcategories.reduce(
-          (acc: ICluster[], sub: ISubcategory) => acc.concat(sub.clusters), []);
-        return { clusters, help: cat.help, label: cat.label};
-      }
-      for (const sub of cat.subcategories) {
-        if (sub.label === category) {
-          return { label: sub.label, help: sub.help, clusters: sub.clusters };
-        }
-        for (const cluster of sub.clusters) {
-          if (cluster.name === category) {
-            return { label: cluster.label, help: cluster.help, clusters: [cluster] };
-          }
-        }
-      }
-    }
-  }
-  getCluster(category: string): Category {
-    if (!this.#memoCluster.has(category)) {
-      this.#memoCluster.set(category, this.genCluster(category));
-    }
-    return this.#memoCluster.get(category);
-  }*/
 
   get tree(): CommonDictionaryTreeNode[] {
     //let id = 0;
@@ -93,17 +65,4 @@ export class CommonDictionary implements ICommonDictionary {
       })),
     }));
   }
-  /* getClusters(category: string): ICluster[] {
-    const ret: ICluster[] = [];
-    for (const cat of this.categories) {
-      for (const sub of cat.subcategories) {
-        for (const cluster of sub.clusters) {
-          if (cat.label === category || sub.label === category || cluster.name === category) {
-            ret.push(cluster);
-          }
-        }
-      }
-    }
-    return ret;
-  } */
 }

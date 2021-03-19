@@ -152,9 +152,9 @@ export class BoxplotComponent implements OnInit {
           help: node.help,
           children: node.children?.map(dfsmap),
           ...get_category_data(node.id),
-          documents: node.id ? get_document_data(node.id) : [],
+          documents: get_document_data(node.id),
         });
-        this.treeData.data = this.commonDictionary.tree?.map(dfsmap);
+        this.treeData.data = this.commonDictionary.tree.map(dfsmap);
 
         this.outliers = new Map<string, Outlier[]>();
         this.spinner.stop();

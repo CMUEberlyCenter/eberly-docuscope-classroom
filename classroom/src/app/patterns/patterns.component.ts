@@ -27,7 +27,7 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 export class PatternsComponent implements OnInit {
   @ViewChild('sunburst', { static: true }) sunburst: ElementRef;
 
-  svg;
+  svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   sundata: SunburstNode;
@@ -74,15 +74,12 @@ export class PatternsComponent implements OnInit {
             : node.children?.map(sunmap),
         });
         this.sundata = { name: 'root', children: common.tree.map(sunmap) };
-        //this.sundata = common.tree.map(sunmap);
-        //const sundata = common.tree.map(sunmap);
-        //this.drawChart(this.sundata);
         this.spinner.stop();
       });
     });
   }
 
-  drawChart(data) {
+  drawChart(data: SunburstNode) {
     const width = 500;
     const radius = width / 6;
     const arc = d3
@@ -139,18 +136,18 @@ export class PatternsComponent implements OnInit {
         }
         return color(d.data.name);
       })
-      .attr('fill-opacity', (d) =>
+      .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>): number =>
         arcVisible(d.data.current) ? (d.children ? 0.6 : 0.4) : 0
       )
       .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
         arc(d.data.current)
       );
     path
-      .filter((d) => d.children)
+      .filter((d: HierarchyRectangularNode<SunburstNode>): boolean => !!d.children)
       .style('cursor', 'pointer')
       .on('click', clicked);
     path.append('title').text(
-      (d) =>
+      (d: HierarchyRectangularNode<SunburstNode>): string =>
         `${d
           .ancestors()
           .map((dn: HierarchyRectangularNode<SunburstNode>) => dn.data.name)
@@ -166,9 +163,9 @@ export class PatternsComponent implements OnInit {
       .data(root.descendants().slice(1))
       .join('text')
       .attr('dy', '0.35em')
-      .attr('fill-opacity', (d) => +labelVisible(d.data.current))
-      .attr('transform', (d) => labelTransform(d.data.current))
-      .text((d) => d.data.name);
+      .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>): number => +labelVisible(d.data.current))
+      .attr('transform', (d: HierarchyRectangularNode<SunburstNode>) => labelTransform(d.data.current))
+      .text((d: HierarchyRectangularNode<SunburstNode>) => d.data.name);
     const parent = g
       .append('circle')
       .datum(root)
@@ -177,7 +174,7 @@ export class PatternsComponent implements OnInit {
       .attr('pointer-events', 'all')
       .on('click', clicked);
     // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-    function clicked(_event, p) {
+    function clicked(_event: any, p: HierarchyRectangularNode<SunburstNode>) {
       parent.datum(p.parent || root);
       root.each(
         (d) =>
@@ -197,28 +194,28 @@ export class PatternsComponent implements OnInit {
       const trans = g.transition().duration(750);
       path
         .transition(trans)
-        .tween('data', (d) => {
+        .tween('data', (d: HierarchyRectangularNode<SunburstNode>) => {
           const i = d3.interpolate(d.data.current, d.data.target);
-          return (t) => (d.data.current = i(t));
+          return (t: number) => (d.data.current = i(t));
         })
-        .filter(function(d) {
+        .filter(function(this: Element, d: HierarchyRectangularNode<SunburstNode>) {
           return (
-            +this.getAttribute('fill-opacity') || arcVisible(d.data.target)
+            !!+this.getAttribute('fill-opacity') || arcVisible(d.data.target)
           );
         })
-        .attr('fill-opacity', (d) =>
+        .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>) =>
           arcVisible(d.data.target) ? (d.children ? 0.6 : 0.4) : 0
         )
-        .attrTween('d', (d) => () => arc(d.data.current));
+        .attrTween('d', (d: HierarchyRectangularNode<SunburstNode>) => () => arc(d.data.current));
       label
-        .filter(function(d) {
+        .filter(function(this: Element, d: HierarchyRectangularNode<SunburstNode>) {
           return (
-            +this.getAttribute('fill-opacity') || labelVisible(d.data.target)
+            !!+this.getAttribute('fill-opacity') || labelVisible(d.data.target)
           );
         })
         .transition(trans)
-        .attr('fill-opacity', (d) => +labelVisible(d.data.target))
-        .attrTween('transform', (d) => () => labelTransform(d.data.current));
+        .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>) => +labelVisible(d.data.target))
+        .attrTween('transform', (d: HierarchyRectangularNode<SunburstNode>) => () => labelTransform(d.data.current));
     }
   }
 }
