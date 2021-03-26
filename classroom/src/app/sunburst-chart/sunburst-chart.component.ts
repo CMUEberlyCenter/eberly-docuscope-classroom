@@ -28,6 +28,16 @@ const arcVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
 const labelVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+const labelTransform = (d: {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}, radius: number): string => {
+  const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
+  const y = ((d.y0 + d.y1) / 2) * radius;
+  return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+};
 
 @Component({
   selector: 'app-sunburst-chart',
@@ -43,67 +53,118 @@ export class SunburstChartComponent implements OnInit, OnChanges {
   current_path = '';
   format = d3.format(',d');
 
-  constructor() {}
+  arc: d3.Arc<any, d3.HierarchyRectangularNode<SunburstNode>>;
+  path;
+  parent;
+  root: d3.HierarchyRectangularNode<SunburstNode>;
+  label: d3.Selection<Element | d3.EnterElement | Document | Window |
+    SVGTextElement, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, unknown>;
+  g: d3.Selection<SVGGElement, unknown, null, undefined>;
 
-  ngOnInit(): void {}
+  get radius(): number {
+    return this.width / 6;
+  }
+
+  constructor() { }
+
+  ngOnInit(): void { }
   ngOnChanges(): void {
     if (this.data && this.sunburst) {
       this.drawChart();
     }
   }
 
+  clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>) {
+    if (!p) {
+      this.current_path = '';
+      return;
+    }
+    if (p.children) {
+      this.parent.datum(p.parent || this.root);
+      this.current_path = p.ancestors().reverse().slice(1).map(d => d.data.name).join(' / ');
+      this.root.each(
+        (d) =>
+        (d.data.target = {
+          x0:
+            Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0 - p.depth),
+          y1: Math.max(0, d.y1 - p.depth),
+        })
+      );
+      const trans = this.g.transition().duration(750);
+      this.path
+        .transition(trans)
+        .tween('data', (d) => {
+          const i = d3.interpolate(d.data.current, d.data.target);
+          return (t) => (d.data.current = i(t));
+        })
+        .filter(function(this: Element, d) {
+          return (
+            Boolean(+this.getAttribute('fill-opacity')) ||
+            arcVisible(d.data.target)
+          );
+        })
+        .attr('fill-opacity', (d) =>
+          arcVisible(d.data.target) ? (d.children ? 0.8 : 0.4) : 0
+        )
+        .attrTween('d', (d) => () => this.arc(d.data.current));
+      this.label
+        .filter(function(this: Element, d): boolean {
+          return (
+            Boolean(+this.getAttribute('fill-opacity')) ||
+            labelVisible(d.data.target)
+          );
+        })
+        .transition(trans)
+        .attr('fill-opacity', (d) => +labelVisible(d.data.target))
+        .attrTween('transform', (d) => () => labelTransform(d.data.current, this.radius));
+    }
+  }
   drawChart() {
-    const radius = this.width / 6;
-    const arc = d3
+    //const radius = this.width / 6;
+    this.arc = d3
       .arc<HierarchyRectangularNode<SunburstNode>>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
-      .padRadius(radius * 1.5)
-      .innerRadius((d) => d.y0 * radius)
-      .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
-    const labelTransform = (d: {
-      x0: number;
-      x1: number;
-      y0: number;
-      y1: number;
-    }): string => {
-      //if (d) {
-      const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
-      const y = ((d.y0 + d.y1) / 2) * radius;
-      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-      //}
-      //return '';
-    };
-    const root = partition(this.data);
-    root.each((d) => (d.data.current = d));
-    root.each(
+      .padRadius(this.radius * 1.5)
+      .innerRadius((d) => d.y0 * this.radius)
+      .outerRadius((d) => Math.max(d.y0 * this.radius, d.y1 * this.radius - 1));
+    this.root = partition(this.data);
+    this.root.each((d) => (d.data.current = d));
+    this.root.each(
       (d) =>
-        (d.data.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0 - root.x0) / (root.x1 - root.x0))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1 - root.x0) / (root.x1 - root.x0))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0 - root.depth),
-          y1: Math.max(0, d.y1 - root.depth),
-        })
+      (d.data.target = {
+        x0:
+          Math.max(0, Math.min(1, (d.x0 - this.root.x0) / (this.root.x1 - this.root.x0))) *
+          2 *
+          Math.PI,
+        x1:
+          Math.max(0, Math.min(1, (d.x1 - this.root.x0) / (this.root.x1 - this.root.x0))) *
+          2 *
+          Math.PI,
+        y0: Math.max(0, d.y0 - this.root.depth),
+        y1: Math.max(0, d.y1 - this.root.depth),
+      })
     );
     const svg = d3
       .select(this.sunburst.nativeElement)
       .append('svg')
       .attr('viewBox', `0 0 ${this.width} ${this.width}`)
       .style('font', '12px open-sans');
-    const g = svg
+    this.g = svg
       .append('g')
       .attr('transform', `translate(${this.width / 2},${this.width / 2})`);
-    const path = g
+    this.path = this.g
       .append('g')
       .selectAll('path')
-      .data(root.descendants().slice(1))
+      .data(this.root.descendants().slice(1))
       .join('path')
       .attr('fill', (d: HierarchyRectangularNode<SunburstNode>) => {
         while (d.depth > 1) {
@@ -115,83 +176,35 @@ export class SunburstChartComponent implements OnInit, OnChanges {
         arcVisible(d.data.current) ? (d.children ? 0.8 : 0.4) : 0
       )
       .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
-        arc(d.data.current)
+        this.arc(d.data.current)
       );
-    path
+    this.path
       .filter(
         (d: HierarchyRectangularNode<SunburstNode>) => d.children?.length > 0
       )
       .style('cursor', 'pointer');
-    const label = g
+    this.label = this.g
       .append('g')
       .attr('pointer-events', 'none')
       .attr('text-anchor', 'middle')
       .style('user-select', 'none')
       .selectAll('text')
-      .data(root.descendants().slice(1))
+      .data(this.root.descendants().slice(1))
       .join('text')
       .attr('dy', '0.35em')
       .attr('fill-opacity', (d) => +labelVisible(d.data.current))
-      .attr('transform', (d) => labelTransform(d.data.current))
+      .attr('transform', (d) => labelTransform(d.data.current, this.radius))
       .text((d) => d.data.name);
-    const parent = g
+    this.parent = this.g
       .append('circle')
-      .datum(root)
-      .attr('r', radius)
+      .datum(this.root)
+      .attr('r', this.radius)
       .attr('fill', 'none')
       .attr('pointer-events', 'all');
     //.on('click', clicked);
-    const clicked = (_event, p) => {
-      if (p.children) {
-        parent.datum(p.parent || root);
-        this.current_path = (p || root).ancestors().reverse().slice(1).map(d => d.data.name).join(' / ');
-        root.each(
-          (d) =>
-            (d.data.target = {
-              x0:
-                Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
-                2 *
-                Math.PI,
-              x1:
-                Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
-                2 *
-                Math.PI,
-              y0: Math.max(0, d.y0 - p.depth),
-              y1: Math.max(0, d.y1 - p.depth),
-            })
-        );
-        const trans = g.transition().duration(750);
-        path
-          .transition(trans)
-          .tween('data', (d) => {
-            const i = d3.interpolate(d.data.current, d.data.target);
-            return (t) => (d.data.current = i(t));
-          })
-          .filter(function(this: Element, d) {
-            return (
-              Boolean(+this.getAttribute('fill-opacity')) ||
-              arcVisible(d.data.target)
-            );
-          })
-          .attr('fill-opacity', (d) =>
-            arcVisible(d.data.target) ? (d.children ? 0.8 : 0.4) : 0
-          )
-          .attrTween('d', (d) => () => arc(d.data.current));
-        label
-          .filter(function(this: Element, d): boolean {
-            return (
-              Boolean(+this.getAttribute('fill-opacity')) ||
-              labelVisible(d.data.target)
-            );
-          })
-          .transition(trans)
-          .attr('fill-opacity', (d) => +labelVisible(d.data.target))
-          .attrTween('transform', (d) => () => labelTransform(d.data.current));
-      }
-    };
-    path.on('click', clicked);
-    parent.on('click', clicked);
-    path.append('title').text(
+    this.path.on('click', this.clicked.bind(this));
+    this.parent.on('click', this.clicked.bind(this));
+    this.path.append('title').text(
       (d) =>
         `${d
           .ancestors()

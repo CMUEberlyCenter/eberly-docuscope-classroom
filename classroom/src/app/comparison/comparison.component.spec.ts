@@ -3,11 +3,12 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -39,15 +40,15 @@ describe('ComparisonComponent', () => {
   let documents_service_spy;
   const test_html = `
   <p>
-  <span id="tag_0" data-key="bogus_cluster" class="tag">
+  <span id="tag_0" data-key="bogus" class="tag">
    <span id="w1" class="token">stub</span>
    <span id="w2" class="token">text</span>
   </span>
-  <span id="tag_1" data-key="bogus_cluster" class="tag">
+  <span id="tag_1" data-key="Tense FutureTense future" class="tag">
    <span id="w3" class="token">stub</span>
    <span id="w4" class="token">text</span>
   </span>
-  <span id="tag_2" data-key="total_bogus" class="tag">
+  <span id="tag_2" data-key="FakeCategory False Subcategory bogus" class="tag">
    <span id="w5" class="token">total</span>
    <span id="w6" class="token">bogus</span>
   </span>
@@ -79,7 +80,10 @@ describe('ComparisonComponent', () => {
               patterns: [
                 {
                   category: 'bogus',
-                  patterns: [{ pattern: 'text', count: 1 }],
+                  patterns: [
+                    { pattern: 'text', count: 1 },
+                    { pattern: 'bogus', count: 1 }
+                  ],
                 },
               ],
             },
@@ -92,7 +96,10 @@ describe('ComparisonComponent', () => {
               patterns: [
                 {
                   category: 'bogus',
-                  patterns: [{ pattern: 'text', count: 1 }],
+                  patterns: [
+                    { pattern: 'text', count: 1 },
+                    { pattern: 'bogus', count: 1 }
+                  ],
                 },
               ],
             },
@@ -210,6 +217,38 @@ describe('ComparisonComponent', () => {
     expect(snack_spy.open).toHaveBeenCalled();
   }));
 
+  it('selection', () => fixture.whenStable().then(() => {
+    const root = component.treeData.data[3];
+    const leaf = root.children[0].children[0];
+    component.selectionChange(null, null);
+    component.selectionChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(null, null);
+    component.selectionLeafChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeTrue();
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeTrue();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    const riot = component.treeData.data[0].children[0].children[0];
+    component.selectionLeafChange(new MatCheckboxChange(), riot);
+    expect(component.selection.isSelected(riot)).toBeTrue();
+    expect(component.descendantsPartiallySelected(component.treeData.data[0].children[0])).toBeTrue();
+    const past = component.treeData.data[1].children[1];
+    component.selectionChange(new MatCheckboxChange(), past);
+    expect(component.selection.isSelected(past)).toBeTrue();
+  }));
+  it('click_select', () => fixture.whenStable().then(() => {
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    const txt = fixture.debugElement.query(By.css('.text_content'));
+    //expect(txt.nativeElement.innerText).toBeNull();
+    txt.triggerEventHandler('click', {});
+    //fixture.detectChanges();
+    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+  }));
   /*it('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {

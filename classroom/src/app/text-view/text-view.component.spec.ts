@@ -2,13 +2,13 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -33,15 +33,15 @@ class SunburstStubComponent {
 
 const test_html = `
 <p>
-<span id="tag_0" data-key="bogus_cluster" class="tag">
+<span id="tag_0" data-key="bogus" class="tag">
  <span id="w1" class="token">stub</span>
  <span id="w2" class="token">text</span>
 </span>
-<span id="tag_1" data-key="bogus_cluster" class="tag">
+<span id="tag_1" data-key="Tense FutureTense future" class="tag">
  <span id="w3" class="token">stub</span>
  <span id="w4" class="token">text</span>
 </span>
-<span id="tag_2" data-key="total_bogus" class="tag">
+<span id="tag_2" data-key="FakeCategory False Subcategory bogus" class="tag">
  <span id="w5" class="token">total</span>
  <span id="w6" class="token">bogus</span>
 </span>
@@ -73,8 +73,11 @@ describe('TextViewComponent', () => {
               owner: 'TEST',
               patterns: [
                 {
-                  category: 'bogus_cluster',
-                  patterns: [{ pattern: 'text', count: 1 }],
+                  category: 'bogus',
+                  patterns: [
+                    { pattern: 'text', count: 1 },
+                    { pattern: 'bogus', count: 1 }
+                  ],
                 },
               ],
             },
@@ -92,10 +95,10 @@ describe('TextViewComponent', () => {
       ]);
       sanitizer.bypassSecurityTrustHtml.and.callFake(
         (html: string) =>
-          ({
-            changingThisBreaksApplicationSecurity: html,
-            getTypeName: () => 'HTML',
-          } as SafeHtml)
+        ({
+          changingThisBreaksApplicationSecurity: html,
+          getTypeName: () => 'HTML',
+        } as SafeHtml)
       );
       const settings_spy = jasmine.createSpyObj('SettingsService', [
         'getSettings',
@@ -164,8 +167,65 @@ describe('TextViewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeDefined();
+    fixture.whenStable().then(() => {
+      expect(component.htmlContent).toBeTruthy();
+      expect(component.tagged_text).toBeTruthy();
+      expect(component.htmlContent).toBeTruthy();
+      expect(component.sundata).toBeTruthy();
+      //expect(fixture.debugElement.query())
+    });
   });
 
+  it('click_select', () => fixture.whenStable().then(() => {
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    expect(component.tagged_text).toBeTruthy();
+    const txt = fixture.debugElement.query(By.css('.text_content'));
+    //expect(txt.nativeElement.innerText).toBeNull();
+    txt.triggerEventHandler('click', {});
+    //fixture.detectChanges();
+    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+  }));
+  /*it('checkRootNodeSelection', () => fixture.whenStable().then(() => {
+    const root = component.treeData.data[3];
+    const leaf = root.children[0].children[0];
+    expect(component.treeControl.getDescendants(root).length).toBe(2);
+    component.checkAllParentsSelection(root);
+    component.checkAllParentsSelection(leaf);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.selection.select(root);
+    expect(component.selection.isSelected(root)).toBeTrue();
+    component.checkRootNodeSelection(root);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    component.checkRootNodeSelection(leaf);
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.checkAllParentsSelection(root);
+    component.checkAllParentsSelection(leaf);
+  }));*/
+  it('selection', () => fixture.whenStable().then(() => {
+    const root = component.treeData.data[3];
+    const leaf = root.children[0].children[0];
+    component.selectionChange(null, null);
+    component.selectionChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(null, null);
+    component.selectionLeafChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeTrue();
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeTrue();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    const riot = component.treeData.data[0].children[0].children[0];
+    component.selectionLeafChange(new MatCheckboxChange(), riot);
+    expect(component.selection.isSelected(riot)).toBeTrue();
+    expect(component.descendantsPartiallySelected(component.treeData.data[0].children[0])).toBeTrue();
+    const past = component.treeData.data[1].children[1];
+    component.selectionChange(new MatCheckboxChange(), past);
+    expect(component.selection.isSelected(past)).toBeTrue();
+  }));
   /*it('show_expanded', () => {
     expect(component.show_expanded(null)).toBe('collapsed');
     return fixture.whenStable().then(() => {

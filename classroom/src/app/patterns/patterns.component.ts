@@ -1,13 +1,11 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import * as d3 from 'd3';
-import { HierarchyRectangularNode } from 'd3';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode,
+  CommonDictionaryTreeNode
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -15,7 +13,7 @@ import { PatternTreeNode } from '../pattern-tree-node';
 import {
   CategoryPatternData,
   PatternData,
-  PatternsService,
+  PatternsService
 } from '../patterns.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
@@ -27,7 +25,6 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 export class PatternsComponent implements OnInit {
   @ViewChild('sunburst', { static: true }) sunburst: ElementRef;
 
-  svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   sundata: SunburstNode;
@@ -61,13 +58,13 @@ export class PatternsComponent implements OnInit {
           new PatternTreeNode(
             node,
             node.children?.map(dfsmap),
-            cpmap.get(node.id ?? node.label)
+            cpmap.get(node.id)
           );
         this.treeData.data = common.tree.map(dfsmap);
         const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
           name: node.label,
-          children: cpmap.get(node.id ?? node.label)
-            ? cpmap.get(node.id ?? node.label).map((p) => ({
+          children: cpmap.get(node.id)
+            ? cpmap.get(node.id).map((p) => ({
                 name: p.pattern,
                 value: p.count,
               }))
@@ -77,145 +74,5 @@ export class PatternsComponent implements OnInit {
         this.spinner.stop();
       });
     });
-  }
-
-  drawChart(data: SunburstNode) {
-    const width = 500;
-    const radius = width / 6;
-    const arc = d3
-      .arc<HierarchyRectangularNode<SunburstNode>>()
-      .startAngle((d) => d.x0)
-      .endAngle((d) => d.x1)
-      .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
-      .padRadius(radius * 1.5)
-      .innerRadius((d) => d.y0 * radius)
-      .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
-    const format = d3.format(',d');
-    const partition = (
-      pdata: SunburstNode
-    ): HierarchyRectangularNode<SunburstNode> => {
-      const r = d3
-        .hierarchy(pdata)
-        .sum((d) => d.value)
-        .sort((a, b) => b.value - a.value);
-      return d3.partition<SunburstNode>().size([2 * Math.PI, r.height + 1])(r);
-    };
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
-    const arcVisible = (d: HierarchyRectangularNode<SunburstNode>) =>
-      d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
-    const labelVisible = (d: HierarchyRectangularNode<SunburstNode>) =>
-      d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
-    const labelTransform = (d: {
-      x0: number;
-      x1: number;
-      y0: number;
-      y1: number;
-    }) => {
-      const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
-      const y = ((d.y0 + d.y1) / 2) * radius;
-      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-    };
-    const root = partition(data);
-    root.each((d) => (d.data.current = d));
-    this.svg = d3
-      .select(/*this.sunburst.nativeElement*/ 'figure#sunburst')
-      .append('svg')
-      .attr('viewBox', `0 0 ${width} ${width}`)
-      .style('font', '12px open-sans');
-    const g = this.svg
-      .append('g')
-      .attr('transform', `translate(${width / 2},${width / 2})`);
-    const path = g
-      .append('g')
-      .selectAll('path')
-      .data(root.descendants().slice(1))
-      .join('path')
-      .attr('fill', (d: HierarchyRectangularNode<SunburstNode>) => {
-        while (d.depth > 1) {
-          d = d.parent;
-        }
-        return color(d.data.name);
-      })
-      .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>): number =>
-        arcVisible(d.data.current) ? (d.children ? 0.6 : 0.4) : 0
-      )
-      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
-        arc(d.data.current)
-      );
-    path
-      .filter((d: HierarchyRectangularNode<SunburstNode>): boolean => !!d.children)
-      .style('cursor', 'pointer')
-      .on('click', clicked);
-    path.append('title').text(
-      (d: HierarchyRectangularNode<SunburstNode>): string =>
-        `${d
-          .ancestors()
-          .map((dn: HierarchyRectangularNode<SunburstNode>) => dn.data.name)
-          .reverse()
-          .join('/')}\n${format(d.value)}`
-    );
-    const label = g
-      .append('g')
-      .attr('pointer-events', 'none')
-      .attr('text-anchor', 'middle')
-      .style('user-select', 'none')
-      .selectAll('text')
-      .data(root.descendants().slice(1))
-      .join('text')
-      .attr('dy', '0.35em')
-      .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>): number => +labelVisible(d.data.current))
-      .attr('transform', (d: HierarchyRectangularNode<SunburstNode>) => labelTransform(d.data.current))
-      .text((d: HierarchyRectangularNode<SunburstNode>) => d.data.name);
-    const parent = g
-      .append('circle')
-      .datum(root)
-      .attr('r', radius)
-      .attr('fill', 'none')
-      .attr('pointer-events', 'all')
-      .on('click', clicked);
-    // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-    function clicked(_event: any, p: HierarchyRectangularNode<SunburstNode>) {
-      parent.datum(p.parent || root);
-      root.each(
-        (d) =>
-          (d.data.target = {
-            x0:
-              Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
-              2 *
-              Math.PI,
-            x1:
-              Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
-              2 *
-              Math.PI,
-            y0: Math.max(0, d.y0 - p.depth),
-            y1: Math.max(0, d.y1 - p.depth),
-          })
-      );
-      const trans = g.transition().duration(750);
-      path
-        .transition(trans)
-        .tween('data', (d: HierarchyRectangularNode<SunburstNode>) => {
-          const i = d3.interpolate(d.data.current, d.data.target);
-          return (t: number) => (d.data.current = i(t));
-        })
-        .filter(function(this: Element, d: HierarchyRectangularNode<SunburstNode>) {
-          return (
-            !!+this.getAttribute('fill-opacity') || arcVisible(d.data.target)
-          );
-        })
-        .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>) =>
-          arcVisible(d.data.target) ? (d.children ? 0.6 : 0.4) : 0
-        )
-        .attrTween('d', (d: HierarchyRectangularNode<SunburstNode>) => () => arc(d.data.current));
-      label
-        .filter(function(this: Element, d: HierarchyRectangularNode<SunburstNode>) {
-          return (
-            !!+this.getAttribute('fill-opacity') || labelVisible(d.data.target)
-          );
-        })
-        .transition(trans)
-        .attr('fill-opacity', (d: HierarchyRectangularNode<SunburstNode>) => +labelVisible(d.data.target))
-        .attrTween('transform', (d: HierarchyRectangularNode<SunburstNode>) => () => labelTransform(d.data.current));
-    }
   }
 }

@@ -2,7 +2,7 @@ import { CommonDictionaryTreeNode } from './common-dictionary';
 import { instance_count, PatternData } from './patterns.service';
 
 export class PatternTreeNode {
-  id?: string;
+  id: string;
   label: string;
   help: string;
   children?: PatternTreeNode[];

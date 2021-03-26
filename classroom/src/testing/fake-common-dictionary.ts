@@ -19,6 +19,11 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
               help: 'Inciting insurection.',
               label: 'Incitiong mobs to storm capitals.',
             },
+            {
+              name: 'Lying',
+              help: 'Lying to Congress',
+              label: 'lying',
+            }
           ],
         },
       ],
@@ -39,6 +44,23 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
             },
           ],
         },
+        {
+          label: 'Past Tense',
+          name: 'PastTense',
+          help: 'looking back in time.',
+          clusters: [
+            {
+              name: 'Past',
+              help: 'the simple past',
+              label: 'past'
+            },
+            {
+              name: 'pastperfect',
+              help: 'another past tense',
+              label: 'Past Perfect'
+            }
+          ]
+        }
       ],
     },
     {
@@ -78,5 +100,22 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
         },
       ],
     },
+    {
+      label: 'Unnamed',
+      help: 'Test when there is no label',
+      subcategories: [
+        {
+          label: 'Subunnamed',
+          help: 'Unnamed subcategory',
+          clusters: [
+            {
+              name: 'unamedcluster',
+              label: 'Unamed Cluster',
+              help: 'Cluster needs name'
+            }
+          ]
+        }
+      ]
+    }
   ],
 });

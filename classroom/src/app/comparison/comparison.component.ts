@@ -21,7 +21,7 @@ import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { Settings, SettingsService } from '../settings.service';
 
 class CompareTreeNode {
-  id?: string;
+  id: string;
   label: string;
   help: string;
   children?: CompareTreeNode[];
@@ -162,7 +162,7 @@ export class ComparisonComponent implements OnInit {
           new CompareTreeNode(
             node,
             node.children?.map(dfsmap),
-            Array.from(cpmap.get(node.id ?? node.label)?.entries() ?? []).map(
+            Array.from(cpmap.get(node.id)?.entries() ?? []).map(
               ([pat, counts]) => new ComparePatternData(pat, counts)
             )
           );
@@ -308,25 +308,22 @@ export class ComparisonComponent implements OnInit {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
     for (const root of this.treeControl.dataNodes) {
-      const id = root.id || root.label;
       if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${id}`)
+        d3.selectAll(`.${root.id}`)
           .classed('cluster', true)
-          .style('border-bottom-color', this.colors(id));
+          .style('border-bottom-color', this.colors(root.id));
       } else {
         for (const sub of root.children) {
-          const subId = sub.id || sub.label;
           if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${subId}`)
+            d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
-              .style('border-bottom-color', this.colors(subId));
+              .style('border-bottom-color', this.colors(sub.id));
           } else {
             for (const cat of sub.children) {
-              const catId = cat.id || cat.label;
               if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${catId}`)
+                d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)
-                  .style('border-bottom-color', this.colors(catId));
+                  .style('border-bottom-color', this.colors(cat.id));
               }
             }
           }

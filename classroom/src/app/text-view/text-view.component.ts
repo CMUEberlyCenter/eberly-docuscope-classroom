@@ -34,7 +34,7 @@ export class TextViewComponent implements OnInit {
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   max_clusters = d3.schemeCategory10.length;
   selection = new SelectionModel<PatternTreeNode>(true, []);
-  sundata;
+  sundata: SunburstNode;
   sunwidth = 300;
 
   constructor(
@@ -71,14 +71,14 @@ export class TextViewComponent implements OnInit {
         new PatternTreeNode(
           node,
           node.children?.map(dfsmap),
-          cpmap.get(node.id ?? node.label)
+          cpmap.get(node.id)
         );
       this.treeData.data = common.tree.map(dfsmap);
       this.treeControl.dataNodes = this.treeData.data; // needed to get expand all to work
       const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
         name: node.label,
-        children: cpmap.get(node.id ?? node.label)
-          ? cpmap.get(node.id ?? node.label).map((p) => ({
+        children: cpmap.get(node.id)
+          ? cpmap.get(node.id).map((p) => ({
               name: p.pattern,
               value: p.count,
             }))
@@ -216,25 +216,22 @@ export class TextViewComponent implements OnInit {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
     for (const root of this.treeControl.dataNodes) {
-      const id = root.id || root.label;
       if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${id}`)
+        d3.selectAll(`.${root.id}`)
           .classed('cluster', true)
-          .style('border-bottom-color', this.colors(id));
+          .style('border-bottom-color', this.colors(root.id));
       } else {
         for (const sub of root.children) {
-          const subId = sub.id || sub.label;
           if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${subId}`)
+            d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
-              .style('border-bottom-color', this.colors(subId));
+              .style('border-bottom-color', this.colors(sub.id));
           } else {
             for (const cat of sub.children) {
-              const catId = cat.id || cat.label;
               if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${catId}`)
+                d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)
-                  .style('border-bottom-color', this.colors(catId));
+                  .style('border-bottom-color', this.colors(cat.id));
               }
             }
           }
