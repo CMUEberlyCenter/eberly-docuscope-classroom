@@ -3,11 +3,13 @@
     Category<span *ngIf="selectedCategory">: {{ selectedCategory.label }}</span>
   </button>
   <mat-menu #categoryMenu="matMenu">
+    <ng-template matMenuContent>
     <ng-container *ngFor="let category of data.categories">
       <button
         mat-menu-item
         [matMenuTriggerFor]="subcat"
         (click)="selectCategory(category)"
+        [value]="category.name"
       >
         {{ category.label }}
       </button>
@@ -17,10 +19,11 @@
             mat-menu-item
             [matMenuTriggerFor]="cluster"
             (click)="selectCategory(sub)"
+            [value]="sub.name"
           >
             {{ sub.label }}
           </button>
-          <mat-menu #cluster>
+          <mat-menu #cluster="matMenu">
             <button
               mat-menu-item
               *ngFor="let cluster of sub.clusters"
@@ -33,5 +36,6 @@
         </ng-container>
       </mat-menu>
     </ng-container>
+    </ng-template>
   </mat-menu>
 </ng-container>

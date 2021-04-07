@@ -93,8 +93,8 @@ async def get_documents(corpus: List[UUID],
                     cats = [categories['category'],
                             categories['subcategory'],
                             categories['cluster']]
-                    cpath = " > ".join([categories['category'],
-                                        categories['subcategory'],
+                    cpath = " > ".join([categories['category_label'],
+                                        categories['subcategory_label'],
                                         categories['cluster_label']])
                     sup = etree.SubElement(tag, "sup")
                     sup.text = "{" + cpath + "}"

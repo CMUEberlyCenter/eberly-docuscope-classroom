@@ -1,6 +1,7 @@
 """DocuScope Classroom analysis tools interface."""
 #from functools import partial
 import logging
+import os
 import traceback
 
 from fastapi import FastAPI
@@ -78,7 +79,7 @@ app.include_router(generate_reports.router)
 @app.get("/common_dictionary")
 async def common_dictionary():
     """Serve the common dictionary information."""
-    return FileResponse('dictionaries/common_dict.json')
+    return FileResponse(os.path.join(Config.DICTIONARY_HOME, 'common_dict.json'))
 
 @app.middleware("http")
 async def add_custom_header(request, call_next):

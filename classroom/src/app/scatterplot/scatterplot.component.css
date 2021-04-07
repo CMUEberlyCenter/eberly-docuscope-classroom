@@ -20,8 +20,10 @@ app-nav {
 .axis_selection {
   align-content: center;
   display: grid;
-  grid-template-columns: auto auto;
-  justify-content: space-around;
+  grid-template-columns: 24em 24em;
+  column-gap: 1em;
+  /*justify-content: space-around;*/
+  margin-left: 0em;
 }
 .axis_select {
   padding: 10px;

@@ -56,10 +56,11 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
     ### Categories ###
     hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
     hdata['lat'] = hdata['lat'].astype("string") # fix typing from merge
-    # Columns: category, subcategory, cluster, cluster_label, dimension, lat, uuid+
-    docs = range(6, len(hdata.columns))
-    cstats = concat([hdata.iloc[:, [i, *docs]].groupby(c).sum()
-                     for i, c in enumerate(hdata.columns[0:3])])
+    # Columns: category, clabel, subcategory, sclabel, cluster, cluster_label, dimension, lat, uuid+
+    docs = range(8, len(hdata.columns))
+    cstats = concat([hdata.iloc[:, [0, *docs]].groupby('category').sum(),
+                     hdata.iloc[:, [2, *docs]].groupby('subcategory').sum(),
+                     hdata.iloc[:, [4, *docs]].groupby('cluster').sum()])
     cstats = cstats.drop('Other') # Drop Other cluster
     nstats = cstats / info.loc['total_words'].astype('Int64')
     nstats = nstats.fillna(0)

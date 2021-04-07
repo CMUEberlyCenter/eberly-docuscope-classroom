@@ -9,5 +9,5 @@ LAT_FRAME = pd.merge(COMMON_DICTIONARY_FRAME, TONES_FRAME,
 LAT_FRAME['cluster'] = LAT_FRAME['cluster'].astype("string")
 
 LAT_MAP = LAT_FRAME[[
-    'category', 'subcategory', 'cluster', 'cluster_label', 'lat'
+    'category', 'category_label', 'subcategory', 'subcategory_label', 'cluster', 'cluster_label', 'lat'
 ]].set_index('lat').to_dict('index')

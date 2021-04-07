@@ -79,8 +79,8 @@ def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame
                   .filter(Assignment.id == Filesystem.assignment):#\
                   #.filter(DSDictionary.id == Assignment.dictionary):
         document_state_check(state, doc_id, filename, doc, db_session)
-        ser = Series({key: val['num_tags'] for key, val in
-                      doc['ds_tag_dict'].items()})
+        docs[doc_id] = Series({key: val['num_tags'] for key, val in
+                               doc['ds_tag_dict'].items()})
         desc = Series()
         desc['total_words'] = doc['ds_num_word_tokens']
         desc['doc_id'] = doc_id
@@ -91,7 +91,6 @@ def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame
         desc['course_name'] = a_course
         desc['assignment_name'] = a_name
         desc['instructor_name'] = a_instructor
-        docs[doc_id] = ser
         info[doc_id] = desc
     return DataFrame(data=docs, dtype="Int64"), DataFrame(data=info)
 
