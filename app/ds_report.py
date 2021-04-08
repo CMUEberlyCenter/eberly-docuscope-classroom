@@ -23,7 +23,7 @@ from reportlab.lib.colors import black, red
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import inch, pica
+from reportlab.lib.units import inch, mm, pica
 from reportlab.platypus import (BaseDocTemplate, Frame, FrameBreak,
                                 NextPageTemplate, PageBreak, PageTemplate,
                                 Paragraph, Spacer)
@@ -53,7 +53,7 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
     Line flowable --- draws a line in a flowable
     http://two.pairlist.net/pipermail/reportlab-users/2005-February/003695.html
     """
-    def __init__(self, data=None, outliers=None, #pylint: disable=too-many-arguments
+    def __init__(self, data=None, #pylint: disable=too-many-arguments
                  val=-1, max_val=1.0,
                  wd=5.0*inch, ht=0.6*inch,
                  ml=1*pica, mr=1*pica, mt=1*pica, mb=1*pica,
@@ -61,7 +61,7 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
                  whisker=.125*inch, radius=2):
         super().__init__()
         self.data = data or {}
-        self.outliers = outliers or []
+        #self.outliers = outliers or []
         self.value = val
         self.max_val = max_val if max_val else 0.0001
         self.measurements = {'ruler_height': rh,
@@ -99,7 +99,7 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
         self.canv.setStrokeColor(black)
 
         # q1-q3 box
-        self.canv.line(line_left, box_v_center, line_right, box_v_center)
+        self.canv.line(lifence_x, box_v_center, uifence_x, box_v_center)
         self.canv.rect(box_left, box_v_center-box_height/2,
                        box_right - box_left,
                        box_height, stroke=True, fill=True)
@@ -109,20 +109,20 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
         self.canv.line(box_h_center, box_v_center-box_height/2-3, box_h_center,
                        box_v_center+box_height/2+3)
 
-        # min/max
-        self.canv.line(line_left, box_v_center-self.measurements['whisker']/2,
-                       line_left, box_v_center+self.measurements['whisker']/2)
-        self.canv.line(line_right, box_v_center-self.measurements['whisker']/2,
-                       line_right, box_v_center+self.measurements['whisker']/2)
-
         # inner fences
-        self.canv.setStrokeColor(red)
         self.canv.line(uifence_x, box_v_center-self.measurements['whisker']/4,
                        uifence_x, box_v_center+self.measurements['whisker']/4)
         self.canv.line(lifence_x, box_v_center-self.measurements['whisker']/4,
                        lifence_x, box_v_center+self.measurements['whisker']/4)
 
-        self.canv.setStrokeColor(black)
+        # min/max
+        #self.canv.setStrokeColor(red)
+        #self.canv.line(line_left, box_v_center-self.measurements['whisker']/2,
+        #               line_left, box_v_center+self.measurements['whisker']/2)
+        #self.canv.line(line_right, box_v_center-self.measurements['whisker']/2,
+        #               line_right, box_v_center+self.measurements['whisker']/2)
+
+        #self.canv.setStrokeColor(black)
         if self.value >= 0.0:
             self.canv.circle(dot_x, box_v_center, self.measurements['radius'], fill=1)
 
@@ -185,7 +185,7 @@ def find_outliers(category: str, bp_data: DocuScopeData):
 def sort_patterns(unsorted_patterns):
     """ Sort a list of dictionaries that contain count-pattern pairs by frequency.
         The list is sorted by the frequency first, then patterns (alphabtically)
-        """
+    """
     return {key: sorted([(count, word) for (word, count) in val.items()],
                         key=lambda sl: (-sl[0], sl[1]))
             for (key, val) in unsorted_patterns.items()}
@@ -594,3 +594,9 @@ The text will not display properly, however the analysis is not affected.""",
             zip_file.writestr("_patterns.pdf", fpath.getvalue())
     zip_stream.seek(0)
     return zip_stream
+
+def addPageNumber(canvas, doc):
+    """ Add the page number """
+    page_num = canvas.getPageNumber()
+    text = f"Page {page_num}"
+    canvas.drawRightString(200*mm, 20*mm, text)
