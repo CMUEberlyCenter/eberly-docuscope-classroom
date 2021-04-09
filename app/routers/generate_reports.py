@@ -13,17 +13,16 @@ from uuid import UUID
 from common_dictionary import COMMON_DICITONARY
 from count_patterns import sort_patterns
 from ds_db import Assignment, Filesystem
-from ds_report import Boxplot, Divider, addPageNumber, generate_paragraph_styles
+from ds_report import Boxplot, Divider, add_page_number, generate_paragraph_styles
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from lat_frame import LAT_FRAME, LAT_MAP
 from lxml import etree
-from pandas import DataFrame, Series, concat, merge
+from pandas import DataFrame, Series, merge
 from pydantic import BaseModel
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import pica
-from reportlab.platypus import (FrameBreak, KeepTogether, PageBreak, Paragraph,
-                                SimpleDocTemplate, Spacer)
+from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate, Spacer)
 from reportlab.platypus.flowables import BalancedColumns
 from response import ERROR_RESPONSES
 from sqlalchemy.orm import Session
@@ -218,8 +217,12 @@ The text will not display properly, however the analysis is not affected.""",
                                                  styles['DS_Body']))
                 pattern_content = []
                 for category in docu['patterns']:
-                    pattern_content.append(Paragraph(category['category'], styles['DS_Heading1']))
-                    pattern_content.extend([Paragraph(f"{pat['pattern']} ({pat['count']})", styles['DS_Pattern']) for pat in category['patterns']])
+                    pattern_content.append(Paragraph(category['category'],
+                                                     styles['DS_Heading1']))
+                    pattern_content.extend([
+                        Paragraph(f"{pat['pattern']} ({pat['count']})",
+                                  styles['DS_Pattern'])
+                        for pat in category['patterns']])
                 content.extend([
                     PageBreak(),
                     Paragraph("Patterns Used in Your Document",
@@ -257,7 +260,7 @@ The text will not display properly, however the analysis is not affected.""",
                 Paragraph('Patterns Used in the Corpus',
                           styles['DS_Title']),
                 BalancedColumns(pattern_content, nCols=3, endSlack=0.5)
-            ], onFirstPage=addPageNumber, onLaterPages=addPageNumber)
+            ], onFirstPage=add_page_number, onLaterPages=add_page_number)
             zip_file.writestr("_patterns.pdf", patfile.getvalue())
     zip_stream.seek(0)
     return zip_stream

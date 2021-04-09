@@ -7,12 +7,10 @@ from fastapi import HTTPException
 from pandas import DataFrame, Series
 from sqlalchemy.orm import Session
 from starlette.requests import Request
-from starlette.status import (HTTP_400_BAD_REQUEST,
-                              HTTP_500_INTERNAL_SERVER_ERROR,
+from starlette.status import (HTTP_500_INTERNAL_SERVER_ERROR,
                               HTTP_503_SERVICE_UNAVAILABLE)
 
 from ds_db import Assignment, DSDictionary, Filesystem
-from response import LevelFrame
 
 
 def get_db_session(request: Request) -> Session:
@@ -71,13 +69,11 @@ def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame
                          Filesystem.name,
                          Filesystem.id,
                          Filesystem.state,
-                         #DSDictionary.name,
                          Assignment.name,
                          Assignment.course,
                          Assignment.instructor)\
                   .filter(Filesystem.id.in_(documents))\
-                  .filter(Assignment.id == Filesystem.assignment):#\
-                  #.filter(DSDictionary.id == Assignment.dictionary):
+                  .filter(Assignment.id == Filesystem.assignment):
         document_state_check(state, doc_id, filename, doc, db_session)
         docs[doc_id] = Series({key: val['num_tags'] for key, val in
                                doc['ds_tag_dict'].items()})
@@ -93,55 +89,3 @@ def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame
         desc['instructor_name'] = a_instructor
         info[doc_id] = desc
     return DataFrame(data=docs, dtype="Int64"), DataFrame(data=info)
-
-def get_stats(documents: List[UUID], db_session: Session) -> LevelFrame:
-    """Retrieve the tagging statistics for the given set of documents."""
-    logging.info("Generating Frame for %s", documents)
-    frame = LevelFrame(corpus=documents)
-    ds_stats, ds_info = get_documents(documents, db_session)
-    if ds_stats.empty:
-        logging.error("Failed to retrieve stats for corpus: %s", documents)
-        raise HTTPException(
-            detail=("Document(s) submitted for analysis are not tagged, "
-                    "please close this window and wait a couple of minutes. "
-                    "If problem persists, please contact technical support."),
-            status_code=HTTP_503_SERVICE_UNAVAILABLE)
-    # TODO: remove dictionary check as only 1 is used.
-    ds_dictionaries = ds_info.loc['dictionary_id'].unique()
-    if len(ds_dictionaries) != 1:
-        logging.error("Inconsistant dictionaries in corpus %s", documents)
-        raise HTTPException(
-            detail=(f"Inconsistant dictionaries specified for tagging "
-                    f"this corpus, documents are not comparable "
-                    f"({', '.join(ds_dictionaries)})."),
-            status_code=HTTP_400_BAD_REQUEST)
-    frame.ds_dictionary = ds_dictionaries[0]
-    frame.courses = list(ds_info.loc['course_name'].unique())
-    frame.assignments = list(ds_info.loc['assignment_name'].unique())
-    frame.instructors = list(ds_info.loc['instructor_name'].unique())
-    #ds_info = get_ds_info("default", db_session)
-    #frame.categories = ds_info['cluster']
-    ds_stats = ds_stats.transpose()
-    logging.debug(ds_stats)
-    #tones = DocuScopeTones() #frame.ds_dictionary)
-    data = {}
-    #tone_lats = []
-    # TODO: add leveled stats
-    # TODO: move this analysis to tagging
-    # TODO: read leveled JSON common dictionary
-    # if frame.level == LevelEnum.dimension:
-    #    tone_lats = tones.map_dimension_to_lats().items()
-    #elif frame.level == LevelEnum.cluster:
-    #    tone_lats = tones.map_cluster_to_lats().items()
-    #for category, lats in tone_lats:
-    #    sumframe = ds_stats.filter(lats)
-    #    data[category] = sumframe.transpose().sum()
-    #hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True
-    logging.debug(data)
-    dframe = DataFrame(data)
-    dframe['total_words'] = ds_info['total_words']
-    dframe['title'] = ds_info['title']
-    dframe['ownedby'] = ds_info['ownedby']
-    logging.debug(dframe)
-    frame.frame = dframe.transpose().to_dict()
-    return frame

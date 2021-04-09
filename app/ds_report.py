@@ -19,7 +19,7 @@ import time
 import zipfile
 
 from bs4 import BeautifulSoup as bs
-from reportlab.lib.colors import black, red
+from reportlab.lib.colors import black
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -88,8 +88,8 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
         box_left = self.margins['left'] + (self.data['q1'] * scale)
         box_h_center = self.margins['left'] + (self.data['q2'] * scale)
         box_right = self.margins['left'] + (self.data['q3'] * scale)
-        line_left = self.margins['left'] + (self.data['min'] * scale)
-        line_right = self.margins['left'] + (self.data['max'] * scale)
+        # line_left = self.margins['left'] + (self.data['min'] * scale)
+        # line_right = self.margins['left'] + (self.data['max'] * scale)
         uifence_x = self.margins['left'] + (self.data['uifence'] * scale)
         lifence_x = self.margins['left'] + (self.data['lifence'] * scale)
         dot_x = self.margins['left'] + (self.value * scale)
@@ -494,7 +494,7 @@ def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData,
                 # draw boxplots for each category (cluster)
                 for cat in categories:
                     bp_item = Boxplot(find_bp(cat, bp_data),
-                                      outliers=find_outliers(cat, bp_data),
+                                      #outliers=find_outliers(cat, bp_data),
                                       val=df2[text_id][cat], max_val=max_val)
                     content.append(Paragraph(cat_descriptions[cat]['name'],
                                              styles["DS_Heading1"]))
@@ -595,8 +595,10 @@ The text will not display properly, however the analysis is not affected.""",
     zip_stream.seek(0)
     return zip_stream
 
-def addPageNumber(canvas, doc):
+def add_page_number(canvas, doc):
     """ Add the page number """
     page_num = canvas.getPageNumber()
     text = f"Page {page_num}"
+    if getattr(doc, 'page_count', None):
+        text += f" of {doc.page_count}"
     canvas.drawRightString(200*mm, 20*mm, text)

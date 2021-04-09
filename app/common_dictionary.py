@@ -76,7 +76,7 @@ def get_common_dictionary() -> CommonDictionary:
     if not dscommon:
         logging.error("Empty common dictionary")
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                            details="Empty common dictionary")
+                            detail="Empty common dictionary")
     return dscommon
 
 COMMON_DICITONARY = get_common_dictionary()

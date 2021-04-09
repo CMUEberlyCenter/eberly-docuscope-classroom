@@ -62,14 +62,6 @@ async def get_documents(corpus: List[UUID],
                   .filter(Filesystem.id.in_(corpus))\
                   .filter(Assignment.id == Filesystem.assignment):
         document_state_check(state, doc_id, filename, doc, db_session)
-        #if ds_dict is None:
-        #    ds_dict = doc['ds_dictionary']
-        #if ds_dict != doc['ds_dictionary']:
-        #    logging.error('Dictionary incompatibility: %s != %s',
-        #                  ds_dict, doc['ds_dictionary'])
-        #    raise HTTPException(
-        #        detail="Submitted documents are tagged with incompatible dictionaries.",
-        #        status_code=HTTP_400_BAD_REQUEST)
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
@@ -86,8 +78,6 @@ async def get_documents(corpus: List[UUID],
         for tag in etr.iterfind(".//*[@data-key]"):
             lat = tag.get('data-key')
             categories = LAT_MAP[lat]
-            #TODO: clear bad lats from data-key?
-            #tag.set('data-key', None)
             if categories:
                 if categories['cluster'] != 'Other': # Filter out Other
                     cats = [categories['category'],
@@ -122,6 +112,5 @@ async def get_documents(corpus: List[UUID],
         course=course.pop() if course else None,
         instructor=instructor.pop() if instructor else None,
         assignment=assignment.pop() if assignment else None,
-        #categories=ds_info['cluster'],
         documents=docs
     )
