@@ -28,7 +28,7 @@ export class CategorySelectComponent implements OnInit {
   selectCategory(cat: Entry): void {
     this.selectedCategory = cat;
     this.selectedCategoryChange.emit(this.selectedCategory);
-    this.menuTrigger.closeMenu();
+    this.menuTrigger?.closeMenu();
   }
   selectCluster(menuItem: ICluster): void {
     this.selectedCategory = menuItem;
