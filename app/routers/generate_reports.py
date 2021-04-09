@@ -93,12 +93,9 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
             categories = LAT_MAP[lat]
             if categories:
                 if categories['cluster'] != 'Other':
-                    cat = categories['category_label']
+                    cat = f"{categories['category_label']} > {categories['subcategory_label']}"
                     key = ' '.join(tag.xpath('string()').split()).lower()
-                    #tag.text = key
                     tag.attrib.clear()
-                    #for child in list(tag):
-                    #    tag.remove(child)
                     pats[cat].update([key])
                     all_pats[cat].update([key])
                     parent = tag.getparent()
@@ -106,9 +103,9 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
                     # add category label
                     parent.insert(parent.index(tag)+1,
                                   etree.XML(f'<font face="Helvetica" size="7"> [{cat}]</font>'))
+        # Clear all attributes from span's as they confuse reportlab
         for span in etr.iter("span"):
             span.attrib.clear()
-        #all_pats.update(pats)
         documents[doc_id] = {
             'course': a_course,
             'instructor': a_instructor,
@@ -125,7 +122,7 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
     hdata['lat'] = hdata['lat'].astype("string") # fix typeing from merge
     docs = range(8, len(hdata.columns))
-    cstats = hdata.iloc[:, [1, *docs]].groupby('category_label').sum()
+    cstats = hdata.iloc[:, [2, *docs]].groupby('subcategory').sum()
     nstats = cstats / info.loc['total_words'].astype('Int64')
     nstats = nstats.fillna(0)
     for key, val in nstats.to_dict().items():
@@ -185,21 +182,22 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
 
                 # for each category: category_label, description, boxplot
                 for category in COMMON_DICITONARY.categories:
-                    category_name = category.name or category.label
-                    content.extend([
-                        Paragraph(category.label, styles['DS_Heading1']),
-                        Paragraph(category.help, styles['DS_Help']),
-                        Boxplot({
-                            'q1': q1s.at[category_name],
-                            'q2': q2s.at[category_name],
-                            'q3': q3s.at[category_name],
-                            'min': mins.at[category_name],
-                            'max': maxs.at[category_name],
-                            'uifence': upper_inner_fence.at[category_name],
-                            'lifence': lower_inner_fence.at[category_name]
-                        },
-                        val=docu['stats'][category_name],
-                        max_val=max_val)
+                    for subcategory in category.subcategories:
+                        index_name = subcategory.name or subcategory.label
+                        content.extend([
+                            Paragraph(f"{category.label} > {subcategory.label}",
+                                      styles['DS_Heading1']),
+                            Paragraph(category.help, styles['DS_Help']),
+                            Boxplot({
+                                'q1': q1s.at[index_name],
+                                'q2': q2s.at[index_name],
+                                'q3': q3s.at[index_name],
+                                'min': mins.at[index_name],
+                                'max': maxs.at[index_name],
+                                'uifence': upper_inner_fence.at[index_name],
+                                'lifence': lower_inner_fence.at[index_name]},
+                                    val=docu['stats'][index_name],
+                                    max_val=max_val)
                     ])
 
                 # Tagged text
