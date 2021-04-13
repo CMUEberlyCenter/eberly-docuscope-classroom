@@ -41,7 +41,6 @@ class ReportsSchema(BaseModel):
 
 def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     """Generate the report for this corpus."""
-    logging.info("Generate reports for %s", ids)
     course = set()
     assignment = set()
     instructor = set()
@@ -280,9 +279,7 @@ async def generate_reports(corpus: ReportsSchema,
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    #if corpus.level is not LevelEnum.cluster:
-    #    logging.warning("Level is not Cluster, resetting.")
-    #    corpus.level = LevelEnum.cluster
+    logging.info("Generate reports for %s", ids)
     try:
         zip_buffer = get_reports(corpus.corpus,
                                  corpus.intro,
