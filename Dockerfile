@@ -5,7 +5,8 @@ RUN npm ci
 RUN mkdir -p /classroom && cp -a /tmp/node_modules /classroom
 WORKDIR /classroom
 COPY ./classroom .
-RUN npm run build_prod
+RUN npm run build:docuscope
+#RUN npm run build_prod
 #RUN npm run build_dev
 
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8

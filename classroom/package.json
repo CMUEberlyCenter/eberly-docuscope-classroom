@@ -16,6 +16,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod --output-hashing none",
+    "build:docuscope": "ng build --prod --base-href=./ --output-hashing none",
     "build_dev": "ng build --base-href=/classroom/ --output-hashing none",
     "build_prod": "ng build --base-href=/docuscope/classroom/ --output-hashing none --configuration=deploy",
     "test": "ng test",
