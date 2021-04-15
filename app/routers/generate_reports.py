@@ -279,7 +279,7 @@ async def generate_reports(corpus: ReportsSchema,
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    logging.info("Generate reports for %s", ids)
+    logging.info("Generate reports for %s", corpus.corpus)
     try:
         zip_buffer = get_reports(corpus.corpus,
                                  corpus.intro,
