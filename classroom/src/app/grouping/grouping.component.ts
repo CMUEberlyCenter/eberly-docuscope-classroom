@@ -56,14 +56,14 @@ export class GroupingComponent implements OnInit {
       });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getCorpus();
   }
 
   get num_documents(): number {
     return this.corpus ? this.corpus.length : 0;
   }
-  generate_groups(e): void {
+  generate_groups(_e: unknown): void {
     if (this.group_size) {
       if (this.num_documents < 4) {
         this._snack_bar.open(
@@ -88,7 +88,7 @@ export class GroupingComponent implements OnInit {
     }
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,

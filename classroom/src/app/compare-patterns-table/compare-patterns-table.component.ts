@@ -16,6 +16,7 @@ export class ComparePatternsTableComponent implements OnInit {
   displayColumns = ['pattern', 'count0', 'count1'];
   pattern_data: MatTableDataSource<ComparePatternData>;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   ngOnInit(): void {

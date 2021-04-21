@@ -13,7 +13,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
+import { asyncData, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupingComponent } from './grouping.component';
@@ -30,7 +30,7 @@ class DragDropEventFactory<T> {
     toIndex: number
   ): CdkDragDrop<T[], T[]> {
     const event = this.createEvent(fromIndex, toIndex);
-    const container: any = { id: containerId, data };
+    const container = { id: containerId, data };
     event.container = container as CdkDropList<T[]>;
     event.previousContainer = event.container;
     event.item = { data: data[fromIndex] } as CdkDrag<T>;
@@ -64,7 +64,7 @@ class DragDropEventFactory<T> {
   }
 
   private createContainer(model: ContainerModel<T>): CdkDropList<T[]> {
-    const container: any = { id: model.id, data: model.data };
+    const container = { id: model.id, data: model.data };
     return container as CdkDropList<T[]>;
   }
 }
@@ -79,32 +79,36 @@ describe('GroupingComponent', () => {
   const dragDropEventFactory = new DragDropEventFactory<string>();
   let component: GroupingComponent;
   let fixture: ComponentFixture<GroupingComponent>;
-  let corpus_service_spy;
-  let groups_data_service_spy;
-  let ngx_spinner_service_spy;
-  let snack_spy;
+  let corpus_service_spy: Spied<CorpusService>;
+  let groups_data_service_spy: Spied<GroupsService>;
+  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
+  let snack_spy: Spied<MatSnackBar>;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
   beforeEach(
     waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
+      ]) as Spied<CorpusService>;
       corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
       groups_data_service_spy = jasmine.createSpyObj('GroupsService', [
         'getGroupsData',
-      ]);
+      ]) as Spied<GroupsService>;
       groups_data_service_spy.getGroupsData.and.returnValue(
         asyncData({ groups: [] })
       );
       ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
         'start',
         'stop',
-      ]);
-      snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
+      ]) as Spied<NgxUiLoaderService>;
+      snack_spy = jasmine.createSpyObj('MatSnackBar', [
+        'open',
+      ]) as Spied<MatSnackBar>;
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
-      ]);
+      ]) as Spied<AssignmentService>;
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [GroupingComponent, NavStubComponent],
         imports: [
           DragDropModule,
@@ -132,21 +136,19 @@ describe('GroupingComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create', async () => {
     expect(component).toBeTruthy();
-    return fixture.whenStable().then(() => {
-      expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
-    });
+    await fixture.whenStable();
+    expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
   });
 
-  it('getGroupsData', () => {
+  it('getGroupsData', async () => {
     component.getGroupsData();
-    return fixture.whenStable().then(() => {
-      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-      expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
-      expect(component.absent).toEqual([]);
-    });
+    await fixture.whenStable();
+    expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+    expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+    expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
+    expect(component.absent).toEqual([]);
   });
 
   it('size_min', () => {
@@ -154,6 +156,7 @@ describe('GroupingComponent', () => {
   });
   it('size_max', () => {
     expect(component.size_max).toBe(2);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     component.corpus = JSON.parse(JSON.stringify(test_corpus));
     expect(component.size_max).toBe(3);
     component.corpus = ['a', 'b'];

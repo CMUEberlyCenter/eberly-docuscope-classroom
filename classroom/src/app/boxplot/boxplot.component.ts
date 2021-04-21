@@ -92,7 +92,7 @@ export class BoxplotComponent implements OnInit {
     private spinner: NgxUiLoaderService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.spinner.start();
     const top = this.options.margin.top;
     const bottom = this.options.height - this.options.margin.bottom;
@@ -190,7 +190,7 @@ export class BoxplotComponent implements OnInit {
   }
 
   /** Event handler for when a category is selected in the boxplot-graph. */
-  onSelectCategory(category: CategoryData) {
+  onSelectCategory(category: CategoryData): void {
     this.selected_category = category;
   }
 }

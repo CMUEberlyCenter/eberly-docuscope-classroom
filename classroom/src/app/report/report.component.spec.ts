@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
@@ -12,6 +13,7 @@ import { CorpusService } from '../corpus.service';
 import { ReportService } from './report.service';
 import { ReportIntroductionService } from './report-introduction.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { Spied } from 'src/testing';
 
 @Component({ selector: 'app-nav', template: '' })
 class NavStubComponent {}
@@ -19,22 +21,24 @@ class NavStubComponent {}
 describe('ReportComponent', () => {
   let component: ReportComponent;
   let fixture: ComponentFixture<ReportComponent>;
-  let corpus_service_spy;
-  let report_service_spy;
-  let intro_service_spy;
-  let ngx_spinner_service_spy;
+  let corpus_service_spy: Spied<CorpusService>;
+  let report_service_spy: Spied<ReportService>;
+  let intro_service_spy: Spied<ReportIntroductionService>;
+  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
 
   beforeEach(
     waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
+      ]) as Spied<CorpusService>;
       corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
       report_service_spy = jasmine.createSpyObj('ReportService', [
         'getReports',
-      ]);
+      ]) as Spied<ReportService>;
       report_service_spy.getReports.and.returnValue(asyncData(''));
       intro_service_spy = jasmine.createSpyObj('ReportIntroductionService', [
         'getIntroductionText',
-      ]);
+      ]) as Spied<ReportIntroductionService>;
       intro_service_spy.getIntroductionText.and.returnValue(
         asyncData({
           introduction: 'Intro Text',
@@ -44,9 +48,9 @@ describe('ReportComponent', () => {
       ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
         'start',
         'stop',
-      ]);
+      ]) as Spied<NgxUiLoaderService>;
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [ReportComponent, NavStubComponent],
         imports: [
           FormsModule,
@@ -81,7 +85,7 @@ describe('ReportComponent', () => {
       spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
       spyOn(window.URL, 'revokeObjectURL');
       component.download_link.nativeElement.click = jasmine.createSpy('click');
-      component.generate_report({});
+      component.generate_report(new MouseEvent('click'));
       fixture.detectChanges();
 
       expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
@@ -96,7 +100,7 @@ describe('ReportComponent', () => {
       spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
       spyOn(window.URL, 'revokeObjectURL');
       component.download_link.nativeElement.click = jasmine.createSpy('click');
-      component.generate_report({});
+      component.generate_report(new MouseEvent('click'));
       fixture.detectChanges();
 
       expect(ngx_spinner_service_spy.start).toHaveBeenCalled();

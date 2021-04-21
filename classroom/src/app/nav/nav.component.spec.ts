@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -19,7 +22,7 @@ describe('NavComponent', () => {
       activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
       activated_route_spy.snapshot.url = ['stub'];
       activated_route_spy.snapshot.queryParamMap = new Map();
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         imports: [
           FormsModule,
           RouterTestingModule,

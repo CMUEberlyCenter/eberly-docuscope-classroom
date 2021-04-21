@@ -5,7 +5,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
-  CommonDictionaryTreeNode
+  CommonDictionaryTreeNode,
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -13,7 +13,7 @@ import { PatternTreeNode } from '../pattern-tree-node';
 import {
   CategoryPatternData,
   PatternData,
-  PatternsService
+  PatternsService,
 } from '../patterns.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
@@ -43,7 +43,7 @@ export class PatternsComponent implements OnInit {
     return !!node.patterns && node.patterns.length > 0;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
       forkJoin([

@@ -29,7 +29,7 @@ export class AssignmentService {
   course$ = this.course.asObservable();
   instructor$ = this.instructor.asObservable();
 
-  constructor() {}
+  // constructor() {}
 
   /**
    * Set the current assignment name.

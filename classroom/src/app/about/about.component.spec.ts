@@ -1,15 +1,22 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { asyncData } from '../../testing';
+import { asyncData, Spied } from '../../testing';
 import { SettingsService } from '../settings.service';
 import { AboutComponent } from './about.component';
 
 describe('AboutComponent', () => {
   let component: AboutComponent;
   let fixture: ComponentFixture<AboutComponent>;
-  const mat_dialog_spy = jasmine.createSpyObj('MatDialogRef', ['close']);
-  const settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+  const mat_dialog_spy: Spied<
+    MatDialogRef<AboutComponent>
+  > = jasmine.createSpyObj('MatDialogRef', ['close']) as Spied<
+    MatDialogRef<AboutComponent>
+  >;
+  const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
+    'SettingsService',
+    ['getSettings']
+  ) as Spied<SettingsService>;
   settings_spy.getSettings.and.returnValue(
     asyncData({
       title: 'DocuScope Classroom',
@@ -24,7 +31,7 @@ describe('AboutComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      TestBed.configureTestingModule({
+      return TestBed.configureTestingModule({
         declarations: [AboutComponent],
         imports: [MatDialogModule, MatIconModule],
         providers: [

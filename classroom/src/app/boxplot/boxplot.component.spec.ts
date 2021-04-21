@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTreeModule } from '@angular/material/tree';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
-import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -31,10 +31,10 @@ describe('BoxplotComponent', () => {
       const ngx_spinner_service_spy = jasmine.createSpyObj(
         'NgxSpinnerService',
         ['start', 'stop']
-      );
+      ) as Spied<NgxUiLoaderService>;
       const corpusService_spy = jasmine.createSpyObj('CorpusService', [
         'getCorpus',
-      ]);
+      ]) as Spied<CorpusService>;
       corpusService_spy.getCorpus.and.returnValue(
         asyncData({
           course: 'stub',
@@ -46,11 +46,12 @@ describe('BoxplotComponent', () => {
       );
       const dataService_spy = jasmine.createSpyObj('DsDataService', [
         'getData',
-      ]);
+      ]) as Spied<DsDataService>;
       dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
-      const settings_spy = jasmine.createSpyObj('SettingsService', [
-        'getSettings',
-      ]);
+      const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
+        'SettingsService',
+        ['getSettings']
+      ) as Spied<SettingsService>;
       settings_spy.getSettings.and.returnValue(
         asyncData({
           title: 'DocuScope Classroom',
@@ -66,15 +67,15 @@ describe('BoxplotComponent', () => {
       const commonDictionaryService_spy = jasmine.createSpyObj(
         'CommonDictionaryService',
         ['getJSON']
-      );
+      ) as Spied<CommonDictionaryService>;
       commonDictionaryService_spy.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
-      ]);
+      ]) as Spied<AssignmentService>;
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [
           BoxplotComponent,
           NavStubComponent,
@@ -113,8 +114,8 @@ describe('BoxplotComponent', () => {
 
   it(
     'bogus rank',
-    waitForAsync(async () => {
-      await component.onSelectCategory({
+    waitForAsync(() => {
+      component.onSelectCategory({
         id: 'bogus',
         q1: 1,
         q2: 2,
@@ -134,26 +135,43 @@ describe('BoxplotComponent', () => {
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
   it('scale', () => {
-    expect(component.scale(.2)).toBe('20.00');
-    expect(component.scale(.25678)).toBe('25.68');
+    expect(component.scale(0.2)).toBe('20.00');
+    expect(component.scale(0.25678)).toBe('25.68');
     expect(component.scale(0)).toBe('0.00');
   });
-  it('get_outliers', () => fixture.whenStable().then(() => {
-    expect(component.get_outliers(component.data.categories[0])).toBeTruthy();
-    expect(component.get_outliers(component.data.categories[0])).toBeTruthy(); // cache check
-    expect(component.get_outliers(component.data.categories[1])).toBeTruthy();
+  it('get_outliers', () =>
+    fixture.whenStable().then(() => {
+      expect(component.get_outliers(component.data.categories[0])).toBeTruthy();
+      expect(component.get_outliers(component.data.categories[0])).toBeTruthy(); // cache check
+      expect(component.get_outliers(component.data.categories[1])).toBeTruthy();
 
-    // handle null data
-    component.data = null;
-    expect(component.get_outliers({id: 'na', q1: 0, q2: 0, q3:0, uifence: 0, lifence: 0, min: 0, max: 0}));
-  }));
-  it('hasChild', () => fixture.whenStable().then(() => {
-    expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
-  }));
-  it('hasDocuments', () => fixture.whenStable().then(() => {
-    expect(component.hasDocuments(1, component.treeData.data[1])).toBeFalse();
-  }));
-  it('treeControl child acsesson', () => fixture.whenStable().then(() => {
-    expect(component.treeControl.getChildren(component.treeData.data[0])).toBeTruthy();
-  }));
+      // handle null data
+      component.data = null;
+      expect(
+        component.get_outliers({
+          id: 'na',
+          q1: 0,
+          q2: 0,
+          q3: 0,
+          uifence: 0,
+          lifence: 0,
+          min: 0,
+          max: 0,
+        })
+      );
+    }));
+  it('hasChild', () =>
+    fixture.whenStable().then(() => {
+      expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
+    }));
+  it('hasDocuments', () =>
+    fixture.whenStable().then(() => {
+      expect(component.hasDocuments(1, component.treeData.data[1])).toBeFalse();
+    }));
+  it('treeControl child acsesson', () =>
+    fixture.whenStable().then(() => {
+      expect(
+        component.treeControl.getChildren(component.treeData.data[0])
+      ).toBeTruthy();
+    }));
 });

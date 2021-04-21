@@ -23,7 +23,7 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
               name: 'Lying',
               help: 'Lying to Congress',
               label: 'lying',
-            }
+            },
           ],
         },
       ],
@@ -52,15 +52,15 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
             {
               name: 'Past',
               help: 'the simple past',
-              label: 'past'
+              label: 'past',
             },
             {
               name: 'pastperfect',
               help: 'another past tense',
-              label: 'Past Perfect'
-            }
-          ]
-        }
+              label: 'Past Perfect',
+            },
+          ],
+        },
       ],
     },
     {
@@ -111,11 +111,11 @@ export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
             {
               name: 'unamedcluster',
               label: 'Unamed Cluster',
-              help: 'Cluster needs name'
-            }
-          ]
-        }
-      ]
-    }
+              help: 'Cluster needs name',
+            },
+          ],
+        },
+      ],
+    },
   ],
 });

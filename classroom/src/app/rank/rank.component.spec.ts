@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { Spied } from 'src/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
@@ -25,14 +26,18 @@ class NavStubComponent {}
 describe('RankComponent', () => {
   let component: RankComponent;
   let fixture: ComponentFixture<RankComponent>;
-  let ds_data_service_spy;
-  let corpus_service_spy;
+  let ds_data_service_spy: Spied<DsDataService>;
+  let corpus_service_spy: Spied<CorpusService>;
 
   beforeEach(
     waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
+      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
+      ]) as Spied<CorpusService>;
       corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-      ds_data_service_spy = jasmine.createSpyObj('DsDataService', ['getData']);
+      ds_data_service_spy = jasmine.createSpyObj('DsDataService', [
+        'getData',
+      ]) as Spied<DsDataService>;
       ds_data_service_spy.getData.and.returnValue(
         asyncData({
           categories: [
@@ -75,10 +80,10 @@ describe('RankComponent', () => {
       const ngx_spinner_service_spy = jasmine.createSpyObj(
         'NgxUiLoaderService',
         ['start', 'stop']
-      );
+      ) as Spied<NgxUiLoaderService>;
       const settings_spy = jasmine.createSpyObj('SettingsService', [
         'getSettings',
-      ]);
+      ]) as Spied<SettingsService>;
       settings_spy.getSettings.and.returnValue(
         asyncData({
           title: 'DocuScope Classroom',
@@ -93,9 +98,9 @@ describe('RankComponent', () => {
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
-      ]);
+      ]) as Spied<AssignmentService>;
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [RankComponent, NavStubComponent, RankGraphStubComponent],
         imports: [
           FormsModule,
@@ -138,9 +143,9 @@ describe('RankComponent', () => {
   it('onSelectCategory', () => {
     component.ngOnInit();
     return fixture.whenStable().then(() => {
-      component.onSelectCategory({label: 'STUB_X', help:''});
+      component.onSelectCategory({ label: 'STUB_X', help: '' });
       expect(component.category.id).toBe('STUB_X');
-      component.onSelectCategory({name: 'STUB_X', label: 'Stub X', help:''});
+      component.onSelectCategory({ name: 'STUB_X', label: 'Stub X', help: '' });
       expect(component.category.id).toBe('STUB_X');
     });
   });

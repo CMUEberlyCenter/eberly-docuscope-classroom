@@ -12,7 +12,7 @@ describe('PageNotFoundComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [PageNotFoundComponent, NavStubComponent],
         imports: [MatCardModule],
       }).compileComponents();

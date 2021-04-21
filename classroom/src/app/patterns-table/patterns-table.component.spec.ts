@@ -14,7 +14,7 @@ describe('PatternsTableComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [PatternsTableComponent],
         imports: [
           NoopAnimationsModule,

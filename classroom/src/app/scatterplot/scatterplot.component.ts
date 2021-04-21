@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ChartType } from 'angular-google-charts';
+import {
+  ChartSelectionChangedEvent,
+  ChartType,
+  GoogleChartComponent,
+} from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AssignmentService } from '../assignment.service';
 import { Entry } from '../common-dictionary';
@@ -83,8 +87,8 @@ export class ScatterplotComponent implements OnInit {
       this._assignment_service.setAssignmentData(data);
       this.x_category = this.categories[0];
       this.y_category = this.categories[1];
-      this.x_axis = {label: this.x_category.id, help: ''}; // betting on top level name==label
-      this.y_axis = {label: this.y_category.id, help: ''};
+      this.x_axis = { label: this.x_category.id, help: '' }; // betting on top level name==label
+      this.y_axis = { label: this.y_category.id, help: '' };
       this.genPoints();
       this._spinner.stop();
     });
@@ -132,26 +136,32 @@ export class ScatterplotComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getSettings();
     this.getCorpus();
   }
   on_select_x(clust: Entry): void {
     this.x_axis = clust;
-    this.x_category = this.get_category(clust.name??clust.label);
+    this.x_category = this.get_category(clust.name ?? clust.label);
     this.genPoints();
   }
   on_select_y(clust: Entry): void {
     this.y_axis = clust;
-    this.y_category = this.get_category(clust.name??clust.label);
+    this.y_category = this.get_category(clust.name ?? clust.label);
     this.genPoints();
   }
   get_category(category: string): CategoryData {
     return this.categories.find((c) => c.id === category);
   }
-  select_point(plot, evt): void {
+  select_point(
+    plot: GoogleChartComponent, //{ dataTable?: { getValue: (a: number, b: number) => string } },
+    evt: ChartSelectionChangedEvent
+  ): void {
     for (const sel of evt.selection) {
-      const id: string = plot.dataTable.getValue(sel.row, 2);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const id: string = plot.chartWrapper
+        .getDataTable()
+        .getValue(sel.row, 2) as string;
       window.open(`stv/${id}`);
     }
   }

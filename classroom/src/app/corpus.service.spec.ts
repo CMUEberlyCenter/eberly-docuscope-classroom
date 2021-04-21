@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { asyncData } from '../testing';
@@ -49,7 +52,7 @@ describe('CorpusService', () => {
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('1,2,3');
   });
 
-  it('getCorpus', async () =>
+  it('getCorpus', () =>
     service.getCorpus().subscribe((corpus) => {
       expect(corpus).toEqual(['1', '2', '3']);
       // check cache

@@ -1,28 +1,35 @@
-import { Component } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+//import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { asyncData } from '../../testing';
+import { asyncData, Spied } from '../../testing';
 import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
 import { SettingsService } from '../settings.service';
 import { HeaderComponent } from './header.component';
 
-@Component({ selector: 'app-about', template: '' })
-class AboutStubComponent {}
+//@Component({ selector: 'app-about', template: '' })
+//class AboutStubComponent {}
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let service: AssignmentService;
-  let settings_spy;
-  const mat_dialog_spy = jasmine.createSpyObj('MatDialog', ['open']);
+  let settings_spy: Spied<SettingsService>;
+  const mat_dialog_spy = jasmine.createSpyObj('MatDialog', [
+    'open',
+  ]) as Spied<MatDialog>;
 
   beforeEach(
     waitForAsync(() => {
-      settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+      settings_spy = jasmine.createSpyObj('SettingsService', [
+        'getSettings',
+      ]) as Spied<SettingsService>;
       settings_spy.getSettings.and.returnValue(
         asyncData({
           title: 'DocuScope Classroom',
@@ -35,7 +42,7 @@ describe('HeaderComponent', () => {
           stv: { max_clusters: 4 },
         })
       );
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [HeaderComponent],
         imports: [MatIconModule, MatToolbarModule, MatTooltipModule],
         providers: [

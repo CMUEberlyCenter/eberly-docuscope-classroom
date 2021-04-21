@@ -26,7 +26,7 @@ export class HeaderComponent implements OnInit {
     assignmentService.instructor$.subscribe((c) => (this.instructor = c));
   }
 
-  getSettings() {
+  getSettings(): void {
     this.settingsService.getSettings().subscribe((settings) => {
       this.title = settings.title;
       if (settings.institution) {
@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getSettings();
   }
 

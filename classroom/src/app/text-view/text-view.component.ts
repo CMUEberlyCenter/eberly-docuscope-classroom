@@ -17,7 +17,7 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 import { Documents, DocumentService } from '../document.service';
 import { PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
-import { SettingsService } from '../settings.service';
+//import { SettingsService } from '../settings.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
@@ -42,19 +42,19 @@ export class TextViewComponent implements OnInit {
     private _assignmentService: AssignmentService,
     private _dictionary: CommonDictionaryService,
     private _sanitizer: DomSanitizer,
-    private _settings_service: SettingsService,
+    // private _settings_service: SettingsService,
     private _spinner: NgxUiLoaderService,
     private _text_service: DocumentService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
     forkJoin([
-      this._settings_service.getSettings(),
+      // this._settings_service.getSettings(),
       this._dictionary.getJSON(),
       this._text_service.getData([id]),
-    ]).subscribe(([settings, common, documents]) => {
+    ]).subscribe(([/*settings,*/ common, documents]) => {
       // this.max_clusters = settings.stv.max_clusters;
       this.dictionary = common;
       this._assignmentService.setAssignmentData(documents);
@@ -189,7 +189,7 @@ export class TextViewComponent implements OnInit {
     }
   }
 
-  selectionChange($event: MatCheckboxChange, node: PatternTreeNode) {
+  selectionChange($event: MatCheckboxChange, node: PatternTreeNode): void {
     if ($event && node) {
       this.selection.toggle(node);
       const descendants = this.treeControl
@@ -205,14 +205,14 @@ export class TextViewComponent implements OnInit {
       this.highlightSelection();
     }
   }
-  selectionLeafChange($event: MatCheckboxChange, node: PatternTreeNode) {
+  selectionLeafChange($event: MatCheckboxChange, node: PatternTreeNode): void {
     if ($event && node) {
       this.selection.toggle(node);
       this.checkAllParentsSelection(node);
       this.highlightSelection();
     }
   }
-  highlightSelection() {
+  highlightSelection(): void {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
     for (const root of this.treeControl.dataNodes) {

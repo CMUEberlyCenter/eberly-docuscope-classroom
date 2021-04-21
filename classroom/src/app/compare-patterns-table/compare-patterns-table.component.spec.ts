@@ -8,13 +8,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComparePatternsTableComponent } from './compare-patterns-table.component';
 
-const data = {};
 @Component({
   selector: 'app-fake-compare-patterns-table',
+  // prettier-ignore
   template: `<app-compare-patterns-table
-    patterns="${data}"
-    colors="['red','blue']"
-  ></app-compare-patterns-table>`,
+  patterns="{}"
+  colors="['red','blue']"
+></app-compare-patterns-table>
+`,
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)
@@ -29,7 +30,7 @@ describe('ComparePatternsTableComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [
           ComparePatternsTableComponent,
           TestComparePatternsTableComponent,

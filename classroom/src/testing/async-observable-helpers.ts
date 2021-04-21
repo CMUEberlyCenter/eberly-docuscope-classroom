@@ -10,12 +10,11 @@
  *
  * Using `asap` scheduler - as in `of(value, asap)` - doesn't work either.
  */
-import { defer } from 'rxjs';
+import { defer, Observable } from 'rxjs';
 
 /** Create async observable that emits-once and completes
  *  after a JS engine turn */
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function asyncData<T>(data: T) {
+export function asyncData<T>(data: T): Observable<T> {
   return defer(() => Promise.resolve(data));
 }
 

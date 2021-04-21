@@ -20,7 +20,7 @@ describe('AppComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
         imports: [
           HttpClientTestingModule,
@@ -38,7 +38,7 @@ describe('AppComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
-    app = fixture.debugElement.componentInstance;
+    app = fixture.debugElement.componentInstance as AppComponent;
     fixture.detectChanges();
   });
 
@@ -47,7 +47,7 @@ describe('AppComponent', () => {
   });
 
   it('should render title in the toolbar', () => {
-    const compiled = fixture.debugElement.nativeElement;
+    const compiled = fixture.debugElement.nativeElement as HTMLElement;
     expect(compiled.querySelector('mat-toolbar > span').textContent).toContain(
       'DocuScope Classroom @ CMU'
     );

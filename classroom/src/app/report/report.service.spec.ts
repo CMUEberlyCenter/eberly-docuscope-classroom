@@ -8,14 +8,17 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ReportService } from './report.service';
 import { MessageService } from '../message.service';
 import { environment } from '../../environments/environment';
+import { Spied } from 'src/testing';
 
 describe('ReportService', () => {
   let service: ReportService;
   let httpMock: HttpTestingController;
-  let message_service_spy;
+  let message_service_spy: Spied<MessageService>;
 
   beforeEach(() => {
-    message_service_spy = jasmine.createSpyObj('MessageService', ['add']);
+    message_service_spy = jasmine.createSpyObj('MessageService', [
+      'add',
+    ]) as Spied<MessageService>;
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, MatSnackBarModule],
       providers: [

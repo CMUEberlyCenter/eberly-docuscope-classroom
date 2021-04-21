@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MessageService } from '../message.service';
 import { MessagesComponent } from './messages.component';
@@ -14,7 +16,7 @@ describe('MessagesComponent', () => {
       ]);
       message_service_spy.messages = [];
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [MessagesComponent],
         providers: [{ provide: MessageService, useValue: message_service_spy }],
       }).compileComponents();

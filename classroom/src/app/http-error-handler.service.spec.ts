@@ -2,16 +2,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Spied } from 'src/testing';
 import {
   HandleError,
   HttpErrorHandlerService,
 } from './http-error-handler.service';
 
 describe('HttpErrorHandlerService', () => {
-  let snack_spy;
+  let snack_spy: Spied<MatSnackBar>;
 
   beforeEach(() => {
-    snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    snack_spy = jasmine.createSpyObj('MatSnackBar', [
+      'open',
+    ]) as Spied<MatSnackBar>;
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule, NoopAnimationsModule],
       providers: [{ provide: MatSnackBar, useValue: snack_spy }],
@@ -57,7 +60,7 @@ describe('HttpErrorHandlerService', () => {
     const error: HttpErrorResponse = new HttpErrorResponse({});
     handler(
       'handle_error',
-      {} as any
+      {} as never
     )(error).subscribe((data) => {
       expect(data).toEqual({});
     });
@@ -66,7 +69,7 @@ describe('HttpErrorHandlerService', () => {
     });
     handler(
       'handle_error',
-      {} as any
+      {} as never
     )(error0).subscribe((data) => {
       expect(data).toEqual({});
     });
@@ -75,7 +78,7 @@ describe('HttpErrorHandlerService', () => {
     });
     handler(
       'handle_error',
-      {} as any
+      {} as never
     )(error1).subscribe((data) => {
       expect(data).toEqual({});
     });
@@ -84,7 +87,7 @@ describe('HttpErrorHandlerService', () => {
     });
     handler(
       'handle_error',
-      {} as any
+      {} as never
     )(error2).subscribe((data) => {
       expect(data).toEqual({});
     });
@@ -93,7 +96,7 @@ describe('HttpErrorHandlerService', () => {
     });
     handler(
       'handle_error',
-      {} as any
+      {} as never
     )(error3).subscribe((data) => {
       expect(data).toEqual({});
     });

@@ -4,6 +4,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
 import { DocumentService } from './document.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
@@ -33,15 +34,15 @@ const data = {
 describe('DocumentService', () => {
   let service: DocumentService;
   let httpMock: HttpTestingController;
-  let errorServiceMock;
+  let errorServiceMock: Spied<HttpErrorHandlerService>;
   const server = `${environment.backend_server}/document`;
 
   beforeEach(() => {
     errorServiceMock = jasmine.createSpyObj('HttpErrorHandlerService', [
       'createHandleError',
-    ]);
-    errorServiceMock.createHandleError.and.returnValue(() => (fn, edata) =>
-      edata
+    ]) as Spied<HttpErrorHandlerService>;
+    errorServiceMock.createHandleError.and.returnValue(
+      () => (_fn: () => unknown, edata: unknown): unknown => edata
     );
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, MatSnackBarModule],

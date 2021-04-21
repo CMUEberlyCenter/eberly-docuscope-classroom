@@ -24,7 +24,7 @@ export const FAKE_DS_DATA: DocuScopeData = {
       max: 0,
       uifence: 0,
       lifence: 0,
-    }
+    },
   ],
   data: [
     {
@@ -40,6 +40,6 @@ export const FAKE_DS_DATA: DocuScopeData = {
       ownedby: 'student',
       total_words: 5,
       Insurection: 2,
-    }
+    },
   ],
 };

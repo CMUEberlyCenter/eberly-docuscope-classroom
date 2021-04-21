@@ -8,16 +8,16 @@ export class MessageService {
   debug = true;
   debug_msg = false;
 
-  constructor() {}
+  //constructor() {}
 
-  add(message: string) {
+  add(message: string): void {
     if (this.debug) {
       console.log(message);
     }
     this.messages.push(message);
   }
 
-  clear() {
+  clear(): void {
     this.messages = [];
   }
 }

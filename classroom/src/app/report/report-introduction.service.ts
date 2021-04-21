@@ -27,6 +27,6 @@ export class ReportIntroductionService {
   getIntroductionText(): Observable<IntroductionText> {
     return this.http
       .get<IntroductionText>(this._assets_intro)
-      .pipe(catchError((err) => of(DefaultIntroduction)));
+      .pipe(catchError((_err) => of(DefaultIntroduction)));
   }
 }

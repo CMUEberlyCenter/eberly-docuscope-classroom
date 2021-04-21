@@ -16,9 +16,9 @@ export class PatternsTableComponent implements OnInit {
   displayColumns = ['pattern', 'count'];
   pattern_data: MatTableDataSource<PatternData>;
 
-  constructor() {}
+  //constructor() {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.pattern_data = new MatTableDataSource(this.patterns);
     this.pattern_data.sort = this.sort;
   }

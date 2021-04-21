@@ -2,7 +2,7 @@
 export { ActivatedRoute } from '@angular/router';
 
 import { convertToParamMap, ParamMap, Params } from '@angular/router';
-import { ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 
 /**
  * An ActivateRoute test double with a `paramMap` observable.
@@ -21,11 +21,11 @@ export class ActivatedRouteStub {
   }
 
   /** Set the paramMap observables's next value */
-  setParamMap(params?: Params) {
+  setParamMap(params?: Params): void {
     this.#subject.next(convertToParamMap(params));
   }
 
-  get snapshot() {
+  get snapshot(): { paramMap: Observable<ParamMap> } {
     return { paramMap: this.#subject.asObservable() };
   }
 }

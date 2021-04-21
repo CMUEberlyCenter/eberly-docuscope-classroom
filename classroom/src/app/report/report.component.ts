@@ -38,19 +38,19 @@ export class ReportComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getCorpus();
     this.getIntro();
   }
 
-  generate_report(_$event): void {
+  generate_report(_$event: MouseEvent): void {
     this._spinner.start();
     this.reportService
       .getReports(this.corpus, this.intro, this.stv_intro)
       .subscribe((data) => {
         if (data) {
           const url = window.URL.createObjectURL(data);
-          const link = this.download_link.nativeElement;
+          const link = this.download_link.nativeElement as HTMLAnchorElement;
           link.href = url;
           link.download = 'reports.zip';
           this._spinner.stop();

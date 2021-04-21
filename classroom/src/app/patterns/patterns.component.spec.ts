@@ -6,7 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { PatternData, PatternsService } from '../patterns.service';
@@ -22,7 +22,7 @@ class PatternsTableStubComponent {
 
 @Component({ selector: 'app-sunburst-chart', template: '' })
 class SunburstStubComponent {
-  @Input() data: any;
+  @Input() data: unknown;
   @Input() width: number;
 }
 
@@ -35,10 +35,10 @@ describe('PatternsComponent', () => {
       const ngx_spinner_service_spy = jasmine.createSpyObj(
         'NgxSpinnerService',
         ['start', 'stop']
-      );
+      ) as Spied<NgxUiLoaderService>;
       const corpusService_spy = jasmine.createSpyObj('CorpusService', [
         'getCorpus',
-      ]);
+      ]) as Spied<CorpusService>;
       corpusService_spy.getCorpus.and.returnValue(
         asyncData({
           course: 'stub',
@@ -51,13 +51,13 @@ describe('PatternsComponent', () => {
       const commonDictionaryService_spy = jasmine.createSpyObj(
         'CommonDictionaryService',
         ['getJSON']
-      );
+      ) as Spied<CommonDictionaryService>;
       commonDictionaryService_spy.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const patternsService_spy = jasmine.createSpyObj('PatternsService', [
         'getPatterns',
-      ]);
+      ]) as Spied<PatternsService>;
       patternsService_spy.getPatterns.and.returnValue(
         asyncData([
           {
@@ -78,7 +78,7 @@ describe('PatternsComponent', () => {
         ])
       );
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [
           PatternsComponent,
           PatternsTableStubComponent,

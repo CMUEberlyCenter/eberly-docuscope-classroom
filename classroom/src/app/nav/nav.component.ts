@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -6,17 +6,17 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
 })
-export class NavComponent implements OnInit {
+export class NavComponent /*implements OnInit*/ {
   constructor(private _route: ActivatedRoute) {}
 
-  is_current(id: string) {
+  is_current(id: string): boolean {
     return id === `/${this._route.snapshot.url.join('/')}`;
   }
-  is_instructor() {
+  is_instructor(): boolean {
     const qmap = this._route.snapshot.queryParamMap;
     return (
       qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0
     );
   }
-  ngOnInit() {}
+  //ngOnInit() {}
 }

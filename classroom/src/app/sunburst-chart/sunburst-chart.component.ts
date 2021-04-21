@@ -3,7 +3,6 @@ import {
   ElementRef,
   Input,
   OnChanges,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
@@ -11,7 +10,9 @@ import { HierarchyRectangularNode } from 'd3';
 
 export interface SunburstNode {
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   target?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   current?: any;
   children?: SunburstNode[];
   value?: number;
@@ -28,12 +29,15 @@ const arcVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
 const labelVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
-const labelTransform = (d: {
-  x0: number;
-  x1: number;
-  y0: number;
-  y1: number;
-}, radius: number): string => {
+const labelTransform = (
+  d: {
+    x0: number;
+    x1: number;
+    y0: number;
+    y1: number;
+  },
+  radius: number
+): string => {
   const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
   const y = ((d.y0 + d.y1) / 2) * radius;
   return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
@@ -44,7 +48,7 @@ const labelTransform = (d: {
   templateUrl: './sunburst-chart.component.html',
   styleUrls: ['./sunburst-chart.component.css'],
 })
-export class SunburstChartComponent implements OnInit, OnChanges {
+export class SunburstChartComponent implements OnChanges {
   @Input() data: SunburstNode;
   @Input() width = 500;
   @ViewChild('sunburst') sunburst: ElementRef;
@@ -53,58 +57,77 @@ export class SunburstChartComponent implements OnInit, OnChanges {
   current_path = '';
   format = d3.format(',d');
 
-  arc: d3.Arc<any, d3.HierarchyRectangularNode<SunburstNode>>;
-  path;
-  parent;
+  arc: d3.Arc<unknown, d3.HierarchyRectangularNode<SunburstNode>>;
+  path: d3.Selection<
+    Element | d3.EnterElement | Document | Window | SVGPathElement,
+    d3.HierarchyRectangularNode<SunburstNode>,
+    SVGGElement,
+    unknown
+  >;
+  parent: d3.Selection<
+    SVGCircleElement,
+    d3.HierarchyRectangularNode<SunburstNode>,
+    null,
+    undefined
+  >;
   root: d3.HierarchyRectangularNode<SunburstNode>;
-  label: d3.Selection<Element | d3.EnterElement | Document | Window |
-    SVGTextElement, d3.HierarchyRectangularNode<SunburstNode>, SVGGElement, unknown>;
+  label: d3.Selection<
+    Element | d3.EnterElement | Document | Window | SVGTextElement,
+    d3.HierarchyRectangularNode<SunburstNode>,
+    SVGGElement,
+    unknown
+  >;
   g: d3.Selection<SVGGElement, unknown, null, undefined>;
 
   get radius(): number {
     return this.width / 6;
   }
 
-  constructor() { }
+  //constructor() {}
 
-  ngOnInit(): void { }
+  //ngOnInit(): void {}
   ngOnChanges(): void {
     if (this.data && this.sunburst) {
       this.drawChart();
     }
   }
 
-  clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>) {
+  clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>): void {
     if (!p) {
       this.current_path = '';
       return;
     }
     if (p.children) {
       this.parent.datum(p.parent || this.root);
-      this.current_path = p.ancestors().reverse().slice(1).map(d => d.data.name).join(' / ');
+      this.current_path = p
+        .ancestors()
+        .reverse()
+        .slice(1)
+        .map((d) => d.data.name)
+        .join(' / ');
       this.root.each(
         (d) =>
-        (d.data.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0 - p.depth),
-          y1: Math.max(0, d.y1 - p.depth),
-        })
+          (d.data.target = {
+            x0:
+              Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
+              2 *
+              Math.PI,
+            x1:
+              Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
+              2 *
+              Math.PI,
+            y0: Math.max(0, d.y0 - p.depth),
+            y1: Math.max(0, d.y1 - p.depth),
+          })
       );
       const trans = this.g.transition().duration(750);
       this.path
         .transition(trans)
         .tween('data', (d) => {
           const i = d3.interpolate(d.data.current, d.data.target);
-          return (t) => (d.data.current = i(t));
+          return (t) => (d.data.current = i(t) as number);
         })
-        .filter(function(this: Element, d) {
+        .filter(function (this: Element, d) {
           return (
             Boolean(+this.getAttribute('fill-opacity')) ||
             arcVisible(d.data.target)
@@ -115,7 +138,7 @@ export class SunburstChartComponent implements OnInit, OnChanges {
         )
         .attrTween('d', (d) => () => this.arc(d.data.current));
       this.label
-        .filter(function(this: Element, d): boolean {
+        .filter(function (this: Element, d): boolean {
           return (
             Boolean(+this.getAttribute('fill-opacity')) ||
             labelVisible(d.data.target)
@@ -123,10 +146,12 @@ export class SunburstChartComponent implements OnInit, OnChanges {
         })
         .transition(trans)
         .attr('fill-opacity', (d) => +labelVisible(d.data.target))
-        .attrTween('transform', (d) => () => labelTransform(d.data.current, this.radius));
+        .attrTween('transform', (d) => () =>
+          labelTransform(d.data.current, this.radius)
+        );
     }
   }
-  drawChart() {
+  drawChart(): void {
     //const radius = this.width / 6;
     this.arc = d3
       .arc<HierarchyRectangularNode<SunburstNode>>()
@@ -140,18 +165,24 @@ export class SunburstChartComponent implements OnInit, OnChanges {
     this.root.each((d) => (d.data.current = d));
     this.root.each(
       (d) =>
-      (d.data.target = {
-        x0:
-          Math.max(0, Math.min(1, (d.x0 - this.root.x0) / (this.root.x1 - this.root.x0))) *
-          2 *
-          Math.PI,
-        x1:
-          Math.max(0, Math.min(1, (d.x1 - this.root.x0) / (this.root.x1 - this.root.x0))) *
-          2 *
-          Math.PI,
-        y0: Math.max(0, d.y0 - this.root.depth),
-        y1: Math.max(0, d.y1 - this.root.depth),
-      })
+        (d.data.target = {
+          x0:
+            Math.max(
+              0,
+              Math.min(1, (d.x0 - this.root.x0) / (this.root.x1 - this.root.x0))
+            ) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(
+              0,
+              Math.min(1, (d.x1 - this.root.x0) / (this.root.x1 - this.root.x0))
+            ) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0 - this.root.depth),
+          y1: Math.max(0, d.y1 - this.root.depth),
+        })
     );
     const svg = d3
       .select(this.sunburst.nativeElement)

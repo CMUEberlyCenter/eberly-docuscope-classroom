@@ -100,7 +100,7 @@ export class ComparisonComponent implements OnInit {
     private _doc_service: DocumentService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this._spinner.start();
     this._corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
@@ -114,7 +114,7 @@ export class ComparisonComponent implements OnInit {
           'Only one document specified, need two for comparison.'
         );
         this._spinner.stop();
-        this._router.navigate(['/stv', corpus[0]]);
+        void this._router.navigate(['/stv', corpus[0]]);
         return;
       } else if (corpus.length > 2) {
         // WARNING: too many documents
@@ -253,7 +253,7 @@ export class ComparisonComponent implements OnInit {
     }
   }
 
-  click_select($event: MouseEvent) {
+  click_select($event: MouseEvent): void {
     let target: HTMLElement | null = $event.target as HTMLElement;
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
@@ -281,7 +281,7 @@ export class ComparisonComponent implements OnInit {
       navigator.userAgent.indexOf('Chrome') === -1
     );
   }
-  selectionChange($event: MatCheckboxChange, node: CompareTreeNode) {
+  selectionChange($event: MatCheckboxChange, node: CompareTreeNode): void {
     if ($event && node) {
       this.selection.toggle(node);
       const descendants = this.treeControl
@@ -297,14 +297,14 @@ export class ComparisonComponent implements OnInit {
       this.highlightSelection();
     }
   }
-  selectionLeafChange($event: MatCheckboxChange, node: CompareTreeNode) {
+  selectionLeafChange($event: MatCheckboxChange, node: CompareTreeNode): void {
     if ($event && node) {
       this.selection.toggle(node);
       this.checkAllParentsSelection(node);
       this.highlightSelection();
     }
   }
-  highlightSelection() {
+  highlightSelection(): void {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
     for (const root of this.treeControl.dataNodes) {

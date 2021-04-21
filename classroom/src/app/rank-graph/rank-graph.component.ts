@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  Input,
+  OnChanges,
+  ViewChild,
+} from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -28,7 +34,7 @@ interface Options {
   templateUrl: './rank-graph.component.html',
   styleUrls: ['./rank-graph.component.css'],
 })
-export class RankGraphComponent implements OnChanges, OnInit {
+export class RankGraphComponent implements OnChanges, AfterViewChecked {
   @Input() set data(ds_data: DocuScopeData) {
     this.ds_data = ds_data;
     this._max_cache = null;
@@ -55,9 +61,9 @@ export class RankGraphComponent implements OnChanges, OnInit {
   private _max_cache: number;
   private ds_data: DocuScopeData;
 
-  constructor() {}
+  //constructor() {}
 
-  ngOnInit(): void {}
+  //ngOnInit(): void {}
 
   ngOnChanges(): void {
     if (this.data) {
@@ -106,7 +112,7 @@ export class RankGraphComponent implements OnChanges, OnInit {
   get right(): number {
     return this.options.width - this.options.margins.right;
   }
-  get x() {
+  get x(): d3.ScaleLinear<number, number> {
     return d3
       .scaleLinear()
       .domain([0, this.max_value])

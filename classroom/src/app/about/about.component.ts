@@ -28,7 +28,7 @@ export class AboutComponent implements OnInit {
   }
 
   /** On component initialization, get the settings. */
-  ngOnInit() {
+  ngOnInit(): void {
     this.getSettings();
   }
 

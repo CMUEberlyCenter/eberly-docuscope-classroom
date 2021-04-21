@@ -1,8 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  MatCheckboxChange,
+  MatCheckboxModule,
+} from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,7 +17,7 @@ import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { DocumentService } from '../document.service';
@@ -27,6 +32,7 @@ class PatternsTableStubComponent {
 
 @Component({ selector: 'app-sunburst-chart', template: '' })
 class SunburstStubComponent {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() data: any;
   @Input() width: number;
 }
@@ -50,18 +56,18 @@ const test_html = `
 describe('TextViewComponent', () => {
   let component: TextViewComponent;
   let fixture: ComponentFixture<TextViewComponent>;
-  let ngx_spinner_service_spy;
-  let tagged_text_service_spy;
+  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
+  let tagged_text_service_spy: Spied<DocumentService>;
 
   beforeEach(
     waitForAsync(() => {
       ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
         'start',
         'stop',
-      ]);
+      ]) as Spied<NgxUiLoaderService>;
       tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
         'getData',
-      ]);
+      ]) as Spied<DocumentService>;
       tagged_text_service_spy.getData.and.returnValue(
         asyncData({
           documents: [
@@ -76,7 +82,7 @@ describe('TextViewComponent', () => {
                   category: 'bogus',
                   patterns: [
                     { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 }
+                    { pattern: 'bogus', count: 1 },
                   ],
                 },
               ],
@@ -92,17 +98,17 @@ describe('TextViewComponent', () => {
       activatedRoute.snapshot.paramMap = snapshot_spy;
       const sanitizer = jasmine.createSpyObj('DOMSanitizer', [
         'bypassSecurityTrustHtml',
-      ]);
+      ]) as Spied<DomSanitizer>;
       sanitizer.bypassSecurityTrustHtml.and.callFake(
         (html: string) =>
-        ({
-          changingThisBreaksApplicationSecurity: html,
-          getTypeName: () => 'HTML',
-        } as SafeHtml)
+          ({
+            changingThisBreaksApplicationSecurity: html,
+            getTypeName: () => 'HTML',
+          } as SafeHtml)
       );
       const settings_spy = jasmine.createSpyObj('SettingsService', [
         'getSettings',
-      ]);
+      ]) as Spied<SettingsService>;
       settings_spy.getSettings.and.returnValue(
         asyncData({
           title: 'DocuScope Classroom',
@@ -119,16 +125,20 @@ describe('TextViewComponent', () => {
       const commonDictionaryService_spy = jasmine.createSpyObj(
         'CommonDictionaryService',
         ['getJSON']
-      );
+      ) as Spied<CommonDictionaryService>;
       commonDictionaryService_spy.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
-      ]);
+      ]) as Spied<AssignmentService>;
 
-      TestBed.configureTestingModule({
-        declarations: [TextViewComponent, PatternsTableStubComponent, SunburstStubComponent],
+      void TestBed.configureTestingModule({
+        declarations: [
+          TextViewComponent,
+          PatternsTableStubComponent,
+          SunburstStubComponent,
+        ],
         imports: [
           HttpClientTestingModule, // settings import requires.
           MatCardModule,
@@ -167,7 +177,7 @@ describe('TextViewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeDefined();
-    fixture.whenStable().then(() => {
+    return fixture.whenStable().then(() => {
       expect(component.htmlContent).toBeTruthy();
       expect(component.tagged_text).toBeTruthy();
       expect(component.htmlContent).toBeTruthy();
@@ -176,16 +186,17 @@ describe('TextViewComponent', () => {
     });
   });
 
-  it('click_select', () => fixture.whenStable().then(() => {
-    fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-    expect(component.tagged_text).toBeTruthy();
-    const txt = fixture.debugElement.query(By.css('.text_content'));
-    //expect(txt.nativeElement.innerText).toBeNull();
-    txt.triggerEventHandler('click', {});
-    //fixture.detectChanges();
-    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-  }));
+  it('click_select', () =>
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+      expect(component.tagged_text).toBeTruthy();
+      const txt = fixture.debugElement.query(By.css('.text_content'));
+      //expect(txt.nativeElement.innerText).toBeNull();
+      txt.triggerEventHandler('click', {});
+      //fixture.detectChanges();
+      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+    }));
   /*it('checkRootNodeSelection', () => fixture.whenStable().then(() => {
     const root = component.treeData.data[3];
     const leaf = root.children[0].children[0];
@@ -203,29 +214,34 @@ describe('TextViewComponent', () => {
     component.checkAllParentsSelection(root);
     component.checkAllParentsSelection(leaf);
   }));*/
-  it('selection', () => fixture.whenStable().then(() => {
-    const root = component.treeData.data[3];
-    const leaf = root.children[0].children[0];
-    component.selectionChange(null, null);
-    component.selectionChange(new MatCheckboxChange(), null);
-    component.selectionLeafChange(null, null);
-    component.selectionLeafChange(new MatCheckboxChange(), null);
-    component.selectionLeafChange(new MatCheckboxChange(), leaf);
-    expect(component.selection.isSelected(leaf)).toBeTrue();
-    component.selectionLeafChange(new MatCheckboxChange(), leaf);
-    expect(component.selection.isSelected(leaf)).toBeFalse();
-    component.selectionChange(new MatCheckboxChange(), root);
-    expect(component.selection.isSelected(root)).toBeTrue();
-    component.selectionChange(new MatCheckboxChange(), root);
-    expect(component.selection.isSelected(root)).toBeFalse();
-    const riot = component.treeData.data[0].children[0].children[0];
-    component.selectionLeafChange(new MatCheckboxChange(), riot);
-    expect(component.selection.isSelected(riot)).toBeTrue();
-    expect(component.descendantsPartiallySelected(component.treeData.data[0].children[0])).toBeTrue();
-    const past = component.treeData.data[1].children[1];
-    component.selectionChange(new MatCheckboxChange(), past);
-    expect(component.selection.isSelected(past)).toBeTrue();
-  }));
+  it('selection', () =>
+    fixture.whenStable().then(() => {
+      const root = component.treeData.data[3];
+      const leaf = root.children[0].children[0];
+      component.selectionChange(null, null);
+      component.selectionChange(new MatCheckboxChange(), null);
+      component.selectionLeafChange(null, null);
+      component.selectionLeafChange(new MatCheckboxChange(), null);
+      component.selectionLeafChange(new MatCheckboxChange(), leaf);
+      expect(component.selection.isSelected(leaf)).toBeTrue();
+      component.selectionLeafChange(new MatCheckboxChange(), leaf);
+      expect(component.selection.isSelected(leaf)).toBeFalse();
+      component.selectionChange(new MatCheckboxChange(), root);
+      expect(component.selection.isSelected(root)).toBeTrue();
+      component.selectionChange(new MatCheckboxChange(), root);
+      expect(component.selection.isSelected(root)).toBeFalse();
+      const riot = component.treeData.data[0].children[0].children[0];
+      component.selectionLeafChange(new MatCheckboxChange(), riot);
+      expect(component.selection.isSelected(riot)).toBeTrue();
+      expect(
+        component.descendantsPartiallySelected(
+          component.treeData.data[0].children[0]
+        )
+      ).toBeTrue();
+      const past = component.treeData.data[1].children[1];
+      component.selectionChange(new MatCheckboxChange(), past);
+      expect(component.selection.isSelected(past)).toBeTrue();
+    }));
   /*it('show_expanded', () => {
     expect(component.show_expanded(null)).toBe('collapsed');
     return fixture.whenStable().then(() => {

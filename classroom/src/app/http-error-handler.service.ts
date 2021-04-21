@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,7 +23,8 @@ export class HttpErrorHandlerService {
   createHandleError = (serviceName = '') => <T>(
     operation = 'operation',
     result = {} as T
-  ) => this.handleError(serviceName, operation, result);
+  ): ((error: HttpErrorResponse) => Observable<T>) =>
+    this.handleError(serviceName, operation, result);
 
   handleError<T>(serviceName = '', operation = 'operation', result = {} as T) {
     return (error: HttpErrorResponse): Observable<T> => {
@@ -33,11 +36,12 @@ export class HttpErrorHandlerService {
         message = `${error.message} -- ${error.error}`;
       } else if (error.error && 'detail' in error.error) {
         if (Array.isArray(error.error.detail)) {
+          const details = error.error.detail as { msg: string }[];
           message = `Server response ${error.status} (${
             error.statusText
-          }) with message "${error.error.detail.map((e) => e.msg).join(', ')}"`;
+          }) with message "${details.map((e) => e.msg).join(', ')}"`;
         } else {
-          message = error.error.detail;
+          message = error.error.detail as string;
         }
       } else {
         message = error.message;

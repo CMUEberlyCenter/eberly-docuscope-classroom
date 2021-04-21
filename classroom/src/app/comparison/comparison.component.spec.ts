@@ -1,9 +1,12 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  MatCheckboxChange,
+  MatCheckboxModule,
+} from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,7 +15,7 @@ import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData, FAKE_COMMON_DICTIONARY } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { routes } from '../app-routing.module';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -32,12 +35,12 @@ describe('ComparisonComponent', () => {
   let component: ComparisonComponent;
   let fixture: ComponentFixture<ComparisonComponent>;
   // let assignment_service_spy;
-  let corpus_service_spy;
+  let corpus_service_spy: Spied<CorpusService>;
   // let router_spy;
-  let settings_spy;
-  let snack_spy;
-  let ngx_spinner_service_spy;
-  let documents_service_spy;
+  let settings_spy: Spied<SettingsService>;
+  let snack_spy: Spied<MatSnackBar>;
+  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
+  let documents_service_spy: Spied<DocumentService>;
   const test_html = `
   <p>
   <span id="tag_0" data-key="bogus" class="tag">
@@ -56,15 +59,22 @@ describe('ComparisonComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
-      corpus_service_spy.getCorpus.and.returnValues(asyncData(['a', 'b']), asyncData(['a','b','c']), asyncData(['a']), asyncData([]));
+      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
+      ]) as Spied<CorpusService>;
+      corpus_service_spy.getCorpus.and.returnValues(
+        asyncData(['a', 'b']),
+        asyncData(['a', 'b', 'c']),
+        asyncData(['a']),
+        asyncData([])
+      );
       ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
         'start',
         'stop',
-      ]);
+      ]) as Spied<NgxUiLoaderService>;
       documents_service_spy = jasmine.createSpyObj('DocumentService', [
         'getData',
-      ]);
+      ]) as Spied<DocumentService>;
       documents_service_spy.getData.and.returnValue(
         asyncData({
           course: 'bogus_course',
@@ -82,7 +92,7 @@ describe('ComparisonComponent', () => {
                   category: 'bogus',
                   patterns: [
                     { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 }
+                    { pattern: 'bogus', count: 1 },
                   ],
                 },
               ],
@@ -98,7 +108,7 @@ describe('ComparisonComponent', () => {
                   category: 'bogus',
                   patterns: [
                     { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 }
+                    { pattern: 'bogus', count: 1 },
                   ],
                 },
               ],
@@ -106,7 +116,9 @@ describe('ComparisonComponent', () => {
           ],
         })
       );
-      settings_spy = jasmine.createSpyObj('SettingsService', ['getSettings']);
+      settings_spy = jasmine.createSpyObj('SettingsService', [
+        'getSettings',
+      ]) as Spied<SettingsService>;
       settings_spy.getSettings.and.returnValues(
         asyncData({
           title: 'DocuScope Classroom',
@@ -134,16 +146,18 @@ describe('ComparisonComponent', () => {
       const commonDictionaryService_spy = jasmine.createSpyObj(
         'CommonDictionaryService',
         ['getJSON']
-      );
+      ) as Spied<CommonDictionaryService>;
       commonDictionaryService_spy.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
-      ]);
-      snack_spy = jasmine.createSpyObj('MatSnackBar', ['open']);
+      ]) as Spied<AssignmentService>;
+      snack_spy = jasmine.createSpyObj('MatSnackBar', [
+        'open',
+      ]) as Spied<MatSnackBar>;
 
-      TestBed.configureTestingModule({
+      void TestBed.configureTestingModule({
         declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
         imports: [
           HttpClientTestingModule,
@@ -167,7 +181,7 @@ describe('ComparisonComponent', () => {
           { provide: DocumentService, useValue: documents_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
-          { provide: MatSnackBar, useValue: snack_spy }
+          { provide: MatSnackBar, useValue: snack_spy },
         ],
       }).compileComponents();
     })
@@ -179,76 +193,86 @@ describe('ComparisonComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => fixture.whenStable().then(() => {
-    expect(component).toBeTruthy();
-    expect(component.corpus).toEqual(['a','b']);
-    expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
-    expect(component.direction).toBe('vertical');
-  }));
+  it('should create', () =>
+    fixture.whenStable().then(() => {
+      expect(component).toBeTruthy();
+      expect(component.corpus).toEqual(['a', 'b']);
+      expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
+      expect(component.direction).toBe('vertical');
+    }));
 
-  it('should warn on 3+ document', () => fixture.whenStable().then(async () => {
-    // too many documents
-    component.ngOnInit();
-    await fixture.whenStable();
-    expect(component.corpus).toEqual(['a', 'b']);
-    expect(snack_spy.open).toHaveBeenCalled();
-    expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
-    //expect(component.direction).toBe('horizontal');
-  }));
-  it('should error on 1 document', () => fixture.whenStable().then(async () => {
-    // too many documents
-    component.ngOnInit();
-    // too few documents
-    component.ngOnInit();
-    await fixture.whenStable();
-    expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
-    expect(component.corpus).toEqual(['a']);
-    expect(snack_spy.open).toHaveBeenCalled();
-  }));
-  it('should error on 0 document', () => fixture.whenStable().then(async () => {
-    // too many documents
-    component.ngOnInit();
-    // too few documents
-    component.ngOnInit();
-    // no documents
-    component.ngOnInit();
-    await fixture.whenStable();
-    expect(component.corpus).toEqual([]);
-    expect(snack_spy.open).toHaveBeenCalled();
-  }));
+  it('should warn on 3+ document', () =>
+    fixture.whenStable().then(async () => {
+      // too many documents
+      component.ngOnInit();
+      await fixture.whenStable();
+      expect(component.corpus).toEqual(['a', 'b']);
+      expect(snack_spy.open).toHaveBeenCalled();
+      expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
+      //expect(component.direction).toBe('horizontal');
+    }));
+  it('should error on 1 document', () =>
+    fixture.whenStable().then(async () => {
+      // too many documents
+      component.ngOnInit();
+      // too few documents
+      component.ngOnInit();
+      await fixture.whenStable();
+      expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
+      expect(component.corpus).toEqual(['a']);
+      expect(snack_spy.open).toHaveBeenCalled();
+    }));
+  it('should error on 0 document', () =>
+    fixture.whenStable().then(async () => {
+      // too many documents
+      component.ngOnInit();
+      // too few documents
+      component.ngOnInit();
+      // no documents
+      component.ngOnInit();
+      await fixture.whenStable();
+      expect(component.corpus).toEqual([]);
+      expect(snack_spy.open).toHaveBeenCalled();
+    }));
 
-  it('selection', () => fixture.whenStable().then(() => {
-    const root = component.treeData.data[3];
-    const leaf = root.children[0].children[0];
-    component.selectionChange(null, null);
-    component.selectionChange(new MatCheckboxChange(), null);
-    component.selectionLeafChange(null, null);
-    component.selectionLeafChange(new MatCheckboxChange(), null);
-    component.selectionLeafChange(new MatCheckboxChange(), leaf);
-    expect(component.selection.isSelected(leaf)).toBeTrue();
-    component.selectionLeafChange(new MatCheckboxChange(), leaf);
-    expect(component.selection.isSelected(leaf)).toBeFalse();
-    component.selectionChange(new MatCheckboxChange(), root);
-    expect(component.selection.isSelected(root)).toBeTrue();
-    component.selectionChange(new MatCheckboxChange(), root);
-    expect(component.selection.isSelected(root)).toBeFalse();
-    const riot = component.treeData.data[0].children[0].children[0];
-    component.selectionLeafChange(new MatCheckboxChange(), riot);
-    expect(component.selection.isSelected(riot)).toBeTrue();
-    expect(component.descendantsPartiallySelected(component.treeData.data[0].children[0])).toBeTrue();
-    const past = component.treeData.data[1].children[1];
-    component.selectionChange(new MatCheckboxChange(), past);
-    expect(component.selection.isSelected(past)).toBeTrue();
-  }));
-  it('click_select', () => fixture.whenStable().then(() => {
-    fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-    const txt = fixture.debugElement.query(By.css('.text_content'));
-    //expect(txt.nativeElement.innerText).toBeNull();
-    txt.triggerEventHandler('click', {});
-    //fixture.detectChanges();
-    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-  }));
+  it('selection', () =>
+    fixture.whenStable().then(() => {
+      const root = component.treeData.data[3];
+      const leaf = root.children[0].children[0];
+      component.selectionChange(null, null);
+      component.selectionChange(new MatCheckboxChange(), null);
+      component.selectionLeafChange(null, null);
+      component.selectionLeafChange(new MatCheckboxChange(), null);
+      component.selectionLeafChange(new MatCheckboxChange(), leaf);
+      expect(component.selection.isSelected(leaf)).toBeTrue();
+      component.selectionLeafChange(new MatCheckboxChange(), leaf);
+      expect(component.selection.isSelected(leaf)).toBeFalse();
+      component.selectionChange(new MatCheckboxChange(), root);
+      expect(component.selection.isSelected(root)).toBeTrue();
+      component.selectionChange(new MatCheckboxChange(), root);
+      expect(component.selection.isSelected(root)).toBeFalse();
+      const riot = component.treeData.data[0].children[0].children[0];
+      component.selectionLeafChange(new MatCheckboxChange(), riot);
+      expect(component.selection.isSelected(riot)).toBeTrue();
+      expect(
+        component.descendantsPartiallySelected(
+          component.treeData.data[0].children[0]
+        )
+      ).toBeTrue();
+      const past = component.treeData.data[1].children[1];
+      component.selectionChange(new MatCheckboxChange(), past);
+      expect(component.selection.isSelected(past)).toBeTrue();
+    }));
+  it('click_select', () =>
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+      const txt = fixture.debugElement.query(By.css('.text_content'));
+      //expect(txt.nativeElement.innerText).toBeNull();
+      txt.triggerEventHandler('click', {});
+      //fixture.detectChanges();
+      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+    }));
   /*it('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {

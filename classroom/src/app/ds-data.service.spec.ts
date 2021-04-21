@@ -3,6 +3,7 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
 import { category_value, DsDataService } from './ds-data.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
@@ -54,8 +55,10 @@ describe('DsDataService', () => {
   beforeEach(() => {
     const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
       'createHandleError',
-    ]);
-    heh_spy.createHandleError.and.returnValue(() => (fn, edata) => edata);
+    ]) as Spied<HttpErrorHandlerService>;
+    heh_spy.createHandleError.and.returnValue(
+      () => (_fn: () => unknown, edata: unknown) => edata
+    );
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
