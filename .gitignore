@@ -111,9 +111,10 @@ dmypy.json
 
 # editor files
 *~
+*.code-workspace
+\.vscode/
 
 .envrc
 
 # Proprietary dictionaries
 /app/dictionaries/
-
