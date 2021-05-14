@@ -53,10 +53,11 @@ export class RankComponent implements OnInit {
     this._spinner.start();
     this._corpus_service.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
-      return forkJoin([ // parallel join of requests.
+      return forkJoin([
+        // parallel join of requests.
         this._settings_service.getSettings(),
         this.commonDictionaryService.getJSON(),
-        this._data_service.getData(corpus)
+        this._data_service.getData(corpus),
       ]).subscribe(([settings, common, data]) => {
         // Settings
         this.unit = settings.unit;

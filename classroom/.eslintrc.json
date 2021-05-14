@@ -24,20 +24,20 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
-        "@angular-eslint/component-selector": [
-          "error",
-          {
-            "type": "element",
-            "prefix": "app",
-            "style": "kebab-case"
-          }
-        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
             "type": "attribute",
             "prefix": "app",
             "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
           }
         ],
         "@typescript-eslint/no-unused-vars": [
@@ -54,14 +54,6 @@
         "plugin:@angular-eslint/template/recommended"
       ],
       "rules": {}
-    },
-    {
-      "files": ["*.html"],
-      "excludeFiles": ["*inline-template-*.component.html"],
-      "extends": [ "plugin:prettier/recommended" ],
-      "rules": {
-        "prettier/prettier": ["error", { "parser": "angular" }]
-      }
     }
   ]
 }

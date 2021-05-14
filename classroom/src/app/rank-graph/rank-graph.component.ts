@@ -9,16 +9,17 @@ import {
   Component,
   Input,
   OnChanges,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import * as d3 from 'd3';
 import {
   CategoryData,
-  category_value, DocumentData,
+  category_value,
+  DocumentData,
   DocuScopeData,
-  max_boxplot_value
+  max_boxplot_value,
 } from '../ds-data.service';
 
 interface Options {
@@ -55,11 +56,7 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
     height: 30,
     margins: { left: 10, top: 5, bottom: 5, right: 10 },
   };
-  displayedColumns: string[] = [
-    'title',
-    'value',
-    'meanbar',
-  ];
+  displayedColumns: string[] = ['title', 'value', 'meanbar'];
 
   private _max_cache: number;
   private ds_data: DocuScopeData;

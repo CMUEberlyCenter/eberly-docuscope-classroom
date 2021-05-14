@@ -22,8 +22,6 @@ export class ComparePatternsTableComponent implements OnInit {
   displayColumns = ['pattern', 'count0', 'count1']; // columns to display
   pattern_data: MatTableDataSource<ComparePatternData>;
 
-  constructor() {}
-
   ngOnInit(): void {
     this.pattern_data = new MatTableDataSource(this.patterns);
     this.pattern_data.sort = this.sort;

@@ -23,7 +23,7 @@ export class AboutComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<AboutComponent>,
     private _settings_service: SettingsService
-  ) { }
+  ) {}
 
   /** Retrieve the settings file and pull out the appropriate information. */
   getSettings(): void {

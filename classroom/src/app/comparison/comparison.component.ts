@@ -54,7 +54,8 @@ class CompareTreeNode {
   /** Total counts of instances in category for each document. */
   get counts(): number[] {
     const zero: number[] = [0, 0];
-    if (this.patterns?.length) { // if leaf node
+    if (this.patterns?.length) {
+      // if leaf node
       return this.patterns.reduce(
         (totals, current) => totals.map((t, i) => t + current.counts[i]),
         zero
@@ -143,7 +144,8 @@ export class ComparisonComponent implements OnInit {
         );
         this.corpus = corpus.slice(0, 2);
       }
-      forkJoin([ // parallel retrieval
+      forkJoin([
+        // parallel retrieval
         this._settings_service.getSettings(),
         this._dictionary.getJSON(),
         this._doc_service.getData(this.corpus),
@@ -233,7 +235,7 @@ export class ComparisonComponent implements OnInit {
    * Are some of the decendants of the node selected.
    * @param node a given tree node.
    */
-   descendantsPartiallySelected(node: CompareTreeNode): boolean {
+  descendantsPartiallySelected(node: CompareTreeNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
     return (
       descendants.some((child) => this.selection.isSelected(child)) &&

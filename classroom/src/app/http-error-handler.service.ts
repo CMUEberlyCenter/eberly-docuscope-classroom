@@ -20,11 +20,13 @@ export class HttpErrorHandlerService {
     private _snackBar: MatSnackBar
   ) {}
 
-  createHandleError = (serviceName = '') => <T>(
-    operation = 'operation',
-    result = {} as T
-  ): ((error: HttpErrorResponse) => Observable<T>) =>
-    this.handleError(serviceName, operation, result);
+  createHandleError =
+    (serviceName = '') =>
+    <T>(
+      operation = 'operation',
+      result = {} as T
+    ): ((error: HttpErrorResponse) => Observable<T>) =>
+      this.handleError(serviceName, operation, result);
 
   handleError<T>(serviceName = '', operation = 'operation', result = {} as T) {
     return (error: HttpErrorResponse): Observable<T> => {

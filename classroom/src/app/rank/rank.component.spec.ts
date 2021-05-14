@@ -116,7 +116,10 @@ describe('RankComponent', () => {
         ],
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },
-          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy},
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
           { provide: SettingsService, useValue: settings_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

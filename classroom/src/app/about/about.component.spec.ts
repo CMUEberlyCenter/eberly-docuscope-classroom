@@ -8,11 +8,10 @@ import { AboutComponent } from './about.component';
 describe('AboutComponent', () => {
   let component: AboutComponent;
   let fixture: ComponentFixture<AboutComponent>;
-  const mat_dialog_spy: Spied<
-    MatDialogRef<AboutComponent>
-  > = jasmine.createSpyObj('MatDialogRef', ['close']) as Spied<
-    MatDialogRef<AboutComponent>
-  >;
+  const mat_dialog_spy: Spied<MatDialogRef<AboutComponent>> =
+    jasmine.createSpyObj('MatDialogRef', ['close']) as Spied<
+      MatDialogRef<AboutComponent>
+    >;
   const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
     'SettingsService',
     ['getSettings']

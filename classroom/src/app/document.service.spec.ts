@@ -42,7 +42,9 @@ describe('DocumentService', () => {
       'createHandleError',
     ]) as Spied<HttpErrorHandlerService>;
     errorServiceMock.createHandleError.and.returnValue(
-      () => (_fn: () => unknown, edata: unknown): unknown => edata
+      () =>
+        (_fn: () => unknown, edata: unknown): unknown =>
+          edata
     );
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, MatSnackBarModule],

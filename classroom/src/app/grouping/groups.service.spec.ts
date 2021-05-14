@@ -16,9 +16,10 @@ describe('GroupsService', () => {
     const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
       'createHandleError',
     ]) as Spied<HttpErrorHandlerService>;
-    heh_spy.createHandleError.and.returnValue(() => (_fn: unknown, data) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      data
+    heh_spy.createHandleError.and.returnValue(
+      () => (_fn: unknown, data) =>
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        data
     );
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],

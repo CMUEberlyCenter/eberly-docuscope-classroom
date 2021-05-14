@@ -9,7 +9,6 @@ can be seen.
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { CloudData } from 'angular-tag-cloud-module';
 import * as d3 from 'd3';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
@@ -104,7 +103,8 @@ export class BoxplotComponent implements OnInit {
     this.scale_y = d3.scaleLinear().domain([0, 1]).range([top, bottom]);
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
-      return forkJoin([ // done in parallel as there is no interdependence
+      return forkJoin([
+        // done in parallel as there is no interdependence
         this.settingsService.getSettings(),
         this.commonDictionaryService.getJSON(),
         this.dataService.getData(corpus),

@@ -146,8 +146,9 @@ export class SunburstChartComponent implements OnChanges {
         })
         .transition(trans)
         .attr('fill-opacity', (d) => +labelVisible(d.data.target))
-        .attrTween('transform', (d) => () =>
-          labelTransform(d.data.current, this.radius)
+        .attrTween(
+          'transform',
+          (d) => () => labelTransform(d.data.current, this.radius)
         );
     }
   }
