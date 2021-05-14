@@ -9,8 +9,6 @@ export interface Settings {
   unit: number;
   homepage: string;
   scatter: { width: number; height: number };
-  boxplot: { cloud: boolean };
-  stv: { max_clusters: number };
   mtv: { horizontal: boolean; documentColors: string[] };
 }
 
@@ -20,8 +18,6 @@ const default_settings: Settings = {
   unit: 100,
   homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
   scatter: { width: 400, height: 400 },
-  boxplot: { cloud: true },
-  stv: { max_clusters: 4 },
   mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
 };
 

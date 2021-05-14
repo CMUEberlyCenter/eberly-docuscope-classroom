@@ -107,7 +107,7 @@ describe('BoxplotComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('null select', () => {
+  /*it('null select', () => {
     component.onSelectCategory(null);
     expect(component.selected_category).toBe(null);
   });
@@ -127,7 +127,7 @@ describe('BoxplotComponent', () => {
       });
       expect(component.selected_category).toBeTruthy();
     })
-  );
+  );*/
 
   it('open', () => {
     window.open = jasmine.createSpy('open');

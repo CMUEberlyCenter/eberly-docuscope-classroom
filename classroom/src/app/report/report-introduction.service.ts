@@ -1,3 +1,7 @@
+/* Service that provides the initial text used in generated reports.
+  Instructors should be able to edit this text before submitting it
+  to the report generator.
+*/
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
@@ -24,6 +28,9 @@ export class ReportIntroductionService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Retrieve the introductions text from assets file.
+   */
   getIntroductionText(): Observable<IntroductionText> {
     return this.http
       .get<IntroductionText>(this._assets_intro)

@@ -1,3 +1,4 @@
+/* Component for displaying a table of patterns with counts. */
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -15,8 +16,6 @@ export class PatternsTableComponent implements OnInit {
 
   displayColumns = ['pattern', 'count'];
   pattern_data: MatTableDataSource<PatternData>;
-
-  //constructor() {}
 
   ngOnInit(): void {
     this.pattern_data = new MatTableDataSource(this.patterns);

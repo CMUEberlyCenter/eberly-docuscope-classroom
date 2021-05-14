@@ -1,3 +1,8 @@
+/* Service for querying server for groupings
+
+This service get the groupings of students based on
+maximizing difference between categories.
+*/
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -9,10 +14,11 @@ import {
   HttpErrorHandlerService,
 } from '../http-error-handler.service';
 
+/** JSON data returned by /groups */
 export class GroupsData extends AssignmentData {
-  groups: string[][];
-  grp_qualities: number[];
-  quality: number;
+  groups: string[][]; // lists of lists of student names
+  grp_qualities: number[]; // group quality statistics (unused)
+  quality: number; // quality statistic (unused)
 }
 
 @Injectable({
@@ -29,6 +35,11 @@ export class GroupsService {
     this.handleError = httpErrorHandler.createHandleError('GroupsService');
   }
 
+  /**
+   * Get the groupings from the server.
+   * @param corpus list of document UUID's
+   * @param group_size the size of the groups to make (best effort)
+   */
   getGroupsData(corpus: string[], group_size: number): Observable<GroupsData> {
     return this.http
       .post<GroupsData>(this.groups_server, { corpus, group_size })

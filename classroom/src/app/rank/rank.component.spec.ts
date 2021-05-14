@@ -5,9 +5,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { Spied } from 'src/testing';
+import { FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
@@ -92,13 +93,18 @@ describe('RankComponent', () => {
           homepage:
             'https://www.cmu.edu/dietrich/english/research/docuscope.html',
           scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
         })
       );
       const assignment_spy = jasmine.createSpyObj('AssignemntService', [
         'setAssignmentData',
       ]) as Spied<AssignmentService>;
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      ) as Spied<CommonDictionaryService>;
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
 
       void TestBed.configureTestingModule({
         declarations: [RankComponent, NavStubComponent, RankGraphStubComponent],
@@ -110,6 +116,7 @@ describe('RankComponent', () => {
         ],
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },
+          { provide: CommonDictionaryService, useValue: commonDictionaryService_spy},
           { provide: SettingsService, useValue: settings_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

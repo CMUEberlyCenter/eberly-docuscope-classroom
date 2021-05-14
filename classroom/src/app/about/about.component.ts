@@ -1,4 +1,11 @@
-/* Component for displaying the "About" page content. */
+/* Component for displaying the "About" page content.
+
+This component is meant to display information about
+the purpose of this application, the developers, and
+funding.  Most of the information is in the HTML template
+with some minor customization available from
+assets/settings.json
+*/
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SettingsService } from '../settings.service';
@@ -16,7 +23,7 @@ export class AboutComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<AboutComponent>,
     private _settings_service: SettingsService
-  ) {}
+  ) { }
 
   /** Retrieve the settings file and pull out the appropriate information. */
   getSettings(): void {

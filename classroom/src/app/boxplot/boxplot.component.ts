@@ -1,7 +1,10 @@
 /*
 Component for displaying the boxplot analysis page.
-This includes a list of boxplots, a word cloud based on category frequency,
-and ranking list based on the currently selected category.
+
+This includes a list of boxplots that can be decomposed
+to the various levels of hierarchical categories.
+At the bottom level, the bar graphs of the documents
+can be seen.
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
@@ -17,7 +20,6 @@ import {
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
-// import { DictionaryTreeService } from '../dictionary-tree.service';
 import {
   CategoryData,
   category_value,
@@ -33,12 +35,14 @@ class Outlier {
   constructor(public id: string, public title: string, public value: number) {}
 }
 
+/** Interface for the nodes in the tree display */
 interface BoxTreeNode extends CategoryData {
   label: string;
   help: string;
   children?: BoxTreeNode[];
   documents?: DocBox[];
 }
+/** Interface for the documents in the tree display node */
 interface DocBox {
   label: string;
   id: string;
@@ -55,23 +59,24 @@ interface DocBox {
   styleUrls: ['./boxplot.component.css'],
 })
 export class BoxplotComponent implements OnInit {
-  cloud_data: CloudData[];
-  commonDictionary: CommonDictionary;
-  corpus: string[];
-  data: DocuScopeData;
-  max_value = 0.0;
-  show_cloud = false;
-  selected_category: CategoryData;
-  unit = 100;
-  scale_x: d3.ScaleLinear<number, number, never>;
-  scale_y: d3.ScaleLinear<number, number, never>;
-  x: d3.ScaleLinear<number, number, never>;
+  commonDictionary: CommonDictionary; // Hierachical dictionary
+  corpus: string[]; // List of document UUID's
+  data: DocuScopeData; // Results of /ds-data call
+  max_value = 0.0; // corpus wide maximum value for proper scaling
+  //selected_category: CategoryData;
+  unit = 100; // scale of the unit value.
+  scale_x: d3.ScaleLinear<number, number, never>; // scaling x axis values
+  scale_y: d3.ScaleLinear<number, number, never>; // scaling y axis values
+  x: d3.ScaleLinear<number, number, never>; // scaling x in unit values
 
+  // Managers for tree component.
   treeControl = new NestedTreeControl<BoxTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<BoxTreeNode>();
 
+  // Mapping of category_id -> Outlier[]
   outliers: Map<string, Outlier[]>;
 
+  // Display options  // FIXME: should be settable from settings.json
   options = {
     width: 500,
     height: 50,
@@ -99,14 +104,13 @@ export class BoxplotComponent implements OnInit {
     this.scale_y = d3.scaleLinear().domain([0, 1]).range([top, bottom]);
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
-      return forkJoin([
+      return forkJoin([ // done in parallel as there is no interdependence
         this.settingsService.getSettings(),
         this.commonDictionaryService.getJSON(),
         this.dataService.getData(corpus),
       ]).subscribe(([settings, common, data]) => {
         // Settings
         this.unit = settings.unit;
-        this.show_cloud = settings.boxplot.cloud;
         // Dictionary
         this.commonDictionary = common;
         // dsdata
@@ -114,6 +118,7 @@ export class BoxplotComponent implements OnInit {
         this.assignmentService.setAssignmentData(data);
         this.max_value = max_boxplot_value(data);
 
+        // Scaling for boxplots
         const left = this.options.margin.left;
         const right = this.options.width - this.options.margin.right;
         this.x = d3
@@ -129,6 +134,7 @@ export class BoxplotComponent implements OnInit {
           .nice()
           .clamp(true);
 
+        // Reformat data to work with tree component
         const get_category_data = (id: string) =>
           data.categories.filter((c) => c.id === id)[0];
         const get_document_data = (category: string): DocBox[] => {
@@ -156,24 +162,40 @@ export class BoxplotComponent implements OnInit {
         });
         this.treeData.data = this.commonDictionary.tree.map(dfsmap);
 
+        // Clear outliers.
         this.outliers = new Map<string, Outlier[]>();
         this.spinner.stop();
       });
     });
   }
 
+  /** Does the given node have any children. */
   hasChild(_: number, node: BoxTreeNode): boolean {
     return !!node.children && node.children.length > 0;
   }
+  /** Does the given node have any documents. */
   hasDocuments(_: number, node: BoxTreeNode): boolean {
     return !!node.documents && node.documents.length > 0;
   }
+  /**
+   * Scales and truncates number to the unit scale.
+   * @param value a number value from DocuScope data.
+   */
   scale(value: number): string {
     return `${(this.unit * value).toFixed(2)}`;
   }
+  /**
+   * Opens a new window showing the specified document.
+   * @param doc_id the UUID of a document
+   */
   open(doc_id: string): void {
     window.open(doc_id);
   }
+  /**
+   * Returns the outliers for the given category.
+   * Memoizes results.
+   * @param category The category to retrieve outliers for.
+   */
   get_outliers(category: CategoryData): Outlier[] {
     if (!this.outliers.has(category.id)) {
       const uf: number = category.uifence;
@@ -190,7 +212,7 @@ export class BoxplotComponent implements OnInit {
   }
 
   /** Event handler for when a category is selected in the boxplot-graph. */
-  onSelectCategory(category: CategoryData): void {
-    this.selected_category = category;
-  }
+  //onSelectCategory(category: CategoryData): void { // used when side-by-side rank
+  //  this.selected_category = category;
+  //}
 }

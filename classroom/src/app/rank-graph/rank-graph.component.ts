@@ -1,21 +1,24 @@
+/* Component for displaying frequency data for a category.
+  The display shows a table with the columns:
+  - Document name
+  - Frequency value
+  - graphical deviation from median
+*/
 import {
   AfterViewChecked,
   Component,
   Input,
   OnChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-
 import * as d3 from 'd3';
-
 import {
   CategoryData,
-  DocumentData,
+  category_value, DocumentData,
   DocuScopeData,
-  category_value,
-  max_boxplot_value,
+  max_boxplot_value
 } from '../ds-data.service';
 
 interface Options {
@@ -53,17 +56,13 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
     margins: { left: 10, top: 5, bottom: 5, right: 10 },
   };
   displayedColumns: string[] = [
-    /* 'position',*/ 'title',
+    'title',
     'value',
-    'meanbar' /* , 'bar'*/,
+    'meanbar',
   ];
 
   private _max_cache: number;
   private ds_data: DocuScopeData;
-
-  //constructor() {}
-
-  //ngOnInit(): void {}
 
   ngOnChanges(): void {
     if (this.data) {
@@ -82,22 +81,37 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
     }
   }
 
+  /** Get the median value of the category. */
   get median(): number {
     return this.unit * this.category.q2;
   }
 
+  /** The maximum value over all documents and categories. */
   get max_value(): number {
     if (!this._max_cache) {
       this._max_cache = this.unit * max_boxplot_value(this.data);
     }
     return this._max_cache;
   }
+  /**
+   * Get the min of the given value and the median.
+   * Needed because drawing is always from left to right.
+   * @param value Frequency value.
+   */
   mean_start(value: number): number {
     return Math.min(value, this.median);
   }
+  /**
+   * Get the deviation of the value from the mean.
+   * @param value Frequency value.
+   */
   mean_width(value: number): number {
     return Math.abs(value - this.median);
   }
+  /**
+   * Tooltip text for a given value.
+   * @param value Frequency value.
+   */
   bar_tip(value: number): string {
     const diff = value - this.median;
     const val: string = value.toFixed(2);
@@ -106,12 +120,15 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
     const sign: string = diff >= 0 ? 'more' : 'less';
     return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
   }
+  /** Left margin size. */
   get left(): number {
     return this.options.margins.left;
   }
+  /** Right margin size. */
   get right(): number {
     return this.options.width - this.options.margins.right;
   }
+  /** Scale value to x coordinate. */
   get x(): d3.ScaleLinear<number, number> {
     return d3
       .scaleLinear()
@@ -120,6 +137,10 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
       .nice()
       .clamp(true);
   }
+  /**
+   * Opens the single text view for the document.
+   * @param doc_id A document UUID.
+   */
   open(doc_id: string): void {
     if (doc_id !== '') {
       window.open(`stv/${doc_id}`);

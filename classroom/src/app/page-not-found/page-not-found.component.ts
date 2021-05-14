@@ -1,3 +1,4 @@
+/* Application specific page-not-found component. */
 import { Component } from '@angular/core';
 
 @Component({

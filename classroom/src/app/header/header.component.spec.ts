@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-//import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,9 +8,6 @@ import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
 import { SettingsService } from '../settings.service';
 import { HeaderComponent } from './header.component';
-
-//@Component({ selector: 'app-about', template: '' })
-//class AboutStubComponent {}
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;

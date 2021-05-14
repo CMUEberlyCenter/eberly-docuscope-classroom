@@ -1,3 +1,4 @@
+/* Component for requesting, displaying, and modifying groupings of students. */
 import {
   CdkDragDrop,
   moveItemInArray,
@@ -16,16 +17,17 @@ import { GroupsData, GroupsService } from './groups.service';
   styleUrls: ['./grouping.component.css'],
 })
 export class GroupingComponent implements OnInit {
-  size_min = 2;
+  size_min = 2; // Minimum size of groups (no singletons)
+  /** Calculates the maximum size of the groupings. */
   get size_max(): number {
     return this.corpus
       ? Math.max(this.size_min, Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
-  corpus: string[];
-  group_size = 2;
-  groups: GroupsData;
-  absent: string[] = [];
+  corpus: string[]; // List of document UUID's.
+  group_size = 2; // Current group size.
+  groups: GroupsData; // data from GroupsService.
+  absent: string[] = []; // extra group for absent students.
 
   constructor(
     private corpus_service: CorpusService,
@@ -35,8 +37,9 @@ export class GroupingComponent implements OnInit {
     private data_service: GroupsService
   ) {}
 
+  /** Sets the list of documents using corpus service. */
   getCorpus(): void {
-    this._spinner.start();
+    //this._spinner.start();
     this.corpus_service.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       // this._spinner.stop();
@@ -44,6 +47,9 @@ export class GroupingComponent implements OnInit {
     });
   }
 
+  /**
+   * Retrieve the groupings.
+   */
   getGroupsData(): void {
     this._spinner.start();
     this.data_service
@@ -60,9 +66,14 @@ export class GroupingComponent implements OnInit {
     this.getCorpus();
   }
 
+  /** The size of the list of documents */
   get num_documents(): number {
     return this.corpus ? this.corpus.length : 0;
   }
+  /**
+   * Event handler to start grouping.
+   * @param _e Event triggering grouping
+   */
   generate_groups(_e: unknown): void {
     if (this.group_size) {
       if (this.num_documents < 4) {
@@ -88,6 +99,10 @@ export class GroupingComponent implements OnInit {
     }
   }
 
+  /**
+   * Event handler for manual moving students between groups.
+   * @param event drag and drop event
+   */
   drop(event: CdkDragDrop<string[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(

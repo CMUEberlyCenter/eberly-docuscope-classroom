@@ -1,3 +1,4 @@
+/* Component for the application header */
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutComponent } from '../about/about.component';
@@ -21,11 +22,12 @@ export class HeaderComponent implements OnInit {
     private assignmentService: AssignmentService,
     private settingsService: SettingsService
   ) {
-    assignmentService.course$.subscribe((c) => (this.course = c));
-    assignmentService.assignment$.subscribe((c) => (this.assignment = c));
-    assignmentService.instructor$.subscribe((c) => (this.instructor = c));
+    this.assignmentService.course$.subscribe((c) => (this.course = c));
+    this.assignmentService.assignment$.subscribe((c) => (this.assignment = c));
+    this.assignmentService.instructor$.subscribe((c) => (this.instructor = c));
   }
 
+  /** Retrieve the application settings.json */
   getSettings(): void {
     this.settingsService.getSettings().subscribe((settings) => {
       this.title = settings.title;
@@ -41,6 +43,7 @@ export class HeaderComponent implements OnInit {
     this.getSettings();
   }
 
+  /** Open the about modal. */
   openAbout(): void {
     this.about.open(AboutComponent);
   }

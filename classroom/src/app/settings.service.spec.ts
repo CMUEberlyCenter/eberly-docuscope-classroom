@@ -44,8 +44,7 @@ describe('SettingsService', () => {
       unit: 1,
       homepage: 'http://localhost/',
       scatter: { width: 4, height: 4 },
-      boxplot: { cloud: true },
-      stv: { max_clusters: 4 },
+      mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
     });
   });
 });
