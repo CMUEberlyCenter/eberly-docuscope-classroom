@@ -12,15 +12,15 @@ import { ComparePatternData } from '../patterns.service';
 @Component({
   selector: 'app-compare-patterns-table',
   templateUrl: './compare-patterns-table.component.html',
-  styleUrls: ['./compare-patterns-table.component.css'],
+  styleUrls: ['./compare-patterns-table.component.scss'],
 })
 export class ComparePatternsTableComponent implements OnInit {
-  @ViewChild('patternTableSort', { static: true }) sort: MatSort;
-  @Input() patterns: ComparePatternData[]; // parameterized table data
-  @Input() colors: string[]; // parameterized column colors
+  @ViewChild('patternTableSort', { static: true }) sort!: MatSort;
+  @Input() patterns!: ComparePatternData[]; // parameterized table data
+  @Input() colors!: string[]; // parameterized column colors
 
   displayColumns = ['pattern', 'count0', 'count1']; // columns to display
-  pattern_data: MatTableDataSource<ComparePatternData>;
+  pattern_data: MatTableDataSource<ComparePatternData> | undefined;
 
   ngOnInit(): void {
     this.pattern_data = new MatTableDataSource(this.patterns);

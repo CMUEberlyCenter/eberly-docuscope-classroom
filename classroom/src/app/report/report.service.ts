@@ -10,7 +10,7 @@ import {
   HandleError,
 } from '../http-error-handler.service';
 
-class ReportsSchema {
+interface ReportsSchema {
   corpus: string[];
   intro: string;
   stv_intro: string;

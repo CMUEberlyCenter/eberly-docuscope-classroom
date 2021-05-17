@@ -33,11 +33,11 @@ export interface CommonDictionaryTreeNode {
 }
 
 export class CommonDictionary implements ICommonDictionary {
-  default_dict: string;
-  custom_dict: string;
-  use_default_dict: boolean;
-  timestamp: string;
-  categories: ICategory[];
+  default_dict!: string;
+  custom_dict!: string;
+  use_default_dict!: boolean;
+  timestamp!: string;
+  categories!: ICategory[];
 
   constructor(data: ICommonDictionary) {
     Object.assign(this, data);

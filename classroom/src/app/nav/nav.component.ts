@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.css'],
+  styleUrls: ['./nav.component.scss'],
 })
 export class NavComponent {
   constructor(private _route: ActivatedRoute) {}
@@ -24,7 +24,9 @@ export class NavComponent {
   is_instructor(): boolean {
     const qmap = this._route.snapshot.queryParamMap;
     return (
-      qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0
+      qmap &&
+      qmap.has('roles') &&
+      (qmap.get('roles')?.search(/Instructor/i) ?? -1) >= 0
     );
   }
 }

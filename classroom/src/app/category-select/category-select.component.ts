@@ -22,13 +22,13 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 @Component({
   selector: 'app-category-select',
   templateUrl: './category-select.component.html',
-  styleUrls: ['./category-select.component.css'],
+  styleUrls: ['./category-select.component.scss'],
 })
 export class CategorySelectComponent implements OnInit {
-  @Input() selectedCategory: Entry;
+  @Input() selectedCategory: Entry | undefined;
   @Output() selectedCategoryChange = new EventEmitter<Entry>();
-  @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
-  data: CommonDictionary;
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+  data: CommonDictionary | undefined;
   constructor(private _dictionary: CommonDictionaryService) {}
 
   ngOnInit(): void {

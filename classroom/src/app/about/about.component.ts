@@ -13,7 +13,7 @@ import { SettingsService } from '../settings.service';
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
-  styleUrls: ['./about.component.css'],
+  styleUrls: ['./about.component.scss'],
 })
 export class AboutComponent implements OnInit {
   title = 'DocuScope Classroom'; // For the Title text

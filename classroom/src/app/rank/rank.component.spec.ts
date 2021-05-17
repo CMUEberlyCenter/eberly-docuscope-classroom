@@ -51,7 +51,6 @@ describe('RankComponent', () => {
               uifence: 0.6,
               lifence: 0,
               id: 'STUB_X',
-              name: 'Stub X',
             },
             {
               q1: 0.2,
@@ -62,7 +61,6 @@ describe('RankComponent', () => {
               uifence: 0.6,
               lifence: 0.1,
               id: 'STUB_Y',
-              name: 'Stub Y',
             },
           ],
           data: [
@@ -136,27 +134,54 @@ describe('RankComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it(
     'gets data',
-    waitForAsync(() => {
+    waitForAsync(async () => {
       component.ngOnInit();
-      return fixture.whenStable().then(() => {
-        expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
-        expect(ds_data_service_spy.getData).toHaveBeenCalled();
-      });
+      await fixture.whenStable();
+      void expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
+      void expect(ds_data_service_spy.getData).toHaveBeenCalled();
     })
   );
+  it('categories', async () => {
+    void expect(component.categories).toEqual([]);
+    await fixture.whenStable();
+    void expect(component.categories).toEqual([
+      {
+        q1: 0.1,
+        q2: 0.2,
+        q3: 0.3,
+        min: 0,
+        max: 0.4,
+        uifence: 0.6,
+        lifence: 0,
+        id: 'STUB_X',
+      },
+      {
+        q1: 0.2,
+        q2: 0.3,
+        q3: 0.4,
+        min: 0,
+        max: 0.5,
+        uifence: 0.6,
+        lifence: 0.1,
+        id: 'STUB_Y',
+      },
+    ]);
+  });
 
-  it('onSelectCategory', () => {
-    component.ngOnInit();
-    return fixture.whenStable().then(() => {
-      component.onSelectCategory({ label: 'STUB_X', help: '' });
-      expect(component.category.id).toBe('STUB_X');
-      component.onSelectCategory({ name: 'STUB_X', label: 'Stub X', help: '' });
-      expect(component.category.id).toBe('STUB_X');
-    });
+  it('onSelectCategory', async () => {
+    //component.ngOnInit();
+    await fixture.whenStable();
+    component.onSelectCategory({ label: 'STUB_X', help: '' });
+    await expect(component.category.id).toBe('STUB_X');
+    component.onSelectCategory({ name: 'STUB_X', label: 'Stub X', help: '' });
+    await expect(component.category.id).toBe('STUB_X');
+    component.dsmap = undefined;
+    component.onSelectCategory({ label: 'STUB_X', help: '' });
+    await expect(component.category).toBeUndefined();
   });
 });

@@ -104,7 +104,7 @@ describe('BoxplotComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   /*it('null select', () => {
@@ -135,43 +135,51 @@ describe('BoxplotComponent', () => {
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });
   it('scale', () => {
-    expect(component.scale(0.2)).toBe('20.00');
-    expect(component.scale(0.25678)).toBe('25.68');
-    expect(component.scale(0)).toBe('0.00');
+    void expect(component.scale(0.2)).toBe('20.00');
+    void expect(component.scale(0.25678)).toBe('25.68');
+    void expect(component.scale(0)).toBe('0.00');
   });
-  it('get_outliers', () =>
-    fixture.whenStable().then(() => {
-      expect(component.get_outliers(component.data.categories[0])).toBeTruthy();
-      expect(component.get_outliers(component.data.categories[0])).toBeTruthy(); // cache check
-      expect(component.get_outliers(component.data.categories[1])).toBeTruthy();
+  it('get_outliers', async () => {
+    await fixture.whenStable();
+    await expect(
+      component.get_outliers(component.data.categories[0])
+    ).toBeTruthy();
+    await expect(
+      component.get_outliers(component.data.categories[0])
+    ).toBeTruthy(); // cache check
+    await expect(
+      component.get_outliers(component.data.categories[1])
+    ).toBeTruthy();
 
-      // handle null data
-      component.data = null;
-      expect(
-        component.get_outliers({
-          id: 'na',
-          q1: 0,
-          q2: 0,
-          q3: 0,
-          uifence: 0,
-          lifence: 0,
-          min: 0,
-          max: 0,
-        })
-      );
-    }));
-  it('hasChild', () =>
-    fixture.whenStable().then(() => {
-      expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
-    }));
-  it('hasDocuments', () =>
-    fixture.whenStable().then(() => {
-      expect(component.hasDocuments(1, component.treeData.data[1])).toBeFalse();
-    }));
-  it('treeControl child acsesson', () =>
-    fixture.whenStable().then(() => {
-      expect(
-        component.treeControl.getChildren(component.treeData.data[0])
-      ).toBeTruthy();
-    }));
+    // handle null data
+    component.data = null;
+    expect(
+      component.get_outliers({
+        id: 'na',
+        q1: 0,
+        q2: 0,
+        q3: 0,
+        uifence: 0,
+        lifence: 0,
+        min: 0,
+        max: 0,
+      })
+    );
+  });
+  it('hasChild', async () => {
+    await fixture.whenStable();
+    return expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
+  });
+  it('hasDocuments', async () => {
+    await fixture.whenStable(); //.then(() => {
+    const td = component.treeData.data[2];
+    void expect(td.documents).toEqual([]);
+    expect(component.hasDocuments(2, component.treeData.data[2])).toBeFalse();
+  });
+  it('treeControl child acsesson', async () => {
+    await fixture.whenStable();
+    return expect(
+      component.treeControl.getChildren(component.treeData.data[0])
+    ).toBeTruthy();
+  });
 });

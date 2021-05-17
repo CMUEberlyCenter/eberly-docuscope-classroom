@@ -15,7 +15,7 @@ import {
 } from '../http-error-handler.service';
 
 /** JSON data returned by /groups */
-export class GroupsData extends AssignmentData {
+export interface GroupsData extends AssignmentData {
   groups: string[][]; // lists of lists of student names
   grp_qualities: number[]; // group quality statistics (unused)
   quality: number; // quality statistic (unused)

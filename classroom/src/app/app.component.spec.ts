@@ -48,7 +48,7 @@ describe('AppComponent', () => {
 
   it('should render title in the toolbar', () => {
     const compiled = fixture.debugElement.nativeElement as HTMLElement;
-    expect(compiled.querySelector('mat-toolbar > span').textContent).toContain(
+    expect(compiled.querySelector('mat-toolbar > span')?.textContent).toContain(
       'DocuScope Classroom @ CMU'
     );
   });

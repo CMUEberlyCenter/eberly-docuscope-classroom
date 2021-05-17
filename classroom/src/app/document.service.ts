@@ -23,7 +23,7 @@ interface Document {
   patterns: CategoryPatternData[];
 }
 
-export class Documents extends AssignmentData {
+export interface Documents extends AssignmentData {
   documents: Document[];
 }
 

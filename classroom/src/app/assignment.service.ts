@@ -55,8 +55,8 @@ export class AssignmentService {
    * instances.
    */
   setAssignmentData(assignment: AssignmentData): void {
-    this.setAssignment(assignment.assignment);
-    this.setCourse(assignment.course);
-    this.setInstructor(assignment.instructor);
+    this.setAssignment(assignment.assignment ?? '');
+    this.setCourse(assignment.course ?? '');
+    this.setInstructor(assignment.instructor ?? '');
   }
 }

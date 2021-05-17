@@ -14,7 +14,7 @@ import { GroupsData, GroupsService } from './groups.service';
 @Component({
   selector: 'app-grouping',
   templateUrl: './grouping.component.html',
-  styleUrls: ['./grouping.component.css'],
+  styleUrls: ['./grouping.component.scss'],
 })
 export class GroupingComponent implements OnInit {
   size_min = 2; // Minimum size of groups (no singletons)
@@ -24,9 +24,9 @@ export class GroupingComponent implements OnInit {
       ? Math.max(this.size_min, Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
-  corpus: string[]; // List of document UUID's.
+  corpus: string[] = []; // List of document UUID's.
   group_size = 2; // Current group size.
-  groups: GroupsData; // data from GroupsService.
+  groups: GroupsData | undefined; // data from GroupsService.
   absent: string[] = []; // extra group for absent students.
 
   constructor(

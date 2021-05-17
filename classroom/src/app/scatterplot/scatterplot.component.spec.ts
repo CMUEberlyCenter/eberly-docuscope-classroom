@@ -133,37 +133,35 @@ describe('ScatterplotComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it(
     'getData',
     waitForAsync(async () => {
       component.getData();
-      await fixture
-        .whenStable()
-        .then(() => expect(component.data).toBeDefined());
+      await fixture.whenStable();
+      return expect(component.data).toBeDefined();
     })
   );
 
-  it('genPoints null', () => {
+  it('genPoints null axis', async () => {
     component.getData();
-    return fixture.whenStable().then(() => {
-      component.x_axis = null;
-      expect(() => component.genPoints()).not.toThrow();
-    });
+    await fixture.whenStable();
+    component.x_axis = null;
+    await expect(() => component.genPoints()).not.toThrow();
+  });
+  it('genPoints null data', async () => {
+    component.getData();
+    await fixture.whenStable();
+    component.data = undefined;
+    await expect(() => component.genPoints()).not.toThrow();
   });
 
-  /*it('select_point', () => {
+  /*it('select_point', async () => {
     window.open = jasmine.createSpy('open');
-    component.select_point(
-      {
-        dataTable: {
-          getValue: () => '123',
-        },
-      },
-      { selection: [{ row: 1 }] }
-    );
+    await fixture.whenRenderingDone();
+    component.select_point(component.scatterplot, { selection: [{ row: 1 }] });
     expect(window.open).toHaveBeenCalledWith('stv/123');
   });*/
 
@@ -174,18 +172,23 @@ describe('ScatterplotComponent', () => {
         label: 'Stub X',
         help: '',
       });
-      expect(component.x_category.id).toBe('STUB_X');
+      void expect(component.x_category.id).toBe('STUB_X');
       component.on_select_x({
         label: 'STUB_X',
         help: '',
       });
-      expect(component.x_category.id).toBe('STUB_X');
+      void expect(component.x_category.id).toBe('STUB_X');
     }));
   it('on_select_y', () =>
     fixture.whenStable().then(() => {
       component.on_select_y({ name: 'STUB_Y', label: 'Stub Y', help: '' });
-      expect(component.y_category.id).toBe('STUB_Y');
+      void expect(component.y_category.id).toBe('STUB_Y');
       component.on_select_y({ label: 'STUB_Y', help: '' });
-      expect(component.y_category.id).toBe('STUB_Y');
+      void expect(component.y_category.id).toBe('STUB_Y');
     }));
+  it('categories', async () => {
+    void expect(component.categories).toEqual([]);
+    await fixture.whenStable();
+    void expect(component.categories.length).toBe(2);
+  });
 });

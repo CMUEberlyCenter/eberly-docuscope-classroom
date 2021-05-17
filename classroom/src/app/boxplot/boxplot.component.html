@@ -21,7 +21,7 @@
           >
             <desc>
               Linear scale ruler from 0 to
-              {{ x.tickFormat(10)(x.ticks(10)[10]) }}.
+              {{ x ? x.tickFormat(10)(x.ticks(10)[10]) : 1 }}.
             </desc>
             <g
               fill="none"

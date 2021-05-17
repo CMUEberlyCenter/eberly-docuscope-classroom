@@ -42,11 +42,13 @@ describe('AssignmentService', () => {
       instructor: 'Testy Tester',
     };
     service.assignment$.subscribe((assign) =>
-      expect(assign).toEqual(stub.assignment)
+      expect(assign).toEqual('assignment_stub')
     );
-    service.course$.subscribe((course) => expect(course).toEqual(stub.course));
+    service.course$.subscribe((course) =>
+      expect(course).toEqual('course_stub')
+    );
     service.instructor$.subscribe((inst) =>
-      expect(inst).toEqual(stub.instructor)
+      expect(inst).toEqual('Testy Tester')
     );
     service.setAssignmentData(stub);
   });

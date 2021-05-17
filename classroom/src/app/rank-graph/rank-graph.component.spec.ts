@@ -90,60 +90,63 @@ describe('RankGraphComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeDefined();
-    expect(component.rank).toBeDefined();
+    void expect(component).toBeDefined();
+    void expect(component.rank).toBeDefined();
   });
 
   it('ngOnChanges', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(() => component.rank.ngOnChanges()).not.toThrow();
+    void expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.category = null;
     fixture.detectChanges();
-    expect(() => component.rank.ngOnChanges()).not.toThrow();
+    void expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.data = null;
     fixture.detectChanges();
-    expect(() => component.rank.ngOnChanges()).not.toThrow();
+    void expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
-  it('median', () => {
+  it('median', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    return fixture.whenStable().then(() => {
-      expect(component.rank.median).toBe(50);
-    });
+    await fixture.whenStable();
+    return expect(component.rank.median).toBe(50);
   });
   it('max_value', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.max_value).toBe(100);
+    void expect(component.rank.max_value).toBe(100);
+    void expect(component.rank.max_value).toBe(100);
   });
+  it('left', () => expect(component.rank.left).toBe(10));
+  it('right', () => expect(component.rank.right).toBe(240));
+  it('x', () => expect(component.rank.x(0)).toBe(125));
   it('mean_start', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.mean_start(30)).toBe(30);
-    expect(component.rank.mean_start(60)).toBe(50);
+    void expect(component.rank.mean_start(30)).toBe(30);
+    void expect(component.rank.mean_start(60)).toBe(50);
   });
   it('mean_width', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.mean_width(30)).toBe(20);
-    expect(component.rank.mean_width(75)).toBe(25);
+    void expect(component.rank.mean_width(30)).toBe(20);
+    void expect(component.rank.mean_width(75)).toBe(25);
   });
 
   it('bar_tip', () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    expect(component.rank.bar_tip(20)).toBe(
+    void expect(component.rank.bar_tip(20)).toBe(
       '20.00 which is about 30.00 less than the median of 50.00.'
     );
-    expect(component.rank.bar_tip(60)).toBe(
+    void expect(component.rank.bar_tip(60)).toBe(
       '60.00 which is about 10.00 more than the median of 50.00.'
     );
   });
@@ -153,6 +156,6 @@ describe('RankGraphComponent', () => {
     component.rank.open('123');
     expect(window.open).toHaveBeenCalledWith('stv/123');
     component.rank.open('');
-    expect(window.open).toHaveBeenCalledTimes(1);
+    return expect(window.open).toHaveBeenCalledTimes(1);
   });
 });

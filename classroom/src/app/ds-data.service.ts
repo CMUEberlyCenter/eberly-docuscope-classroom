@@ -9,8 +9,8 @@ import {
   HttpErrorHandlerService,
 } from './http-error-handler.service';
 
-export class DocumentData {
-  [category: string]: number | string;
+export interface DocumentData {
+  [category: string]: number | string | undefined;
   id: string;
   title: string;
   ownedby: string;
@@ -19,17 +19,19 @@ export class DocumentData {
 }
 
 export function category_value(
-  category: CategoryData | string,
+  category: CategoryData | string | undefined,
   datum: DocumentData
 ): number {
-  const cat: string = typeof category === 'string' ? category : category.id;
-  if (cat in datum) {
-    return Number(datum[cat]) ?? 0.0;
+  if (category) {
+    const cat: string = typeof category === 'string' ? category : category.id;
+    if (cat in datum) {
+      return Number(datum[cat]) ?? 0.0;
+    }
   }
   return 0.0;
 }
 
-export class CategoryData {
+export interface CategoryData {
   id: string;
   q1: number;
   q2: number;
@@ -40,20 +42,20 @@ export class CategoryData {
   lifence: number;
 }
 
-export class DocuScopeData extends AssignmentData {
+export interface DocuScopeData extends AssignmentData {
   categories?: CategoryData[];
   data: DocumentData[];
 }
 export type CategoryInfoMap = Map<string, CategoryData>;
 export function genCategoryDataMap(data: DocuScopeData): CategoryInfoMap {
   const cmap = new Map<string, CategoryData>();
-  for (const clust of data.categories) {
+  for (const clust of data.categories ?? []) {
     cmap.set(clust.id, clust);
   }
   return cmap;
 }
 
-export function max_boxplot_value(data: DocuScopeData): number {
+export function max_boxplot_value(data?: DocuScopeData): number {
   let maximum = 0.0;
   if (data && data.categories) {
     maximum = data.categories.reduce(
@@ -70,7 +72,7 @@ export function max_boxplot_value(data: DocuScopeData): number {
 export class DsDataService {
   server = `${environment.backend_server}/ds_data`;
   handleError: HandleError;
-  data: Observable<DocuScopeData>;
+  data: Observable<DocuScopeData> | undefined;
 
   constructor(
     private http: HttpClient,

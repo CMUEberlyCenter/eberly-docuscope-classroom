@@ -26,7 +26,7 @@ const default_settings: Settings = {
 })
 export class SettingsService {
   assets_settings = 'assets/settings.json';
-  settings: Observable<Settings>;
+  settings: Observable<Settings> | undefined;
 
   constructor(private http: HttpClient) {}
   getSettings(): Observable<Settings> {

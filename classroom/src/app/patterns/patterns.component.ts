@@ -25,14 +25,14 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 @Component({
   selector: 'app-patterns',
   templateUrl: './patterns.component.html',
-  styleUrls: ['./patterns.component.css'],
+  styleUrls: ['./patterns.component.scss'],
 })
 export class PatternsComponent implements OnInit {
-  @ViewChild('sunburst', { static: true }) sunburst: ElementRef;
+  @ViewChild('sunburst', { static: true }) sunburst!: ElementRef;
 
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
-  sundata: SunburstNode; // data formatted for sunburst visualization
+  sundata: SunburstNode = { name: 'root' }; // data formatted for sunburst visualization
 
   constructor(
     private commonDictionaryService: CommonDictionaryService,
@@ -68,21 +68,21 @@ export class PatternsComponent implements OnInit {
         const [data, common] = results;
         // Formulate map of category -> pattern data for faster lookup.
         const cpmap = new Map<string, PatternData[]>(
-          data.map((d) => [d.category, d.patterns])
+          data.map((d) => [d.category, d.patterns ?? []])
         );
         // Translate to tree node data.
         const dfsmap = (node: CommonDictionaryTreeNode): PatternTreeNode =>
           new PatternTreeNode(
             node,
-            node.children?.map(dfsmap),
-            cpmap.get(node.id)
+            node.children?.map(dfsmap) ?? [],
+            cpmap.get(node.id) ?? []
           );
         this.treeData.data = common.tree.map(dfsmap);
         // Translate to sunburst data.
         const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
           name: node.label,
           children: cpmap.get(node.id)
-            ? cpmap.get(node.id).map((p) => ({
+            ? cpmap.get(node.id)?.map((p) => ({
                 name: p.pattern,
                 value: p.count,
               }))

@@ -19,11 +19,13 @@ describe('SunburstChartComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
     component.ngOnChanges();
   });
 
   it('setting data', () => {
+    component.drawChart();
+    void expect(component.arc).toBeUndefined();
     component.data = {
       name: 'root',
       children: [
@@ -33,7 +35,10 @@ describe('SunburstChartComponent', () => {
             {
               name: 'subcategory',
               children: [
-                { name: 'cluster', children: [{ name: 'pat', value: 1 }] },
+                {
+                  name: 'cluster',
+                  children: [{ name: 'pat', value: 1 }, { name: 'null' }],
+                },
               ],
             },
           ],
@@ -42,7 +47,7 @@ describe('SunburstChartComponent', () => {
       ],
     };
     component.ngOnChanges();
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
 
     component.clicked(null, null);
     component.clicked(null, component.root);

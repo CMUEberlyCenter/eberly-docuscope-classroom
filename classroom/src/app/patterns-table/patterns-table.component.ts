@@ -8,14 +8,14 @@ import { PatternData } from '../patterns.service';
 @Component({
   selector: 'app-patterns-table',
   templateUrl: './patterns-table.component.html',
-  styleUrls: ['./patterns-table.component.css'],
+  styleUrls: ['./patterns-table.component.scss'],
 })
 export class PatternsTableComponent implements OnInit {
-  @ViewChild('patternTableSort', { static: true }) sort: MatSort;
-  @Input() patterns: PatternData[];
+  @ViewChild('patternTableSort', { static: true }) sort!: MatSort;
+  @Input() patterns!: PatternData[];
 
   displayColumns = ['pattern', 'count'];
-  pattern_data: MatTableDataSource<PatternData>;
+  pattern_data: MatTableDataSource<PatternData> | undefined;
 
   ngOnInit(): void {
     this.pattern_data = new MatTableDataSource(this.patterns);

@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-// import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
@@ -24,12 +23,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { AngularSplitModule } from 'angular-split';
-import { TagCloudModule } from 'angular-tag-cloud-module';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { AboutComponent } from './about/about.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-//import { BoxplotGraphComponent } from './boxplot-graph/boxplot-graph.component';
 import { BoxplotComponent } from './boxplot/boxplot.component';
 import { CategorySelectComponent } from './category-select/category-select.component';
 import { ComparePatternsTableComponent } from './compare-patterns-table/compare-patterns-table.component';
@@ -54,7 +51,6 @@ import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.componen
     AboutComponent,
     MessagesComponent,
     BoxplotComponent,
-    //BoxplotGraphComponent,
     ScatterplotComponent,
     GroupingComponent,
     ReportComponent,
@@ -91,7 +87,6 @@ import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.componen
     MatIconModule,
     MatInputModule,
     MatMenuModule,
-    // MatSelectModule,
     MatSidenavModule,
     MatSnackBarModule,
     MatSortModule,
@@ -100,7 +95,6 @@ import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.componen
     MatTreeModule,
     MatToolbarModule,
     MatTooltipModule,
-    TagCloudModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

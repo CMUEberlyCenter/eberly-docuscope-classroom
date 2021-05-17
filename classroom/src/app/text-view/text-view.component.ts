@@ -2,6 +2,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -23,18 +24,18 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 @Component({
   selector: 'app-text-view',
   templateUrl: './text-view.component.html',
-  styleUrls: ['./text-view.component.css'],
+  styleUrls: ['./text-view.component.scss'],
 })
 export class TextViewComponent implements OnInit {
   colors = d3.scaleOrdinal(d3.schemeCategory10);
-  dictionary: CommonDictionary;
-  htmlContent: SafeHtml;
-  tagged_text: Documents;
+  dictionary: CommonDictionary | undefined;
+  htmlContent: SafeHtml | undefined;
+  tagged_text: Documents | undefined;
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   max_clusters = d3.schemeCategory10.length;
   selection = new SelectionModel<PatternTreeNode>(true, []);
-  sundata: SunburstNode;
+  sundata: SunburstNode | undefined;
   sunwidth = 300;
 
   constructor(
@@ -43,6 +44,7 @@ export class TextViewComponent implements OnInit {
     private _dictionary: CommonDictionaryService,
     private _sanitizer: DomSanitizer,
     // private _settings_service: SettingsService,
+    private snackbar: MatSnackBar,
     private _spinner: NgxUiLoaderService,
     private _text_service: DocumentService
   ) {}
@@ -50,6 +52,10 @@ export class TextViewComponent implements OnInit {
   ngOnInit(): void {
     this._spinner.start();
     const id = this._route.snapshot.paramMap.get('doc');
+    if (!id) {
+      this.snackbar.open('Error: No document specified!');
+      return;
+    }
     forkJoin([
       // this._settings_service.getSettings(),
       this._dictionary.getJSON(),
@@ -65,20 +71,20 @@ export class TextViewComponent implements OnInit {
         doc.html_content
       );
       const cpmap = new Map<string, PatternData[]>(
-        doc.patterns.map((d) => [d.category, d.patterns])
+        doc.patterns.map((d) => [d.category, d.patterns ?? []])
       );
       const dfsmap = (node: CommonDictionaryTreeNode): PatternTreeNode =>
         new PatternTreeNode(
           node,
-          node.children?.map(dfsmap),
-          cpmap.get(node.id)
+          node.children?.map(dfsmap) ?? [],
+          cpmap.get(node.id) ?? []
         );
       this.treeData.data = common.tree.map(dfsmap);
       this.treeControl.dataNodes = this.treeData.data; // needed to get expand all to work
       const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
         name: node.label,
         children: cpmap.get(node.id)
-          ? cpmap.get(node.id).map((p) => ({
+          ? cpmap.get(node.id)?.map((p) => ({
               name: p.pattern,
               value: p.count,
             }))
@@ -221,13 +227,13 @@ export class TextViewComponent implements OnInit {
           .classed('cluster', true)
           .style('border-bottom-color', this.colors(root.id));
       } else {
-        for (const sub of root.children) {
+        for (const sub of root.children ?? []) {
           if (this.selection.isSelected(sub)) {
             d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
               .style('border-bottom-color', this.colors(sub.id));
           } else {
-            for (const cat of sub.children) {
+            for (const cat of sub.children ?? []) {
               if (this.selection.isSelected(cat)) {
                 d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)

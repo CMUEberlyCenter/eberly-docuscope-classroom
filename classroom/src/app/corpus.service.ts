@@ -6,13 +6,13 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class CorpusService {
-  private _corpus: string[];
+  private _corpus: string[] | undefined;
 
   constructor(private activatedRoute: ActivatedRoute) {}
 
   getDocumentIds(): string[] {
     const str_ids: string =
-      this.activatedRoute.snapshot.queryParamMap.get('ids');
+      this.activatedRoute.snapshot.queryParamMap.get('ids') ?? '';
     let ids: string[] = [];
     if (str_ids) {
       ids = str_ids.split(',');

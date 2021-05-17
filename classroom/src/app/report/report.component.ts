@@ -8,13 +8,13 @@ import { ReportService } from './report.service';
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
-  styleUrls: ['./report.component.css'],
+  styleUrls: ['./report.component.scss'],
 })
 export class ReportComponent implements OnInit {
-  @ViewChild('download_link') download_link: ElementRef;
-  corpus: string[];
-  intro: string;
-  stv_intro: string;
+  @ViewChild('download_link') download_link!: ElementRef;
+  corpus: string[] = [];
+  intro = '';
+  stv_intro = '';
 
   constructor(
     private corpusService: CorpusService,
@@ -24,17 +24,19 @@ export class ReportComponent implements OnInit {
   ) {}
 
   getCorpus(): void {
-    this._spinner.start();
+    //this._spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
-      this._spinner.stop();
+      //this._spinner.stop();
     });
   }
 
   getIntro(): void {
+    this._spinner.start();
     this.introService.getIntroductionText().subscribe((intro) => {
       this.intro = intro.introduction;
       this.stv_intro = intro.stv_introduction;
+      this._spinner.stop();
     });
   }
 

@@ -4,5 +4,5 @@
   "unit": 100,
   "homepage": "https://www.cmu.edu/dietrich/english/research/docuscope.html",
   "scatter": { "width": 400, "height": 400 },
-  "mtv": { "horizontal": false, "documentColors": ["#1c66aa", "#639c54"] }
+  "mtv": { "horizontal": false, "documentColors": ["#247", "#085"] }
 }

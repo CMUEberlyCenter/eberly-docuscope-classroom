@@ -8,7 +8,7 @@ import {
   HandleError,
 } from './http-error-handler.service';
 
-export class PatternData {
+export interface PatternData {
   pattern: string;
   count: number;
 }
@@ -32,14 +32,14 @@ export const instance_count = (patterns: PatternData[]): number =>
     0
   );
 
-export class ComparePatternData extends PatternData {
+export class ComparePatternData implements PatternData {
   pattern: string;
+  count: number;
   counts: number[];
   /* get count(): number {
     return this.counts.reduce((t: number, c: number): number => t + c, 0);
   }*/
   constructor(pattern: string, counts: number[]) {
-    super();
     this.pattern = pattern;
     this.counts = counts;
     this.count = this.counts.reduce((t: number, c: number): number => t + c, 0);
@@ -52,7 +52,7 @@ export class ComparePatternData extends PatternData {
   }
 }
 
-export class CategoryPatternData {
+export interface CategoryPatternData {
   category: string;
   patterns?: PatternData[];
 }
@@ -63,7 +63,7 @@ export class CategoryPatternData {
 export class PatternsService {
   private server = `${environment.backend_server}/patterns`;
   private handleError: HandleError;
-  private pattern_data: Observable<CategoryPatternData[]>;
+  private pattern_data: Observable<CategoryPatternData[]> | undefined;
 
   constructor(
     private _http: HttpClient,

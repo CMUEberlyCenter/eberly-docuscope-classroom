@@ -8,14 +8,14 @@ import { SettingsService } from '../settings.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
   title = 'DocuScope Classroom';
   institution = '@ CMU';
-  course: string;
-  assignment: string;
-  instructor: string;
+  course = '';
+  assignment = '';
+  instructor = '';
 
   constructor(
     private about: MatDialog,

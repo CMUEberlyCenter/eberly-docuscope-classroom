@@ -42,7 +42,7 @@ class CompareTreeNode {
   ) {
     this.id = node.id;
     this.label = node.label;
-    this.help = node.help;
+    this.help = node.help ?? '';
     this.children = children;
     patterns.sort(pattern_compare);
     this.patterns = patterns;
@@ -91,15 +91,15 @@ class CompareTreeNode {
 @Component({
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
-  styleUrls: ['./comparison.component.css'],
+  styleUrls: ['./comparison.component.scss'],
 })
 export class ComparisonComponent implements OnInit {
-  corpus: string[]; // list of document UUID's
-  dictionary: CommonDictionary;
+  corpus: string[] = []; // list of document UUID's
+  dictionary: CommonDictionary | undefined;
   colors = d3.scaleOrdinal(d3.schemeCategory10); // Colors to use for underlining
-  dColors = ['#1c66aa', '#639c54']; // document colors
+  dColors = ['#247', '#085']; //['#1c66aa', '#639c54']; // document colors
   doc_colors = d3.scaleOrdinal(this.dColors); // ['royalblue', 'seagreen'];
-  documents: Documents; // retrieved document data
+  documents: Documents | undefined; // retrieved document data
   direction: 'horizontal' | 'vertical' = 'horizontal'; // document stacking
   max_clusters = d3.schemeCategory10.length; // max clusters based on number of colors.
   max_count = 1; // maximum instance count over all patterns and documents.
@@ -107,7 +107,7 @@ export class ComparisonComponent implements OnInit {
   treeControl = new NestedTreeControl<CompareTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<CompareTreeNode>();
 
-  html_content: SafeHtml[];
+  html_content: SafeHtml[] = [];
 
   constructor(
     private _assignmentService: AssignmentService,
@@ -175,18 +175,18 @@ export class ComparisonComponent implements OnInit {
             if (!cpmap.has(cluster.category)) {
               cpmap.set(cluster.category, new Map<string, number[]>());
             }
-            cluster.patterns.forEach((pat) => {
+            cluster.patterns?.forEach((pat) => {
               const counts =
-                cpmap.get(cluster.category).get(pat.pattern) ?? zero.slice();
+                cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
               counts[i] += pat.count; // simple assignment works on unique assumption
-              cpmap.get(cluster.category).set(pat.pattern, counts);
+              cpmap.get(cluster.category)?.set(pat.pattern, counts);
             });
           });
         });
         const dfsmap = (node: CommonDictionaryTreeNode): CompareTreeNode =>
           new CompareTreeNode(
             node,
-            node.children?.map(dfsmap),
+            node.children?.map(dfsmap) ?? [],
             Array.from(cpmap.get(node.id)?.entries() ?? []).map(
               ([pat, counts]) => new ComparePatternData(pat, counts)
             )
@@ -404,13 +404,13 @@ export class ComparisonComponent implements OnInit {
           .classed('cluster', true)
           .style('border-bottom-color', this.colors(root.id));
       } else {
-        for (const sub of root.children) {
+        for (const sub of root.children ?? []) {
           if (this.selection.isSelected(sub)) {
             d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
               .style('border-bottom-color', this.colors(sub.id));
           } else {
-            for (const cat of sub.children) {
+            for (const cat of sub.children ?? []) {
               if (this.selection.isSelected(cat)) {
                 d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)

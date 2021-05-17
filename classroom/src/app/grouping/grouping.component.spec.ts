@@ -9,6 +9,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -53,6 +54,7 @@ class DragDropEventFactory<T> {
     currentIndex: number
   ): CdkDragDrop<T[], T[]> {
     return {
+      dropPoint: { x: 0, y: 0 },
       previousIndex,
       currentIndex,
       item: undefined,
@@ -114,6 +116,7 @@ describe('GroupingComponent', () => {
           DragDropModule,
           FormsModule,
           MatCardModule,
+          MatInputModule,
           MatFormFieldModule,
           MatSidenavModule,
           MatSnackBarModule,
@@ -137,47 +140,47 @@ describe('GroupingComponent', () => {
   });
 
   it('should create', async () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
     await fixture.whenStable();
-    expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
+    void expect(corpus_service_spy.getCorpus).toHaveBeenCalled();
   });
 
   it('getGroupsData', async () => {
     component.getGroupsData();
     await fixture.whenStable();
-    expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-    expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-    expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
-    expect(component.absent).toEqual([]);
+    void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+    void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+    void expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
+    void expect(component.absent).toEqual([]);
   });
 
   it('size_min', () => {
-    expect(component.size_min).toBe(2);
+    void expect(component.size_min).toBe(2);
   });
   it('size_max', () => {
-    expect(component.size_max).toBe(2);
+    void expect(component.size_max).toBe(2);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     component.corpus = JSON.parse(JSON.stringify(test_corpus));
-    expect(component.size_max).toBe(3);
+    void expect(component.size_max).toBe(3);
     component.corpus = ['a', 'b'];
-    expect(component.size_max).toBe(2);
+    void expect(component.size_max).toBe(2);
   });
-  it('num_documents', () => {
-    expect(component.num_documents).toBe(0);
+  it('num_documents', async () => {
+    await expect(component.num_documents).toBe(0);
     component.corpus = test_corpus;
-    expect(component.num_documents).toBe(6);
+    await expect(component.num_documents).toBe(6);
   });
   it('generate_groups too low', () => {
     [null, 0, 1].forEach((v) => {
       component.group_size = v;
       component.generate_groups({});
-      expect(snack_spy.open).toHaveBeenCalled();
+      void expect(snack_spy.open).toHaveBeenCalled();
     });
     component.corpus = test_corpus;
     [null, 0, 1].forEach((v) => {
       component.group_size = v;
       component.generate_groups({});
-      expect(snack_spy.open).toHaveBeenCalled();
+      void expect(snack_spy.open).toHaveBeenCalled();
     });
   });
 
@@ -186,20 +189,20 @@ describe('GroupingComponent', () => {
     [7, 6, 5, 4].forEach((v) => {
       component.group_size = v;
       component.generate_groups({});
-      expect(snack_spy.open).toHaveBeenCalled();
+      void expect(snack_spy.open).toHaveBeenCalled();
     });
   });
 
   it('generate_groups', () => {
     component.corpus = test_corpus;
-    expect(component.group_size).toBe(2);
+    void expect(component.group_size).toBe(2);
     component.group_size = 2;
     component.generate_groups({});
     return fixture.whenStable().then(() => {
-      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
-      expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
-      expect(component.absent).toEqual([]);
+      void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+      void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+      void expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
+      void expect(component.absent).toEqual([]);
     });
   });
 
@@ -210,12 +213,12 @@ describe('GroupingComponent', () => {
       1,
       0
     );
-    expect(() => component.drop(drag_within)).not.toThrow();
+    void expect(() => component.drop(drag_within)).not.toThrow();
 
     const drag_between = dragDropEventFactory.createCrossContainerEvent(
       { id: 'group0', data: ['foo'], index: 0 },
       { id: 'group1', data: ['bar'], index: 0 }
     );
-    expect(() => component.drop(drag_between)).not.toThrow();
+    void expect(() => component.drop(drag_between)).not.toThrow();
   });
 });

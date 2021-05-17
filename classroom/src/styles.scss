@@ -1,0 +1,60 @@
+/* angular material */
+@use '~@angular/material' as mat;
+
+/* fonts */
+//@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;1:400&display=swap");
+//@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
+//@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&family=Roboto:wght@300;400;500&display=swap');
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
+@include mat.core();
+
+//@import "@angular/material/prebuilt-themes/indigo-pink.css";
+@import "cmu-app-theme";
+@include mat.all-component-themes($cmu-theme);
+
+
+.cluster_id {
+  background: $cmu-core-grey;
+  border: 1px solid $cmu-core-darkgrey;
+  padding: 3px;
+}
+.cluster {
+  border-bottom-width: 3px;
+  border-bottom-style: solid;
+}
+
+.d_none {
+  display: none;
+}
+
+.selected_text {
+  background-color: rgba($cmu-secondary-gold, 0.3);
+}
+
+/* scatterplot */
+circle.dot {
+  cursor: pointer;
+  fill: $cmu-core-black;
+  filter: opacity(60%);
+}
+
+circle.dot.model {
+  fill: $cmu-secondary-blue;
+  filter: opacity(40%);
+}
+
+html,
+body {
+  height: 100vh;
+}
+body {
+  font-family: "Open Sans", Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+}
+app-root {
+  display: flex;
+  flex-flow: column;
+  height: 100vh;
+}

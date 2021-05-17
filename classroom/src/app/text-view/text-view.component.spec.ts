@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import {
   MatCheckboxChange,
@@ -59,115 +60,112 @@ describe('TextViewComponent', () => {
   let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let tagged_text_service_spy: Spied<DocumentService>;
 
-  beforeEach(
-    waitForAsync(() => {
-      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-        'start',
-        'stop',
-      ]) as Spied<NgxUiLoaderService>;
-      tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
-        'getData',
-      ]) as Spied<DocumentService>;
-      tagged_text_service_spy.getData.and.returnValue(
-        asyncData({
-          documents: [
-            {
-              text_id: 'stub_id',
-              word_count: 2,
-              html_content: test_html,
-              ownedby: 'student',
-              owner: 'TEST',
-              patterns: [
-                {
-                  category: 'bogus',
-                  patterns: [
-                    { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 },
-                  ],
-                },
-              ],
-            },
-          ],
-        })
-      );
-      const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
-      const activatedRoute = jasmine.createSpyObj('ActivatedRoute', [
-        'paramMap',
-      ]);
-      activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
-      activatedRoute.snapshot.paramMap = snapshot_spy;
-      const sanitizer = jasmine.createSpyObj('DOMSanitizer', [
-        'bypassSecurityTrustHtml',
-      ]) as Spied<DomSanitizer>;
-      sanitizer.bypassSecurityTrustHtml.and.callFake(
-        (html: string) =>
-          ({
-            changingThisBreaksApplicationSecurity: html,
-            getTypeName: () => 'HTML',
-          } as SafeHtml)
-      );
-      const settings_spy = jasmine.createSpyObj('SettingsService', [
-        'getSettings',
-      ]) as Spied<SettingsService>;
-      settings_spy.getSettings.and.returnValue(
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: 'CMU',
-          unit: 100,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 1 },
-          mtv: { horizontal: false },
-        })
-      );
-      const commonDictionaryService_spy = jasmine.createSpyObj(
-        'CommonDictionaryService',
-        ['getJSON']
-      ) as Spied<CommonDictionaryService>;
-      commonDictionaryService_spy.getJSON.and.returnValue(
-        asyncData(FAKE_COMMON_DICTIONARY)
-      );
-      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData',
-      ]) as Spied<AssignmentService>;
-
-      void TestBed.configureTestingModule({
-        declarations: [
-          TextViewComponent,
-          PatternsTableStubComponent,
-          SunburstStubComponent,
-        ],
-        imports: [
-          HttpClientTestingModule, // settings import requires.
-          MatCardModule,
-          MatCheckboxModule,
-          MatIconModule,
-          MatSnackBarModule,
-          MatTreeModule,
-          MatToolbarModule,
-          MatTooltipModule,
-          NoopAnimationsModule,
-        ],
-        providers: [
-          { provide: ActivatedRoute, useValue: activatedRoute },
-          { provide: AssignmentService, useValue: assignment_spy },
+  beforeEach(async () => {
+    ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
+      'start',
+      'stop',
+    ]) as Spied<NgxUiLoaderService>;
+    tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
+      'getData',
+    ]) as Spied<DocumentService>;
+    tagged_text_service_spy.getData.and.returnValue(
+      asyncData({
+        documents: [
           {
-            provide: CommonDictionaryService,
-            useValue: commonDictionaryService_spy,
+            text_id: 'stub_id',
+            word_count: 2,
+            html_content: test_html,
+            ownedby: 'student',
+            owner: 'TEST',
+            patterns: [
+              {
+                category: 'bogus',
+                patterns: [
+                  { pattern: 'text', count: 1 },
+                  { pattern: 'bogus', count: 1 },
+                ],
+              },
+            ],
           },
-          { provide: DomSanitizer, useValue: sanitizer },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-          { provide: SettingsService, useValue: settings_spy },
-          { provide: DocumentService, useValue: tagged_text_service_spy },
         ],
-        schemas: [
-          /* NO_ERRORS_SCHEMA*/
-        ],
-      }).compileComponents();
-    })
-  );
+      })
+    );
+    const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
+    snapshot_spy.get.and.returnValue('1');
+    const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
+    activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
+    activatedRoute.snapshot.paramMap = snapshot_spy;
+    const sanitizer = jasmine.createSpyObj('DOMSanitizer', [
+      'bypassSecurityTrustHtml',
+    ]) as Spied<DomSanitizer>;
+    sanitizer.bypassSecurityTrustHtml.and.callFake(
+      (html: string) =>
+        ({
+          changingThisBreaksApplicationSecurity: html,
+          getTypeName: () => 'HTML',
+        } as SafeHtml)
+    );
+    const settings_spy = jasmine.createSpyObj('SettingsService', [
+      'getSettings',
+    ]) as Spied<SettingsService>;
+    settings_spy.getSettings.and.returnValue(
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: 'CMU',
+        unit: 100,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 1 },
+        mtv: { horizontal: false },
+      })
+    );
+    const commonDictionaryService_spy = jasmine.createSpyObj(
+      'CommonDictionaryService',
+      ['getJSON']
+    ) as Spied<CommonDictionaryService>;
+    commonDictionaryService_spy.getJSON.and.returnValue(
+      asyncData(FAKE_COMMON_DICTIONARY)
+    );
+    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+      'setAssignmentData',
+    ]) as Spied<AssignmentService>;
+
+    await TestBed.configureTestingModule({
+      declarations: [
+        TextViewComponent,
+        PatternsTableStubComponent,
+        SunburstStubComponent,
+      ],
+      imports: [
+        HttpClientTestingModule, // settings import requires.
+        MatCardModule,
+        MatCheckboxModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatTreeModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        NoopAnimationsModule,
+      ],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: AssignmentService, useValue: assignment_spy },
+        {
+          provide: CommonDictionaryService,
+          useValue: commonDictionaryService_spy,
+        },
+        { provide: DomSanitizer, useValue: sanitizer },
+        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
+        { provide: SettingsService, useValue: settings_spy },
+        { provide: DocumentService, useValue: tagged_text_service_spy },
+      ],
+      schemas: [
+        /* NO_ERRORS_SCHEMA*/
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TextViewComponent);
@@ -175,22 +173,20 @@ describe('TextViewComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeDefined();
-    return fixture.whenStable().then(() => {
-      expect(component.htmlContent).toBeTruthy();
-      expect(component.tagged_text).toBeTruthy();
-      expect(component.htmlContent).toBeTruthy();
-      expect(component.sundata).toBeTruthy();
-      //expect(fixture.debugElement.query())
-    });
+  it('should create', async () => {
+    void expect(component).toBeDefined();
+    await fixture.whenStable();
+    await expect(component.htmlContent).toBeTruthy();
+    void expect(component.tagged_text).toBeTruthy();
+    void expect(component.htmlContent).toBeTruthy();
+    return expect(component.sundata).toBeTruthy();
   });
 
   it('click_select', () =>
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-      expect(component.tagged_text).toBeTruthy();
+      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+      void expect(component.tagged_text).toBeTruthy();
       const txt = fixture.debugElement.query(By.css('.text_content'));
       //expect(txt.nativeElement.innerText).toBeNull();
       txt.triggerEventHandler('click', {});

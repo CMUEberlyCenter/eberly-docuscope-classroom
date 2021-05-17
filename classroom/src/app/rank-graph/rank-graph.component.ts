@@ -36,20 +36,20 @@ interface Options {
 @Component({
   selector: 'app-rank-graph',
   templateUrl: './rank-graph.component.html',
-  styleUrls: ['./rank-graph.component.css'],
+  styleUrls: ['./rank-graph.component.scss'],
 })
 export class RankGraphComponent implements OnChanges, AfterViewChecked {
-  @Input() set data(ds_data: DocuScopeData) {
+  @Input() set data(ds_data: DocuScopeData | undefined) {
     this.ds_data = ds_data;
     this._max_cache = null;
   }
-  get data(): DocuScopeData {
+  get data(): DocuScopeData | undefined {
     return this.ds_data;
   }
-  @Input() category: CategoryData;
-  @Input() unit: number;
-  @ViewChild('rankSort') sort: MatSort;
-  ranking: MatTableDataSource<DocumentData>;
+  @Input() category!: CategoryData;
+  @Input() unit!: number;
+  @ViewChild('rankSort') sort!: MatSort;
+  ranking: MatTableDataSource<DocumentData> | undefined;
 
   options: Options = {
     width: 250,
@@ -58,8 +58,8 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
   };
   displayedColumns: string[] = ['title', 'value', 'meanbar'];
 
-  private _max_cache: number;
-  private ds_data: DocuScopeData;
+  private _max_cache: number | null = null;
+  private ds_data: DocuScopeData | undefined;
 
   ngOnChanges(): void {
     if (this.data) {

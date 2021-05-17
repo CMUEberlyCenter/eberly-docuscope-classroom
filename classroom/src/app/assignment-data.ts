@@ -1,10 +1,10 @@
-export class DictionaryInformation {
+export interface DictionaryInformation {
   id: string;
   name: string;
   description?: string;
 }
 
-export class AssignmentData {
+export interface AssignmentData {
   course?: string;
   assignment?: string;
   instructor?: string;

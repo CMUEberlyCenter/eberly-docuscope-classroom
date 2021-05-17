@@ -14,7 +14,7 @@ export class PatternTreeNode {
   ) {
     this.id = node.id;
     this.label = node.label;
-    this.help = node.help;
+    this.help = node.help ?? '';
     this.children = children;
     this.patterns = patterns;
   }

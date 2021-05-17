@@ -20,19 +20,19 @@ import { SettingsService } from '../settings.service';
 @Component({
   selector: 'app-scatterplot',
   templateUrl: './scatterplot.component.html',
-  styleUrls: ['./scatterplot.component.css'],
+  styleUrls: ['./scatterplot.component.scss'],
 })
 export class ScatterplotComponent implements OnInit {
-  corpus: string[];
-  data: DocuScopeData;
-  scatter_data: [number, number, string, string, string][];
+  corpus: string[] = [];
+  data: DocuScopeData | undefined;
+  scatter_data: [number, number, string, string, string][] = [];
   get categories(): CategoryData[] {
-    return this.data.categories;
+    return this.data?.categories ?? [];
   }
-  x_axis: Entry;
-  x_category: CategoryData;
-  y_axis: Entry;
-  y_category: CategoryData;
+  x_axis: Entry | undefined;
+  x_category: CategoryData | undefined;
+  y_axis: Entry | undefined;
+  y_category: CategoryData | undefined;
   unit = 100;
   chartType: ChartType = ChartType.ScatterChart;
   chart_width = 400;
@@ -112,27 +112,28 @@ export class ScatterplotComponent implements OnInit {
       const yVal = (y: DocumentData): number =>
         this.unit * category_value(this.y_category, y);
       const max_val: number = Math.ceil(
-        this.data.data.reduce((a, p) => Math.max(a, xVal(p), yVal(p)), 0)
+        this.data?.data.reduce((a, p) => Math.max(a, xVal(p), yVal(p)), 0) ?? 0
       );
       this.options.hAxis.title = xLabel;
       this.options.hAxis.maxValue = max_val;
       this.options.vAxis.title = yLabel;
       this.options.vAxis.maxValue = max_val;
-      this.scatter_data = this.data.data.map((datum: DocumentData): [
-        number,
-        number,
-        string,
-        string,
-        string
-      ] => [
-        xVal(datum),
-        yVal(datum),
-        datum.id,
-        datum.ownedby === 'instructor' ? model : null,
-        `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
-          2
-        )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
-      ]);
+      this.scatter_data =
+        this.data?.data.map((datum: DocumentData): [
+          number,
+          number,
+          string,
+          string,
+          string
+        ] => [
+          xVal(datum),
+          yVal(datum),
+          datum.id,
+          datum.ownedby === 'instructor' ? model : '',
+          `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
+            2
+          )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
+        ]) ?? [];
     }
   }
 
@@ -150,7 +151,7 @@ export class ScatterplotComponent implements OnInit {
     this.y_category = this.get_category(clust.name ?? clust.label);
     this.genPoints();
   }
-  get_category(category: string): CategoryData {
+  get_category(category: string): CategoryData | undefined {
     return this.categories.find((c) => c.id === category);
   }
   select_point(
@@ -161,7 +162,7 @@ export class ScatterplotComponent implements OnInit {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const id: string = plot.chartWrapper
         .getDataTable()
-        .getValue(sel.row, 2) as string;
+        .getValue(sel.row ?? 0, 2) as string;
       window.open(`stv/${id}`);
     }
   }

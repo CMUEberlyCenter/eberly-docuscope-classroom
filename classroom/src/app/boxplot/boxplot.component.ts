@@ -55,25 +55,25 @@ interface DocBox {
 @Component({
   selector: 'app-boxplot',
   templateUrl: './boxplot.component.html',
-  styleUrls: ['./boxplot.component.css'],
+  styleUrls: ['./boxplot.component.scss'],
 })
 export class BoxplotComponent implements OnInit {
-  commonDictionary: CommonDictionary; // Hierachical dictionary
-  corpus: string[]; // List of document UUID's
-  data: DocuScopeData; // Results of /ds-data call
+  commonDictionary: CommonDictionary | undefined; // Hierachical dictionary
+  corpus: string[] = []; // List of document UUID's
+  data: DocuScopeData | undefined; // Results of /ds-data call
   max_value = 0.0; // corpus wide maximum value for proper scaling
   //selected_category: CategoryData;
   unit = 100; // scale of the unit value.
-  scale_x: d3.ScaleLinear<number, number, never>; // scaling x axis values
-  scale_y: d3.ScaleLinear<number, number, never>; // scaling y axis values
-  x: d3.ScaleLinear<number, number, never>; // scaling x in unit values
+  scale_x!: d3.ScaleLinear<number, number, never>; // scaling x axis values
+  scale_y!: d3.ScaleLinear<number, number, never>; // scaling y axis values
+  x!: d3.ScaleLinear<number, number, never>; // scaling x in unit values
 
   // Managers for tree component.
   treeControl = new NestedTreeControl<BoxTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<BoxTreeNode>();
 
   // Mapping of category_id -> Outlier[]
-  outliers: Map<string, Outlier[]>;
+  outliers = new Map<string, Outlier[]>();
 
   // Display options  // FIXME: should be settable from settings.json
   options = {
@@ -136,7 +136,7 @@ export class BoxplotComponent implements OnInit {
 
         // Reformat data to work with tree component
         const get_category_data = (id: string) =>
-          data.categories.filter((c) => c.id === id)[0];
+          data.categories?.filter((c) => c.id === id)[0];
         const get_document_data = (category: string): DocBox[] => {
           const cat = get_category_data(category);
           if (!cat) {
@@ -155,10 +155,10 @@ export class BoxplotComponent implements OnInit {
         };
         const dfsmap = (node: CommonDictionaryTreeNode): BoxTreeNode => ({
           label: node.label,
-          help: node.help,
-          children: node.children?.map(dfsmap),
+          help: node.help ?? '',
+          children: node.children?.map(dfsmap) ?? [],
           ...get_category_data(node.id),
-          documents: get_document_data(node.id),
+          documents: get_document_data(node.id) ?? [],
         });
         this.treeData.data = this.commonDictionary.tree.map(dfsmap);
 
@@ -200,7 +200,7 @@ export class BoxplotComponent implements OnInit {
     if (!this.outliers.has(category.id)) {
       const uf: number = category.uifence;
       const lf: number = category.lifence;
-      const outs: Outlier[] = this.data?.data
+      const outs = this.data?.data
         .map(
           (datum: DocumentData): Outlier =>
             new Outlier(datum.id, datum.title, category_value(category, datum))
@@ -208,7 +208,7 @@ export class BoxplotComponent implements OnInit {
         .filter((out: Outlier): boolean => out.value > uf || out.value < lf);
       this.outliers.set(category.id, outs ?? []);
     }
-    return this.outliers.get(category.id);
+    return this.outliers.get(category.id) ?? [];
   }
 
   /** Event handler for when a category is selected in the boxplot-graph. */

@@ -25,19 +25,19 @@ import { SettingsService } from '../settings.service';
 @Component({
   selector: 'app-rank',
   templateUrl: './rank.component.html',
-  styleUrls: ['./rank.component.css'],
+  styleUrls: ['./rank.component.scss'],
 })
 export class RankComponent implements OnInit {
-  corpus: string[]; // list of document UUID's
-  data: DocuScopeData; // data from /ds_data
-  dsmap: CategoryInfoMap;
-  category: CategoryData;
-  selected_category: Entry;
+  corpus: string[] = []; // list of document UUID's
+  data: DocuScopeData | undefined; // data from /ds_data
+  dsmap: CategoryInfoMap | undefined;
+  category: CategoryData | undefined;
+  selected_category: Entry | undefined;
   unit = 100; // multiplier for instance frequency
 
   /** Per category data. */
   get categories(): CategoryData[] {
-    return this.data.categories;
+    return this.data?.categories ?? [];
   }
 
   constructor(
@@ -76,6 +76,6 @@ export class RankComponent implements OnInit {
    */
   onSelectCategory(category: Entry): void {
     this.selected_category = category;
-    this.category = this.dsmap.get(category.name ?? category.label);
+    this.category = this.dsmap?.get(category.name ?? category.label);
   }
 }
