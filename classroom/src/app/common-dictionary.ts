@@ -28,7 +28,7 @@ export interface ICommonDictionary {
 export interface CommonDictionaryTreeNode {
   id: string;
   label: string;
-  help?: string;
+  help: string;
   children?: CommonDictionaryTreeNode[];
 }
 

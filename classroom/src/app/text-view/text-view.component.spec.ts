@@ -22,6 +22,7 @@ import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { DocumentService } from '../document.service';
+import { PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { TextViewComponent } from './text-view.component';
@@ -85,13 +86,16 @@ describe('TextViewComponent', () => {
                   { pattern: 'bogus', count: 1 },
                 ],
               },
+              {
+                category: 'null',
+              },
             ],
           },
         ],
       })
     );
     const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
-    snapshot_spy.get.and.returnValue('1');
+    snapshot_spy.get.and.returnValues(['1', undefined]);
     const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
     activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
     activatedRoute.snapshot.paramMap = snapshot_spy;
@@ -179,20 +183,39 @@ describe('TextViewComponent', () => {
     await expect(component.htmlContent).toBeTruthy();
     void expect(component.tagged_text).toBeTruthy();
     void expect(component.htmlContent).toBeTruthy();
-    return expect(component.sundata).toBeTruthy();
+    void expect(component.sundata).toBeTruthy();
+    void expect(() => component.ngOnInit()).not.toThrow();
+  });
+  it('getParentNode', () => {
+    void expect(
+      component.getParentNode(
+        new PatternTreeNode({ id: 'foo', label: 'bar', help: 'foobar' }, [], [])
+      )
+    ).toBeNull();
+    //await fixture.whenStable();
   });
 
-  it('click_select', () =>
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
-      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-      void expect(component.tagged_text).toBeTruthy();
-      const txt = fixture.debugElement.query(By.css('.text_content'));
-      //expect(txt.nativeElement.innerText).toBeNull();
-      txt.triggerEventHandler('click', {});
-      //fixture.detectChanges();
-      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-    }));
+  it('click_select', async () => {
+    component.ngOnInit();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenRenderingDone();
+    void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    void expect(component.tagged_text).toBeTruthy();
+    const txt = fixture.debugElement.query(By.css('.text_content'));
+    void expect(txt.nativeElement.innerText).toBeDefined();
+    txt.triggerEventHandler('click', {});
+    // it seems like innerText is not getting inserted into test DOM
+    // making it difficult to test this handler.
+    //const tag = fixture.debugElement.query(By.css('#tag_0'));
+    //void expect(tag.nativeElement).toBeDefined();
+    //void expect(component.htmlContent.query(By.css('#tag_0'))).toBeUndefined();
+    //tag.nativeElement.click();
+    //const word = fixture.debugElement.query(By.css('#w1'));
+    //word.nativeElement.click();
+    //fixture.detectChanges();
+    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+  });
   /*it('checkRootNodeSelection', () => fixture.whenStable().then(() => {
     const root = component.treeData.data[3];
     const leaf = root.children[0].children[0];

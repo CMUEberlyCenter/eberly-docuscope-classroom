@@ -84,7 +84,7 @@ export class TextViewComponent implements OnInit {
       const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
         name: node.label,
         children: cpmap.get(node.id)
-          ? cpmap.get(node.id)?.map((p) => ({
+          ? cpmap.get(node.id).map((p) => ({
               name: p.pattern,
               value: p.count,
             }))
@@ -117,7 +117,7 @@ export class TextViewComponent implements OnInit {
     );
   }
   getParentNode(node: PatternTreeNode): PatternTreeNode | null {
-    if (this.treeControl?.dataNodes) {
+    if (this.treeControl.dataNodes) {
       for (const root of this.treeControl.dataNodes) {
         if (root.children?.includes(node)) {
           return root;
