@@ -36,13 +36,13 @@ $cmu-red-palette: (
   600: #e82e1f,
   700: #d6221a,
   800: #c91911,
-  900: #bb0000,
+  900: $cmu-core-red,
   contrast: (
     50: $dark-primary-text,
     100: $dark-primary-text,
     200: $dark-primary-text,
-    300: $dark-primary-text,
-    400: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
     500: $light-primary-text,
     600: $light-primary-text,
     700: $light-primary-text,
@@ -60,13 +60,37 @@ $cmu-blue-palette: (
   600: #498ec7,
   700: #498ec7,
   800: #2f6097,
-  900: #224477,
+  900: $cmu-secondary-blue,
   contrast: (
     50: $dark-primary-text,
     100: $dark-primary-text,
     200: $dark-primary-text,
     300: $dark-primary-text,
-    400: $dark-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  )
+);
+$cmu-gold-palette: (
+  50: #f5f0e0,
+  100: #e6d9b1,
+  200: #d7c17f,
+  300: #c9a94e,
+  400: #c1992e,
+  500: #b98915,
+  600: #b6800f,
+  700: #b17306,
+  800: $cmu-secondary-gold,
+  900: #9f5300,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
     500: $light-primary-text,
     600: $light-primary-text,
     700: $light-primary-text,
@@ -75,7 +99,7 @@ $cmu-blue-palette: (
   )
 );
 
-$open-sans-typography: mat.define-typography-config($font-family: 'Open Sans');
+//$open-sans-typography: mat.define-typography-config($font-family: 'Open Sans');
 
 $cmu-primary: mat.define-palette($cmu-red-palette, 900);
 $cmu-accent: mat.define-palette($cmu-blue-palette);
