@@ -54,7 +54,7 @@ describe('ComparePatternsTableComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it('should create with colors', () => {
@@ -62,6 +62,6 @@ describe('ComparePatternsTableComponent', () => {
     tcomponent = tfixture.componentInstance;
     tfixture.detectChanges();
 
-    expect(tcomponent).toBeTruthy();
+    return expect(tcomponent).toBeTruthy();
   });
 });

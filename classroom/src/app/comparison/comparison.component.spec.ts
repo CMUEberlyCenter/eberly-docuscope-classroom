@@ -195,10 +195,10 @@ describe('ComparisonComponent', () => {
 
   it('should create', () =>
     fixture.whenStable().then(() => {
-      expect(component).toBeTruthy();
-      expect(component.corpus).toEqual(['a', 'b']);
-      expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
-      expect(component.direction).toBe('vertical');
+      void expect(component).toBeTruthy();
+      void expect(component.corpus).toEqual(['a', 'b']);
+      void expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
+      void expect(component.direction).toBe('vertical');
     }));
 
   it('should warn on 3+ document', () =>
@@ -206,9 +206,9 @@ describe('ComparisonComponent', () => {
       // too many documents
       component.ngOnInit();
       await fixture.whenStable();
-      expect(component.corpus).toEqual(['a', 'b']);
-      expect(snack_spy.open).toHaveBeenCalled();
-      expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
+      void expect(component.corpus).toEqual(['a', 'b']);
+      void expect(snack_spy.open).toHaveBeenCalled();
+      void expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
       //expect(component.direction).toBe('horizontal');
     }));
   it('should error on 1 document', () =>
@@ -218,9 +218,9 @@ describe('ComparisonComponent', () => {
       // too few documents
       component.ngOnInit();
       await fixture.whenStable();
-      expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
-      expect(component.corpus).toEqual(['a']);
-      expect(snack_spy.open).toHaveBeenCalled();
+      void expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
+      void expect(component.corpus).toEqual(['a']);
+      void expect(snack_spy.open).toHaveBeenCalled();
     }));
   it('should error on 0 document', () =>
     fixture.whenStable().then(async () => {
@@ -231,8 +231,8 @@ describe('ComparisonComponent', () => {
       // no documents
       component.ngOnInit();
       await fixture.whenStable();
-      expect(component.corpus).toEqual([]);
-      expect(snack_spy.open).toHaveBeenCalled();
+      void expect(component.corpus).toEqual([]);
+      void expect(snack_spy.open).toHaveBeenCalled();
     }));
 
   it('selection', () =>
@@ -266,7 +266,7 @@ describe('ComparisonComponent', () => {
   it('click_select', () =>
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
       const txt = fixture.debugElement.query(By.css('.text_content'));
       //expect(txt.nativeElement.innerText).toBeNull();
       txt.triggerEventHandler('click', {});

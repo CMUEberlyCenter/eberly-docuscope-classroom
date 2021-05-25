@@ -112,7 +112,7 @@ describe('PatternsComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
   });
 
   /*it('count', () => {

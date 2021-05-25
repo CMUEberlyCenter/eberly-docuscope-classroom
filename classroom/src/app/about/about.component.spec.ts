@@ -48,11 +48,11 @@ describe('AboutComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it('close', () => {
     component.onNoClick();
-    expect(mat_dialog_spy.close).toHaveBeenCalled();
+    return expect(mat_dialog_spy.close).toHaveBeenCalled();
   });
 });

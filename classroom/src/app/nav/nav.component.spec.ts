@@ -45,20 +45,20 @@ describe('NavComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
   });
 
   it('is_current', () => {
-    expect(component.is_current('')).toBe(false);
-    expect(component.is_current('/stub')).toBe(true);
-    expect(component.is_current('/foo/bar')).toBe(false);
+    void expect(component.is_current('')).toBe(false);
+    void expect(component.is_current('/stub')).toBe(true);
+    void expect(component.is_current('/foo/bar')).toBe(false);
   });
 
   it('is_instructor', () => {
-    expect(component.is_instructor()).toBe(false);
+    void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Student');
-    expect(component.is_instructor()).toBe(false);
+    void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Instructor');
-    expect(component.is_instructor()).toBe(true);
+    void expect(component.is_instructor()).toBe(true);
   });
 });

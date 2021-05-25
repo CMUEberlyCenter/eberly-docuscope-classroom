@@ -76,7 +76,7 @@ describe('ReportComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeDefined();
+    void expect(component).toBeDefined();
   });
 
   it('generate_report empty', () =>
@@ -88,9 +88,9 @@ describe('ReportComponent', () => {
       component.generate_report(new MouseEvent('click'));
       fixture.detectChanges();
 
-      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      expect(report_service_spy.getReports).toHaveBeenCalled();
-      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+      void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+      void expect(report_service_spy.getReports).toHaveBeenCalled();
+      void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
     }));
 
   it('generate_report', () =>
@@ -103,8 +103,8 @@ describe('ReportComponent', () => {
       component.generate_report(new MouseEvent('click'));
       fixture.detectChanges();
 
-      expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      expect(report_service_spy.getReports).toHaveBeenCalled();
-      expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+      void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
+      void expect(report_service_spy.getReports).toHaveBeenCalled();
+      void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
     }));
 });

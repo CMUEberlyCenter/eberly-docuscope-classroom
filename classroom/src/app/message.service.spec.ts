@@ -10,7 +10,7 @@ describe('MessageService', () => {
 
   it('should be created', () => {
     const service: MessageService = TestBed.inject(MessageService);
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('add', () => {
@@ -18,19 +18,19 @@ describe('MessageService', () => {
     console.log = jasmine.createSpy('log');
     service.add('message');
     expect(console.log).toHaveBeenCalledWith('message');
-    expect(service.messages).toEqual(['message']);
+    void expect(service.messages).toEqual(['message']);
     service.debug = false;
     service.add('no console');
-    expect(console.log).toHaveBeenCalledTimes(1);
-    expect(service.messages).toEqual(['message', 'no console']);
+    void expect(console.log).toHaveBeenCalledTimes(1);
+    void expect(service.messages).toEqual(['message', 'no console']);
   });
 
   it('clear', () => {
     const service: MessageService = TestBed.inject(MessageService);
-    expect(service.messages).toEqual([]);
+    void expect(service.messages).toEqual([]);
     service.add('message');
-    expect(service.messages).toEqual(['message']);
+    void expect(service.messages).toEqual(['message']);
     service.clear();
-    expect(service.messages).toEqual([]);
+    void expect(service.messages).toEqual([]);
   });
 });

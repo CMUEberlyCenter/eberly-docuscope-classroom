@@ -43,13 +43,13 @@ describe('AppComponent', () => {
   });
 
   it('should create the app', () => {
-    expect(app).toBeTruthy();
+    void expect(app).toBeTruthy();
   });
 
   it('should render title in the toolbar', () => {
     const compiled = fixture.debugElement.nativeElement as HTMLElement;
-    expect(compiled.querySelector('mat-toolbar > span')?.textContent).toContain(
-      'DocuScope Classroom @ CMU'
-    );
+    void expect(
+      compiled.querySelector('mat-toolbar > span')?.textContent
+    ).toContain('DocuScope Classroom @ CMU');
   });
 });

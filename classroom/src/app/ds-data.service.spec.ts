@@ -73,38 +73,38 @@ describe('DsDataService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('server', () => expect(service.server).toBe(server));
 
   it('category_value', () => {
-    expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
-    expect(category_value('bog', data.data[1])).toBe(0.0);
+    void expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
+    void expect(category_value('bog', data.data[1])).toBe(0.0);
   });
 
   it('getData error', () => {
     service.getData(['1', '2', '3']).subscribe((rdata) => {
-      expect(rdata.categories).toEqual([]);
-      expect(rdata.data).toEqual([]);
+      void expect(rdata.categories).toEqual([]);
+      void expect(rdata.data).toEqual([]);
     });
     const req = httpMock.expectOne(server);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.error(new ErrorEvent('fail'), { status: 404 });
   });
 
   it('getData', () => {
     service.getData(['1', '2', '3']).subscribe((edata) => {
-      expect(edata.categories[0].q1).toEqual(1);
-      expect(edata.data[0].id).toEqual('over_outlier');
+      void expect(edata.categories[0].q1).toEqual(1);
+      void expect(edata.data[0].id).toEqual('over_outlier');
     });
     const req = httpMock.expectOne(server);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(data);
     // check caching
     service.getData(['1', '2', '3']).subscribe((cdata) => {
-      expect(cdata.categories[0].q1).toEqual(1);
-      expect(cdata.data[0].id).toEqual('over_outlier');
+      void expect(cdata.categories[0].q1).toEqual(1);
+      void expect(cdata.data[0].id).toEqual('over_outlier');
     });
   });
 });

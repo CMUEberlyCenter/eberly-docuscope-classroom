@@ -14,24 +14,26 @@ describe('AssignmentService', () => {
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('setAssignment', () => {
     const data = 'Set Assignment';
-    service.assignment$.subscribe((assign) => expect(assign).toEqual(data));
+    service.assignment$.subscribe(
+      (assign) => void expect(assign).toEqual(data)
+    );
     service.setAssignment(data);
   });
 
   it('setCourse', () => {
     const data = 'Set Course';
-    service.course$.subscribe((course) => expect(course).toEqual(data));
+    service.course$.subscribe((course) => void expect(course).toEqual(data));
     service.setCourse(data);
   });
 
   it('setInstructor', () => {
     const data = 'Testy Tester';
-    service.instructor$.subscribe((inst) => expect(inst).toEqual(data));
+    service.instructor$.subscribe((inst) => void expect(inst).toEqual(data));
     service.setInstructor(data);
   });
 
@@ -41,14 +43,14 @@ describe('AssignmentService', () => {
       assignment: 'assignment_stub',
       instructor: 'Testy Tester',
     };
-    service.assignment$.subscribe((assign) =>
-      expect(assign).toEqual('assignment_stub')
+    service.assignment$.subscribe(
+      (assign) => void expect(assign).toEqual('assignment_stub')
     );
-    service.course$.subscribe((course) =>
-      expect(course).toEqual('course_stub')
+    service.course$.subscribe(
+      (course) => void expect(course).toEqual('course_stub')
     );
-    service.instructor$.subscribe((inst) =>
-      expect(inst).toEqual('Testy Tester')
+    service.instructor$.subscribe(
+      (inst) => void expect(inst).toEqual('Testy Tester')
     );
     service.setAssignmentData(stub);
   });

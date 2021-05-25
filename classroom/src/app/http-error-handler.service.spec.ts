@@ -25,7 +25,7 @@ describe('HttpErrorHandlerService', () => {
     const service: HttpErrorHandlerService = TestBed.inject(
       HttpErrorHandlerService
     );
-    expect(service).toBeTruthy();
+    return expect(service).toBeTruthy();
   });
 
   it('createHandleError', () => {
@@ -33,7 +33,7 @@ describe('HttpErrorHandlerService', () => {
       HttpErrorHandlerService
     );
     const handler: HandleError = service.createHandleError('http-service-spec');
-    expect(handler).toBeTruthy();
+    return expect(handler).toBeTruthy();
   });
 
   it('handleError default', () => {
@@ -43,12 +43,12 @@ describe('HttpErrorHandlerService', () => {
     const handler: HandleError = service.createHandleError();
     const error: HttpErrorResponse = new HttpErrorResponse({});
     handler()(error).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
     service
       .handleError()(error)
       .subscribe((data) => {
-        expect(data).toEqual({});
+        void expect(data).toEqual({});
       });
   });
 
@@ -62,7 +62,7 @@ describe('HttpErrorHandlerService', () => {
       'handle_error',
       {} as never
     )(error).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
     const error0: HttpErrorResponse = new HttpErrorResponse({
       error: { detail: 'I am a bat bug' },
@@ -71,7 +71,7 @@ describe('HttpErrorHandlerService', () => {
       'handle_error',
       {} as never
     )(error0).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
     const error1: HttpErrorResponse = new HttpErrorResponse({
       error: { detail: [{ msg: 'I am a bat bug' }] },
@@ -80,7 +80,7 @@ describe('HttpErrorHandlerService', () => {
       'handle_error',
       {} as never
     )(error1).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
     const error2: HttpErrorResponse = new HttpErrorResponse({
       error: new ErrorEvent('I am an error!'),
@@ -89,7 +89,7 @@ describe('HttpErrorHandlerService', () => {
       'handle_error',
       {} as never
     )(error2).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
     const error3: HttpErrorResponse = new HttpErrorResponse({
       error: 'String Error',
@@ -98,7 +98,7 @@ describe('HttpErrorHandlerService', () => {
       'handle_error',
       {} as never
     )(error3).subscribe((data) => {
-      expect(data).toEqual({});
+      void expect(data).toEqual({});
     });
   });
 });

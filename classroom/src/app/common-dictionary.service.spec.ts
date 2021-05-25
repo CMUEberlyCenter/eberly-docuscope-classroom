@@ -24,15 +24,15 @@ describe('CommonDictionaryService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getJSON', () => {
     service.getJSON().subscribe((common) => {
-      expect(common.default_dict).toBe('fake_dict');
+      void expect(common.default_dict).toBe('fake_dict');
     });
     const req = httpMock.expectOne(server);
-    expect(req.request.method).toBe('GET');
+    void expect(req.request.method).toBe('GET');
     req.flush(FAKE_COMMON_DICTIONARY);
   });
 });

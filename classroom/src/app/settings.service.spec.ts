@@ -20,24 +20,24 @@ describe('SettingsService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getSettings', () => {
     service.getSettings().subscribe((data) => {
-      expect(data.title).toBe('DocuScope Classroom');
-      expect(data.unit).toBe(100);
+      void expect(data.title).toBe('DocuScope Classroom');
+      void expect(data.unit).toBe(100);
     });
     const ereq = httpMock.expectOne('assets/settings.json');
-    expect(ereq.request.method).toBe('GET');
+    void expect(ereq.request.method).toBe('GET');
     ereq.error(new ErrorEvent('fail'), { status: 404 });
 
     service.getSettings().subscribe((data) => {
-      expect(data.title).toBe('TestScope');
-      expect(data.unit).toBe(1);
+      void expect(data.title).toBe('TestScope');
+      void expect(data.unit).toBe(1);
     });
     const req = httpMock.expectOne('assets/settings.json');
-    expect(req.request.method).toBe('GET');
+    void expect(req.request.method).toBe('GET');
     req.flush({
       title: 'TestScope',
       institution: 'TEST',

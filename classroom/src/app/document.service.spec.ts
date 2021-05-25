@@ -60,7 +60,7 @@ describe('DocumentService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
     expect(errorServiceMock.createHandleError).toHaveBeenCalledWith(
       'DocumentService'
     );
@@ -70,10 +70,10 @@ describe('DocumentService', () => {
 
   it('getData', () => {
     service.getData(['1', '2']).subscribe((d) => {
-      expect(d.documents[0].text_id).toBe('1');
+      void expect(d.documents[0].text_id).toBe('1');
     });
     const req = httpMock.expectOne(server);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(data);
   });
 });

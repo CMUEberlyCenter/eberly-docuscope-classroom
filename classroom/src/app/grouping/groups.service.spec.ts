@@ -32,7 +32,7 @@ describe('GroupsService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getGroupsData', () => {
@@ -46,10 +46,10 @@ describe('GroupsService', () => {
     };
 
     service.getGroupsData(['1', '2', '3', '4'], 2).subscribe((data) => {
-      expect(data.quality).toBe(0);
+      void expect(data.quality).toBe(0);
     });
     const req = httpMock.expectOne(`${environment.backend_server}/groups`);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(fake_groups);
   });
 });

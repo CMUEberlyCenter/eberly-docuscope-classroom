@@ -27,7 +27,7 @@ describe('PatternsService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getPatterns', () => {
@@ -43,15 +43,15 @@ describe('PatternsService', () => {
       },
     ];
     service.getPatterns(corpus).subscribe((data) => {
-      expect(data[0].category).toBe('test');
+      void expect(data[0].category).toBe('test');
     });
     const req = httpMock.expectOne(`${environment.backend_server}/patterns`);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(pattern_data);
 
     // check caching
     service.getPatterns(corpus).subscribe((data) => {
-      expect(data[0].category).toBe('test');
+      void expect(data[0].category).toBe('test');
     });
   });
 });
@@ -61,21 +61,21 @@ describe('pattern_compare', () => {
   const pattern_a3 = { pattern: 'a', count: 3 };
   const pattern_b1 = { pattern: 'b', count: 1 };
   it('diff count', () => {
-    expect(pattern_compare(pattern_a1, pattern_a3)).toBe(2);
-    expect(pattern_compare(pattern_a3, pattern_a1)).toBe(-2);
+    void expect(pattern_compare(pattern_a1, pattern_a3)).toBe(2);
+    void expect(pattern_compare(pattern_a3, pattern_a1)).toBe(-2);
   });
   it('diff pattern', () => {
-    expect(pattern_compare(pattern_a1, pattern_a1)).toBe(0);
-    expect(pattern_compare(pattern_a1, pattern_b1)).toBe(-1);
-    expect(pattern_compare(pattern_b1, pattern_a1)).toBe(1);
+    void expect(pattern_compare(pattern_a1, pattern_a1)).toBe(0);
+    void expect(pattern_compare(pattern_a1, pattern_b1)).toBe(-1);
+    void expect(pattern_compare(pattern_b1, pattern_a1)).toBe(1);
   });
 });
 
 describe('ComparePatternData', () => {
   const p: ComparePatternData = new ComparePatternData('a', [1, 2]);
   it('constructor', () => {
-    expect(p).toBeTruthy();
-    expect(p.pattern).toBe('a');
+    void expect(p).toBeTruthy();
+    void expect(p.pattern).toBe('a');
   });
   it('count', () => expect(p.count).toBe(3));
   it('count0', () => expect(p.count0).toBe(1));
@@ -84,9 +84,9 @@ describe('ComparePatternData', () => {
 
 describe('instance_count', () => {
   it('instance_count', () => {
-    expect(instance_count([])).toBe(0);
-    expect(instance_count([{ pattern: 'foo', count: 3 }])).toBe(3);
-    expect(
+    void expect(instance_count([])).toBe(0);
+    void expect(instance_count([{ pattern: 'foo', count: 3 }])).toBe(3);
+    void expect(
       instance_count([
         { pattern: 'foo', count: 3 },
         { pattern: 'bar', count: 6 },

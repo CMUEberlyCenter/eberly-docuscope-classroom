@@ -42,20 +42,20 @@ describe('CategorySelectComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it('selectCategory', () =>
     fixture.whenStable().then(async () => {
       component.selectCategory({ label: 'Insurection', help: '' });
-      expect(component.selectedCategory.label).toBe('Insurection');
+      void expect(component.selectedCategory.label).toBe('Insurection');
       await loader.getHarness(MatMenuHarness);
       component.selectCategory({ name: 'foo', label: 'foobar', help: '' });
-      expect(component.selectedCategory.label).toBe('foobar');
+      void expect(component.selectedCategory.label).toBe('foobar');
     }));
   it('selectCluster', () =>
     fixture.whenStable().then(() => {
       component.selectCluster({ name: 'foo', label: 'foobar', help: '' });
-      expect(component.selectedCategory.label).toBe('foobar');
+      void expect(component.selectedCategory.label).toBe('foobar');
     }));
 });

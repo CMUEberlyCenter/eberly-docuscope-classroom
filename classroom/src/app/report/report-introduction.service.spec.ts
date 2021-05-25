@@ -24,24 +24,24 @@ describe('ReportIntroductionService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getIntroductionText', () => {
     const data = { introduction: 'intro', stv_introduction: 'stv' };
     service
       .getIntroductionText()
-      .subscribe((intro) => expect(intro).toEqual(data));
+      .subscribe((intro) => void expect(intro).toEqual(data));
     const req = httpMock.expectOne('assets/report_introduction_default.json');
-    expect(req.request.method).toBe('GET');
+    void expect(req.request.method).toBe('GET');
     req.flush(data);
   });
   it('getIntroductionText error', () => {
     service
       .getIntroductionText()
-      .subscribe((intro) => expect(intro).toBeTruthy());
+      .subscribe((intro) => void expect(intro).toBeTruthy());
     const req = httpMock.expectOne('assets/report_introduction_default.json');
-    expect(req.request.method).toBe('GET');
+    void expect(req.request.method).toBe('GET');
     req.flush('File Not Found', { status: 404, statusText: 'File not found' });
   });
 });

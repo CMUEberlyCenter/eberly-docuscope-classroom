@@ -40,24 +40,24 @@ describe('CorpusService', () => {
   });
 
   it('should be created', () => {
-    expect(service).toBeDefined();
+    void expect(service).toBeDefined();
   });
 
   it('getDocumentIds', () => {
-    expect(service.getDocumentIds()).toEqual(['1', '2', '3']);
+    void expect(service.getDocumentIds()).toEqual(['1', '2', '3']);
     console.error = jasmine.createSpy('error');
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('');
-    expect(service.getDocumentIds()).toEqual([]);
-    expect(console.error).toHaveBeenCalled();
+    void expect(service.getDocumentIds()).toEqual([]);
+    void expect(console.error).toHaveBeenCalled();
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('1,2,3');
   });
 
   it('getCorpus', () =>
     service.getCorpus().subscribe((corpus) => {
-      expect(corpus).toEqual(['1', '2', '3']);
+      void expect(corpus).toEqual(['1', '2', '3']);
       // check cache
       service.getCorpus().subscribe((corp) => {
-        expect(corp).toEqual(['1', '2', '3']);
+        void expect(corp).toEqual(['1', '2', '3']);
       });
     }));
 });
