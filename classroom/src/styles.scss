@@ -2,11 +2,12 @@
 @use '~@angular/material' as mat;
 
 /* fonts */
+// Currently, it is better to use link in index.html to load foreign resoruces.
 //@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;1:400&display=swap");
 //@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
 //@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&family=Roboto:wght@300;400;500&display=swap');
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+//@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&family=Roboto:wght@300;400;500&display=swap');
+//@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 @include mat.core();
 
