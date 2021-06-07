@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { MessageService } from '../message.service';
 import {
   HttpErrorHandlerService,
   HandleError,
@@ -25,8 +24,7 @@ export class ReportService {
 
   constructor(
     private http: HttpClient,
-    httpErrorHandler: HttpErrorHandlerService,
-    private messageService: MessageService
+    httpErrorHandler: HttpErrorHandlerService
   ) {
     this.handleError = httpErrorHandler.createHandleError('ReportService');
   }
@@ -36,7 +34,7 @@ export class ReportService {
     intro: string,
     stv_intro: string
   ): Observable<Blob> {
-    this.messageService.add('Generating Reports...');
+    this.log('Generating Reports...');
     const query: ReportsSchema = {
       corpus,
       intro,
@@ -45,8 +43,11 @@ export class ReportService {
     return this.http
       .post<Blob>(this._server, query, { responseType: 'blob' as 'json' })
       .pipe(
-        tap(() => this.messageService.add('Report Generation Successful!')),
+        tap(() => this.log('Report Generation Successful!')),
         catchError(this.handleError('getReports', {} as Blob))
       );
+  }
+  log(message: string): void {
+    console.log(message);
   }
 }

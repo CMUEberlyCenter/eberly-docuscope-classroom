@@ -33,7 +33,6 @@ import { ComparePatternsTableComponent } from './compare-patterns-table/compare-
 import { ComparisonComponent } from './comparison/comparison.component';
 import { GroupingComponent } from './grouping/grouping.component';
 import { HeaderComponent } from './header/header.component';
-import { MessagesComponent } from './messages/messages.component';
 import { NavComponent } from './nav/nav.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PatternsTableComponent } from './patterns-table/patterns-table.component';
@@ -55,7 +54,6 @@ import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.componen
     ComparisonComponent,
     GroupingComponent,
     HeaderComponent,
-    MessagesComponent,
     NavComponent,
     PageNotFoundComponent,
     PatternsComponent,

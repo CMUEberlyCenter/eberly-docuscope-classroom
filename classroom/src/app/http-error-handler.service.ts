@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, of } from 'rxjs';
-import { MessageService } from './message.service';
 
 export type HandleError = <T>(
   operation?: string,
@@ -15,10 +13,7 @@ export type HandleError = <T>(
   providedIn: 'root',
 })
 export class HttpErrorHandlerService {
-  constructor(
-    private messageService: MessageService,
-    private _snackBar: MatSnackBar
-  ) {}
+  constructor(private _snackBar: MatSnackBar) {}
 
   createHandleError =
     (serviceName = '') =>
@@ -48,9 +43,7 @@ export class HttpErrorHandlerService {
       } else {
         message = error.message;
       }
-      this.messageService.add(
-        `${serviceName}: ${operation} failed: ${message}`
-      );
+      console.log(`${serviceName}: ${operation} failed: ${message}`);
       this._snackBar.open(message, '\u2612');
       return of(result);
     };

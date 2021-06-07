@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-
 import { CorpusService } from '../corpus.service';
 import { ReportIntroductionService } from './report-introduction.service';
 import { ReportService } from './report.service';
@@ -49,18 +48,22 @@ export class ReportComponent implements OnInit {
     this._spinner.start();
     this.reportService
       .getReports(this.corpus, this.intro, this.stv_intro)
-      .subscribe((data) => {
-        if (data) {
-          const url = window.URL.createObjectURL(data);
-          const link = this.download_link.nativeElement as HTMLAnchorElement;
-          link.href = url;
-          link.download = 'reports.zip';
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            const url = window.URL.createObjectURL(data);
+            const link = this.download_link.nativeElement as HTMLAnchorElement;
+            link.href = url;
+            link.download = 'reports.zip';
+            link.click();
+            window.URL.revokeObjectURL(url);
+          }
+        },
+        error: (err) => {
           this._spinner.stop();
-          link.click();
-          window.URL.revokeObjectURL(url);
-        } else {
-          this._spinner.stop();
-        }
+          if (err) throw err;
+        },
+        complete: () => this._spinner.stop(),
       });
   }
 }
