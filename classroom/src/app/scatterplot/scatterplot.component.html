@@ -10,17 +10,19 @@
       >Units are average number of incidences per
       {{ unit }} words.</mat-card-subtitle
     >
-    <mat-card-content *ngIf="data" class="scatter_container">
+    <mat-card-content *ngIf="data && dictionary" class="scatter_container">
       <div class="axis_selection">
         <mat-label class="grid-item">X Axis: </mat-label>
         <mat-label class="grid-item">Y Axis: </mat-label>
         <app-category-select
           class="grid-item"
+          [dictionary]="dictionary"
           [selectedCategory]="x_axis"
           (selectedCategoryChange)="on_select_x($event)"
         ></app-category-select>
         <app-category-select
           class="grid-item"
+          [dictionary]="dictionary"
           [selectedCategory]="y_axis"
           (selectedCategoryChange)="on_select_y($event)"
         ></app-category-select>

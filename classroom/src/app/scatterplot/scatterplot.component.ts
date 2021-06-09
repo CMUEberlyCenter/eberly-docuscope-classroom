@@ -6,7 +6,8 @@ import {
 } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AssignmentService } from '../assignment.service';
-import { Entry } from '../common-dictionary';
+import { CommonDictionary, Entry } from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
@@ -25,6 +26,7 @@ import { SettingsService } from '../settings.service';
 export class ScatterplotComponent implements OnInit {
   corpus: string[] = [];
   data: DocuScopeData | undefined;
+  dictionary: CommonDictionary | undefined;
   scatter_data: [number, number, string, string, string][] = [];
   get categories(): CategoryData[] {
     return this.data?.categories ?? [];
@@ -66,6 +68,7 @@ export class ScatterplotComponent implements OnInit {
 
   constructor(
     private corpusService: CorpusService,
+    private dictionaryService: CommonDictionaryService,
     private _assignment_service: AssignmentService,
     private _spinner: NgxUiLoaderService,
     private dataService: DsDataService,
@@ -73,7 +76,7 @@ export class ScatterplotComponent implements OnInit {
   ) {}
 
   getCorpus(): void {
-    this._spinner.start();
+    //this._spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       // this._spinner.stop();
@@ -94,6 +97,11 @@ export class ScatterplotComponent implements OnInit {
     });
   }
 
+  getDictionary(): void {
+    this.dictionaryService.getJSON().subscribe((data) => {
+      this.dictionary = data;
+    });
+  }
   getSettings(): void {
     this.settingsService.getSettings().subscribe((settings) => {
       this.unit = settings.unit;
@@ -119,26 +127,23 @@ export class ScatterplotComponent implements OnInit {
       this.options.vAxis.title = yLabel;
       this.options.vAxis.maxValue = max_val;
       this.scatter_data =
-        this.data?.data.map((datum: DocumentData): [
-          number,
-          number,
-          string,
-          string,
-          string
-        ] => [
-          xVal(datum),
-          yVal(datum),
-          datum.id,
-          datum.ownedby === 'instructor' ? model : '',
-          `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
-            2
-          )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
-        ]) ?? [];
+        this.data?.data.map(
+          (datum: DocumentData): [number, number, string, string, string] => [
+            xVal(datum),
+            yVal(datum),
+            datum.id,
+            datum.ownedby === 'instructor' ? model : '',
+            `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
+              2
+            )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
+          ]
+        ) ?? [];
     }
   }
 
   ngOnInit(): void {
     this.getSettings();
+    this.getDictionary();
     this.getCorpus();
   }
   on_select_x(clust: Entry): void {

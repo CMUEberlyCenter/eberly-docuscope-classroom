@@ -11,36 +11,22 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
-import { CommonDictionaryService } from '../common-dictionary.service';
 
 @Component({
   selector: 'app-category-select',
   templateUrl: './category-select.component.html',
   styleUrls: ['./category-select.component.scss'],
 })
-export class CategorySelectComponent implements OnInit {
+export class CategorySelectComponent {
+  @Input() dictionary: CommonDictionary | undefined;
   @Input() selectedCategory: Entry | undefined;
   @Output() selectedCategoryChange = new EventEmitter<Entry>();
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
-  data: CommonDictionary | undefined;
-  constructor(private _dictionary: CommonDictionaryService) {}
-
-  ngOnInit(): void {
-    this.getData();
-  }
-
-  /** Retrieves common dictionary information. */
-  getData(): void {
-    this._dictionary.getJSON().subscribe((data) => {
-      this.data = data;
-    });
-  }
 
   /**
    * Event handler for selecting a category.
