@@ -10,7 +10,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 
 import { AssignmentService } from '../assignment.service';
-import { Entry } from '../common-dictionary';
+import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import {
@@ -30,6 +30,7 @@ import { SettingsService } from '../settings.service';
 export class RankComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's
   data: DocuScopeData | undefined; // data from /ds_data
+  dictionary: CommonDictionary | undefined;
   dsmap: CategoryInfoMap | undefined;
   category: CategoryData | undefined;
   selected_category: Entry | undefined;
@@ -63,6 +64,7 @@ export class RankComponent implements OnInit {
         this.unit = settings.unit;
         // DocuScope data
         this.data = data;
+        this.dictionary = common;
         this._assignment_service.setAssignmentData(data);
         this.dsmap = genCategoryDataMap(data);
         this.onSelectCategory(common.categories[0]);

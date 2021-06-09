@@ -12,6 +12,7 @@
     <mat-card-content *ngIf="data">
       <aside class="select_category_box">
         <app-category-select
+          [dictionary]="dictionary"
           [selectedCategory]="selected_category"
           (selectedCategoryChange)="onSelectCategory($event)"
         ></app-category-select>
