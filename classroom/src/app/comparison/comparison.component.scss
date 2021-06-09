@@ -58,12 +58,18 @@ tr.cluster-detail-row {
   text-align: right;
 }
 
+.tab_area {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
 .document_area {
   align-items: stretch;
   display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
+  //flex: 1 1 auto;
+  //flex-direction: column;
   overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 .layout {
   align-items: center;
@@ -133,4 +139,49 @@ tr.cluster-detail-row {
   margin-right: 1.5em;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.elipse {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.document_card {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  margin: 3px;
+  padding: 0;
+  mat-card-title-group {
+    border: 0;
+    border-radius: 3px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+    display: flow-root;
+  mat-card-title {
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  mat-card-subtitle {
+    color: #EEE;
+  }
+}
+}
+
+.document_title {
+  padding: 16px;
+  border: 0;
+  border-radius: 3px;
+  color: white;
+}
+.h100 {
+  height: 100%;
+  flex: 1 1 auto;
+  overflow:auto;
+}
+.scard {
+  height: 100%;
+  width: 50%;
 }
