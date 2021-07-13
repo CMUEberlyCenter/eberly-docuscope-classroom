@@ -2,13 +2,12 @@
   <app-nav></app-nav>
   <mat-card *ngIf="corpus" class="container">
     <mat-card-title>Box Plot</mat-card-title>
-    <mat-card-subtitle
-      >Shows the distribution of various pattern types.</mat-card-subtitle
-    >
-    <mat-card-subtitle
-      >Units are average number of instances per
-      {{ unit }} words.</mat-card-subtitle
-    >
+    <mat-card-subtitle>
+      Shows the distribution of various pattern types.
+    </mat-card-subtitle>
+    <mat-card-subtitle>
+      Units are average number of instances per {{ unit }} words.
+    </mat-card-subtitle>
     <mat-card-content class="graph_container">
       <div>
         <div *ngIf="data" class="tree-node">

@@ -2,13 +2,36 @@
   <app-nav></app-nav>
   <mat-card *ngIf="corpus" class="container">
     <mat-card-title>Bubble Chart</mat-card-title>
+    <mat-card-subtitle>
+      Units are average number of instances per {{ unit }} words.
+    </mat-card-subtitle>
+    <mat-card-subtitle>
+      Scale:
+      <svg
+          [attr.width]="(maxRadius * 7) + 'px'"
+          [attr.height]="(maxRadius * 2) + 'px'">
+        <g *ngFor="let tick of scale.ticks(4).slice(1); index as i">
+          <circle
+            class="tick"
+            [attr.data-value]="tick"
+            [attr.cy]="maxRadius"
+            [attr.cx]="scale(tick) + lscale(i)"
+            [attr.r]="scale(tick)"/>
+          <text
+            class="tick"
+            [attr.y]="maxRadius"
+            [attr.x]="scale(tick) + lscale(i)"
+          >{{tick * unit}}</text>
+        </g>
+      </svg>
+    </mat-card-subtitle>
     <mat-card-content>
       <mat-table *ngIf="data && dictionary" matSort #documentSort="matSort" [dataSource]="data">
         <ng-container matColumnDef="name">
           <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
           <mat-cell *matCellDef="let doc">
-            <a [ngClass]="{name_entry: true, model_entry: doc.ownedby === 'instructor'}" (click)="open(doc.id)">{{
-              doc.title }}</a>
+            <a [ngClass]="{name_entry: true, model_entry: doc.ownedby === 'instructor'}" (click)="open(doc.id)">
+              {{ doc.title }}</a>
           </mat-cell>
         </ng-container>
 
@@ -27,7 +50,12 @@
   </mat-card>
 </div>
 <ng-template #bubble let-cell="cell">
-  <svg [attr.width]="(maxRadius * 2) + 'px'" [attr.height]="(maxRadius * 2) + 'px'" [attr.data-value]="cell">
-    <circle [attr.cx]="maxRadius" [attr.cy]="maxRadius" [attr.r]="cell.value * maxRadius" />
+  <svg
+      [attr.width]="(maxRadius * 2) + 'px'"
+      [attr.height]="(maxRadius * 2) + 'px'"
+      [attr.data-value]="cell"
+      matTooltip="{{cell.title}} - {{cell.category}}: {{cell.value.toFixed(2)}}"
+  >
+    <circle [attr.cx]="maxRadius" [attr.cy]="maxRadius" [attr.r]="cell.proportion" />
   </svg>
 </ng-template>
