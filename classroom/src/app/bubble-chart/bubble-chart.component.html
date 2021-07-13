@@ -1,0 +1,33 @@
+<div class="tool">
+  <app-nav></app-nav>
+  <mat-card *ngIf="corpus" class="container">
+    <mat-card-title>Bubble Chart</mat-card-title>
+    <mat-card-content>
+      <mat-table *ngIf="data && dictionary" matSort #documentSort="matSort" [dataSource]="data">
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+          <mat-cell *matCellDef="let doc">
+            <a [ngClass]="{name_entry: true, model_entry: doc.ownedby === 'instructor'}" (click)="open(doc.id)">{{
+              doc.title }}</a>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container *ngFor="let category of dictionary.categories" matColumnDef="{{category.name ?? category.label}}">
+          <mat-header-cell *matHeaderCellDef>{{ category.label }}</mat-header-cell>
+          <mat-cell *matCellDef="let doc">
+            <ng-container [ngTemplateOutlet]="bubble" [ngTemplateOutletContext]="{ cell: getCell(doc, category) }">
+            </ng-container>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columns"></mat-row>
+      </mat-table>
+    </mat-card-content>
+  </mat-card>
+</div>
+<ng-template #bubble let-cell="cell">
+  <svg [attr.width]="(maxRadius * 2) + 'px'" [attr.height]="(maxRadius * 2) + 'px'" [attr.data-value]="cell">
+    <circle [attr.cx]="maxRadius" [attr.cy]="maxRadius" [attr.r]="cell.value * maxRadius" />
+  </svg>
+</ng-template>

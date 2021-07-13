@@ -31,6 +31,14 @@
   >
   <a
     mat-tab-link
+    routerLink="/bubble"
+    queryParamsHandling="preserve"
+    routerLinkActive
+    #brla="routerLinkActive"
+    [active]="brla.isActive"
+    matTooltip="Bubble Chart Visualization">Bubble Chart</a>
+  <a
+    mat-tab-link
     routerLink="/patterns"
     queryParamsHandling="preserve"
     routerLinkActive

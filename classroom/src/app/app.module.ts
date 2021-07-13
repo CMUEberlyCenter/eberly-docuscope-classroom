@@ -28,6 +28,7 @@ import { AboutComponent } from './about/about.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BoxplotComponent } from './boxplot/boxplot.component';
+import { BubbleChartComponent } from './bubble-chart/bubble-chart.component';
 import { CategorySelectComponent } from './category-select/category-select.component';
 import { ComparePatternsTableComponent } from './compare-patterns-table/compare-patterns-table.component';
 import { ComparisonComponent } from './comparison/comparison.component';
@@ -41,14 +42,15 @@ import { RankGraphComponent } from './rank-graph/rank-graph.component';
 import { RankComponent } from './rank/rank.component';
 import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
-import { TextViewComponent } from './text-view/text-view.component';
 import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
+import { TextViewComponent } from './text-view/text-view.component';
 
 @NgModule({
   declarations: [
     AboutComponent,
     AppComponent,
     BoxplotComponent,
+    BubbleChartComponent,
     CategorySelectComponent,
     ComparePatternsTableComponent,
     ComparisonComponent,
