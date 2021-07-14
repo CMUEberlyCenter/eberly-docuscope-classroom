@@ -91,19 +91,16 @@ export class BubbleChartComponent implements OnInit {
       ...this.dictionary.categories.map((c) => c.name ?? c.label),
     ];
   }
-  getValue(doc: DocumentData, category: Entry): number {
-    return category_value(category.name ?? category.label, doc) / this.maxValue;
-  }
   getCell(doc: DocumentData, category: Entry): ICell {
     const value = category_value(category.name ?? category.label, doc);
     return {
       title: doc.title,
       value: value * this.unit,
       proportion: this.scale(value),
-      category: category.name ?? category.label,
+      category: category.label,
     };
   }
-  lscale(i: number): number {
+  legend_offset(i: number): number {
     return (
       this.scale
         .ticks(4)

@@ -5,45 +5,73 @@
     <mat-card-subtitle>
       Units are average number of instances per {{ unit }} words.
     </mat-card-subtitle>
-    <mat-card-subtitle>
+    <mat-card-subtitle *ngIf="scale">
       Scale:
       <svg
-          [attr.width]="(maxRadius * 7) + 'px'"
-          [attr.height]="(maxRadius * 2) + 'px'">
+        [attr.width]="maxRadius * 7 + 'px'"
+        [attr.height]="maxRadius * 2 + 'px'"
+      >
         <g *ngFor="let tick of scale.ticks(4).slice(1); index as i">
           <circle
             class="tick"
             [attr.data-value]="tick"
             [attr.cy]="maxRadius"
-            [attr.cx]="scale(tick) + lscale(i)"
-            [attr.r]="scale(tick)"/>
+            [attr.cx]="scale(tick) + legend_offset(i)"
+            [attr.r]="scale(tick)"
+          />
           <text
             class="tick"
             [attr.y]="maxRadius"
-            [attr.x]="scale(tick) + lscale(i)"
-          >{{tick * unit}}</text>
+            [attr.x]="scale(tick) + legend_offset(i)"
+          >
+            {{ tick * unit }}
+          </text>
         </g>
       </svg>
     </mat-card-subtitle>
     <mat-card-content>
-      <mat-table *ngIf="data && dictionary" matSort #documentSort="matSort" [dataSource]="data">
+      <mat-table
+        *ngIf="data && dictionary"
+        matSort
+        #documentSort="matSort"
+        [dataSource]="data"
+      >
         <ng-container matColumnDef="name" sticky>
-          <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header>
+            Name
+          </mat-header-cell>
           <mat-cell *matCellDef="let doc">
-            <a [ngClass]="{name_entry: true, model_entry: doc.ownedby === 'instructor'}" (click)="open(doc.id)">
-              {{ doc.title }}</a>
+            <a
+              [ngClass]="{
+                name_entry: true,
+                model_entry: doc.ownedby === 'instructor'
+              }"
+              (click)="open(doc.id)"
+            >
+              {{ doc.title }}
+            </a>
           </mat-cell>
         </ng-container>
 
-        <ng-container *ngFor="let category of dictionary.categories" matColumnDef="{{category.name ?? category.label}}">
-          <mat-header-cell *matHeaderCellDef>{{ category.label }}</mat-header-cell>
+        <ng-container
+          *ngFor="let category of dictionary.categories"
+          matColumnDef="{{ category.name ?? category.label }}"
+        >
+          <mat-header-cell *matHeaderCellDef>{{
+            category.label
+          }}</mat-header-cell>
           <mat-cell *matCellDef="let doc">
-            <ng-container [ngTemplateOutlet]="bubble" [ngTemplateOutletContext]="{ cell: getCell(doc, category) }">
+            <ng-container
+              [ngTemplateOutlet]="bubble"
+              [ngTemplateOutletContext]="{ cell: getCell(doc, category) }"
+            >
             </ng-container>
           </mat-cell>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="columns; sticky: stickyHeader"></mat-header-row>
+        <mat-header-row
+          *matHeaderRowDef="columns; sticky: stickyHeader"
+        ></mat-header-row>
         <mat-row *matRowDef="let row; columns: columns"></mat-row>
       </mat-table>
     </mat-card-content>
@@ -51,11 +79,17 @@
 </div>
 <ng-template #bubble let-cell="cell">
   <svg
-      [attr.width]="(maxRadius * 2) + 'px'"
-      [attr.height]="(maxRadius * 2) + 'px'"
-      [attr.data-value]="cell"
-      matTooltip="{{cell.title}} - {{cell.category}}: {{cell.value.toFixed(2)}}"
+    [attr.width]="maxRadius * 2 + 'px'"
+    [attr.height]="maxRadius * 2 + 'px'"
+    [attr.data-value]="cell"
+    matTooltip="{{ cell.title }} - {{ cell.category }}: {{
+      cell.value.toFixed(2)
+    }}"
   >
-    <circle [attr.cx]="maxRadius" [attr.cy]="maxRadius" [attr.r]="cell.proportion" />
+    <circle
+      [attr.cx]="maxRadius"
+      [attr.cy]="maxRadius"
+      [attr.r]="cell.proportion"
+    />
   </svg>
 </ng-template>
