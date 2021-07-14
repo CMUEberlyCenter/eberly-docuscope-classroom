@@ -35,7 +35,7 @@ export class CategorySelectComponent {
   selectCategory(cat: Entry): void {
     this.selectedCategory = cat;
     this.selectedCategoryChange.emit(this.selectedCategory);
-    this.menuTrigger?.closeMenu(); // Needs to force close menu on non-leaf nodes.
+    this.menuTrigger.closeMenu(); // Needs to force close menu on non-leaf nodes.
   }
   /**
    * Event handler for selecting a cluster.
