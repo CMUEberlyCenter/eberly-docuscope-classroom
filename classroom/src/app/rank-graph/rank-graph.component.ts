@@ -48,6 +48,7 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
   }
   @Input() category!: CategoryData;
   @Input() unit!: number;
+  @Input() sticky = true;
   @ViewChild('rankSort') sort!: MatSort;
   ranking: MatTableDataSource<DocumentData> | undefined;
 
@@ -63,11 +64,11 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
 
   ngOnChanges(): void {
     if (this.data) {
-      if (this.category) {
+      /*if (this.category) {
         for (const datum of this.data.data) {
           datum.value = this.unit * category_value(this.category, datum);
         }
-      }
+      }*/
       this.ranking = new MatTableDataSource(this.data.data);
       this._max_cache = this.unit * max_boxplot_value(this.data);
     }
@@ -89,6 +90,9 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
       this._max_cache = this.unit * max_boxplot_value(this.data);
     }
     return this._max_cache;
+  }
+  getValue(datum: DocumentData): number {
+    return this.unit * category_value(this.category, datum);
   }
   /**
    * Get the min of the given value and the median.

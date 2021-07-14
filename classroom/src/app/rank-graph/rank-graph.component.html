@@ -12,30 +12,28 @@
       [style.width]="'500px'"
     >
       <ng-container matColumnDef="position">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="rank"
-          >Rank</mat-header-cell
-        >
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="rank">
+          Rank
+        </mat-header-cell>
         <mat-cell
           *matCellDef="let element; let rowIndex = index"
-          class="rank"
-          >{{ rowIndex + 1 }}</mat-cell
-        >
+          class="rank">{{ rowIndex + 1 }}</mat-cell>
       </ng-container>
       <ng-container matColumnDef="title">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class="name"
-          >Name</mat-header-cell
-        >
-        <mat-cell *matCellDef="let element" class="name"
-          ><a
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="name">
+          Name
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element" class="name">
+          <a
             [ngClass]="{
               student_col: true,
               model_entry: element.ownedby === 'instructor'
             }"
             (click)="open(element.id)"
           >
-            {{ element.title }}</a
-          ></mat-cell
-        >
+            {{ element.title }}
+          </a>
+        </mat-cell>
       </ng-container>
       <ng-container matColumnDef="value">
         <mat-header-cell
@@ -43,17 +41,16 @@
           mat-sort-header
           start="desc"
           class="value"
-          >Value</mat-header-cell
-        >
+          >Value</mat-header-cell>
         <mat-cell *matCellDef="let element" class="value">{{
-          element.value.toFixed(2)
+          getValue(element).toFixed(2)
         }}</mat-cell>
       </ng-container>
       <ng-container matColumnDef="meter">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let element">
-          <meter [max]="max_value" [value]="element.value">
-            {{ element.value }}
+          <meter [max]="max_value" [value]="getValue(element)">
+            {{ getValue(element) }}
           </meter>
         </mat-cell>
       </ng-container>
@@ -101,16 +98,16 @@
           <svg
             [attr.width]="options.width + 'px'"
             [attr.height]="options.height + 'px'"
-            [attr.data-value]="element.value"
+            [attr.data-value]="getValue(element)"
           >
-            <desc>A bar representing a value of {{ element.value }}</desc>
+            <desc>A bar representing a value of {{ getValue(element) }}</desc>
             <rect
               [attr.x]="left"
               [attr.y]="options.margins.top"
               [attr.height]="
                 options.height - (options.margins.top + options.margins.bottom)
               "
-              [attr.width]="x(element.value) - left"
+              [attr.width]="x(getValue(element)) - left"
               [attr.fill]="
                 element.ownedby === 'instructor'
                   ? 'rgba(0,0,255,.4)'
@@ -163,15 +160,14 @@
           </svg>
         </mat-header-cell>
         <mat-cell *matCellDef="let element" class="bar">
-          <div [matTooltip]="bar_tip(element.value)">
+          <div [matTooltip]="bar_tip(getValue(element))">
             <svg
               [attr.width]="options.width + 'px'"
               [attr.height]="options.height + 'px'"
-              [attr.data-value]="element.value"
+              [attr.data-value]="getValue(element)"
             >
               <desc>
-                A bar that shows the difference of {{ element.value }} from the
-                median of {{ median }}
+                A bar that shows {{ bar_tip(getValue(element)) }}
               </desc>
               <line
                 [attr.x1]="x(median)"
@@ -182,13 +178,13 @@
                 [style.stroke-width]="'1px'"
               />
               <rect
-                [attr.x]="x(mean_start(element.value))"
+                [attr.x]="x(mean_start(getValue(element)))"
                 [attr.y]="options.margins.top"
                 [attr.height]="
                   options.height -
                   (options.margins.top + options.margins.bottom)
                 "
-                [attr.width]="x(mean_width(element.value)) - x(0)"
+                [attr.width]="x(mean_width(getValue(element))) - x(0)"
                 [attr.fill]="
                   element.ownedby === 'instructor'
                     ? 'rgba(0,0,255,.4)'
@@ -201,7 +197,7 @@
           </div>
         </mat-cell>
       </ng-container>
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-header-row *matHeaderRowDef="displayedColumns; sticky: sticky"></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
     </mat-table>
   </mat-card-content>

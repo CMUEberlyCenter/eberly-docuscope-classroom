@@ -33,6 +33,7 @@ export class RankComponent implements OnInit {
   dsmap: CategoryInfoMap | undefined;
   category: CategoryData | undefined;
   selected_category: Entry | undefined;
+  sticky = true;
   unit = 100; // multiplier for instance frequency
 
   /** Per category data. */
