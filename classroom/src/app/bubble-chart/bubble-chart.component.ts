@@ -33,6 +33,7 @@ export class BubbleChartComponent implements OnInit {
   maxRadius = 20;
   maxValue = 0;
   scale!: d3.ScaleLinear<number, number, never>;
+  stickyHeader = true;
   unit = 100;
 
   constructor(
@@ -50,7 +51,7 @@ export class BubbleChartComponent implements OnInit {
         Math.max(
           ...Object.values(doc)
             .map((p) => Number(p))
-            .filter((n) => n <= 1) // Remove NaN and total count
+            .filter((n) => !isNaN(n) && n <= 1) // Remove NaN and total count
         )
       )
     );
@@ -68,6 +69,7 @@ export class BubbleChartComponent implements OnInit {
         this.dataService.getData(corpus),
       ]).subscribe(([settings, common, data]) => {
         this.unit = settings.unit;
+        this.stickyHeader = settings.sticky_headers;
         this.dictionary = common;
         this.data = data.data;
         this.maxValue = this.calcMaxValue();

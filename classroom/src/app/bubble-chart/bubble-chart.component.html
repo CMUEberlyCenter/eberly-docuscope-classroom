@@ -27,7 +27,7 @@
     </mat-card-subtitle>
     <mat-card-content>
       <mat-table *ngIf="data && dictionary" matSort #documentSort="matSort" [dataSource]="data">
-        <ng-container matColumnDef="name">
+        <ng-container matColumnDef="name" sticky>
           <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
           <mat-cell *matCellDef="let doc">
             <a [ngClass]="{name_entry: true, model_entry: doc.ownedby === 'instructor'}" (click)="open(doc.id)">
@@ -43,7 +43,7 @@
           </mat-cell>
         </ng-container>
 
-        <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+        <mat-header-row *matHeaderRowDef="columns; sticky: stickyHeader"></mat-header-row>
         <mat-row *matRowDef="let row; columns: columns"></mat-row>
       </mat-table>
     </mat-card-content>
