@@ -91,6 +91,11 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
     }
     return this._max_cache;
   }
+  /**
+   * Gets the value of the currently selected category of the given
+   * DocumentData
+   * @param datum An entry from the document section of the DocuscopeData.
+   */
   getValue(datum: DocumentData): number {
     return this.unit * category_value(this.category, datum);
   }

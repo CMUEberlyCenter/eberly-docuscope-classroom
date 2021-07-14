@@ -33,8 +33,8 @@ class CompareTreeNode {
   id: string; // category id
   label: string; // human readable id
   help: string; // notes about category
-  children?: CompareTreeNode[]; // child tree nodes
-  patterns?: ComparePatternData[]; // patterns for this category
+  children: CompareTreeNode[]; // child tree nodes
+  patterns: ComparePatternData[]; // patterns for this category
 
   constructor(
     node: CommonDictionaryTreeNode,
@@ -55,13 +55,13 @@ class CompareTreeNode {
   /** Total counts of instances in category for each document. */
   get counts(): number[] {
     const zero: number[] = [0, 0];
-    if (this.patterns?.length) {
+    if (this.patterns.length) {
       // if leaf node
       return this.patterns.reduce(
         (totals, current) => totals.map((t, i) => t + current.counts[i]),
         zero
       );
-    } else if (this.children?.length) {
+    } else if (this.children.length) {
       return this.children.reduce(
         (tot, cur) => tot.map((t, i) => t + cur.counts[i]),
         zero
@@ -182,7 +182,7 @@ export class ComparisonComponent implements OnInit {
             if (!cpmap.has(cluster.category)) {
               cpmap.set(cluster.category, new Map<string, number[]>());
             }
-            cluster.patterns?.forEach((pat) => {
+            cluster.patterns.forEach((pat) => {
               const counts =
                 cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
               counts[i] += pat.count; // simple assignment works on unique assumption
@@ -277,14 +277,14 @@ export class ComparisonComponent implements OnInit {
    * @param node a given tree node.
    */
   getParentNode(node: CompareTreeNode): CompareTreeNode | null {
-    if (this.treeControl?.dataNodes && this.treeData) {
+    if (this.treeControl.dataNodes && this.treeData) {
       for (const root of this.treeControl.dataNodes) {
-        if (root.children?.includes(node)) {
+        if (root.children.includes(node)) {
           return root;
         }
         const desc = this.treeControl
           .getDescendants(root)
-          .find((c) => c.children?.includes(node));
+          .find((c) => c.children.includes(node));
         if (desc) {
           return desc;
         }

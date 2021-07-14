@@ -121,6 +121,11 @@ describe('RankGraphComponent', () => {
     void expect(component.rank.max_value).toBe(100);
     void expect(component.rank.max_value).toBe(100);
   });
+  it('getValue', () => {
+    component.rank.category = data.categories[0];
+    fixture.detectChanges();
+    void expect(component.rank.getValue(data.data[0])).toBe(60);
+  });
   it('left', () => expect(component.rank.left).toBe(10));
   it('right', () => expect(component.rank.right).toBe(240));
   it('x', () => expect(component.rank.x(0)).toBe(125));
