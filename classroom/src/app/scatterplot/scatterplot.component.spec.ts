@@ -5,8 +5,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { asyncData, Spied } from '../../testing';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
@@ -21,6 +22,13 @@ describe('ScatterplotComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      ) as Spied<CommonDictionaryService>;
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
       const ngx_spinner_service_spy = jasmine.createSpyObj(
         'NgxUiLoaderService',
         ['start', 'stop']
@@ -116,6 +124,10 @@ describe('ScatterplotComponent', () => {
           MatFormFieldModule,
         ],
         providers: [
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
           { provide: CorpusService, useValue: corpusService_spy },
           { provide: AssignmentService, useValue: assignment_spy },
           { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },

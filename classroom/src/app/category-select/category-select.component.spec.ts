@@ -1,41 +1,39 @@
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Component, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatMenuHarness } from '@angular/material/menu/testing';
-import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
-import { CommonDictionaryService } from '../common-dictionary.service';
+import { FAKE_COMMON_DICTIONARY } from 'src/testing';
 import { CategorySelectComponent } from './category-select.component';
 
+@Component({
+  selector: 'app-fake-category-select-component',
+  template: `<app-category-select [dictionary]="dictionary">
+  </app-category-select>`,
+})
+class TestCategorySelectComponent {
+  @ViewChild(CategorySelectComponent)
+  public select: CategorySelectComponent;
+  dictionary = FAKE_COMMON_DICTIONARY;
+}
+
 describe('CategorySelectComponent', () => {
-  let component: CategorySelectComponent;
-  let fixture: ComponentFixture<CategorySelectComponent>;
+  let component: TestCategorySelectComponent;
+  let fixture: ComponentFixture<TestCategorySelectComponent>;
   let loader: HarnessLoader;
 
   beforeEach(async () => {
-    const commonDictionaryService_spy = jasmine.createSpyObj(
-      'CommonDictionaryService',
-      ['getJSON']
-    ) as Spied<CommonDictionaryService>;
-    commonDictionaryService_spy.getJSON.and.returnValue(
-      asyncData(FAKE_COMMON_DICTIONARY)
-    );
-
     await TestBed.configureTestingModule({
-      declarations: [CategorySelectComponent],
+      declarations: [CategorySelectComponent, TestCategorySelectComponent],
       imports: [HttpClientTestingModule, MatMenuModule],
-      providers: [
-        {
-          provide: CommonDictionaryService,
-          useValue: commonDictionaryService_spy,
-        },
-      ],
+      providers: [],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CategorySelectComponent);
+    fixture = TestBed.createComponent(TestCategorySelectComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
@@ -47,15 +45,23 @@ describe('CategorySelectComponent', () => {
 
   it('selectCategory', () =>
     fixture.whenStable().then(async () => {
-      component.selectCategory({ label: 'Insurection', help: '' });
-      void expect(component.selectedCategory.label).toBe('Insurection');
+      component.select.selectCategory({ label: 'Insurection', help: '' });
+      void expect(component.select.selectedCategory.label).toBe('Insurection');
       await loader.getHarness(MatMenuHarness);
-      component.selectCategory({ name: 'foo', label: 'foobar', help: '' });
-      void expect(component.selectedCategory.label).toBe('foobar');
+      component.select.selectCategory({
+        name: 'foo',
+        label: 'foobar',
+        help: '',
+      });
+      void expect(component.select.selectedCategory.label).toBe('foobar');
     }));
   it('selectCluster', () =>
     fixture.whenStable().then(() => {
-      component.selectCluster({ name: 'foo', label: 'foobar', help: '' });
-      void expect(component.selectedCategory.label).toBe('foobar');
+      component.select.selectCluster({
+        name: 'foo',
+        label: 'foobar',
+        help: '',
+      });
+      void expect(component.select.selectedCategory.label).toBe('foobar');
     }));
 });
