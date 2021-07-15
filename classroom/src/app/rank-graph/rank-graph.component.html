@@ -43,7 +43,7 @@
           class="value"
           >Value</mat-header-cell>
         <mat-cell *matCellDef="let element" class="value">{{
-          getValue(element).toFixed(2)
+          element.value.toFixed(2)
         }}</mat-cell>
       </ng-container>
       <ng-container matColumnDef="meter">

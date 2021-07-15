@@ -33,6 +33,13 @@ interface Options {
   };
 }
 
+interface FrequencyItem {
+  title: string;
+  id: string;
+  ownedby: string;
+  value: number;
+}
+
 @Component({
   selector: 'app-rank-graph',
   templateUrl: './rank-graph.component.html',
@@ -50,7 +57,7 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
   @Input() unit!: number;
   @Input() sticky = true;
   @ViewChild('rankSort') sort!: MatSort;
-  ranking: MatTableDataSource<DocumentData> | undefined;
+  ranking: MatTableDataSource<FrequencyItem> | undefined;
 
   options: Options = {
     width: 250,
@@ -69,7 +76,12 @@ export class RankGraphComponent implements OnChanges, AfterViewChecked {
           datum.value = this.unit * category_value(this.category, datum);
         }
       }*/
-      this.ranking = new MatTableDataSource(this.data.data);
+      this.ranking = new MatTableDataSource(
+        this.data.data.map((datum) => ({
+          ...datum,
+          value: this.getValue(datum),
+        }))
+      );
       this._max_cache = this.unit * max_boxplot_value(this.data);
     }
   }
