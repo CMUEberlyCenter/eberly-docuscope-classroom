@@ -30,11 +30,17 @@
       </svg>
     </mat-card-subtitle>
     <mat-card-content>
+      <mat-label>Level to display:</mat-label>
+      <mat-button-toggle-group [(value)]="depth">
+        <mat-button-toggle value="Category">Category</mat-button-toggle>
+        <mat-button-toggle value="Subcategory">Subcategory</mat-button-toggle>
+        <mat-button-toggle value="Cluster">Cluster</mat-button-toggle>
+      </mat-button-toggle-group>
       <mat-table
         *ngIf="data && dictionary"
         matSort
         #documentSort="matSort"
-        [dataSource]="data"
+        [dataSource]="tableData"
       >
         <ng-container matColumnDef="name" sticky>
           <mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -54,7 +60,7 @@
         </ng-container>
 
         <ng-container
-          *ngFor="let category of dictionary.categories"
+          *ngFor="let category of dictionary.nodes"
           matColumnDef="{{ category.name ?? category.label }}"
         >
           <mat-header-cell *matHeaderCellDef>{{
