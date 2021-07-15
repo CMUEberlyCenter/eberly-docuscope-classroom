@@ -65,4 +65,19 @@ export class CommonDictionary implements ICommonDictionary {
       })),
     }));
   }
+
+  get nodes(): Entry[] {
+    const nodes: Entry[] = this.categories.reduce(
+      (acc, cat) => [
+        ...acc,
+        cat,
+        ...cat.subcategories.reduce(
+          (sa, sub) => [...sa, sub, ...sub.clusters],
+          [] as Entry[]
+        ),
+      ],
+      [] as Entry[]
+    );
+    return nodes;
+  }
 }
