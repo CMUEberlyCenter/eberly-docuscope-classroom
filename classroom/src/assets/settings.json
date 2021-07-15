@@ -4,6 +4,7 @@
   "unit": 100,
   "homepage": "https://www.cmu.edu/dietrich/english/research/docuscope.html",
   "sticky_headers": true,
+  "bubble": { "initial_level": "Category" },
   "scatter": { "width": 400, "height": 400 },
   "mtv": { "horizontal": false, "documentColors": ["#247", "#085"] }
 }

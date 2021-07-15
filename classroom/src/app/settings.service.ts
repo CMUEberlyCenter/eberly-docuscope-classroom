@@ -9,6 +9,7 @@ export interface Settings {
   unit: number;
   homepage: string;
   sticky_headers: boolean;
+  bubble: { initial_level: string };
   scatter: { width: number; height: number };
   mtv: { horizontal: boolean; documentColors: string[] };
 }
@@ -19,6 +20,7 @@ const default_settings: Settings = {
   unit: 100,
   homepage: 'https://www.cmu.edu/dietrich/english/research/docuscope.html',
   sticky_headers: true,
+  bubble: { initial_level: 'Category' },
   scatter: { width: 400, height: 400 },
   mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
 };

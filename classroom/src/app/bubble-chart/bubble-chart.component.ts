@@ -88,6 +88,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         this.dataService.getData(corpus),
       ]).subscribe(([settings, common, data]) => {
         this.unit = settings.unit;
+        this.depth = settings.bubble.initial_level;
         this.stickyHeader = settings.sticky_headers;
         this.dictionary = common;
         this.columns = this.genColumns();
