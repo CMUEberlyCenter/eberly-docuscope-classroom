@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import * as d3 from 'd3';
@@ -27,7 +33,7 @@ interface ICell {
   templateUrl: './bubble-chart.component.html',
   styleUrls: ['./bubble-chart.component.scss'],
 })
-export class BubbleChartComponent implements OnInit {
+export class BubbleChartComponent implements OnInit, AfterViewChecked {
   @ViewChild('bubble') bubble!: ElementRef;
   @ViewChild('documentSort') sort: MatSort;
   columns: string[] = [];
@@ -87,7 +93,7 @@ export class BubbleChartComponent implements OnInit {
         this.columns = this.genColumns();
         this.data = data.data;
         this.tableData = new MatTableDataSource(this.data);
-        this.tableData.sort = this.sort;
+        //this.tableData.sort = this.sort;
         this.maxValue = this.calcMaxValue();
         this.scale = d3
           .scaleSqrt()
@@ -100,11 +106,11 @@ export class BubbleChartComponent implements OnInit {
       });
     });
   }
-  /*ngAfterViewChecked(): void {
+  ngAfterViewChecked(): void {
     if (this.dictionary && this.data) {
-      this.tableSort.sort = this.sort;
+      this.tableData.sort = this.sort;
     }
-  }*/
+  }
 
   genColumns(): string[] {
     let cols: string[] = [];
@@ -133,7 +139,7 @@ export class BubbleChartComponent implements OnInit {
       }
     }
     return [
-      'name',
+      'title',
       ...cols,
       //...this.dictionary.categories.map((c) => c.name ?? c.label),
       //...this.dictionary.nodes.map((c) => c.name ?? c.label),
