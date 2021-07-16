@@ -1,3 +1,11 @@
+/* Component for visualizing proportions of category instance averages
+  for each document and category combination.
+  It shows a table where the rows are:
+  - Document name
+  - One for each category (category level is selectable)
+  And each cell contains a circle whose size is proportional to the
+  frequency of instances of that category in the document.
+*/
 import {
   AfterViewChecked,
   Component,
@@ -36,25 +44,28 @@ interface ICell {
 export class BubbleChartComponent implements OnInit, AfterViewChecked {
   @ViewChild('bubble') bubble!: ElementRef;
   @ViewChild('documentSort') sort: MatSort;
-  columns: string[] = [];
-  corpus: string[] = [];
-  #depth = 'Category';
+  columns: string[] = []; // current set of columns to show.
+  corpus: string[] = []; // list of document ids.
+  #depth = 'Category'; // Currently selected depth to show.
   dictionary: CommonDictionary | undefined;
   data: DocumentData[] = [];
-  maxRadius = 20;
-  maxValue = 0;
+  maxRadius = 20; // max radius of any given circle.
+  maxValue = 0; // maximum value across all categories and documents.
   scale!: d3.ScaleLinear<number, number, never>;
-  stickyHeader = true;
+  stickyHeader = true; // if the column headers should be sticky.
   tableData: MatTableDataSource<DocumentData> | undefined;
-  unit = 100;
+  unit = 100; // multiplier for proportion values.
 
+  /** Currently selected dictionary level to show. */
   get depth(): string {
     return this.#depth;
   }
+  /** Set the currently selected dictionary level and update columns */
   set depth(d: string) {
     this.#depth = d;
     this.columns = this.genColumns();
   }
+
   constructor(
     private assignmentService: AssignmentService,
     private commonDictionaryService: CommonDictionaryService,
@@ -64,6 +75,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
     private spinner: NgxUiLoaderService
   ) {}
 
+  /** Calculate the maximal value over all documents and categories. */
   calcMaxValue(): number {
     const maxValue = Math.max(
       ...this.data.map((doc) =>
@@ -77,7 +89,6 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
     return maxValue > 0 ? maxValue : 1;
   }
 
-  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method
   ngOnInit(): void {
     this.spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
@@ -107,12 +118,18 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
       });
     });
   }
+
   ngAfterViewChecked(): void {
     if (this.dictionary && this.data) {
       this.tableData.sort = this.sort;
     }
   }
 
+  /**
+   * Generate the list of table column ids to show based on the currently
+   * selected dictionary level.
+   * @returns list of current table columns to show.
+   */
   genColumns(): string[] {
     let cols: string[] = [];
     if (this.dictionary) {
@@ -139,13 +156,14 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         );
       }
     }
-    return [
-      'title',
-      ...cols,
-      //...this.dictionary.categories.map((c) => c.name ?? c.label),
-      //...this.dictionary.nodes.map((c) => c.name ?? c.label),
-    ];
+    return ['title', ...cols];
   }
+  /**
+   * Get the data necessary to render the cell as indexed by its document and category.
+   * @param doc The cell's document
+   * @param category The cell's category.
+   * @returns information needed to render the cell.
+   */
   getCell(doc: DocumentData, category: Entry): ICell {
     const value = category_value(category.name ?? category.label, doc);
     //const value = category_value(category.id, doc);
@@ -156,6 +174,11 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
       category: category.label,
     };
   }
+  /**
+   * Calculate where the i'th circle for the size legend should be drawn.
+   * @param i index of legend circle.
+   * @returns the x offset for where to draw the i'th circle
+   */
   legend_offset(i: number): number {
     return (
       this.scale
@@ -164,6 +187,10 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         .reduce((p, t) => p + this.scale(t), 0) * 2
     );
   }
+  /**
+   * Open the given document in a new window/tab.
+   * @param doc_id the database id of the document.
+   */
   open(doc_id: string): void {
     if (doc_id) {
       window.open(`stv/${doc_id}`);
