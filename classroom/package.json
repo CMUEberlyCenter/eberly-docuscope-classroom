@@ -1,6 +1,6 @@
 {
   "name": "docuscope-classroom",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Visualization of DocuScope analytics of a set of documents.",
   "repository": {
     "type": "git",
