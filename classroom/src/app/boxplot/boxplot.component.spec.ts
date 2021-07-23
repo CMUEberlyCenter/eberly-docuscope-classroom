@@ -12,9 +12,6 @@ import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
 
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
-
 @Component({ selector: 'app-rank-graph', template: '' })
 class RankGraphStubComponent {
   @Input() data: DocuScopeData;
@@ -76,11 +73,7 @@ describe('BoxplotComponent', () => {
       ]) as Spied<AssignmentService>;
 
       void TestBed.configureTestingModule({
-        declarations: [
-          BoxplotComponent,
-          NavStubComponent,
-          RankGraphStubComponent,
-        ],
+        declarations: [BoxplotComponent, RankGraphStubComponent],
         imports: [MatCardModule, MatTreeModule],
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },

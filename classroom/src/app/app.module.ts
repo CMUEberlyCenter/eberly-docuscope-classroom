@@ -43,6 +43,7 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
 import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
+import { ToolLayoutComponent } from './layouts/tool-layout/tool-layout.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.componen
     ScatterplotComponent,
     SunburstChartComponent,
     TextViewComponent,
+    ToolLayoutComponent,
   ],
   entryComponents: [AboutComponent],
   imports: [
