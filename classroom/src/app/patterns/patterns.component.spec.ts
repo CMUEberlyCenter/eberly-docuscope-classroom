@@ -12,9 +12,6 @@ import { CorpusService } from '../corpus.service';
 import { PatternData, PatternsService } from '../patterns.service';
 import { PatternsComponent } from './patterns.component';
 
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
-
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
   @Input() patterns: PatternData[];
@@ -83,7 +80,6 @@ describe('PatternsComponent', () => {
           PatternsComponent,
           PatternsTableStubComponent,
           SunburstStubComponent,
-          NavStubComponent,
         ],
         imports: [
           NoopAnimationsModule,

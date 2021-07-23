@@ -21,9 +21,6 @@ class RankGraphStubComponent {
   @Input() unit: number;
 }
 
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
-
 describe('RankComponent', () => {
   let component: RankComponent;
   let fixture: ComponentFixture<RankComponent>;
@@ -105,7 +102,7 @@ describe('RankComponent', () => {
       );
 
       void TestBed.configureTestingModule({
-        declarations: [RankComponent, NavStubComponent, RankGraphStubComponent],
+        declarations: [RankComponent, RankGraphStubComponent],
         imports: [
           FormsModule,
           GoogleChartsModule,

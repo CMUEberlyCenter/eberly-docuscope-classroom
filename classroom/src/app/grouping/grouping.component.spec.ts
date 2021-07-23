@@ -4,7 +4,6 @@ import {
   CdkDropList,
   DragDropModule,
 } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -19,9 +18,6 @@ import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupingComponent } from './grouping.component';
 import { GroupsService } from './groups.service';
-
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
 
 class DragDropEventFactory<T> {
   createInContainerEvent(
@@ -111,7 +107,7 @@ describe('GroupingComponent', () => {
       ]) as Spied<AssignmentService>;
 
       void TestBed.configureTestingModule({
-        declarations: [GroupingComponent, NavStubComponent],
+        declarations: [GroupingComponent],
         imports: [
           DragDropModule,
           FormsModule,

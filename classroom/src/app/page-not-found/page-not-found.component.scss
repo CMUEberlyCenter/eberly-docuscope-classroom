@@ -1,16 +1,5 @@
-.tool {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-}
-app-nav {
-  flex: 0 1 auto;
-}
-.container {
+.alert-color {
   color: #721c24;
-  flex: 1 1 auto;
-  margin: 5px;
-  overflow: auto;
 }
 .alert {
   background-color: #f8d7da;

@@ -378,6 +378,7 @@ export class ComparisonComponent implements OnInit {
   /** Check if user is using Safari */
   get is_safari(): boolean {
     // return true;
+    // FIXME: chrome reports that navigator.userAgent is going to change.
     return (
       navigator.userAgent.indexOf('Safari') !== -1 &&
       navigator.userAgent.indexOf('Chrome') === -1
