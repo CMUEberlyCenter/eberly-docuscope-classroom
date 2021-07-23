@@ -9,6 +9,7 @@ assets/settings.json
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SettingsService } from '../settings.service';
+import { version } from '../../environments/version';
 
 @Component({
   selector: 'app-about',
@@ -19,6 +20,7 @@ export class AboutComponent implements OnInit {
   title = 'DocuScope Classroom'; // For the Title text
   institution = 'CMU'; // the @ {{institution}} text
   homepage = 'https://www.cmu.edu/dietrich/english/research/docuscope.html';
+  version = version;
 
   constructor(
     public dialogRef: MatDialogRef<AboutComponent>,
