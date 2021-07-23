@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
@@ -14,9 +13,6 @@ import { ReportService } from './report.service';
 import { ReportIntroductionService } from './report-introduction.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Spied } from 'src/testing';
-
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
 
 describe('ReportComponent', () => {
   let component: ReportComponent;
@@ -51,7 +47,7 @@ describe('ReportComponent', () => {
       ]) as Spied<NgxUiLoaderService>;
 
       void TestBed.configureTestingModule({
-        declarations: [ReportComponent, NavStubComponent],
+        declarations: [ReportComponent],
         imports: [
           FormsModule,
           MatCardModule,

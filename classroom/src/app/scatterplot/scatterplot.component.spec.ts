@@ -1,4 +1,3 @@
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -12,9 +11,6 @@ import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { ScatterplotComponent } from './scatterplot.component';
-
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -116,7 +112,7 @@ describe('ScatterplotComponent', () => {
       ]) as Spied<AssignmentService>;
 
       void TestBed.configureTestingModule({
-        declarations: [ScatterplotComponent, NavStubComponent],
+        declarations: [ScatterplotComponent],
         imports: [
           FormsModule,
           GoogleChartsModule,

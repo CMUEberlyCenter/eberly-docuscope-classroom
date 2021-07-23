@@ -1,10 +1,6 @@
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { PageNotFoundComponent } from './page-not-found.component';
-
-@Component({ selector: 'app-nav', template: '' })
-class NavStubComponent {}
 
 describe('PageNotFoundComponent', () => {
   let component: PageNotFoundComponent;
@@ -13,7 +9,7 @@ describe('PageNotFoundComponent', () => {
   beforeEach(
     waitForAsync(() => {
       void TestBed.configureTestingModule({
-        declarations: [PageNotFoundComponent, NavStubComponent],
+        declarations: [PageNotFoundComponent],
         imports: [MatCardModule],
       }).compileComponents();
     })
