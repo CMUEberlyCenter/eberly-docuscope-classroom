@@ -13,6 +13,8 @@ import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { TextViewComponent } from './text-view/text-view.component';
 
 export const routes: Routes = [
+  { path: 'stv/:doc', component: TextViewComponent },
+  { path: 'mtv', component: ComparisonComponent },
   {
     path: '',
     component: ToolLayoutComponent,
@@ -27,9 +29,6 @@ export const routes: Routes = [
       { path: '**', component: PageNotFoundComponent },
     ],
   },
-  { path: 'stv/:doc', component: TextViewComponent },
-  { path: 'mtv', component: ComparisonComponent },
-  { path: '**', component: PageNotFoundComponent },
 ];
 
 @NgModule({
