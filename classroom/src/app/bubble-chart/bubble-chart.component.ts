@@ -173,7 +173,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
       value: value * this.unit,
       proportion: this.scale(value),
       category: category.label,
-      path: category.path,
+      path: category.path ?? category.label,
     };
   }
   genTooltip(cell: ICell): string {

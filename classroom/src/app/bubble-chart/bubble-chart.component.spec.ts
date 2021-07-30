@@ -53,6 +53,7 @@ describe('BubbleChartComponent', () => {
           'https://www.cmu.edu/dietrich/english/research/docuscope.html',
         scatter: { width: 400, height: 400 },
         boxplot: { cloud: true },
+        bubble: { initial_level: 'Category' },
         stv: { max_clusters: 4 },
       })
     );
@@ -97,7 +98,7 @@ describe('BubbleChartComponent', () => {
   it('columns', async () => {
     await fixture.whenStable();
     void expect(component.columns).toEqual([
-      'name',
+      'title',
       'Political',
       'Tense',
       'Helpers',
@@ -128,6 +129,7 @@ describe('BubbleChartComponent', () => {
       value: 50,
       proportion: 20,
       category: 'Bogus Data',
+      path: 'Bogus Data',
     });
     void expect(
       component.getCell(
@@ -149,6 +151,7 @@ describe('BubbleChartComponent', () => {
       value: 50,
       proportion: 20,
       category: 'Insurection',
+      path: 'Insurection',
     });
   });
   it('legend_offset', async () => {
