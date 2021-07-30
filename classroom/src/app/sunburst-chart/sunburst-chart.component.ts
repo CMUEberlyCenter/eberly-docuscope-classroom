@@ -117,7 +117,7 @@ export class SunburstChartComponent implements OnChanges {
         .reverse()
         .slice(1)
         .map((d) => d.data.name)
-        .join(' / ');
+        .join(' > ');
       this.root.each(
         (d) =>
           (d.data.target = {
@@ -250,7 +250,7 @@ export class SunburstChartComponent implements OnChanges {
           .map((dn: HierarchyRectangularNode<SunburstNode>) => dn.data.name)
           .reverse()
           .slice(1)
-          .join('/')}\n${this.format(d.value ?? 0)}`
+          .join(' > ')}\n${this.format(d.value ?? 0)}`
     );
   }
 }
