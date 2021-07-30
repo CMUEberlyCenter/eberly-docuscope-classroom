@@ -9,22 +9,30 @@ circle {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .bubble-col {
   //flex: 0 0 44px !important;
   max-width: 46px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+::ng-deep .linebreaking {
+  white-space: pre-line;
+}
+
 .tilt-header {
   text-align:center;
   white-space:nowrap;
   transform-origin:50% 50%;
   transform: rotate(-45deg);
 }
+
 .model_entry {
   color: blue;
   opacity: 0.4;
 }
+
 .name_entry {
   cursor: pointer;
   white-space: nowrap;
@@ -35,6 +43,7 @@ circle.tick {
   fill: none;
   stroke: $cmu-secondary-blue;
 }
+
 text.tick {
   alignment-baseline: middle;
   dominant-baseline: middle;

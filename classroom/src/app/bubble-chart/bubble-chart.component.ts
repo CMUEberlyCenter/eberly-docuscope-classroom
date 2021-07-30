@@ -34,6 +34,7 @@ interface ICell {
   title: string;
   value: number;
   category: string;
+  path?: string;
 }
 
 @Component({
@@ -172,7 +173,13 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
       value: value * this.unit,
       proportion: this.scale(value),
       category: category.label,
+      path: category.path,
     };
+  }
+  genTooltip(cell: ICell): string {
+    return `Name: ${cell.title}
+    Category: ${cell.path}
+    Value: ${cell.value.toFixed(2)}`;
   }
   /**
    * Calculate where the i'th circle for the size legend should be drawn.
