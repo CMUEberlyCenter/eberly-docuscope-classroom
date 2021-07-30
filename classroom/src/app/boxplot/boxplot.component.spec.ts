@@ -12,8 +12,8 @@ import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
 
-@Component({ selector: 'app-rank-graph', template: '' })
-class RankGraphStubComponent {
+@Component({ selector: 'app-frequency-graph', template: '' })
+class FrequencyGraphStubComponent {
   @Input() data: DocuScopeData;
   @Input() category: CategoryData;
   @Input() unit: number;
@@ -73,7 +73,7 @@ describe('BoxplotComponent', () => {
       ]) as Spied<AssignmentService>;
 
       void TestBed.configureTestingModule({
-        declarations: [BoxplotComponent, RankGraphStubComponent],
+        declarations: [BoxplotComponent, FrequencyGraphStubComponent],
         imports: [MatCardModule, MatTreeModule],
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },

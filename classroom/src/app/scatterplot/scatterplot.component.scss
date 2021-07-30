@@ -7,7 +7,7 @@
 .axis_selection {
   align-content: center;
   display: grid;
-  grid-template-columns: 24em 24em;
+  grid-template-columns: auto auto;
   column-gap: 1em;
   /*justify-content: space-around;*/
   margin-left: 0em;

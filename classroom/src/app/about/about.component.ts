@@ -8,8 +8,8 @@ assets/settings.json
 */
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { SettingsService } from '../settings.service';
 import { version } from '../../environments/version';
+import { SettingsService } from '../settings.service';
 
 @Component({
   selector: 'app-about',

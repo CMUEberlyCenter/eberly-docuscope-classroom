@@ -15,7 +15,7 @@ export interface DocumentData {
   title: string;
   ownedby: string;
   total_words: number;
-  value?: number;
+  //value?: number;
 }
 
 export function category_value(

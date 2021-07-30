@@ -13,8 +13,8 @@
         (selectedCategoryChange)="onSelectCategory($event)"></app-category-select>
     </aside>
     <article>
-      <app-rank-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category" [sticky]="sticky">
-      </app-rank-graph>
+      <app-frequency-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category" [sticky]="sticky">
+      </app-frequency-graph>
       <ng-template #noData>
         <mat-error>
           No data for the selected category:

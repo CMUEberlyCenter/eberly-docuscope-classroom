@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ToolLayoutComponent } from './tool-layout.component';
 
 describe('ToolLayoutComponent', () => {
@@ -8,9 +7,8 @@ describe('ToolLayoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ToolLayoutComponent ]
-    })
-    .compileComponents();
+      declarations: [ToolLayoutComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -20,6 +18,6 @@ describe('ToolLayoutComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
   });
 });

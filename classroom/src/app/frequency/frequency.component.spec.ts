@@ -12,18 +12,18 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
-import { RankComponent } from './rank.component';
+import { FrequencyComponent } from './frequency.component';
 
-@Component({ selector: 'app-rank-graph', template: '' })
-class RankGraphStubComponent {
+@Component({ selector: 'app-frequency-graph', template: '' })
+class FrequencyGraphStubComponent {
   @Input() data: DocuScopeData;
   @Input() category: CategoryData;
   @Input() unit: number;
 }
 
 describe('RankComponent', () => {
-  let component: RankComponent;
-  let fixture: ComponentFixture<RankComponent>;
+  let component: FrequencyComponent;
+  let fixture: ComponentFixture<FrequencyComponent>;
   let ds_data_service_spy: Spied<DsDataService>;
   let corpus_service_spy: Spied<CorpusService>;
 
@@ -102,7 +102,7 @@ describe('RankComponent', () => {
       );
 
       void TestBed.configureTestingModule({
-        declarations: [RankComponent, RankGraphStubComponent],
+        declarations: [FrequencyComponent, FrequencyGraphStubComponent],
         imports: [
           FormsModule,
           GoogleChartsModule,
@@ -125,7 +125,7 @@ describe('RankComponent', () => {
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RankComponent);
+    fixture = TestBed.createComponent(FrequencyComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

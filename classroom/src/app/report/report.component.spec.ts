@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { asyncData } from '../../testing/async-observable-helpers';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-
-import { ReportComponent } from './report.component';
-import { CorpusService } from '../corpus.service';
-import { ReportService } from './report.service';
-import { ReportIntroductionService } from './report-introduction.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Spied } from 'src/testing';
+import { asyncData } from '../../testing/async-observable-helpers';
+import { CorpusService } from '../corpus.service';
+import { ReportIntroductionService } from './report-introduction.service';
+import { ReportComponent } from './report.component';
+import { ReportService } from './report.service';
 
 describe('ReportComponent', () => {
   let component: ReportComponent;

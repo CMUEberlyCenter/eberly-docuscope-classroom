@@ -2,11 +2,15 @@ export interface Entry {
   name?: string;
   label: string;
   help: string;
+  path?: string;
+  depth?: number;
 }
 export interface ICluster {
   name: string;
   label: string;
   help: string;
+  path?: string;
+  depth?: number;
 }
 export interface Category extends Entry {
   clusters: ICluster[];
@@ -41,6 +45,18 @@ export class CommonDictionary implements ICommonDictionary {
 
   constructor(data: ICommonDictionary) {
     Object.assign(this, data);
+    for (const category of this.categories) {
+      category.path = category.label;
+      category.depth = 0;
+      for (const subcategory of category.subcategories) {
+        subcategory.depth = 1;
+        subcategory.path = `${category.path} > ${subcategory.label}`;
+        for (const cluster of subcategory.clusters) {
+          cluster.depth = 2;
+          cluster.path = `${subcategory.path} > ${cluster.label}`;
+        }
+      }
+    }
   }
 
   get tree(): CommonDictionaryTreeNode[] {

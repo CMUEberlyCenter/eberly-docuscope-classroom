@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { CorpusService } from '../corpus.service';
 import { ReportIntroductionService } from './report-introduction.service';
