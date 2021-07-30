@@ -132,7 +132,7 @@
       </mat-tree>
     </mat-card-content>
   </mat-card>
-  <!--<div class="document_area" *ngIf="!is_safari && documents">
+  <div class="document_area" *ngIf="!is_safari && documents">
     <nav class="layout mat-accent">
       <mat-button-toggle-group [(value)]="direction">
         <mat-button-toggle value="vertical" aria-label="Top-Bottom View">
@@ -165,60 +165,6 @@
         </as-split-area>
       </as-split>
     </main>
-    </div>-->
-  <div class="tab_area">
-    <mat-tab-group [style.height]="'100%'">
-      <mat-tab label="Sun Charts">
-        <div class="document_area"><!-- sun needs to not be in an ngIf-->
-          <mat-card class="document_card scard">
-            <mat-card-title-group *ngIf="documents" [style.background]="doc_colors(documents.documents[0].text_id)">
-              <mat-card-title>{{ documents.documents[0].text_id }}</mat-card-title>
-              <mat-card-subtitle>{{ documents.documents[0].owner }}</mat-card-subtitle>
-            </mat-card-title-group>
-            <mat-card-content class="h100" [style.minHeight]="'300px'">
-              <app-sunburst-chart [data]="sundata[0]" [width]="sunwidth"></app-sunburst-chart>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="document_card scard">
-            <mat-card-title-group *ngIf="documents" [style.background]="doc_colors(documents.documents[1].text_id)">
-              <mat-card-title>{{ documents.documents[1].text_id }}</mat-card-title>
-              <mat-card-subtitle>{{ documents.documents[1].owner }}</mat-card-subtitle>
-            </mat-card-title-group>
-            <mat-card-content class="h100" [style.minHeight]="'300px'">
-              <app-sunburst-chart [data]="sundata[1]" [width]="sunwidth"></app-sunburst-chart>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-tab>
-      <mat-tab label="Text">
-        <div class="document_area" *ngIf="documents">
-          <mat-card class="document_card" [style.resize]="'horizontal'">
-            <mat-card-title-group [style.background]="doc_colors(documents.documents[0].text_id)">
-              <mat-card-title>{{documents.documents[0].text_id}}</mat-card-title>
-              <mat-card-subtitle>{{documents.documents[0].owner}}</mat-card-subtitle>
-            </mat-card-title-group>
-            <mat-card-content class="h100">
-              <article
-              class="text_content"
-              [innerHTML]="html_content[0]"
-              (click)="click_select($event)"></article>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="document_card">
-            <mat-card-title-group [style.background]="doc_colors(documents.documents[1].text_id)">
-            <mat-card-title>{{documents.documents[1].text_id}}</mat-card-title>
-            <mat-card-subtitle>{{documents.documents[1].owner}}</mat-card-subtitle>
-          </mat-card-title-group>
-            <mat-card-content class="h100">
-              <article
-              class="text_content"
-              [innerHTML]="html_content[1]"
-              (click)="click_select($event)"></article>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
   </div>
   <ng-container *ngIf="is_safari && documents">
     <main

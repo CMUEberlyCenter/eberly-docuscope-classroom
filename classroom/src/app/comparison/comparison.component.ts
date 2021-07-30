@@ -24,7 +24,6 @@ import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
 import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { Settings, SettingsService } from '../settings.service';
-import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 /**
  * Nodes in the dictionary tree.
@@ -105,12 +104,6 @@ export class ComparisonComponent implements OnInit {
   max_clusters = d3.schemeCategory10.length; // max clusters based on number of colors.
   max_count = 1; // maximum instance count over all patterns and documents.
   selection = new SelectionModel<CompareTreeNode>(true, []);
-  sundata: SunburstNode[] = [
-    { name: 'root', children: [] },
-    { name: 'root', children: [] },
-  ];
-
-  sunwidth = 300;
   treeControl = new NestedTreeControl<CompareTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<CompareTreeNode>();
 
@@ -203,29 +196,6 @@ export class ComparisonComponent implements OnInit {
         this.max_count = Math.max(
           ...this.treeData.data.map((root) => root.max_count)
         );
-        const sunmap0 = (node: CommonDictionaryTreeNode): SunburstNode => ({
-          name: node.label,
-          children: cpmap.get(node.id)
-            ? [...cpmap.get(node.id).entries()].map((p) => ({
-                name: p[0],
-                value: p[1][0],
-              }))
-            : node.children?.map(sunmap0),
-        });
-        const sunmap1 = (node: CommonDictionaryTreeNode): SunburstNode => ({
-          name: node.label,
-          children: cpmap.get(node.id)
-            ? [...cpmap.get(node.id).entries()].map((p) => ({
-                name: p[0],
-                value: p[1][1],
-              }))
-            : node.children?.map(sunmap1),
-        });
-        this.sundata = [
-          { name: 'root', children: common.tree.map(sunmap0) },
-          { name: 'root', children: common.tree.map(sunmap1) },
-        ];
-        console.log(this.sundata);
         this._spinner.stop();
       });
     });
