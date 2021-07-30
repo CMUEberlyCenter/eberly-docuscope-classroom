@@ -1,12 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { ReportService } from './report.service';
 import { environment } from '../../environments/environment';
+import { ReportService } from './report.service';
 
 describe('ReportService', () => {
   let service: ReportService;

@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-
 import { environment } from '../../environments/environment';
 import {
-  HttpErrorHandlerService,
   HandleError,
+  HttpErrorHandlerService,
 } from '../http-error-handler.service';
 
 interface ReportsSchema {

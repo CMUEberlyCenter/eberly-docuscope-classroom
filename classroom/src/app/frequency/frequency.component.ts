@@ -8,26 +8,25 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
-
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
+  CategoryInfoMap,
   DocuScopeData,
   DsDataService,
-  CategoryInfoMap,
   genCategoryDataMap,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: 'app-rank',
-  templateUrl: './rank.component.html',
-  styleUrls: ['./rank.component.scss'],
+  selector: 'app-frequency',
+  templateUrl: './frequency.component.html',
+  styleUrls: ['./frequency.component.scss'],
 })
-export class RankComponent implements OnInit {
+export class FrequencyComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's
   data: DocuScopeData | undefined; // data from /ds_data
   dictionary: CommonDictionary | undefined;

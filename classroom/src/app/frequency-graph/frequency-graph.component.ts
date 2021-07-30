@@ -41,11 +41,11 @@ interface FrequencyItem {
 }
 
 @Component({
-  selector: 'app-rank-graph',
-  templateUrl: './rank-graph.component.html',
-  styleUrls: ['./rank-graph.component.scss'],
+  selector: 'app-frequency-graph',
+  templateUrl: './frequency-graph.component.html',
+  styleUrls: ['./frequency-graph.component.scss'],
 })
-export class RankGraphComponent implements OnChanges, AfterViewChecked {
+export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   @Input() set data(ds_data: DocuScopeData | undefined) {
     this.ds_data = ds_data;
     this._max_cache = null;

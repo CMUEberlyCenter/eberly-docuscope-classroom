@@ -2,8 +2,8 @@
   Instructors should be able to edit this text before submitting it
   to the report generator.
 */
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 

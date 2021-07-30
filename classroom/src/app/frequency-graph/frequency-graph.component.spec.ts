@@ -6,7 +6,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { RankGraphComponent } from './rank-graph.component';
+import { FrequencyGraphComponent } from './frequency-graph.component';
 
 const data = {
   categories: [
@@ -50,15 +50,15 @@ const data = {
 
 @Component({
   selector: 'app-fake-rank-component',
-  template: `<app-rank-graph
+  template: `<app-frequency-graph
     data=""
     category="${data.categories[0]}"
     unit="100"
-  ></app-rank-graph>`,
+  ></app-frequency-graph>`,
 })
 class TestRankComponent {
-  @ViewChild(RankGraphComponent)
-  public rank: RankGraphComponent;
+  @ViewChild(FrequencyGraphComponent)
+  public rank: FrequencyGraphComponent;
 }
 
 describe('RankGraphComponent', () => {
@@ -68,7 +68,7 @@ describe('RankGraphComponent', () => {
   beforeEach(
     waitForAsync(() => {
       void TestBed.configureTestingModule({
-        declarations: [RankGraphComponent, TestRankComponent],
+        declarations: [FrequencyGraphComponent, TestRankComponent],
         imports: [
           MatCardModule,
           MatSortModule,

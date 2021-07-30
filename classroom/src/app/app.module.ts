@@ -31,19 +31,19 @@ import { BoxplotComponent } from './boxplot/boxplot.component';
 import { CategorySelectComponent } from './category-select/category-select.component';
 import { ComparePatternsTableComponent } from './compare-patterns-table/compare-patterns-table.component';
 import { ComparisonComponent } from './comparison/comparison.component';
+import { FrequencyGraphComponent } from './frequency-graph/frequency-graph.component';
+import { FrequencyComponent } from './frequency/frequency.component';
 import { GroupingComponent } from './grouping/grouping.component';
 import { HeaderComponent } from './header/header.component';
+import { ToolLayoutComponent } from './layouts/tool-layout/tool-layout.component';
 import { NavComponent } from './nav/nav.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PatternsTableComponent } from './patterns-table/patterns-table.component';
 import { PatternsComponent } from './patterns/patterns.component';
-import { RankGraphComponent } from './rank-graph/rank-graph.component';
-import { RankComponent } from './rank/rank.component';
 import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
-import { TextViewComponent } from './text-view/text-view.component';
 import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
-import { ToolLayoutComponent } from './layouts/tool-layout/tool-layout.component';
+import { TextViewComponent } from './text-view/text-view.component';
 
 @NgModule({
   declarations: [
@@ -59,8 +59,8 @@ import { ToolLayoutComponent } from './layouts/tool-layout/tool-layout.component
     PageNotFoundComponent,
     PatternsComponent,
     PatternsTableComponent,
-    RankComponent,
-    RankGraphComponent,
+    FrequencyComponent,
+    FrequencyGraphComponent,
     ReportComponent,
     ScatterplotComponent,
     SunburstChartComponent,
