@@ -172,7 +172,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
     }
   }
   drawChart(): void {
-    if (!this.data.children) return;
+    if (!this.data || !this.data.children) return;
     this.arc = d3
       .arc<HierarchyRectangularNode<SunburstNode>>()
       .startAngle((d) => d.x0)
