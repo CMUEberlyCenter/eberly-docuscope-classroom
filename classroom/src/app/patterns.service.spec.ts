@@ -4,7 +4,9 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
+import { HttpErrorHandlerService } from './http-error-handler.service';
 import {
   ComparePatternData,
   instance_count,
@@ -17,9 +19,18 @@ describe('PatternsService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
+      'createHandleError',
+    ]) as Spied<HttpErrorHandlerService>;
+    heh_spy.createHandleError.and.returnValue(
+      () => (_fn: () => unknown, edata: unknown) => edata
+    );
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, MatSnackBarModule],
-      providers: [PatternsService],
+      providers: [
+        PatternsService,
+        { provide: HttpErrorHandlerService, useValue: heh_spy },
+      ],
     });
     service = TestBed.inject(PatternsService);
     httpMock = TestBed.inject(HttpTestingController);

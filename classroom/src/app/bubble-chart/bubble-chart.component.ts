@@ -146,10 +146,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
           (a, c) => [
             ...a,
             ...c.subcategories.reduce(
-              (sa, sub) => [
-                ...sa,
-                ...sub.clusters.map((cl) => cl.name ?? cl.label),
-              ],
+              (sa, sub) => [...sa, ...sub.clusters.map((cl) => cl.name)],
               [] as string[]
             ),
           ],

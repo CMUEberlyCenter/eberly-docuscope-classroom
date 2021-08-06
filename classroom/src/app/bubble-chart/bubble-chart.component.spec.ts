@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, Spied, FAKE_COMMON_DICTIONARY } from 'src/testing';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
@@ -70,7 +72,7 @@ describe('BubbleChartComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [BubbleChartComponent, NavStubComponent],
-      imports: [MatCardModule],
+      imports: [MatCardModule, MatButtonToggleModule, MatFormFieldModule],
       providers: [
         { provide: AssignmentService, useValue: assignment_spy },
         {
@@ -91,8 +93,10 @@ describe('BubbleChartComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create', async () => {
     void expect(component).toBeTruthy();
+    await fixture.whenStable();
+    component.ngAfterViewChecked();
   });
 
   it('columns', async () => {
@@ -105,6 +109,30 @@ describe('BubbleChartComponent', () => {
       'FakeCategory',
       'Unnamed',
     ]);
+    component.depth = 'Subcategory';
+    void expect(component.columns).toEqual([
+      'title',
+      'Impeachable',
+      'FutureTense',
+      'PastTense',
+      'Somewhat',
+      'FalseSubcategory',
+      'Subunnamed',
+    ]);
+    component.depth = 'Cluster';
+    void expect(component.columns).toEqual([
+      'title',
+      'Insurection',
+      'Lying',
+      'future',
+      'Past',
+      'pastperfect',
+      'facilitate',
+      'bogus',
+      'unamedcluster',
+    ]);
+    component.depth = 'Bad';
+    void expect(component.columns).toEqual(['title']);
   });
   it('getCell', async () => {
     await fixture.whenStable();
@@ -122,6 +150,7 @@ describe('BubbleChartComponent', () => {
           name: 'bogus',
           label: 'Bogus Data',
           help: 'A completely bogus category.',
+          path: 'Bogus',
         }
       )
     ).toEqual({
@@ -129,7 +158,7 @@ describe('BubbleChartComponent', () => {
       value: 50,
       proportion: 20,
       category: 'Bogus Data',
-      path: 'Bogus Data',
+      path: 'Bogus',
     });
     void expect(
       component.getCell(
@@ -153,6 +182,19 @@ describe('BubbleChartComponent', () => {
       category: 'Insurection',
       path: 'Insurection',
     });
+  });
+  it('genTooltip', () => {
+    void expect(
+      component.genTooltip({
+        title: 'foo',
+        path: 'bar',
+        value: 1.234,
+        proportion: 20,
+        category: 'fb',
+      })
+    ).toBe(`Name: foo
+    Category: bar
+    Value: 1.23`);
   });
   it('legend_offset', async () => {
     await fixture.whenStable();

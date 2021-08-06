@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 
 export interface Settings {
   title: string;
@@ -36,6 +36,7 @@ export class SettingsService {
   getSettings(): Observable<Settings> {
     if (!this.settings) {
       this.settings = this.http.get<Settings>(this.assets_settings).pipe(
+        map((ret) => ({ ...default_settings, ...ret })),
         shareReplay(1),
         catchError(() => of(default_settings))
       );

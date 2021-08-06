@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError, publishReplay, refCount } from 'rxjs/operators';
+import { catchError, shareReplay } from 'rxjs/operators';
 import { environment } from './../environments/environment';
 import {
   HandleError,
@@ -77,8 +77,9 @@ export class PatternsService {
       this.pattern_data = this._http
         .post<CategoryPatternData[]>(this.server, corpus)
         .pipe(
-          publishReplay(1),
-          refCount(),
+          //publishReplay(1),
+          //refCount(),
+          shareReplay(1),
           catchError(this.handleError('Retrieve Patterns Data', []))
         );
     }

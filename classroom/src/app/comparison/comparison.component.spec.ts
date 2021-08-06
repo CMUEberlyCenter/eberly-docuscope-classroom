@@ -14,6 +14,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AngularSplitModule } from 'angular-split';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { routes } from '../app-routing.module';
@@ -161,6 +162,7 @@ describe('ComparisonComponent', () => {
         declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
         imports: [
           HttpClientTestingModule,
+          AngularSplitModule,
           MatButtonToggleModule,
           MatCardModule,
           MatCheckboxModule,

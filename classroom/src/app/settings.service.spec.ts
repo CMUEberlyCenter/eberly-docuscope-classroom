@@ -35,6 +35,7 @@ describe('SettingsService', () => {
     service.getSettings().subscribe((data) => {
       void expect(data.title).toBe('TestScope');
       void expect(data.unit).toBe(1);
+      void expect(data.sticky_headers).toBeTrue(); // check defaults.
     });
     const req = httpMock.expectOne('assets/settings.json');
     void expect(req.request.method).toBe('GET');
