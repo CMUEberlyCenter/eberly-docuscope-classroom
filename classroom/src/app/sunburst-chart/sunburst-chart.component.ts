@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Input,
@@ -48,7 +49,7 @@ const labelTransform = (
   templateUrl: './sunburst-chart.component.html',
   styleUrls: ['./sunburst-chart.component.scss'],
 })
-export class SunburstChartComponent implements OnChanges {
+export class SunburstChartComponent implements OnChanges, AfterViewInit {
   @Input() data: SunburstNode | undefined;
   @Input() width = 500;
   @ViewChild('sunburst') sunburst!: ElementRef;
@@ -57,6 +58,7 @@ export class SunburstChartComponent implements OnChanges {
   current_path = '';
   format = d3.format(',d');
 
+  svg?: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   arc!: d3.Arc<unknown, d3.HierarchyRectangularNode<SunburstNode>>;
   path:
     | d3.Selection<
@@ -91,10 +93,14 @@ export class SunburstChartComponent implements OnChanges {
 
   //constructor() {}
 
-  //ngOnInit(): void {}
   ngOnChanges(): void {
     if (this.data && this.sunburst) {
       this.drawChart();
+    }
+  }
+  ngAfterViewInit(): void {
+    if (!this.svg) {
+      this.ngOnChanges();
     }
   }
 
@@ -166,7 +172,7 @@ export class SunburstChartComponent implements OnChanges {
     }
   }
   drawChart(): void {
-    if (!this.data) return;
+    if (!this.data.children) return;
     this.arc = d3
       .arc<HierarchyRectangularNode<SunburstNode>>()
       .startAngle((d) => d.x0)
@@ -198,6 +204,7 @@ export class SunburstChartComponent implements OnChanges {
       .append('svg')
       .attr('viewBox', `0 0 ${this.width} ${this.width}`)
       .style('font', '12px open-sans');
+    this.svg = svg;
     this.g = svg
       .append('g')
       .attr('transform', `translate(${this.width / 2},${this.width / 2})`);
