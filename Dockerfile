@@ -7,6 +7,7 @@ WORKDIR /classroom
 COPY ./classroom .
 #RUN npm run build:docuscope
 #RUN npm run build_prod
+RUN npm run version # Make sure version is up to date.
 RUN npm run build:deploy
 
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
