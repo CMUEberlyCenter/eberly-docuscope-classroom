@@ -1,28 +1,42 @@
 import { Component, OnInit } from '@angular/core';
+import {
+  ChartSelectionChangedEvent,
+  ChartType,
+  GoogleChartComponent,
+} from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionary, Entry } from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
-import { CategoryData, DocumentData, DocuScopeData, DsDataService, category_value } from '../ds-data.service';
+import {
+  CategoryData,
+  category_value,
+  DocumentData,
+  DocuScopeData,
+  DsDataService,
+} from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
 @Component({
   selector: 'app-scatterplot',
   templateUrl: './scatterplot.component.html',
-  styleUrls: ['./scatterplot.component.css']
+  styleUrls: ['./scatterplot.component.scss'],
 })
 export class ScatterplotComponent implements OnInit {
-  corpus: string[];
-  data: DocuScopeData;
-  scatter_data: [number, number, string, string, string][];
-  get categories(): CategoryData[] { return this.data.categories; }
-  x_categories: Set<CategoryData>;
-  x_axis: string;
-  x_category: CategoryData;
-  y_categories: Set<CategoryData>;
-  y_axis: string;
-  y_category: CategoryData;
+  corpus: string[] = [];
+  data: DocuScopeData | undefined;
+  dictionary: CommonDictionary | undefined;
+  scatter_data: [number, number, string, string, string][] = [];
+  get categories(): CategoryData[] {
+    return this.data?.categories ?? [];
+  }
+  x_axis: Entry | undefined;
+  x_category: CategoryData | undefined;
+  y_axis: Entry | undefined;
+  y_category: CategoryData | undefined;
   unit = 100;
+  chartType: ChartType = ChartType.ScatterChart;
   chart_width = 400;
   chart_height = 400;
 
@@ -35,25 +49,26 @@ export class ScatterplotComponent implements OnInit {
       minValue: 0,
       maxValue: 1,
       gridlines: {
-        count: 5
-      }
+        count: 5,
+      },
     },
     vAxis: {
       title: 'y-axis',
       minValue: 0,
       maxValue: 1,
       gridlines: {
-        count: 5
-      }
+        count: 5,
+      },
     },
     explorer: {
       maxZoomOut: 1,
-      keepInBounds: true
-    }
+      keepInBounds: true,
+    },
   };
 
   constructor(
     private corpusService: CorpusService,
+    private dictionaryService: CommonDictionaryService,
     private _assignment_service: AssignmentService,
     private _spinner: NgxUiLoaderService,
     private dataService: DsDataService,
@@ -61,35 +76,34 @@ export class ScatterplotComponent implements OnInit {
   ) {}
 
   getCorpus(): void {
-    this._spinner.start();
-    this.corpusService.getCorpus()
-      .subscribe(corpus => {
-        this.corpus = corpus;
-        // this._spinner.stop();
-        this.getData();
-      });
+    //this._spinner.start();
+    this.corpusService.getCorpus().subscribe((corpus) => {
+      this.corpus = corpus;
+      // this._spinner.stop();
+      this.getData();
+    });
   }
   getData(): void {
     this._spinner.start();
-    this.dataService.getData(this.corpus)
-      .subscribe(data => {
-        this.data = data;
-        this._assignment_service.setAssignmentData(data);
-        this.x_category = this.categories[0];
-        this.y_category = this.categories[1];
-        this.x_axis = this.x_category.id;
-        this.y_axis = this.y_category.id;
-        this.x_categories = new Set<CategoryData>(this.categories);
-        this.y_categories = new Set<CategoryData>(this.categories);
-        this.x_categories.delete(this.y_category);
-        this.y_categories.delete(this.x_category);
-        this.genPoints();
-        this._spinner.stop();
-      });
+    this.dataService.getData(this.corpus).subscribe((data) => {
+      this.data = data;
+      this._assignment_service.setAssignmentData(data);
+      this.x_category = this.categories[0];
+      this.y_category = this.categories[1];
+      this.x_axis = { label: this.x_category.id, help: '' }; // betting on top level name==label
+      this.y_axis = { label: this.y_category.id, help: '' };
+      this.genPoints();
+      this._spinner.stop();
+    });
   }
 
+  getDictionary(): void {
+    this.dictionaryService.getJSON().subscribe((data) => {
+      this.dictionary = data;
+    });
+  }
   getSettings(): void {
-    this.settingsService.getSettings().subscribe(settings => {
+    this.settingsService.getSettings().subscribe((settings) => {
       this.unit = settings.unit;
       this.chart_width = settings.scatter.width;
       this.chart_height = settings.scatter.height;
@@ -97,48 +111,63 @@ export class ScatterplotComponent implements OnInit {
   }
 
   genPoints(): void {
-    if (this.x_axis && this.y_axis && this.x_axis !== this.y_axis) {
+    if (this.x_axis && this.y_axis) {
       const model = 'point {fill-color: blue; dataOpacity:0.4}';
-      const xLabel = this.x_category.name, yLabel = this.y_category.name;
-      const xVal = (x: DocumentData): number => this.unit * category_value(this.x_category, x);
-      const yVal = (y: DocumentData): number => this.unit * category_value(this.y_category, y);
-      const max_val: number = Math.ceil(this.data.data.reduce((a, p) => Math.max(a, xVal(p), yVal(p)), 0));
+      const xLabel = this.x_axis.label;
+      const yLabel = this.y_axis.label;
+      const xVal = (x: DocumentData): number =>
+        this.unit * category_value(this.x_category, x);
+      const yVal = (y: DocumentData): number =>
+        this.unit * category_value(this.y_category, y);
+      const max_val: number = Math.ceil(
+        this.data?.data.reduce((a, p) => Math.max(a, xVal(p), yVal(p)), 0) ?? 0
+      );
       this.options.hAxis.title = xLabel;
       this.options.hAxis.maxValue = max_val;
       this.options.vAxis.title = yLabel;
       this.options.vAxis.maxValue = max_val;
-      this.scatter_data = this.data.data.map(
-        (datum: DocumentData): [number, number, string, string, string] => [
-          xVal(datum), // {v: xVal(datum), f: `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(2)}`},
-          yVal(datum), // {v: yVal(datum), f: `${yLabel}: ${yVal(datum).toFixed(2)}`},
-          datum.id,
-          datum.ownedby === 'instructor' ? model : null,
-          `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(2)}\n${yLabel}: ${yVal(datum).toFixed(2)}`
-        ]);
+      this.scatter_data =
+        this.data?.data.map(
+          (datum: DocumentData): [number, number, string, string, string] => [
+            xVal(datum),
+            yVal(datum),
+            datum.id,
+            datum.ownedby === 'instructor' ? model : '',
+            `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
+              2
+            )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
+          ]
+        ) ?? [];
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getSettings();
+    this.getDictionary();
     this.getCorpus();
   }
-  on_select(event): void {
-    this.x_category = this.get_category(this.x_axis);
-    this.y_category = this.get_category(this.y_axis);
-    const x_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    x_cat.delete(this.y_category);
-    this.x_categories = x_cat;
-    const y_cat: Set<CategoryData> = new Set<CategoryData>(this.categories);
-    y_cat.delete(this.x_category);
-    this.y_categories = y_cat;
+  on_select_x(clust: Entry): void {
+    this.x_axis = clust;
+    this.x_category = this.get_category(clust.name ?? clust.label);
     this.genPoints();
   }
-  get_category(category: string): CategoryData {
-    return this.categories.find(c => c.id === category);
+  on_select_y(clust: Entry): void {
+    this.y_axis = clust;
+    this.y_category = this.get_category(clust.name ?? clust.label);
+    this.genPoints();
   }
-  select_point(plot, evt): void {
+  get_category(category: string): CategoryData | undefined {
+    return this.categories.find((c) => c.id === category);
+  }
+  select_point(
+    plot: GoogleChartComponent, //{ dataTable?: { getValue: (a: number, b: number) => string } },
+    evt: ChartSelectionChangedEvent
+  ): void {
     for (const sel of evt.selection) {
-      const id: string = plot.dataTable.getValue(sel.row, 2);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const id: string = plot.chartWrapper
+        .getDataTable()
+        .getValue(sel.row ?? 0, 2) as string;
       window.open(`stv/${id}`);
     }
   }

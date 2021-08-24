@@ -1,11 +1,12 @@
-import { /* NO_ERRORS_SCHEMA,*/ NgModule } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-
 import { NavComponent } from './nav.component';
 
 describe('NavComponent', () => {
@@ -13,22 +14,29 @@ describe('NavComponent', () => {
   let fixture: ComponentFixture<NavComponent>;
   let activated_route_spy;
 
-  beforeEach(async(() => {
-    activated_route_spy = jasmine.createSpyObj('activatedRoute', ['paramMap']);
-    activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
-    activated_route_spy.snapshot.url = ['stub'];
-    activated_route_spy.snapshot.queryParamMap = new Map();
-    TestBed.configureTestingModule({
-      imports: [ FormsModule, RouterTestingModule,
-        MatTabsModule, MatTooltipModule ],
-      declarations: [ NavComponent ],
-      providers: [
-        { provide: ActivatedRoute, useValue: activated_route_spy }
-      ],
-      schemas: [ /* NO_ERRORS_SCHEMA*/ ]
+  beforeEach(
+    waitForAsync(() => {
+      activated_route_spy = jasmine.createSpyObj('activatedRoute', [
+        'paramMap',
+      ]);
+      activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
+      activated_route_spy.snapshot.url = ['stub'];
+      activated_route_spy.snapshot.queryParamMap = new Map();
+      void TestBed.configureTestingModule({
+        imports: [
+          FormsModule,
+          RouterTestingModule,
+          MatTabsModule,
+          MatTooltipModule,
+        ],
+        declarations: [NavComponent],
+        providers: [{ provide: ActivatedRoute, useValue: activated_route_spy }],
+        schemas: [
+          /* NO_ERRORS_SCHEMA*/
+        ],
+      }).compileComponents();
     })
-      .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NavComponent);
@@ -37,20 +45,20 @@ describe('NavComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
   });
 
   it('is_current', () => {
-    expect(component.is_current('')).toBe(false);
-    expect(component.is_current('/stub')).toBe(true);
-    expect(component.is_current('/foo/bar')).toBe(false);
+    void expect(component.is_current('')).toBe(false);
+    void expect(component.is_current('/stub')).toBe(true);
+    void expect(component.is_current('/foo/bar')).toBe(false);
   });
 
   it('is_instructor', () => {
-    expect(component.is_instructor()).toBe(false);
+    void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Student');
-    expect(component.is_instructor()).toBe(false);
+    void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Instructor');
-    expect(component.is_instructor()).toBe(true);
+    void expect(component.is_instructor()).toBe(true);
   });
 });

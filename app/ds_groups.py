@@ -6,9 +6,11 @@ For Suguru: group selector
 
 @author: hseltman
 """
-import random
 import copy
+import random
+
 import pandas
+
 
 def get_best_groups(dtf, group_size=2, min_group_size=2, #pylint: disable=R0913
                     nsim=10000, randomize=True, verbose=False):

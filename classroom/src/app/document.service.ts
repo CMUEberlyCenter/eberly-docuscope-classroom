@@ -2,13 +2,17 @@
 Service for retrieving information about individual documents, such as the
 tagged text and other meta information.
 */
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, publishReplay, refCount } from 'rxjs/operators';
+import { catchError, shareReplay } from 'rxjs/operators';
 import { environment } from './../environments/environment';
 import { AssignmentData } from './assignment-data';
-import { HttpErrorHandlerService, HandleError } from './http-error-handler.service';
+import {
+  HandleError,
+  HttpErrorHandlerService,
+} from './http-error-handler.service';
+import { CategoryPatternData } from './patterns.service';
 
 interface Document {
   text_id: string;
@@ -16,14 +20,15 @@ interface Document {
   ownedby: string;
   word_count: number;
   html_content: string;
+  patterns: CategoryPatternData[];
 }
 
-export class Documents extends AssignmentData {
+export interface Documents extends AssignmentData {
   documents: Document[];
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DocumentService {
   private server = `${environment.backend_server}/document`;
@@ -35,11 +40,11 @@ export class DocumentService {
     this.handleError = httpErrorHandler.createHandleError('DocumentService');
   }
   getData(corpus: string[]): Observable<Documents> {
-    return this._http.post<Documents>(this.server, corpus)
+    return this._http
+      .post<Documents>(this.server, corpus)
       .pipe(
-        publishReplay(1),
-        refCount(),
-        catchError(this.handleError('getData', {documents: []}))
+        shareReplay(1),
+        catchError(this.handleError('getData', { documents: [] }))
       );
   }
 }

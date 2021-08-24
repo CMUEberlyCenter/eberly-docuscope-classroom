@@ -1,19 +1,20 @@
 <header>
-  <mat-toolbar color="warn" role="heading" class="header"><!-- color="primary" -->
-    <span>{{title}} {{institution}}</span>
+  <mat-toolbar color="primary" role="heading" class="header"
+    ><!-- color="primary" -->
+    <span>{{ title }} {{ institution }}</span>
     <span class="spacer"></span>
     <div class="assignment">
-      <div *ngIf="course" class="item" matTooltip="{{course}}">
+      <div *ngIf="course" class="item" matTooltip="{{ course }}">
         <div class="title">Course:</div>
-        <div id="course_name" class="value">{{course}}</div>
+        <div id="course_name" class="value">{{ course }}</div>
       </div>
-      <div *ngIf="assignment" class="item" matTooltip="{{assignment}}">
+      <div *ngIf="assignment" class="item" matTooltip="{{ assignment }}">
         <div class="title">Assignment:</div>
-        <div id="assignment_name" class="value">{{assignment}}</div>
+        <div id="assignment_name" class="value">{{ assignment }}</div>
       </div>
-      <div *ngIf="instructor" matTooltip="{{instructor}}">
+      <div *ngIf="instructor" matTooltip="{{ instructor }}">
         <div class="title">Instructor:</div>
-        <div id="instructor_name" class="value">{{instructor}}</div>
+        <div id="instructor_name" class="value">{{ instructor }}</div>
       </div>
     </div>
     <span class="spacer"></span>

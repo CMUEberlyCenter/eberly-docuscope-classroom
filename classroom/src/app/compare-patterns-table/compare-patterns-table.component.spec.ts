@@ -1,18 +1,21 @@
 import { Component, ViewChild } from '@angular/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComparePatternsTableComponent } from './compare-patterns-table.component';
 
-const data = {};
 @Component({
   selector: 'app-fake-compare-patterns-table',
-  template: `<app-compare-patterns-table patterns="${data}" colors="['red','blue']"></app-compare-patterns-table>`
+  // prettier-ignore
+  template: `<app-compare-patterns-table
+  patterns="{}"
+  colors="['red','blue']"
+></app-compare-patterns-table>
+`,
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)
@@ -25,20 +28,24 @@ describe('ComparePatternsTableComponent', () => {
   let tcomponent: TestComparePatternsTableComponent;
   let tfixture: ComponentFixture<TestComparePatternsTableComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ComparePatternsTableComponent, TestComparePatternsTableComponent ],
-      imports: [
-        NoopAnimationsModule,
-        MatCardModule,
-        MatIconModule,
-        MatSortModule,
-        MatTableModule,
-        MatTooltipModule
-      ]
+  beforeEach(
+    waitForAsync(() => {
+      void TestBed.configureTestingModule({
+        declarations: [
+          ComparePatternsTableComponent,
+          TestComparePatternsTableComponent,
+        ],
+        imports: [
+          NoopAnimationsModule,
+          MatCardModule,
+          MatIconModule,
+          MatSortModule,
+          MatTableModule,
+          MatTooltipModule,
+        ],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ComparePatternsTableComponent);
@@ -47,7 +54,7 @@ describe('ComparePatternsTableComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 
   it('should create with colors', () => {
@@ -55,6 +62,6 @@ describe('ComparePatternsTableComponent', () => {
     tcomponent = tfixture.componentInstance;
     tfixture.detectChanges();
 
-    expect(tcomponent).toBeTruthy();
+    return expect(tcomponent).toBeTruthy();
   });
 });

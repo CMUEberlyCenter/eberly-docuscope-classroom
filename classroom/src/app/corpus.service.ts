@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CorpusService {
-  private _corpus: string[];
+  private _corpus: string[] | undefined;
 
-  constructor(private activatedRoute: ActivatedRoute) { }
+  constructor(private activatedRoute: ActivatedRoute) {}
 
   getDocumentIds(): string[] {
-    const str_ids: string = this.activatedRoute.snapshot.queryParamMap.get('ids');
+    const str_ids: string =
+      this.activatedRoute.snapshot.queryParamMap.get('ids') ?? '';
     let ids: string[] = [];
     if (str_ids) {
       ids = str_ids.split(',');

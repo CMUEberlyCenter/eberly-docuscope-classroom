@@ -1,68 +1,268 @@
 """ Handles /generate_reports requests. """
+import copy
+import io
 import logging
 import re
+import time
 import traceback
+import zipfile
+from collections import Counter, defaultdict
 from typing import List
 from uuid import UUID
 
+from common_dictionary import COMMON_DICITONARY
+from count_patterns import sort_patterns
+from ds_db import Assignment, Filesystem
+from ds_report import Boxplot, Divider, add_page_number, generate_paragraph_styles
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pandas import DataFrame
+from lat_frame import LAT_FRAME, LAT_MAP
+from lxml import etree
+from pandas import DataFrame, Series, merge
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from starlette.status import \
-    HTTP_200_OK, \
-    HTTP_400_BAD_REQUEST, \
-    HTTP_500_INTERNAL_SERVER_ERROR
-
-from ds_db import Filesystem
-from ds_report import generate_pdf_reports
-from ds_tones import DocuScopeTones
-from util import document_state_check, get_db_session, get_stats
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import pica
+from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate, Spacer)
+from reportlab.platypus.flowables import BalancedColumns
 from response import ERROR_RESPONSES
-from routers.ds_data import calculate_data
+from sqlalchemy.orm import Session
+from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
+                              HTTP_500_INTERNAL_SERVER_ERROR)
+from util import document_state_check, get_db_session
 
 router = APIRouter()
 
 class ReportsSchema(BaseModel):
     """Schema for '/report' requests."""
+    #pylint: disable=too-few-public-methods
     corpus: List[UUID] = ...
     intro: str = None
     stv_intro: str = None
 
 def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     """Generate the report for this corpus."""
-    stats = get_stats(ids, db_session)
-    tones = DocuScopeTones(stats.ds_dictionary)
+    course = set()
+    assignment = set()
+    instructor = set()
+    all_pats = defaultdict(Counter)
     documents = {}
-    for (uuid, doc, filename, status) in db_session.query(
-            Filesystem.id, Filesystem.processed, Filesystem.name,
-            Filesystem.state).filter(Filesystem.id.in_(ids)):
-        document_state_check(status, uuid, filename, doc, db_session)
-        tagged = {
-            'html_content': re.sub(r'(\n|\s)+', ' ', doc['ds_output']),
-            'dict': {}
+    doc_data = {}
+    doc_info = {}
+    for doc, fullname, ownedby, filename, doc_id, state, a_name, a_course, a_instructor in \
+        db_session.query(Filesystem.processed,
+                         Filesystem.fullname,
+                         Filesystem.ownedby,
+                         Filesystem.name,
+                         Filesystem.id,
+                         Filesystem.state,
+                         Assignment.name,
+                         Assignment.course,
+                         Assignment.instructor)\
+                  .filter(Filesystem.id.in_(ids))\
+                  .filter(Assignment.id == Filesystem.assignment):
+        document_state_check(state, doc_id, filename, doc, db_session)
+        course.add(a_course)
+        instructor.add(a_instructor)
+        assignment.add(a_name)
+        doc_data[doc_id] = Series({key: val['num_tags'] for key, val in
+                                   doc['ds_tag_dict'].items()})
+        desc = Series()
+        desc['total_words'] = doc['ds_num_word_tokens']
+        desc['doc_id'] = doc_id
+        desc['title'] = fullname if ownedby == 'student' and fullname \
+            else '.'.join(filename.split('.')[0:-1])
+        desc['ownedby'] = ownedby
+        desc['dictionary_id'] = 'default' #ds_dictionary
+        desc['course_name'] = a_course
+        desc['assignment_name'] = a_name
+        desc['instructor_name'] = a_instructor
+        doc_info[doc_id] = desc
+        html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
+        html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
+                                       "</para><para>", html_content) + "</para></body>"
+        pats = defaultdict(Counter)
+        try:
+            etr = etree.fromstring(html)
+        except Exception as exp:
+            logging.error(html)
+            raise exp
+        for tag in etr.iterfind(".//*[@data-key]"):
+            lat = tag.get('data-key')
+            categories = LAT_MAP[lat]
+            if categories:
+                if categories['cluster'] != 'Other':
+                    cat = f"{categories['category_label']} > {categories['subcategory_label']}"
+                    key = ' '.join(tag.xpath('string()').split()).lower()
+                    tag.attrib.clear()
+                    pats[cat].update([key])
+                    all_pats[cat].update([key])
+                    parent = tag.getparent()
+                    tag.tag = 'u' # underline text
+                    # add category label
+                    parent.insert(parent.index(tag)+1,
+                                  etree.XML(f'<font face="Helvetica" size="7"> [{cat}]</font>'))
+        # Clear all attributes from span's as they confuse reportlab
+        for span in etr.iter("span"):
+            span.attrib.clear()
+        documents[doc_id] = {
+            'course': a_course,
+            'instructor': a_instructor,
+            'assignment': a_name,
+            'patterns': sort_patterns(pats) if pats else [],
+            'html': etr,
+            'filename': filename,
+            'fullname': fullname,
+            'title': 'Instructor' if ownedby=='instructor' else fullname,
+            'stats': {}
         }
-        if doc['ds_tag_dict']:
-            tagged['dict'] = {
-                lat: {"dimension": tones.get_dimension(lat),
-                      "cluster": tones.get_lat_cluster(lat)}
-                for lat in doc['ds_tag_dict'].keys()
-            }
-        documents[uuid] = tagged
+    stats = DataFrame(data=doc_data, dtype="Int64")
+    info = DataFrame(data=doc_info)
+    hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
+    hdata['lat'] = hdata['lat'].astype("string") # fix typeing from merge
+    docs = range(8, len(hdata.columns))
+    cstats = hdata.iloc[:, [2, *docs]].groupby('subcategory').sum()
+    nstats = cstats / info.loc['total_words'].astype('Int64')
+    nstats = nstats.fillna(0)
+    for key, val in nstats.to_dict().items():
+        documents[key]['stats'] = val
+    quants = nstats.transpose().quantile(q=[0, 0.25, 0.5, 0.75, 1])
+    mins = quants.loc[0]
+    q1s = quants.loc[0.25]
+    q2s = quants.loc[0.5]
+    q3s = quants.loc[0.75]
+    maxs = quants.loc[1]
+    iqr = quants.loc[0.75] - quants.loc[0.25]
+    upper_inner_fence = quants.loc[0.75] + 1.5 * iqr
+    upper_inner_fence = upper_inner_fence.clip(lower=mins, upper=maxs)
+    lower_inner_fence = quants.loc[0.25] - 1.5 * iqr
+    lower_inner_fence = lower_inner_fence.clip(lower=mins, upper=maxs)
 
-    descriptions = {
-        #'course': ", ".join(stats.courses), # redundant
-        #'assignment': ", ".join(stats.assignments), # redundant
-        #'instructor': ", ".join(stats.instructors), # redundant
-        'intro': gintro,
-        'stv_intro': sintro
-    }
-    return generate_pdf_reports(DataFrame.from_dict(stats.frame),
-                                documents,
-                                stats.ds_dictionary,
-                                calculate_data(stats),
-                                descriptions)
+    max_val = maxs.max()
+
+    styles = generate_paragraph_styles()
+    zip_stream = io.BytesIO()
+    with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
+         io.BytesIO() as all_reports:
+        combined_content = [
+            Paragraph(f"created:       {time.ctime()}", styles['DS_Date']),
+            Spacer(1, pica),
+            Paragraph("<b>DocuScope Report</b>", styles['DS_CoverText']),
+            Spacer(1, 6)
+        ]
+        if len(instructor) > 0:
+            combined_content.append(Paragraph(
+                f"<b>Instructor:</b>    {', '.join(instructor)}",
+                styles['DS_CoverText']))
+        if len(course) > 0:
+            combined_content.append(Paragraph(
+                f"<b>Course:</b>        {', '.join(course)}",
+                styles['DS_CoverText']))
+        if len(assignment) > 0:
+            combined_content.append(Paragraph(
+                f"<b>Assignment:</b>    {', '.join(assignment)}",
+                styles['DS_CoverText']))
+        combined_content.append(PageBreak())
+
+        for docu in documents.values():
+            with io.BytesIO() as fpath:
+                idoc = SimpleDocTemplate(fpath, pagesize=letter,
+                                         title=f"Report for {docu['fullname']}",
+                                         creator='DocuScope@CMU')
+                content = [
+                    Paragraph(f"<b>{docu['course']}</b>", styles['DS_MetaData']),
+                    Paragraph(f"Assignment: {docu['assignment']}", styles['DS_MetaData']),
+                    Spacer(1, pica),
+                    Paragraph(f"Report for {docu['fullname']}", styles['DS_Student']),
+                    Divider(idoc.width),
+                    Paragraph(gintro, styles['DS_Intro']),
+                    Spacer(1, pica)
+                ]
+
+                # for each category: category_label, description, boxplot
+                for category in COMMON_DICITONARY.categories:
+                    for subcategory in category.subcategories:
+                        index_name = subcategory.name or subcategory.label
+                        content.extend([
+                            Paragraph(f"{category.label} > {subcategory.label}",
+                                      styles['DS_Heading1']),
+                            Paragraph(category.help, styles['DS_Help']),
+                            Boxplot({
+                                'q1': q1s.at[index_name],
+                                'q2': q2s.at[index_name],
+                                'q3': q3s.at[index_name],
+                                'min': mins.at[index_name],
+                                'max': maxs.at[index_name],
+                                'uifence': upper_inner_fence.at[index_name],
+                                'lifence': lower_inner_fence.at[index_name]},
+                                    val=docu['stats'][index_name],
+                                    max_val=max_val)
+                    ])
+
+                # Tagged text
+                content.extend([
+                    PageBreak(),
+                    Paragraph(f"Your Text ({docu['filename']})", styles['DS_Title']),
+                    Paragraph(sintro, styles['DS_Intro']),
+                    Spacer(1, 2*pica)
+                ])
+                for para in docu['html']:
+                    # could do it all at once, but looping prints more text.
+                    try:
+                        content.append(Paragraph(etree.tostring(para), styles['DS_Body']))
+                    except ValueError as v_err:
+                        logging.error(v_err)
+                        content.append(Paragraph("""ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT.
+The text will not display properly, however the analysis is not affected.""",
+                                                 styles['DS_Body']))
+                pattern_content = []
+                for category in docu['patterns']:
+                    pattern_content.append(Paragraph(category['category'],
+                                                     styles['DS_Heading1']))
+                    pattern_content.extend([
+                        Paragraph(f"{pat['pattern']} ({pat['count']})",
+                                  styles['DS_Pattern'])
+                        for pat in category['patterns']])
+                content.extend([
+                    PageBreak(),
+                    Paragraph("Patterns Used in Your Document",
+                              styles['DS_Title']),
+                    BalancedColumns(pattern_content, nCols=3, endSlack=0.5),
+                ])
+                combined_content += copy.deepcopy(content)
+                idoc.build(content)
+                title = docu['title'] + '-' + '_'.join(docu['filename'].split('.')[0:-1])
+                title = re.sub(r'[/\.]', '_', title.strip())
+                zip_file_name = f"{title}.pdf"
+                i = 0
+                while zip_file_name in zip_file.namelist():
+                    zip_file_name = f"{title}_{i}.pdf"
+                    i += 1
+                zip_file.writestr(zip_file_name, fpath.getvalue())
+        # Combined pdf
+        all_docs = SimpleDocTemplate(all_reports, pagesize=letter,
+                                     title='Reports',
+                                     creator='DocuScope@CMU')
+        all_docs.build(combined_content)
+        zip_file.writestr("_all.pdf", all_reports.getvalue())
+        # Patterns summary file
+        with io.BytesIO() as patfile:
+            patterns_doc = SimpleDocTemplate(patfile, pagesize=letter,
+                                             title='Patterns Used in the Corpus',
+                                             create='DocuScope@CMU')
+            pattern_content = []
+            for category in sort_patterns(all_pats):
+                pattern_content.append(Paragraph(category['category'], styles['DS_Heading1']))
+                pattern_content.extend([Paragraph(f"{pat['pattern']} ({pat['count']})",
+                                                  styles['DS_Pattern'])
+                                        for pat in category['patterns']])
+            patterns_doc.build([
+                Paragraph('Patterns Used in the Corpus',
+                          styles['DS_Title']),
+                BalancedColumns(pattern_content, nCols=3, endSlack=0.5)
+            ], onFirstPage=add_page_number, onLaterPages=add_page_number)
+            zip_file.writestr("_patterns.pdf", patfile.getvalue())
+    zip_stream.seek(0)
+    return zip_stream
 
 @router.post('/generate_reports',
              #response_class=StreamingResponse,
@@ -79,9 +279,7 @@ async def generate_reports(corpus: ReportsSchema,
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
-    #if corpus.level is not LevelEnum.cluster:
-    #    logging.warning("Level is not Cluster, resetting.")
-    #    corpus.level = LevelEnum.cluster
+    logging.info("Generate reports for %s", corpus.corpus)
     try:
         zip_buffer = get_reports(corpus.corpus,
                                  corpus.intro,

@@ -1,81 +1,105 @@
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component, Input } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgxUiLoaderService, NgxUiLoaderModule } from 'ngx-ui-loader';
-import { asyncData } from '../../testing';
-
+import { MatTreeModule } from '@angular/material/tree';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
-import { PatternsComponent, PatternClusterData } from './patterns.component';
 import { PatternData, PatternsService } from '../patterns.service';
+import { PatternsComponent } from './patterns.component';
 
-@Component({selector: 'app-nav', template: ''})
-class NavStubComponent {}
-
-@Component({selector: 'app-patterns-table', template: ''})
+@Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
   @Input() patterns: PatternData[];
+}
+
+@Component({ selector: 'app-sunburst-chart', template: '' })
+class SunburstStubComponent {
+  @Input() data: unknown;
+  @Input() width: number;
 }
 
 describe('PatternsComponent', () => {
   let component: PatternsComponent;
   let fixture: ComponentFixture<PatternsComponent>;
 
-  beforeEach(async(() => {
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', ['start', 'stop']);
-    const corpusService_spy = jasmine.createSpyObj('CorpusService', ['getCorpus']);
-    corpusService_spy.getCorpus.and.returnValue(asyncData({
-      course: 'stub',
-      assignment: 'stub',
-      documents: ['1', '2', '3'],
-      intro: 'stub',
-      stv_intro: 'stub'
-    }));
-    const patternsService_spy = jasmine.createSpyObj('PatternsService', ['getPatterns']);
-    patternsService_spy.getPatterns.and.returnValue(asyncData(
-      [
-        {
-          category: { id: 'future', name: 'Future',
-            description: 'To the future and beyond!!!!'},
-          patterns: [
-            { pattern: 'i will', count: 4 },
-            { pattern: 'future of', count: 1 },
-            { pattern: 'potential', count: 1 }
-          ]
-        },
-        {
-          category: {id: 'facilitate', name: 'Facilitate'},
-          patterns: [
-            { pattern: 'allowed me', count: 2 },
-            { pattern: 'assisted', count: 2 }
-          ]
-        }
-      ]));
+  beforeEach(
+    waitForAsync(() => {
+      const ngx_spinner_service_spy = jasmine.createSpyObj(
+        'NgxSpinnerService',
+        ['start', 'stop']
+      ) as Spied<NgxUiLoaderService>;
+      const corpusService_spy = jasmine.createSpyObj('CorpusService', [
+        'getCorpus',
+      ]) as Spied<CorpusService>;
+      corpusService_spy.getCorpus.and.returnValue(
+        asyncData({
+          course: 'stub',
+          assignment: 'stub',
+          documents: ['1', '2', '3'],
+          intro: 'stub',
+          stv_intro: 'stub',
+        })
+      );
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      ) as Spied<CommonDictionaryService>;
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
+      const patternsService_spy = jasmine.createSpyObj('PatternsService', [
+        'getPatterns',
+      ]) as Spied<PatternsService>;
+      patternsService_spy.getPatterns.and.returnValue(
+        asyncData([
+          {
+            category: 'future',
+            patterns: [
+              { pattern: 'i will', count: 4 },
+              { pattern: 'future of', count: 1 },
+              { pattern: 'potential', count: 1 },
+            ],
+          },
+          {
+            category: 'facilitate',
+            patterns: [
+              { pattern: 'allowed me', count: 2 },
+              { pattern: 'assisted', count: 2 },
+            ],
+          },
+        ])
+      );
 
-    TestBed.configureTestingModule({
-      declarations: [ PatternsComponent,
-        PatternsTableStubComponent,
-        NavStubComponent ],
-      imports: [
-        NoopAnimationsModule,
-        MatCardModule,
-        MatIconModule,
-        MatSortModule,
-        MatTableModule,
-        MatTooltipModule
-      ],
-      providers: [
-        { provide: CorpusService, useValue: corpusService_spy },
-        { provide: PatternsService, useValue: patternsService_spy },
-        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy }
-      ]
+      void TestBed.configureTestingModule({
+        declarations: [
+          PatternsComponent,
+          PatternsTableStubComponent,
+          SunburstStubComponent,
+        ],
+        imports: [
+          NoopAnimationsModule,
+          MatCardModule,
+          MatIconModule,
+          MatTreeModule,
+          MatTooltipModule,
+        ],
+        providers: [
+          { provide: CorpusService, useValue: corpusService_spy },
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
+          { provide: PatternsService, useValue: patternsService_spy },
+          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
+        ],
+      }).compileComponents();
     })
-      .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PatternsComponent);
@@ -84,13 +108,12 @@ describe('PatternsComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    void expect(component).toBeTruthy();
   });
 
-  it('count', () => {
+  /*it('count', () => {
     const pat_data = new PatternClusterData({
-      category: { id: 'future', name: 'Future',
-        description: 'To the future and beyond!!!!'},
+      category: 'future',
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },
@@ -98,12 +121,11 @@ describe('PatternsComponent', () => {
       ]
     });
     expect(pat_data.count).toBe(6);
-  });
+  });*/
 
-  it('pattern_count', () => {
+  /*it('pattern_count', () => {
     const pat_data = new PatternClusterData({
-      category: { id: 'future', name: 'Future',
-        description: 'To the future and beyond!!!!'},
+      category: 'future',
       patterns: [
         { pattern: 'i will', count: 4 },
         { pattern: 'future of', count: 1 },
@@ -111,5 +133,5 @@ describe('PatternsComponent', () => {
       ]
     });
     expect(pat_data.pattern_count).toBe(3);
-  });
+  });*/
 });

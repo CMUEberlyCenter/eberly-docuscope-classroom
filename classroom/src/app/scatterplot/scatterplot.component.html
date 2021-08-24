@@ -1,32 +1,27 @@
-<div class="tool">
-  <app-nav></app-nav>
-  <mat-card *ngIf="corpus" class="container">
-    <mat-card-title>Scatter Plot</mat-card-title>
-    <mat-card-subtitle>Compares the frequecies of two patterns where each point represents a document.</mat-card-subtitle>
-    <mat-card-subtitle>Units are average number of incidences per {{unit}} words.</mat-card-subtitle>
-    <mat-card-content *ngIf="data" class="scatter_container">
-      <div class="axis_selection">
-        <mat-form-field class="axis_select">
-          <mat-label>Y Axis</mat-label>
-          <select matNativeControl required [(ngModel)]="y_axis" (ngModelChange)="on_select($event)" ngOptions>
-            <option *ngFor="let y of y_categories" [value]="y.id">{{y.name}}</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field class="axis_select">
-          <mat-label>X Axis</mat-label>
-          <select matNativeControl required [(ngModel)]="x_axis" (ngModelChange)="on_select($event)">
-            <option *ngFor="let x of x_categories" [value]="x.id">{{x.name}}</option>
-          </select>
-        </mat-form-field>
-      </div>
-      <google-chart #scatterplot *ngIf="scatter_data"
-                    [title]="x_category.name+' vs '+y_category.name"
-                    [type]="'ScatterChart'"
-                    [columns]="[x_category.name, y_category.name, {type: 'string', role: 'id'}, {type: 'string', role: 'style'}, {'type': 'string', 'role': 'tooltip'}]"
-                    [data]="scatter_data"
-                    (select)="select_point(scatterplot, $event)"
-                    [options]="options"
-                    width="{{chart_width}}" height="{{chart_height}}"></google-chart>
-    </mat-card-content>
-  </mat-card>
-</div>
+<mat-card *ngIf="corpus">
+  <mat-card-title>Scatter Plot</mat-card-title>
+  <mat-card-subtitle>Compares the frequecies of two patterns where each point represents a
+    document.</mat-card-subtitle>
+  <mat-card-subtitle>Units are average number of incidences per
+    {{ unit }} words.</mat-card-subtitle>
+  <mat-card-content *ngIf="data && dictionary" class="scatter_container">
+    <div class="axis_selection">
+      <mat-label class="grid-item">X Axis: </mat-label>
+      <mat-label class="grid-item">Y Axis: </mat-label>
+      <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="x_axis"
+        (selectedCategoryChange)="on_select_x($event)"></app-category-select>
+      <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="y_axis"
+        (selectedCategoryChange)="on_select_y($event)"></app-category-select>
+    </div>
+    <!-- category.id => name(category.id) -->
+    <google-chart #scatterplot *ngIf="scatter_data" [title]="(x_axis?.label ?? 'X') + ' vs ' + (y_axis?.label ?? 'Y')"
+      [type]="chartType" [columns]="[
+          x_category?.id ?? 'X',
+          y_category?.id ?? 'Y',
+          { type: 'string', role: 'id' },
+          { type: 'string', role: 'style' },
+          { type: 'string', role: 'tooltip' }
+        ]" [data]="scatter_data" (select)="select_point(scatterplot, $event)" [options]="options" [width]="chart_width"
+      [height]="chart_height"></google-chart>
+  </mat-card-content>
+</mat-card>

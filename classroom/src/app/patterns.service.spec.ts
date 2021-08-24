@@ -1,18 +1,36 @@
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { ComparePatternData, PatternsService, pattern_compare } from './patterns.service';
+import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
+import { HttpErrorHandlerService } from './http-error-handler.service';
+import {
+  ComparePatternData,
+  instance_count,
+  PatternsService,
+  pattern_compare,
+} from './patterns.service';
 
 describe('PatternsService', () => {
   let service: PatternsService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
+      'createHandleError',
+    ]) as Spied<HttpErrorHandlerService>;
+    heh_spy.createHandleError.and.returnValue(
+      () => (_fn: () => unknown, edata: unknown) => edata
+    );
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule, MatSnackBarModule ],
-      providers: [ PatternsService ]
+      imports: [HttpClientTestingModule, MatSnackBarModule],
+      providers: [
+        PatternsService,
+        { provide: HttpErrorHandlerService, useValue: heh_spy },
+      ],
     });
     service = TestBed.inject(PatternsService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -20,57 +38,71 @@ describe('PatternsService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('getPatterns', () => {
     const corpus = ['a', 'b', 'c'];
     const pattern_data = [
       {
-        category: {id: 'test', name: 'Test Pattern', description: 'rrrgggbbb'},
+        category: 'test',
         patterns: [
-          {pattern: 'a', count: 1},
-          {pattern: 'a', count: 3},
-          {pattern: 'b', count: 1}
-        ]
-      }
+          { pattern: 'a', count: 1 },
+          { pattern: 'a', count: 3 },
+          { pattern: 'b', count: 1 },
+        ],
+      },
     ];
-    service.getPatterns(corpus).subscribe(data => {
-      expect(data[0].category.id).toBe('test');
+    service.getPatterns(corpus).subscribe((data) => {
+      void expect(data[0].category).toBe('test');
     });
     const req = httpMock.expectOne(`${environment.backend_server}/patterns`);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(pattern_data);
 
     // check caching
-    service.getPatterns(corpus).subscribe(data => {
-      expect(data[0].category.id).toBe('test');
+    service.getPatterns(corpus).subscribe((data) => {
+      void expect(data[0].category).toBe('test');
     });
   });
 });
 
 describe('pattern_compare', () => {
-  const pattern_a1 = {pattern: 'a', count: 1};
-  const pattern_a3 = {pattern: 'a', count: 3};
-  const pattern_b1 = {pattern: 'b', count: 1};
+  const pattern_a1 = { pattern: 'a', count: 1 };
+  const pattern_a3 = { pattern: 'a', count: 3 };
+  const pattern_b1 = { pattern: 'b', count: 1 };
   it('diff count', () => {
-    expect(pattern_compare(pattern_a1, pattern_a3)).toBe(2);
-    expect(pattern_compare(pattern_a3, pattern_a1)).toBe(-2);
+    void expect(pattern_compare(pattern_a1, pattern_a3)).toBe(2);
+    void expect(pattern_compare(pattern_a3, pattern_a1)).toBe(-2);
   });
   it('diff pattern', () => {
-    expect(pattern_compare(pattern_a1, pattern_a1)).toBe(0);
-    expect(pattern_compare(pattern_a1, pattern_b1)).toBe(-1);
-    expect(pattern_compare(pattern_b1, pattern_a1)).toBe(1);
+    void expect(pattern_compare(pattern_a1, pattern_a1)).toBe(0);
+    void expect(pattern_compare(pattern_a1, pattern_b1)).toBe(-1);
+    void expect(pattern_compare(pattern_b1, pattern_a1)).toBe(1);
   });
 });
 
 describe('ComparePatternData', () => {
   const p: ComparePatternData = new ComparePatternData('a', [1, 2]);
   it('constructor', () => {
-    expect(p).toBeTruthy();
-    expect(p.pattern).toBe('a');
+    void expect(p).toBeTruthy();
+    void expect(p.pattern).toBe('a');
   });
   it('count', () => expect(p.count).toBe(3));
   it('count0', () => expect(p.count0).toBe(1));
   it('count1', () => expect(p.count1).toBe(2));
+});
+
+describe('instance_count', () => {
+  it('instance_count', () => {
+    void expect(instance_count([])).toBe(0);
+    void expect(instance_count([{ pattern: 'foo', count: 3 }])).toBe(3);
+    void expect(
+      instance_count([
+        { pattern: 'foo', count: 3 },
+        { pattern: 'bar', count: 6 },
+        { pattern: 'baz', count: 1 },
+      ])
+    ).toBe(10);
+  });
 });

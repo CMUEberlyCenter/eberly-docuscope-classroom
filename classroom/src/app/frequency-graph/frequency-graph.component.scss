@@ -1,0 +1,21 @@
+.student_col {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model_entry {
+  color: blue;
+  opacity: 0.4;
+}
+
+.rank {
+  flex: 0 1 60px;
+}
+.value {
+  flex: 0 1 60px;
+}
+.bar {
+  flex: 0 2 270px;
+}

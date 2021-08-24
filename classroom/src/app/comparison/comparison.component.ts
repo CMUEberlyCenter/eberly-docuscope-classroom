@@ -1,115 +1,118 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+/* Component for comparing two documents
+
+This component displays two documents to be compared 'side-by-side'.
+It is based on the single document text-view component.
+*/
 import { SelectionModel } from '@angular/cdk/collections';
-import { Router } from '@angular/router';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { Component, OnInit } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
-
+import { Router } from '@angular/router';
 import * as d3 from 'd3';
-import * as $ from 'jquery';
-
+import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
-import { DictionaryInformation } from '../assignment-data';
-import { ClusterData, cluster_compare } from '../cluster-data';
+import {
+  CommonDictionary,
+  CommonDictionaryTreeNode,
+} from '../common-dictionary';
+import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
 import { ComparePatternData, pattern_compare } from '../patterns.service';
-import { SettingsService } from '../settings.service';
+import { Settings, SettingsService } from '../settings.service';
 
-class TextClusterData implements ClusterData {
-  id: string;
-  name: string;
-  description?: string;
-  patterns: ComparePatternData[];
+/**
+ * Nodes in the dictionary tree.
+ */
+class CompareTreeNode {
+  id: string; // category id
+  label: string; // human readable id
+  help: string; // notes about category
+  children: CompareTreeNode[]; // child tree nodes
+  patterns: ComparePatternData[]; // patterns for this category
+
+  constructor(
+    node: CommonDictionaryTreeNode,
+    children: CompareTreeNode[],
+    patterns: ComparePatternData[]
+  ) {
+    this.id = node.id;
+    this.label = node.label;
+    this.help = node.help;
+    this.children = children;
+    patterns.sort(pattern_compare);
+    this.patterns = patterns;
+  }
+  /** Total count over all instances in category. */
   get count(): number {
-    return this.patterns.reduce(
-      (total: number, current: ComparePatternData): number => total + current.count, 0);
+    return this.counts.reduce((p, c) => p + c, 0);
   }
+  /** Total counts of instances in category for each document. */
   get counts(): number[] {
+    const zero: number[] = [0, 0];
     if (this.patterns.length) {
-      const zero: number[] = this.patterns[0].counts.map(() => 0);
+      // if leaf node
       return this.patterns.reduce(
-        (t: number[], p: ComparePatternData): number[] => t.map(
-          (x: number, i: number): number => x + p.counts[i]), zero);
+        (totals, current) => totals.map((t, i) => t + current.counts[i]),
+        zero
+      );
+    } else if (this.children.length) {
+      return this.children.reduce(
+        (tot, cur) => tot.map((t, i) => t + cur.counts[i]),
+        zero
+      );
     }
-    return [0];
+    return zero;
   }
-  get max_count(): number { return Math.max(...this.counts); }
-  left(max: number): number { return 50 * this.count0 / max; }
-  right(max: number): number { return 50 * this.count1 / max; }
-  col_count(col: number): number {
-    return this.patterns.reduce((t: number, c: ComparePatternData): number => t + c.counts[col], 0);
+  /** Max count value over all patterns in this category. */
+  get max_count(): number {
+    return Math.max(...this.counts);
   }
-  get count0(): number { return this.col_count(0); }
-  get count1(): number { return this.col_count(1); }
-  get pattern_count(): number { return this.patterns.length; }
-  constructor(di: DictionaryInformation, patterns: Map<string, number[]>) {
-    this.id = di.id;
-    this.name = di.name;
-    this.description = di.description;
-    const pats: ComparePatternData[] = Array.from(patterns.entries()).map(
-      (pc): ComparePatternData => new ComparePatternData(pc[0], pc[1]));
-    pats.sort(pattern_compare);
-    this.patterns = pats;
+  /**
+   * Scales first document count for area comparison.
+   * @param max The maximum count.
+   */
+  left(max: number): number {
+    return (50 * this.counts[0]) / max;
+  }
+  /**
+   * Scales second document count for area comparison.
+   * @param max The maximum count.
+   */
+  right(max: number): number {
+    return (50 * this.counts[1]) / max;
   }
 }
 
 @Component({
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
-  styleUrls: ['./comparison.component.css'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed, void', style({height: '0px', minHeight: '0'})),
-      state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed, void => collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-      // Fix for mixing sort and expand: https://github.com/angular/components/issues/11990 and from angular component source code.
-    ]),
-    trigger('indicatorRotate', [
-      state('collapsed, void', style({transform: 'rotate(0deg)'})),
-      state('expanded', style({transform: 'rotate(180deg)'})),
-      transition('expanded <=> collapsed, void => collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
-    ]),
-  ]
+  styleUrls: ['./comparison.component.scss'],
 })
 export class ComparisonComponent implements OnInit {
-  @ViewChild('TableSort', {static: true}) sort: MatSort;
+  corpus: string[] = []; // list of document UUID's
+  dictionary: CommonDictionary | undefined;
+  colors = d3.scaleOrdinal(d3.schemeCategory10); // Colors to use for underlining
+  dColors = ['#247', '#085']; //['#1c66aa', '#639c54']; // document colors
+  doc_colors = d3.scaleOrdinal(this.dColors); // ['royalblue', 'seagreen'];
+  documents: Documents | undefined; // retrieved document data
+  direction: 'horizontal' | 'vertical' = 'horizontal'; // document stacking
+  max_clusters = d3.schemeCategory10.length; // max clusters based on number of colors.
+  max_count = 1; // maximum instance count over all patterns and documents.
+  selection = new SelectionModel<CompareTreeNode>(true, []);
+  treeControl = new NestedTreeControl<CompareTreeNode>((node) => node.children);
+  treeData = new MatTreeNestedDataSource<CompareTreeNode>();
 
-  cluster_columns = ['name', 'bar', 'expand'];
-  cluster_info: Map<string, DictionaryInformation>;
-  clusters: MatTableDataSource<TextClusterData> = new MatTableDataSource<TextClusterData>();
-  corpus: string[];
-  doc_colors = ['#1c66aa', '#639c54']; // ['royalblue', 'seagreen'];
-  documents: Documents;
-  direction = 'horizontal';
-  expanded: TextClusterData | null = null;
-  html_content: SafeHtml[];
-  max_clusters = 4;
-  max_count = 1;
-  patterns: Map<string, Map<string, number[]>>;
-  selection = new SelectionModel<TextClusterData>(true, []);
-
-  private _css_classes: string[] = [
-    'cluster_0',
-    'cluster_1',
-    'cluster_2',
-    'cluster_3',
-    'cluster_4',
-    'cluster_5'];
-  private _css_classes_length = this._css_classes.length;
-  get max_selected_clusters(): number {
-    return Math.min(this.max_clusters, this._css_classes_length);
-  }
-  private _selected_clusters: Map<string, string> = new Map<string, string>();
+  html_content: SafeHtml[] = [];
 
   constructor(
     private _assignmentService: AssignmentService,
     private _corpusService: CorpusService,
+    private _dictionary: CommonDictionaryService,
     private _router: Router,
     private _sanitizer: DomSanitizer,
     private _settings_service: SettingsService,
@@ -118,9 +121,9 @@ export class ComparisonComponent implements OnInit {
     private _doc_service: DocumentService
   ) {}
 
-  getCorpus(): void {
+  ngOnInit(): void {
     this._spinner.start();
-    this._corpusService.getCorpus().subscribe(corpus => {
+    this._corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       if (corpus.length === 0) {
         // ERROR: no documents
@@ -128,138 +131,296 @@ export class ComparisonComponent implements OnInit {
         return;
       } else if (corpus.length === 1) {
         // WARNING: not enough documents
-        this.reportError('Only one document specified, need two for comparison.');
+        this.reportError(
+          'Only one document specified, need two for comparison.'
+        );
         this._spinner.stop();
-        this._router.navigate(['/stv', corpus[0]]);
+        void this._router.navigate(['/stv', corpus[0]]); // redirect to single text-view
         return;
       } else if (corpus.length > 2) {
         // WARNING: too many documents
-        this.reportError('More than two documents specified, only showing the first two.');
+        this.reportError(
+          'More than two documents specified, only showing the first two.'
+        );
         this.corpus = corpus.slice(0, 2);
       }
-      this.getTaggedText();
-    });
-  }
+      forkJoin([
+        // parallel retrieval
+        this._settings_service.getSettings(),
+        this._dictionary.getJSON(),
+        this._doc_service.getData(this.corpus),
+      ]).subscribe((results: [Settings, CommonDictionary, Documents]): void => {
+        const [settings, common, documents] = results;
+        // Settings
+        //this.max_clusters = settings.stv.max_clusters;
+        this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
+        this.doc_colors = d3.scaleOrdinal(settings.mtv.documentColors);
+        // Dictionary
+        this.dictionary = common;
+        // Documents
+        this.documents = documents;
+        this._assignmentService.setAssignmentData(documents);
+        // have to bypass some security otherwise the id's and data-key's get stripped.
+        // TODO: annotate html so it is safe.
+        this.html_content = documents.documents.map((doc) =>
+          this._sanitizer.bypassSecurityTrustHtml(doc.html_content)
+        );
 
-  click_select($event) {
-    if ($('.cluster_id').length === 0) {
-      const l2c = (c: string): string => this.cluster_info.get(c).name;
-      $('[data-key]').each(function() {
-        const lat: string = $(this).attr('data-key');
-        const cluster_name: string = l2c(lat);
-        $(this).append(`<sup class="cluster_id">{${cluster_name}}</sup>`);
-      });
-    }
-    const parent_key = $event.target.parentNode.getAttribute('data-key');
-    if (parent_key && this.documents) {
-      const lat = parent_key.trim();
-      if (this.cluster_info.has(lat)) {
-        d3.selectAll('.selected_text').classed('selected_text', false);
-        d3.selectAll('.cluster_id').style('display', 'none');
-        d3.select($event.target.parentNode).classed('selected_text', true);
-        d3.select($event.target.parentNode).select('.cluster_id').style('display', 'inline');
-      }
-    }
-  }
-  getSettings(): void {
-    this._settings_service.getSettings().subscribe(settings => {
-      this.max_clusters = settings.stv.max_clusters;
-      this.direction = settings.mtv.horizontal ? 'horizontal' : 'vertical'; // split layout
-      // this.direction = settings.mtv.horizontal ? 'column' : 'row'; // flex layout
-      this.doc_colors = settings.mtv.documentColors;
-    });
-  }
-  getTaggedText() {
-    this._spinner.start();
-    return this._doc_service.getData(this.corpus)
-      .subscribe(docs => {
-        this.documents = docs;
-        this._assignmentService.setAssignmentData(docs);
-        this.html_content = docs.documents.map(
-          doc => this._sanitizer.bypassSecurityTrustHtml(doc.html_content));
-        this.cluster_info = new Map<string, DictionaryInformation>();
-        if (docs && docs.categories) {
-          for (const cluster of docs.categories) {
-            this.cluster_info.set(cluster.id, cluster);
-          }
-        }
-        const cluster_ids = new Set<string>(this.cluster_info.keys());
-        cluster_ids.delete('Other');
-
-        const pats = new Map<string, Map<string, number[]>>();
-        cluster_ids.forEach(c => pats.set(c, new Map<string, number[]>()));
-        let i = 0;
-        const zero: number[] = this.html_content.map((): number => 0);
-        for (const doc of this.html_content) {
-          $(doc['changingThisBreaksApplicationSecurity']).find('[data-key]').each(function() {
-            const cluster: string = $(this).attr('data-key');
-            const example: string = $(this).text().replace(/(\n|\s)+/g, ' ').toLowerCase().trim();
-            if (pats.has(cluster)) {
-              if (!pats.get(cluster).has(example)) {
-                pats.get(cluster).set(example, zero.slice());
-              }
-              const p_val: number[] = pats.get(cluster).get(example);
-              p_val[i] = p_val[i] + 1;
+        // transform data to tree nodes.
+        // zero vector for initializing counts.
+        const zero: number[] = documents.documents.map(() => 0);
+        const cpmap = new Map<string, Map<string, number[]>>();
+        documents.documents.forEach((doc, i) => {
+          doc.patterns.forEach((cluster) => {
+            if (!cpmap.has(cluster.category)) {
+              cpmap.set(cluster.category, new Map<string, number[]>());
             }
+            cluster.patterns.forEach((pat) => {
+              const counts =
+                cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
+              counts[i] += pat.count; // simple assignment works on unique assumption
+              cpmap.get(cluster.category)?.set(pat.pattern, counts);
+            });
           });
-          i++;
-        }
-        this.patterns = pats;
-        const clusters: TextClusterData[] = Array.from(cluster_ids).map(
-          (cid: string): TextClusterData =>
-            new TextClusterData(this.cluster_info.get(cid), pats.get(cid)));
-        clusters.sort(cluster_compare);
-        this.max_count = Math.max(...clusters.map(c => c.max_count));
-        this.clusters.data = clusters;
+        });
+        const dfsmap = (node: CommonDictionaryTreeNode): CompareTreeNode =>
+          new CompareTreeNode(
+            node,
+            node.children?.map(dfsmap) ?? [],
+            Array.from(cpmap.get(node.id)?.entries() ?? []).map(
+              ([pat, counts]) => new ComparePatternData(pat, counts)
+            )
+          );
+        this.treeData.data = common.tree.map(dfsmap);
+        this.treeControl.dataNodes = this.treeData.data;
+        this.max_count = Math.max(
+          ...this.treeData.data.map((root) => root.max_count)
+        );
         this._spinner.stop();
-      }
+      });
+    });
+  }
+
+  /**
+   * Does the given node have any children.
+   * @param _ index of node, ignored.
+   * @param node instance of tree node.
+   */
+  hasChild(_: number, node: CompareTreeNode): boolean {
+    return !!node.children && node.children.length > 0;
+  }
+  /**
+   * Does the given node have any patterns.
+   * @param _ index of node, ignored.
+   * @param node instance of tree node.
+   */
+  hasPatterns(_: number, node: CompareTreeNode): boolean {
+    return !!node.patterns && node.patterns.length > 0;
+  }
+
+  /**
+   * Are all of the descendants of the node selected.
+   * @param node a given tree node.
+   */
+  descendantsAllSelected(node: CompareTreeNode): boolean {
+    const descendants = this.treeControl
+      .getDescendants(node)
+      .filter((c) => c.count > 0);
+    return (
+      descendants.length > 0 &&
+      descendants.every((child) => this.selection.isSelected(child))
     );
   }
-  ngOnInit(): void {
-    this.getSettings();
-    this.getCorpus();
-    this.clusters.sort = this.sort;
+  /**
+   * Are some of the decendants of the node selected.
+   * @param node a given tree node.
+   */
+  descendantsPartiallySelected(node: CompareTreeNode): boolean {
+    const descendants = this.treeControl.getDescendants(node);
+    return (
+      descendants.some((child) => this.selection.isSelected(child)) &&
+      !this.descendantsAllSelected(node)
+    );
   }
+  /**
+   * Retrieve the parent of the given node.
+   * @param node a given tree node.
+   */
+  getParentNode(node: CompareTreeNode): CompareTreeNode | null {
+    if (this.treeControl.dataNodes && this.treeData) {
+      for (const root of this.treeControl.dataNodes) {
+        if (root.children.includes(node)) {
+          return root;
+        }
+        const desc = this.treeControl
+          .getDescendants(root)
+          .find((c) => c.children.includes(node));
+        if (desc) {
+          return desc;
+        }
+      }
+    }
+    return null;
+  }
+  /**
+   * Get the ancestors of the node up to the root.
+   * @param node a given tree node.
+   */
+  getAncestors(node: CompareTreeNode): CompareTreeNode[] {
+    const ancstors: CompareTreeNode[] = [];
+    let parent: CompareTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      ancstors.push(parent);
+      parent = this.getParentNode(parent);
+    }
+    return ancstors;
+  }
+  /**
+   * Get all of the classes to add to a tree node element.
+   * @param node a given tree node.
+   */
+  getCategories(node: CompareTreeNode): string[] {
+    return [
+      'pattern_label',
+      node.id,
+      ...this.getAncestors(node).map((a) => a.id),
+    ];
+  }
+  /**
+   * Fix tree node selection based on the selection state
+   * of all descendants.
+   * @param node a given tree node.
+   */
+  checkRootNodeSelection(node: CompareTreeNode): void {
+    const nodeSelected = this.selection.isSelected(node);
+    const descendants = this.treeControl
+      .getDescendants(node)
+      .filter((c) => c.count > 0);
+    const descAllSel =
+      descendants.length > 0 &&
+      descendants.every((c) => this.selection.isSelected(c));
+    if (nodeSelected && !descAllSel) {
+      this.selection.deselect(node);
+    } else if (!nodeSelected && descAllSel) {
+      this.selection.select(node);
+    }
+  }
+  /**
+   * Fix tree node selection based on the selection state of
+   * the parent node.
+   * @param node a given tree node.
+   */
+  checkAllParentsSelection(node: CompareTreeNode): void {
+    let parent: CompareTreeNode | null = this.getParentNode(node);
+    while (parent) {
+      this.checkRootNodeSelection(parent);
+      parent = this.getParentNode(parent);
+    }
+  }
+
+  /**
+   * Event handler for handling click events in the text window
+   * that reveals or hides the category annotations.
+   * @param $event event triggered by clicking on text.
+   */
+  click_select($event: MouseEvent): void {
+    let target: HTMLElement | null = $event.target as HTMLElement;
+    while (target && !target.getAttribute('data-key')) {
+      target = target.parentElement;
+    }
+    if (target && this.documents) {
+      const key = target?.getAttribute('data-key');
+      if (key && key.trim()) {
+        const isSelected = d3.select(target).classed('selected_text');
+        d3.selectAll('.selected_text').classed('selected_text', false);
+        d3.selectAll('.cluster_id').classed('d_none', true);
+        if (!isSelected) {
+          d3.select(target).classed('selected_text', true);
+          d3.select(target).select('sup.cluster_id').classed('d_none', false);
+        }
+      }
+    }
+  }
+  /** Report error to user. */
   reportError(message: string): void {
     this._snackBar.open(message, '\u2612');
   }
-  get_cluster_class(cluster: string): string {
-    if (this._selected_clusters.has(cluster)) {
-      return this._selected_clusters.get(cluster);
-    }
-    if (this._css_classes.length) {
-      this._selected_clusters.set(cluster, this._css_classes.shift());
-      return this._selected_clusters.get(cluster);
-    }
-    return 'cluster_default';
-  }
-  selection_change($event, cluster) {
-    if ($event && cluster) {
-      if ($event.checked && this.selection.selected.length >= this.max_selected_clusters) {
-        $event.source.checked = false;
-      } else {
-        this.selection.toggle(cluster);
-      }
-      const css_class = this.get_cluster_class(cluster.id);
-      if (!$event.source.checked && this._selected_clusters.has(cluster.id)) {
-        this._css_classes.unshift(this._selected_clusters.get(cluster.id));
-        this._selected_clusters.delete(cluster.id);
-      }
-      d3.selectAll(`[data-key=${cluster.id}]`).classed(css_class, $event.source.checked);
-    }
-  }
-  show_expanded(cluster: TextClusterData|null) {
-    if (this.expanded && cluster && cluster.id === this.expanded.id) {
-      return 'expanded';
-    }
-    return 'collapsed';
-  }
-  expand_handler($event, cluster: TextClusterData|null) {
-    this.expanded = this.expanded === cluster ? null : cluster;
-    $event.stopPropagation();
-  }
+  /** Check if user is using Safari */
   get is_safari(): boolean {
     // return true;
-    return navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1;
+    // FIXME: chrome reports that navigator.userAgent is going to change.
+    return (
+      navigator.userAgent.indexOf('Safari') !== -1 &&
+      navigator.userAgent.indexOf('Chrome') === -1
+    );
+  }
+  /**
+   * Updates selection state of tree nodes given the change in selection
+   * checkbox associated with a tree node.
+   * @param $event Event from clicking on category checkbox.
+   * @param node The tree node associated with the checkbox.
+   */
+  selectionChange($event: MatCheckboxChange, node: CompareTreeNode): void {
+    if ($event && node) {
+      this.selection.toggle(node);
+      const descendants = this.treeControl
+        .getDescendants(node)
+        .filter((c) => c.count > 0);
+      if (this.selection.isSelected(node)) {
+        // select all descendants
+        this.selection.select(...descendants);
+      } else {
+        // deselect all descendants
+        this.selection.deselect(...descendants);
+      }
+      descendants.forEach((child) => this.selection.isSelected(child));
+      this.checkAllParentsSelection(node); // update parents
+      this.highlightSelection(); // update color underlining
+    }
+  }
+  /**
+   * Event handler for checkbox clicks on leaf nodes.
+   * @param $event Event from clicking on checkbox's at the leaf nodes.
+   * @param node The clicked tree leaf node.
+   */
+  selectionLeafChange($event: MatCheckboxChange, node: CompareTreeNode): void {
+    if ($event && node) {
+      this.selection.toggle(node);
+      this.checkAllParentsSelection(node); // update parents
+      this.highlightSelection(); // update color underlining
+    }
+  }
+  /**
+   * Updates to color underlining of selected categories.
+   */
+  highlightSelection(): void {
+    this.colors.range(d3.schemeCategory10); // reset colors
+    d3.selectAll('.cluster').classed('cluster', false);
+    // Walk tree for highest levels of selected nodes in each branch
+    // Relies on the parent and decendant checks to maintain the
+    // proper state of all the nodes.
+    for (const root of this.treeControl.dataNodes) {
+      if (this.selection.isSelected(root)) {
+        d3.selectAll(`.${root.id}`)
+          .classed('cluster', true)
+          .style('border-bottom-color', this.colors(root.id));
+      } else {
+        for (const sub of root.children ?? []) {
+          if (this.selection.isSelected(sub)) {
+            d3.selectAll(`.${sub.id}`)
+              .classed('cluster', true)
+              .style('border-bottom-color', this.colors(sub.id));
+          } else {
+            for (const cat of sub.children ?? []) {
+              if (this.selection.isSelected(cat)) {
+                d3.selectAll(`.${cat.id}`)
+                  .classed('cluster', true)
+                  .style('border-bottom-color', this.colors(cat.id));
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

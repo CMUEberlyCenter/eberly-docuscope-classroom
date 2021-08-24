@@ -1,39 +1,39 @@
 import { TestBed } from '@angular/core/testing';
-import { Type } from '@angular/core';
-
-import { AssignmentService } from './assignment.service';
 import { AssignmentData } from './assignment-data';
+import { AssignmentService } from './assignment.service';
 
 describe('AssignmentService', () => {
   let service: AssignmentService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ ],
-      providers: [ AssignmentService ]
+      imports: [],
+      providers: [AssignmentService],
     });
     service = TestBed.inject(AssignmentService);
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    void expect(service).toBeTruthy();
   });
 
   it('setAssignment', () => {
     const data = 'Set Assignment';
-    service.assignment$.subscribe(assign => expect(assign).toEqual(data));
+    service.assignment$.subscribe(
+      (assign) => void expect(assign).toEqual(data)
+    );
     service.setAssignment(data);
   });
 
   it('setCourse', () => {
     const data = 'Set Course';
-    service.course$.subscribe(course => expect(course).toEqual(data));
+    service.course$.subscribe((course) => void expect(course).toEqual(data));
     service.setCourse(data);
   });
 
   it('setInstructor', () => {
     const data = 'Testy Tester';
-    service.instructor$.subscribe(inst => expect(inst).toEqual(data));
+    service.instructor$.subscribe((inst) => void expect(inst).toEqual(data));
     service.setInstructor(data);
   });
 
@@ -42,13 +42,16 @@ describe('AssignmentService', () => {
       course: 'course_stub',
       assignment: 'assignment_stub',
       instructor: 'Testy Tester',
-      categories: []
     };
     service.assignment$.subscribe(
-      assign => expect(assign).toEqual(stub.assignment));
-    service.course$.subscribe(course => expect(course).toEqual(stub.course));
+      (assign) => void expect(assign).toEqual('assignment_stub')
+    );
+    service.course$.subscribe(
+      (course) => void expect(course).toEqual('course_stub')
+    );
     service.instructor$.subscribe(
-      inst => expect(inst).toEqual(stub.instructor));
+      (inst) => void expect(inst).toEqual('Testy Tester')
+    );
     service.setAssignmentData(stub);
   });
 });

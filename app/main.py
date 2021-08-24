@@ -1,20 +1,23 @@
 """DocuScope Classroom analysis tools interface."""
 #from functools import partial
 import logging
+import os
 import traceback
 
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import Response, FileResponse
-from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from fastapi.staticfiles import StaticFiles
+#from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from default_settings import Config
-from routers import document, ds_data, generate_reports, groups, patterns, text_content
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import FileResponse, Response
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-# logging.basicConfig(level=logging.INFO)
+from default_settings import Config
+from routers import document, ds_data, generate_reports, groups, patterns
+
+#logging.basicConfig(level=logging.DEBUG)
 
 # Setup database sesson manager
 ENGINE = create_engine(
@@ -33,6 +36,7 @@ app = FastAPI( #pylint: disable=invalid-name
         'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
     })
 
+#app.add_middleware(PyInstrumentProfilerMiddleware) # profiling
 #python -c 'import os; print(os.urandom(16))' =>
 #secret_key = b'\xf7i\x0b\xb5[)C\x0b\x15\xf0T\x13\xe1\xd2\x9e\x8a'
 
@@ -70,9 +74,13 @@ app.include_router(ds_data.router) # boxplot, rank, and scatter use ds_data
 app.include_router(groups.router)
 app.include_router(patterns.router)
 app.include_router(generate_reports.router)
-app.include_router(text_content.router)
 
 ## Serve static files.
+@app.get("/common_dictionary")
+async def common_dictionary():
+    """Serve the common dictionary information."""
+    return FileResponse(os.path.join(Config.DICTIONARY_HOME, 'common_dict.json'))
+
 @app.middleware("http")
 async def add_custom_header(request, call_next):
     """Serve the classroom web application from static."""
@@ -80,10 +88,12 @@ async def add_custom_header(request, call_next):
     if response.status_code == 404:
         return FileResponse('static/index.html')
     return response
+
 @app.exception_handler(404)
 def not_found(_request, _exc):
     """Handler for 404 error which instead returns index.html"""
     return FileResponse('static/index.html')
+
 app.mount("/classroom", StaticFiles(directory="static", html=True), name="static")
 
 #if __name__ == '__main__':

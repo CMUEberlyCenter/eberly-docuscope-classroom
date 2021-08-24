@@ -1,22 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+/* Component for navigating between tools
+
+  The available tools differ depending on if the user is an Instructor.
+*/
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.css']
+  styleUrls: ['./nav.component.scss'],
 })
-export class NavComponent implements OnInit {
+export class NavComponent {
+  constructor(private _route: ActivatedRoute) {}
 
-  constructor(private _route: ActivatedRoute) { }
-
-  is_current(id: string) {
+  /**
+   * Is the given tab the current tab.
+   * @param id of the tab.
+   */
+  is_current(id: string): boolean {
     return id === `/${this._route.snapshot.url.join('/')}`;
   }
-  is_instructor() {
+  /** Test if the user is an instructor. */
+  is_instructor(): boolean {
     const qmap = this._route.snapshot.queryParamMap;
-    return qmap && qmap.has('roles') && qmap.get('roles').search(/Instructor/i) >= 0;
+    return (
+      qmap &&
+      qmap.has('roles') &&
+      (qmap.get('roles')?.search(/Instructor/i) ?? -1) >= 0
+    );
   }
-  ngOnInit() { }
-
 }

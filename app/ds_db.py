@@ -1,10 +1,11 @@
 """Schemas for the SQL DocuScope sidecar database."""
 import uuid
-from sqlalchemy import Boolean, Column, Enum, Integer, JSON, ForeignKey, \
-    LargeBinary, SmallInteger, String, TIMESTAMP, VARBINARY
+
+from sqlalchemy import (JSON, TIMESTAMP, VARBINARY, Boolean, Column, Enum,
+                        ForeignKey, Integer, LargeBinary, SmallInteger, String)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator
 
 BASE = declarative_base()
 TINY_TEXT = String(255)
@@ -54,6 +55,7 @@ class Filesystem(BASE): #pylint: disable=R0903
         return "<File(id='{}', state='{}'>"\
             .format(self.id, self.state)
 
+#depricate this
 class DSDictionary(BASE): #pylint: disable=R0903
     """The valid dictionaries in the docuscope database."""
     __tablename__ = 'dictionaries'
@@ -72,8 +74,8 @@ class Assignment(BASE): #pylint: disable=R0903
 
     id = Column(Integer, primary_key=True)
     oli_id = Column(VARBINARY(20))
-    dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
-    Dictionary = relationship("DSDictionary")
+    #dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
+    #Dictionary = relationship("DSDictionary")
     name = Column(TINY_TEXT)
     course = Column(TINY_TEXT)
     instructor = Column(TINY_TEXT)

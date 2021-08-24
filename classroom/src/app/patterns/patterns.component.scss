@@ -1,0 +1,46 @@
+app-sunburst-chart {
+  min-width: 540px;
+  max-width: 720px;
+}
+.tree-node-invisible {
+  display: none;
+}
+.tree {
+  width: 450px;
+}
+.tree ul,
+.tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+.tree-node {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip-icon {
+  font-size: small;
+}
+
+.patterns_container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.pattern-table {
+  margin-left: 3em;
+  max-height: 13em; /*calc(30vh);*/
+  overflow: auto;
+}
+
+summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,29 +1,30 @@
-import { Injectable } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
 import { Observable, of } from 'rxjs';
 
-import { MessageService } from './message.service';
-
-export type HandleError = <T> (operation?: string, result?: T) =>
-(error: HttpErrorResponse) => Observable<T>;
+export type HandleError = <T>(
+  operation?: string,
+  result?: T
+) => (error: HttpErrorResponse) => Observable<T>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HttpErrorHandlerService {
+  constructor(private _snackBar: MatSnackBar) {}
 
-  constructor(private messageService: MessageService,
-    private _snackBar: MatSnackBar) { }
+  createHandleError =
+    (serviceName = '') =>
+    <T>(
+      operation = 'operation',
+      result = {} as T
+    ): ((error: HttpErrorResponse) => Observable<T>) =>
+      this.handleError(serviceName, operation, result);
 
-  createHandleError = (serviceName = '') =>
-    <T> (operation = 'operation', result = {} as T) =>
-      this.handleError(serviceName, operation, result)
-
-  handleError<T> (serviceName = '', operation = 'operation', result = {} as T) {
-    return (error: HttpErrorResponse):
-    Observable<T> => {
+  handleError<T>(serviceName = '', operation = 'operation', result = {} as T) {
+    return (error: HttpErrorResponse): Observable<T> => {
       console.error(error);
       let message = '';
       if (error.error instanceof ErrorEvent) {
@@ -32,14 +33,17 @@ export class HttpErrorHandlerService {
         message = `${error.message} -- ${error.error}`;
       } else if (error.error && 'detail' in error.error) {
         if (Array.isArray(error.error.detail)) {
-          message = `Server response ${error.status} (${error.statusText}) with message "${error.error.detail.map(e => e.msg).join(', ')}"`;
+          const details = error.error.detail as { msg: string }[];
+          message = `Server response ${error.status} (${
+            error.statusText
+          }) with message "${details.map((e) => e.msg).join(', ')}"`;
         } else {
-          message = error.error.detail;
+          message = error.error.detail as string;
         }
       } else {
         message = error.message;
       }
-      this.messageService.add(`${serviceName}: ${operation} failed: ${message}`);
+      console.log(`${serviceName}: ${operation} failed: ${message}`);
       this._snackBar.open(message, '\u2612');
       return of(result);
     };

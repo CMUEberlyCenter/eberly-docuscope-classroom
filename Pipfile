@@ -14,10 +14,13 @@ itsdangerous = "*"
 aiofiles = "*"
 email-validator = "*"
 ujson = "*"
+lxml = "*"
+fastapi-profiler = "*"
+deprecation = "*"
 
 [dev-packages]
 pylint = "*"
 bandit = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

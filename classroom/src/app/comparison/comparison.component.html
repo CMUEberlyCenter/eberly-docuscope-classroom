@@ -1,125 +1,143 @@
 <div class="container">
   <mat-card class="sidebar">
     <mat-card-title>Dictionary Categories</mat-card-title>
-    <mat-card-subtitle>Select up to {{max_clusters}}:</mat-card-subtitle>
+    <mat-card-subtitle>
+      Select categories to highlight instances in the text.<br />
+      Colors will start to repeat after {{ max_clusters }} selections:
+    </mat-card-subtitle>
     <mat-card-content>
-      <table mat-table matSort #clusterTable
-             #TableSort=matSort  [dataSource]="clusters"
-             matSortDisableClear multiTemplateDataRows>
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
-          <td mat-cell *matCellDef="let clust;">
-            <mat-checkbox
-                (click)="$event.stopPropagation()"
-                (change)="selection_change($event, clust)"
-                [checked]="selection.isSelected(clust)"
-                [value]="clust.id"
-                [aria-label]="clust.name"> <!-- add checkboxLabel method -->
-              <span class="cluster-name">
-                <span [attr.data-key]="clust.id">{{clust.name}}</span>
-                <button mat-icon-button
-                        matTooltip="{{clust.description}}"
-                        matTooltipPosition="after">
-                  <mat-icon class="tooltip-icon">speaker_notes</mat-icon>
+      <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="tree">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+          <li class="mat-tree-node tree-node">
+            <div>
+              <button mat-icon-button disabled></button>
+              <mat-checkbox [checked]="selection.isSelected(node)" (click)="$event.stopPropagation()" [value]="node"
+                [disabled]="node.max_count === 0" [aria-label]="node.label">
+                <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                </ng-container>
+              </mat-checkbox>
+            </div>
+            <!--<div>{{ node.counts }}</div>-->
+            <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{ row: node }"></ng-container>
+          </li>
+        </mat-tree-node>
+        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+          <li>
+            <div class="mat-tree-node tree-node">
+              <div>
+                <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
+                  <mat-icon class="mat-icon-rtl-mirror">
+                    {{
+                    treeControl.isExpanded(node)
+                    ? 'expand_more'
+                    : 'chevron_right'
+                    }}
+                  </mat-icon>
                 </button>
-              </span>
-            </mat-checkbox>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="count0">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
-          <td mat-cell *matCellDef="let clust;">{{clust.count0}}</td>
-        </ng-container>
-        <ng-container matColumnDef="count1">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Count</th>
-          <td mat-cell *matCellDef="let clust;">{{clust.count1}}</td>
-        </ng-container>
-        <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
-          <td mat-cell *matCellDef="let clust;"><span matTooltip="{{clust.counts.join(' + ')}}" matTooltipPosition="after">{{clust.count}}</span></td>
-        </ng-container>
-        <ng-container matColumnDef="bar">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let clust;">
-            <div matTooltip="{{clust.count}}: {{clust.counts.join(' vs ')}}" matTooltipPosition="after">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 [style.width]="'80px'" [style.height]="'32px'">
-              <desc>{{clust.counts.join(' vs ')}}</desc>
-              <rect [attr.x]="(50-clust.left(max_count))+'%'" y="7" height="18" [attr.width]="clust.left(max_count)+'%'"
-                    [attr.fill]="doc_colors[0]" stroke-width="1"/>
-              <rect x="50%" y="7" height="18" [attr.width]="clust.right(max_count)+'%'"
-                    [attr.fill]="doc_colors[1]" stroke-width="1"/>
-              <line stroke="black" x1="50%" x2="50%" y1="0" y2="32"/>
-            </svg>
-            </div>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="expand">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let clust;">
-            <button mat-icon-button (click)="expand_handler($event, clust)">
-              <mat-icon [@indicatorRotate]="show_expanded(clust)">expand_more</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="expandedDetail">
-          <td mat-cell *matCellDef="let clust"
-              [attr.colspan]="cluster_columns.length">
-            <div class="cluster-detail" [style.height]="0"
-                 [@detailExpand]="show_expanded(clust)">
-              <div class="pattern-table">
-                <app-compare-patterns-table
-                    [patterns]="clust.patterns" [colors]="doc_colors">
-                </app-compare-patterns-table>
+                <mat-checkbox [checked]="descendantsAllSelected(node)"
+                  [indeterminate]="descendantsPartiallySelected(node)" (click)="$event.stopPropagation()"
+                  (change)="selectionChange($event, node)" [disabled]="node.max_count === 0" [value]="node"
+                  [aria-label]="node.label">
+                  <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                  </ng-container>
+                </mat-checkbox>
               </div>
+              <!--<div [class.d_none]="treeControl.isExpanded(node)">
+                {{ node.counts }}
+              </div>-->
+              <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{ row: node }"></ng-container>
             </div>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="cluster_columns"></tr>
-        <tr mat-row *matRowDef="let clust; columns: cluster_columns;"
-            class="cluster-row"
-            [class.cluster-expanded-row]="clust === expanded"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
-            class="cluster-detail-row"></tr>
-      </table>
+            <ul [class.d_none]="!treeControl.isExpanded(node)">
+              <ng-container matTreeNodeOutlet></ng-container>
+            </ul>
+          </li>
+        </mat-nested-tree-node>
+        <mat-tree-node *matTreeNodeDef="let node; when: hasPatterns">
+          <li [style.width]="'100%'">
+            <div class="mat-tree-node tree-node">
+              <div>
+                <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
+                  <mat-icon class="mat-icon-rtl-mirror">
+                    {{
+                    treeControl.isExpanded(node)
+                    ? 'expand_more'
+                    : 'chevron_right'
+                    }}
+                  </mat-icon>
+                </button>
+                <mat-checkbox [checked]="selection.isSelected(node)" (click)="$event.stopPropagation()"
+                  (change)="selectionLeafChange($event, node)" [value]="node" [disabled]="node.max_count === 0"
+                  [aria-label]="node.label">
+                  <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                  </ng-container>
+                </mat-checkbox>
+              </div>
+              <!--<div>{{ node.counts }}</div>-->
+              <ng-container [ngTemplateOutlet]="patterncount" [ngTemplateOutletContext]="{ row: node }"></ng-container>
+            </div>
+            <div [class.pattern-table]="true" [class.d_none]="!treeControl.isExpanded(node)">
+              <app-compare-patterns-table [patterns]="node.patterns" [colors]="dColors">
+              </app-compare-patterns-table>
+            </div>
+          </li>
+        </mat-tree-node>
+      </mat-tree>
     </mat-card-content>
   </mat-card>
-  <div class="document_area" *ngIf="!is_safari">
+  <div class="document_area" *ngIf="!is_safari && documents">
     <nav class="layout mat-accent">
       <mat-button-toggle-group [(value)]="direction">
-        <mat-button-toggle value="vertical" aria-label="Top-Bottom View"><mat-icon>view_stream</mat-icon></mat-button-toggle>
-        <mat-button-toggle value="horizontal" aria-label="Left-Right View"><mat-icon>view_column</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="vertical" aria-label="Top-Bottom View">
+          <mat-icon>view_stream</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="horizontal" aria-label="Left-Right View">
+          <mat-icon>view_column</mat-icon>
+        </mat-button-toggle>
       </mat-button-toggle-group>
     </nav>
     <main *ngIf="documents" class="text_cards">
       <as-split unit="percent" [direction]="direction">
         <as-split-area *ngFor="let doc of documents.documents; index as i" [style.overflow]="'hidden'">
           <div class="document_entry">
-            <div class="text_head" [style.background]="doc_colors[i]">
-              <span>ID:&nbsp;{{doc.text_id}}</span>
-              <span>Owner:&nbsp;{{doc.owner}}</span>
+            <div class="text_head" [style.background]="doc_colors(doc.text_id)">
+              <span>ID:&nbsp;{{ doc.text_id }}</span>
+              <span>Owner:&nbsp;{{ doc.owner }}</span>
             </div>
             <div class="document_body">
-            <article class="text_content" [innerHTML]="html_content[i]"
-                     (click)="click_select($event)">
-            </article>
+              <article class="text_content" [innerHTML]="html_content[i]" (click)="click_select($event)"></article>
             </div>
           </div>
         </as-split-area>
       </as-split>
     </main>
   </div>
-  <ng-container *ngIf="is_safari">
-    <main class="safari_entry"
-          *ngFor="let doc of documents.documents; index as i">
-      <div class="safari_head" [style.background]="doc_colors[i]">
-        <span>ID:&nbsp;{{doc.text_id}}</span>
-        <span>Owner:&nbsp;{{doc.owner}}</span>
+  <ng-container *ngIf="is_safari && documents">
+    <main class="safari_entry" *ngFor="let doc of documents.documents; index as i">
+      <div class="safari_head" [style.background]="doc_colors(doc.text_id)">
+        <span>ID:&nbsp;{{ doc.text_id }}</span>
+        <span>Owner:&nbsp;{{ doc.owner }}</span>
       </div>
-      <article class="text_content" [innerHTML]="html_content[i]"
-               (click)="click_select($event)"></article>
+      <article class="text_content" [innerHTML]="html_content[i]" (click)="click_select($event)"></article>
     </main>
   </ng-container>
 </div>
+
+<ng-template #patternlabel let-row="row">
+  <span [class]="getCategories(row)">{{ row.label }}</span>
+  <button *ngIf="row.help" mat-icon-button matTooltip="{{ row.help }}" matTooltipPosition="after">
+    <mat-icon class="tooltip-icon">comment</mat-icon>
+  </button>
+</ng-template>
+<ng-template #patterncount let-row="row">
+  <div [class.d_none]="!hasPatterns(0, row) && treeControl.isExpanded(row)"
+    matTooltip="{{ row.count }}: {{ row.counts[0] }} vs {{ row.counts[1] }}" matTooltipPosition="after">
+    <svg xmlns="http://www.w3.org/2000/svg" [style.width]="'80px'" [style.height]="'32px'">
+      <desc>{{ row.counts.join(' vs ') }}</desc>
+      <rect [attr.x]="50 - row.left(max_count) + '%'" y="7" height="18" [attr.width]="row.left(max_count) + '%'"
+        [attr.fill]="dColors[0]" stroke-width="1" />
+      <rect x="50%" y="7" height="18" [attr.width]="row.right(max_count) + '%'" [attr.fill]="dColors[1]"
+        stroke-width="1" />
+      <line stroke="black" x1="50%" x2="50%" y1="0" y2="32" />
+    </svg>
+  </div>
+</ng-template>

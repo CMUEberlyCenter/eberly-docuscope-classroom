@@ -1,9 +1,12 @@
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { DocumentService } from './document.service';
+import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
+import { DocumentService } from './document.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 
 const data = {
@@ -16,33 +19,39 @@ const data = {
       owner: 's1',
       ownedby: 'student',
       word_count: 0,
-      html_content: ''
+      html_content: '',
     },
     {
       text_id: '2',
       owner: 's2',
       ownedby: 'instructor',
       word_count: 0,
-      html_content: ''
-    }
-  ]
+      html_content: '',
+    },
+  ],
 };
 
 describe('DocumentService', () => {
   let service: DocumentService;
   let httpMock: HttpTestingController;
-  let errorServiceMock;
+  let errorServiceMock: Spied<HttpErrorHandlerService>;
   const server = `${environment.backend_server}/document`;
 
   beforeEach(() => {
-    errorServiceMock = jasmine.createSpyObj('HttpErrorHandlerService', ['createHandleError']);
-    errorServiceMock.createHandleError.and.returnValue(() => (fn, edata) => edata);
+    errorServiceMock = jasmine.createSpyObj('HttpErrorHandlerService', [
+      'createHandleError',
+    ]) as Spied<HttpErrorHandlerService>;
+    errorServiceMock.createHandleError.and.returnValue(
+      () =>
+        (_fn: () => unknown, edata: unknown): unknown =>
+          edata
+    );
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule, MatSnackBarModule ],
+      imports: [HttpClientTestingModule, MatSnackBarModule],
       providers: [
-         DocumentService,
-         { provide: HttpErrorHandlerService, useValue: errorServiceMock }
-      ]
+        DocumentService,
+        { provide: HttpErrorHandlerService, useValue: errorServiceMock },
+      ],
     });
     service = TestBed.inject(DocumentService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -51,18 +60,20 @@ describe('DocumentService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-    expect(errorServiceMock.createHandleError).toHaveBeenCalledWith('DocumentService');
+    void expect(service).toBeTruthy();
+    expect(errorServiceMock.createHandleError).toHaveBeenCalledWith(
+      'DocumentService'
+    );
   });
 
   // it('server', () => expect(service.server).toBe(server));
 
   it('getData', () => {
-    service.getData(['1', '2']).subscribe(d => {
-      expect(d.documents[0].text_id).toBe('1');
+    service.getData(['1', '2']).subscribe((d) => {
+      void expect(d.documents[0].text_id).toBe('1');
     });
     const req = httpMock.expectOne(server);
-    expect(req.request.method).toBe('POST');
+    void expect(req.request.method).toBe('POST');
     req.flush(data);
   });
 });

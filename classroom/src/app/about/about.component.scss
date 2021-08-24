@@ -1,0 +1,19 @@
+@use 'sass:map';
+@use '~@angular/material' as mat;
+@import '../../cmu-app-theme.scss';
+
+$color-config: mat.get-color-config($cmu-theme);
+$primary-palette: map.get($color-config, 'primary');
+.header {
+  text-align: center;
+  color: mat.get-color-from-palette($primary-palette, 900);
+}
+
+.contrib {
+  list-style-type: none;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row-reverse;
+}
