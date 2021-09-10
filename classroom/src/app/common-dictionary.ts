@@ -83,7 +83,7 @@ export class CommonDictionary implements ICommonDictionary {
   }
 
   get nodes(): Entry[] {
-    const nodes: Entry[] = this.categories.reduce(
+    return this.categories.reduce(
       (acc, cat) => [
         ...acc,
         cat,
@@ -94,6 +94,5 @@ export class CommonDictionary implements ICommonDictionary {
       ],
       [] as Entry[]
     );
-    return nodes;
   }
 }

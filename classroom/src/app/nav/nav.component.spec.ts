@@ -12,7 +12,7 @@ import { NavComponent } from './nav.component';
 describe('NavComponent', () => {
   let component: NavComponent;
   let fixture: ComponentFixture<NavComponent>;
-  let activated_route_spy;
+  let activated_route_spy; //: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(
     waitForAsync(() => {
@@ -48,17 +48,13 @@ describe('NavComponent', () => {
     void expect(component).toBeTruthy();
   });
 
-  it('is_current', () => {
-    void expect(component.is_current('')).toBe(false);
-    void expect(component.is_current('/stub')).toBe(true);
-    void expect(component.is_current('/foo/bar')).toBe(false);
-  });
-
   it('is_instructor', () => {
     void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Student');
     void expect(component.is_instructor()).toBe(false);
     activated_route_spy.snapshot.queryParamMap.set('roles', 'Instructor');
     void expect(component.is_instructor()).toBe(true);
+    activated_route_spy.snapshot.queryParamMap = undefined;
+    void expect(component.is_instructor()).toBe(false);
   });
 });

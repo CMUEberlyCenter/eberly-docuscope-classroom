@@ -46,7 +46,7 @@ describe('CorpusService', () => {
   it('getDocumentIds', () => {
     void expect(service.getDocumentIds()).toEqual(['1', '2', '3']);
     console.error = jasmine.createSpy('error');
-    activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('');
+    activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue(undefined);
     void expect(service.getDocumentIds()).toEqual([]);
     void expect(console.error).toHaveBeenCalled();
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('1,2,3');

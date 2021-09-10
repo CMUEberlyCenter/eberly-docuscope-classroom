@@ -177,9 +177,9 @@ export class ComparisonComponent implements OnInit {
             }
             cluster.patterns.forEach((pat) => {
               const counts =
-                cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
+                cpmap.get(cluster.category).get(pat.pattern) ?? zero.slice();
               counts[i] += pat.count; // simple assignment works on unique assumption
-              cpmap.get(cluster.category)?.set(pat.pattern, counts);
+              cpmap.get(cluster.category).set(pat.pattern, counts);
             });
           });
         });
@@ -328,16 +328,14 @@ export class ComparisonComponent implements OnInit {
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
-    if (target && this.documents) {
-      const key = target?.getAttribute('data-key');
-      if (key && key.trim()) {
-        const isSelected = d3.select(target).classed('selected_text');
-        d3.selectAll('.selected_text').classed('selected_text', false);
-        d3.selectAll('.cluster_id').classed('d_none', true);
-        if (!isSelected) {
-          d3.select(target).classed('selected_text', true);
-          d3.select(target).select('sup.cluster_id').classed('d_none', false);
-        }
+    const key = target.getAttribute('data-key');
+    if (target && this.documents && key && key.trim()) {
+      const isSelected = d3.select(target).classed('selected_text');
+      d3.selectAll('.selected_text').classed('selected_text', false);
+      d3.selectAll('.cluster_id').classed('d_none', true);
+      if (!isSelected) {
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -405,13 +403,13 @@ export class ComparisonComponent implements OnInit {
           .classed('cluster', true)
           .style('border-bottom-color', this.colors(root.id));
       } else {
-        for (const sub of root.children ?? []) {
+        for (const sub of root.children) {
           if (this.selection.isSelected(sub)) {
             d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
               .style('border-bottom-color', this.colors(sub.id));
           } else {
-            for (const cat of sub.children ?? []) {
+            for (const cat of sub.children) {
               if (this.selection.isSelected(cat)) {
                 d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)

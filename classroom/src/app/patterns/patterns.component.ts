@@ -82,7 +82,7 @@ export class PatternsComponent implements OnInit {
         const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
           name: node.label,
           children: cpmap.get(node.id)
-            ? cpmap.get(node.id)?.map((p) => ({
+            ? cpmap.get(node.id).map((p) => ({
                 name: p.pattern,
                 value: p.count,
               }))

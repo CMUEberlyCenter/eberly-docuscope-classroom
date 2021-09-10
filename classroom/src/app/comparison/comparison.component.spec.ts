@@ -43,7 +43,7 @@ describe('ComparisonComponent', () => {
   let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let documents_service_spy: Spied<DocumentService>;
   const test_html = `
-  <p>
+  <p id="passage">
   <span id="tag_0" data-key="bogus" class="tag">
    <span id="w1" class="token">stub</span>
    <span id="w2" class="token">text</span>
@@ -56,6 +56,7 @@ describe('ComparisonComponent', () => {
    <span id="w5" class="token">total</span>
    <span id="w6" class="token">bogus</span>
   </span>
+  <span id="tag_3" data-key=" " class="tag"></span>
   </p>`;
 
   beforeEach(
@@ -272,7 +273,15 @@ describe('ComparisonComponent', () => {
       const txt = fixture.debugElement.query(By.css('.text_content'));
       //expect(txt.nativeElement.innerText).toBeNull();
       txt.triggerEventHandler('click', {});
-      //fixture.detectChanges();
+      const word = fixture.debugElement.query(By.css('#w1'))
+        .nativeElement as HTMLElement;
+      void expect(word).toBeTruthy();
+      word.click();
+      word.click();
+      (
+        fixture.debugElement.query(By.css('#tag_3'))
+          .nativeElement as HTMLElement
+      ).click();
       //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
     }));
   /*it('click_select invalid', () =>

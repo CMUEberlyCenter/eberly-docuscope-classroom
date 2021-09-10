@@ -119,12 +119,12 @@ export class TextViewComponent implements OnInit {
   getParentNode(node: PatternTreeNode): PatternTreeNode | null {
     if (this.treeControl.dataNodes) {
       for (const root of this.treeControl.dataNodes) {
-        if (root.children?.includes(node)) {
+        if (root.children.includes(node)) {
           return root;
         }
         const desc = this.treeControl
           .getDescendants(root)
-          .find((c) => c.children?.includes(node));
+          .find((c) => c.children.includes(node));
         if (desc) {
           return desc;
         }
@@ -181,16 +181,14 @@ export class TextViewComponent implements OnInit {
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
-    if (target && this.tagged_text) {
-      const key = target?.getAttribute('data-key');
-      if (key && key.trim()) {
-        const isSelected = d3.select(target).classed('selected_text');
-        d3.selectAll('.selected_text').classed('selected_text', false);
-        d3.selectAll('.cluster_id').classed('d_none', true);
-        if (!isSelected) {
-          d3.select(target).classed('selected_text', true);
-          d3.select(target).select('sup.cluster_id').classed('d_none', false);
-        }
+    const key = target?.getAttribute('data-key');
+    if (target && this.tagged_text && key && key.trim()) {
+      const isSelected = d3.select(target).classed('selected_text');
+      d3.selectAll('.selected_text').classed('selected_text', false);
+      d3.selectAll('.cluster_id').classed('d_none', true);
+      if (!isSelected) {
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -227,13 +225,13 @@ export class TextViewComponent implements OnInit {
           .classed('cluster', true)
           .style('border-bottom-color', this.colors(root.id));
       } else {
-        for (const sub of root.children ?? []) {
+        for (const sub of root.children) {
           if (this.selection.isSelected(sub)) {
             d3.selectAll(`.${sub.id}`)
               .classed('cluster', true)
               .style('border-bottom-color', this.colors(sub.id));
           } else {
-            for (const cat of sub.children ?? []) {
+            for (const cat of sub.children) {
               if (this.selection.isSelected(cat)) {
                 d3.selectAll(`.${cat.id}`)
                   .classed('cluster', true)

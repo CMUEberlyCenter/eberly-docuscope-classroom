@@ -25,7 +25,8 @@ export function category_value(
   if (category) {
     const cat: string = typeof category === 'string' ? category : category.id;
     if (cat in datum) {
-      return Number(datum[cat]) ?? 0.0;
+      const val = Number(datum[cat]);
+      return isNaN(val) ? 0.0 : val;
     }
   }
   return 0.0;
@@ -64,6 +65,24 @@ export function max_boxplot_value(data?: DocuScopeData): number {
     );
   }
   return Math.ceil(maximum * 10) / 10;
+}
+
+/**
+ * Find the maximal value of category proportions.
+ * @param data Data from docuscope
+ * @returns the max proportion value over all categories of the document data.
+ */
+export function max_document_data_value(data: DocuScopeData): number {
+  const maxValue = Math.max(
+    ...data.data.map((doc) =>
+      Math.max(
+        ...Object.values(doc)
+          .map((p) => Number(p))
+          .filter((n) => !isNaN(n) && n <= 1) // Remove NaN and total count
+      )
+    )
+  );
+  return maxValue > 0 ? maxValue : 1;
 }
 
 @Injectable({
