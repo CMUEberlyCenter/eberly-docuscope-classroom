@@ -22,6 +22,7 @@ import {
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
+import { partition } from '../pattern-tree-node';
 import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { Settings, SettingsService } from '../settings.service';
 
@@ -397,28 +398,40 @@ export class ComparisonComponent implements OnInit {
     // Walk tree for highest levels of selected nodes in each branch
     // Relies on the parent and decendant checks to maintain the
     // proper state of all the nodes.
-    for (const root of this.treeControl.dataNodes) {
-      if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${root.id}`)
+    const [selectedRoot, unselectedRoot] = partition(
+      this.treeControl.dataNodes,
+      (root) => this.selection.isSelected(root)
+    );
+    selectedRoot.forEach((root) =>
+      d3
+        .selectAll(`.${root.id}`)
+        .classed('cluster', true)
+        .style('border-bottom-color', this.colors(root.id))
+    );
+    const subs = unselectedRoot.reduce<CompareTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    const [selectedSubs, unselectedSubs] = partition(subs, (sub) =>
+      this.selection.isSelected(sub)
+    );
+    selectedSubs.forEach((sub) =>
+      d3
+        .selectAll(`.${sub.id}`)
+        .classed('cluster', true)
+        .style('border-bottom-color', this.colors(sub.id))
+    );
+    const cats = unselectedSubs.reduce<CompareTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    cats
+      .filter((cat) => this.selection.isSelected(cat))
+      .forEach((cat) =>
+        d3
+          .selectAll(`.${cat.id}`)
           .classed('cluster', true)
-          .style('border-bottom-color', this.colors(root.id));
-      } else {
-        for (const sub of root.children) {
-          if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${sub.id}`)
-              .classed('cluster', true)
-              .style('border-bottom-color', this.colors(sub.id));
-          } else {
-            for (const cat of sub.children) {
-              if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${cat.id}`)
-                  .classed('cluster', true)
-                  .style('border-bottom-color', this.colors(cat.id));
-              }
-            }
-          }
-        }
-      }
-    }
+          .style('border-bottom-color', this.colors(cat.id))
+      );
   }
 }

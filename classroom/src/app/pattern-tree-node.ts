@@ -1,6 +1,18 @@
 import { CommonDictionaryTreeNode } from './common-dictionary';
 import { instance_count, PatternData } from './patterns.service';
 
+export function partition<T>(
+  array: T[],
+  isValid: (item: T) => boolean
+): [T[], T[]] {
+  return array.reduce<[T[], T[]]>(
+    ([pass, fail], elem) => {
+      return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
+    },
+    [[], []]
+  );
+}
+
 export class PatternTreeNode {
   id: string;
   label: string;
