@@ -56,6 +56,11 @@ def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
         raise HTTPException(
             detail=f"No tagging data for {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+    if doc['ds_num_word_tokens'] == 0:
+        logging.error("Invalid documenxt, no content for %s (%s)", filename, uuid)
+        raise HTTPException(
+            detail=f"Tagger failed to parse {filename}",
+            status_code=HTTP_500_Internal_SERVER_ERROR)
 
 def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame, DataFrame]:
     """ Retrieve the documents and preprocess each one. """

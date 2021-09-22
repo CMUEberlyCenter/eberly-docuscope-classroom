@@ -10,7 +10,7 @@ COPY ./classroom .
 RUN npm run version # Make sure version is up to date.
 RUN npm run build:deploy
 
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM tiangolo/uvicorn-gunicorn-fastapi
 ARG BRANCH="master"
 ARG COMMIT=""
 ARG TAG="latest"

@@ -14,6 +14,7 @@ class UUID(TypeDecorator):
     """A sqlalchemy type for handling UUIDs stored as bytes."""
     #pylint: disable=W0223
     impl = VARBINARY(16)
+    cache_ok = True
 
     def process_bind_param(self, value, dialect):
         """When binding the parameter, convert to bytes."""
