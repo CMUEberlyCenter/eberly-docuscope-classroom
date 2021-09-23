@@ -6,16 +6,17 @@ from typing import List
 from uuid import UUID
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
+from defusedxml.ElementTree import fromstring
 from ds_db import Assignment, Filesystem
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_MAP
-from lxml import etree
 from lxml.html import Classes
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 from util import document_state_check, get_db_session
+from xml.etree.ElementTree import SubElement, tostring
 
 router = APIRouter()
 
@@ -70,7 +71,7 @@ async def get_documents(corpus: List[UUID],
                                     "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
         try:
-            etr = etree.fromstring(html)
+            etr = fromstring(html)
         except Exception as exp:
             logging.error(html)
             raise exp
@@ -86,7 +87,7 @@ async def get_documents(corpus: List[UUID],
                     cpath = " > ".join([categories['category_label'],
                                         categories['subcategory_label'],
                                         categories['cluster_label']])
-                    sup = etree.SubElement(tag, "sup")
+                    sup = SubElement(tag, "sup")
                     sup.text = "{" + cpath + "}"
                     sclasses = Classes(sup.attrib)
                     sclasses |= cats
@@ -101,7 +102,7 @@ async def get_documents(corpus: List[UUID],
             owner=fullname,
             ownedby=ownedby,
             word_count=doc['ds_num_word_tokens'],
-            html_content=etree.tostring(etr),
+            html_content=tostring(etr),
             patterns=sort_patterns(pats)
         ))
     if len(course) > 1 or len(instructor) > 1 or len(assignment) > 1:

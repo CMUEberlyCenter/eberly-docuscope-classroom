@@ -1,5 +1,7 @@
 """ Utility functions for dealing with patterns. """
+import logging
 from operator import itemgetter
+import re
 from typing import List
 
 from pydantic import BaseModel
@@ -19,9 +21,10 @@ class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
 
 def count_patterns(node, patterns_all):
     """ Accumulate patterns for each cluster into patterns_all. """
-    for child in node.xpath("//*[@data-key]"):
+    for child in node.findall(".//*[@data-key]"):
         lat = child.get('data-key')
-        key = ' '.join(child.xpath('string()').split()).lower()
+        key = ' '.join(child.itertext()).strip().lower()
+        key = re.sub(' +', ' ', key)
         cluster = LAT_MAP.get(lat, {'cluster': '?'})['cluster']
         if cluster != 'Other':
             patterns_all[cluster].update([key])

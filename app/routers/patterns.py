@@ -1,13 +1,13 @@
 """ Handles /patterns requests. """
 # import logging
 from collections import Counter, defaultdict
+from defusedxml.ElementTree import fromstring
 from typing import List
 from uuid import UUID
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
 from ds_db import Filesystem
 from fastapi import APIRouter, Depends, HTTPException
-from lxml import etree
 from response import ERROR_RESPONSES
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -29,6 +29,6 @@ def patterns(corpus: List[UUID],
             Filesystem.state).filter(Filesystem.id.in_(corpus)):
         document_state_check(status, uuid, filename, doc, db_session)
         if doc and doc['ds_tag_dict']:
-            etr = etree.fromstring(f"<body>{doc['ds_output']}</body>")
+            etr = fromstring(f"<body>{doc['ds_output']}</body>")
             count_patterns(etr, pats)
     return sort_patterns(pats)
