@@ -184,7 +184,8 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
    */
   open(doc_id: string): void {
     if (doc_id) {
-      window.open(`stv/${doc_id}`);
+      const url = `stv/${doc_id}`.replaceAll('..', '');
+      window.open(url);
     }
   }
 }
