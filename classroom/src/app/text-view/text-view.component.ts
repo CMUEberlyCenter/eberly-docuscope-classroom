@@ -216,6 +216,14 @@ export class TextViewComponent implements OnInit {
       this.highlightSelection();
     }
   }
+  highlightById(id: string): void {
+    d3.selectAll(`.${id}`)
+      .classed('cluster', true)
+      .style('border-bottom-color', this.colors(id));
+  }
+  /**
+   * Updates to color underlining of selected categories.
+   */
   highlightSelection(): void {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
@@ -226,12 +234,7 @@ export class TextViewComponent implements OnInit {
       this.treeControl.dataNodes,
       (root) => this.selection.isSelected(root)
     );
-    selectedRoot.forEach((root) =>
-      d3
-        .selectAll(`.${root.id}`)
-        .classed('cluster', true)
-        .style('border-bottom-color', this.colors(root.id))
-    );
+    selectedRoot.forEach((root) => this.highlightById(root.id));
     const subs = unselectedRoot.reduce<PatternTreeNode[]>(
       (acc, cur) => [...acc, ...cur.children],
       []
@@ -239,23 +242,13 @@ export class TextViewComponent implements OnInit {
     const [selectedSubs, unselectedSubs] = partition(subs, (sub) =>
       this.selection.isSelected(sub)
     );
-    selectedSubs.forEach((sub) =>
-      d3
-        .selectAll(`.${sub.id}`)
-        .classed('cluster', true)
-        .style('border-bottom-color', this.colors(sub.id))
-    );
+    selectedSubs.forEach((sub) => this.highlightById(sub.id));
     const cats = unselectedSubs.reduce<PatternTreeNode[]>(
       (acc, cur) => [...acc, ...cur.children],
       []
     );
     cats
       .filter((cat) => this.selection.isSelected(cat))
-      .forEach((cat) =>
-        d3
-          .selectAll(`.${cat.id}`)
-          .classed('cluster', true)
-          .style('border-bottom-color', this.colors(cat.id))
-      );
+      .forEach((cat) => this.highlightById(cat.id));
   }
 }
