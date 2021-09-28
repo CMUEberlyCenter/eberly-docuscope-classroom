@@ -17,7 +17,6 @@ ujson = "*"
 lxml = "*"
 fastapi-profiler = "*"
 deprecation = "*"
-defusedxml = "*"
 
 [dev-packages]
 pylint = "*"

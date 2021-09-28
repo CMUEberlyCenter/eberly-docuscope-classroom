@@ -8,7 +8,6 @@
 -i https://pypi.org/simple
 aiofiles==0.7.0
 beautifulsoup4==4.10.0
-defusedxml==0.7.1
 deprecation==2.1.0
 dnspython==2.1.0; python_version >= '3.6'
 email-validator==1.1.3
