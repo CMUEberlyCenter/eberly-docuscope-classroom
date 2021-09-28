@@ -97,7 +97,7 @@ def order(vals, small=0.01):
     slav = copy.copy(vals)
     slav.sort(reverse=True)
     if max_cpy > 1:
-        vals = [i + random.uniform(-small, small) for i in vals]
+        vals = [i + random.uniform(-small, small) for i in vals] # nosec
         slav = copy.copy(vals)
         slav.sort(reverse=True)
     return [vals.index(i) for i in slav]

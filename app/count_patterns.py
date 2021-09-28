@@ -1,5 +1,4 @@
 """ Utility functions for dealing with patterns. """
-import logging
 from operator import itemgetter
 import re
 from typing import List
