@@ -136,8 +136,8 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
 
         # draw a ruler
         self.canv.setFont("Helvetica", 6)
-        msg = "=Your Frequency. On average, {:.2f} patterns are used per 1,000 words."\
-                 .format(self.value*1000)
+        msg = f"=Your Frequency. On average, {self.value*1000:.2f}"\
+            f" patterns are used per 1,000 words."
         if math.isclose(self.data['max'], 0.0):
             msg += " No writers used patterns in this category."
         self.canv.circle(self.margins['left'], self.margins['bottom']-6,
@@ -151,7 +151,7 @@ class Boxplot(Flowable): #pylint: disable=too-many-instance-attributes
                            self.margins['bottom']+3)
             self.canv.drawCentredString(self.margins['left'] + tick*scale/1000,
                                         self.margins['bottom']+5,
-                                        "{0:.1f}".format(tick))
+                                        f"{tick:.1f}")
 
 def get_cat_descriptions(cats, dict_name):
     """ From the dictionary 'dict_name', returns a set of cluster
@@ -159,7 +159,8 @@ def get_cat_descriptions(cats, dict_name):
         """
     try:
         with open(os.path.join(Config.DICTIONARY_HOME,
-                               f"{dict_name}_clusters.json")) as cin:
+                               f"{dict_name}_clusters.json"),
+                  encoding="UTF-8") as cin:
             clusters = json.load(cin)
     except OSError as err:
         logging.error("While loading %s clusters: %s", dict_name, err)
