@@ -62,7 +62,7 @@ async def db_session_middleware(request: Request, call_next):
     except Exception as exp: #pylint: disable=broad-except
         traceback.print_exc()
         logging.error(exp)
-        response = Response("Internal server error: %s" % exp,
+        response = Response(f"Internal server error: {exp}",
                             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
         request.state.db.rollback()
     finally:

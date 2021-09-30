@@ -60,7 +60,7 @@ def generate_groups(group_req: GroupsSchema, db_session: Session = Depends(get_d
                             status_code=HTTP_400_BAD_REQUEST)
     if len(group_req.corpus) < group_req.group_size:
         raise HTTPException(
-            detail="Not enough documents to make groups of size {}.".format(group_req.group_size),
+            detail=f"Not enough documents to make groups of size {group_req.group_size}.",
             status_code=HTTP_400_BAD_REQUEST)
     try:
         return get_pairings(group_req.corpus, group_req.group_size, db_session)

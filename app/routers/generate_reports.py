@@ -41,6 +41,7 @@ class ReportsSchema(BaseModel):
 
 def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     """Generate the report for this corpus."""
+    #pylint: disable=too-many-locals,too-many-branches,too-many-statements
     course = set()
     assignment = set()
     instructor = set()

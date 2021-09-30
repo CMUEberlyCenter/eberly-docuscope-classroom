@@ -159,7 +159,7 @@ def get_cat_descriptions(cats, dict_name):
         """
     try:
         with open(os.path.join(Config.DICTIONARY_HOME,
-                               "{}_clusters.json".format(dict_name))) as cin:
+                               f"{dict_name}_clusters.json")) as cin:
             clusters = json.load(cin)
     except OSError as err:
         logging.error("While loading %s clusters: %s", dict_name, err)
@@ -203,10 +203,9 @@ def html_to_report_string(node, ds_dict, cat_descriptions, patterns_all):
                 inner_str = ' '.join(words)
                 cluster = ds_dict[child.attrs['data-key']].get('cluster', "?")
                 if cluster != "Other":
-                    paragraphs += "<u>{}</u><font face=Helvetica size=7> [{}]</font>"\
-                        .format(inner_str.strip(),
-                                cat_descriptions[cluster]['name'])
-
+                    paragraphs += f"<u>{inner_str.strip()}</u>" \
+                        f"<font face=Helvetica size=7> " \
+                        f"[{cat_descriptions[cluster]['name']}]</font>"
                     # collect all the patterns
                     key = inner_str.lower()
                     patterns[cluster].update([key])
@@ -429,22 +428,22 @@ def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData,
 
         # COVER PAGE
         combined_content.append(Paragraph(
-            "created:       {}".format(time.ctime()), styles["DS_Date"]))
+            f"created:       {time.ctime()}", styles["DS_Date"]))
         combined_content.append(Spacer(1, pica))
         combined_content.append(Paragraph(
             "<b>DocuScope Report</b>", styles["DS_CoverText"]))
         combined_content.append(Spacer(1, 6))
         if 'instructor' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Instructor:</b>    {}".format(bp_data.instructor),
+                f"<b>Instructor:</b>    {bp_data.instructor}",
                 styles["DS_CoverText"]))
         if 'course' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Course:</b>        {}".format(bp_data.course),
+                f"<b>Course:</b>        {bp_data.course}",
                 styles["DS_CoverText"]))
         if 'assignment' in bp_data.__fields_set__:
             combined_content.append(Paragraph(
-                "<b>Assignment:</b>    {}".format(bp_data.assignment),
+                f"<b>Assignment:</b>    {bp_data.assignment}",
                 styles["DS_CoverText"]))
 
         combined_content.append(PageBreak())
@@ -463,7 +462,7 @@ def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData,
             with io.BytesIO() as fpath:
                 #fpath = os.path.join(report_dir, "{}.pdf".format(title))
                 individual_doc = BaseDocTemplate(fpath, pagesize=letter,
-                                                 title="Report for {}".format(title),
+                                                 title=f"Report for {title}",
                                                  creator='DocuScope@CMU',
                                                  rightMargin=MARGINS["right"],
                                                  leftMargin=MARGINS["left"],
@@ -476,13 +475,13 @@ def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData,
 
                 # header area (course name, assignment name, and the student's name)
                 content.append(Paragraph(
-                    "<b>{}</b>".format(bp_data.course),
+                    f"<b>{bp_data.course}</b>",
                     styles['DS_MetaData']))
                 content.append(Paragraph(
-                    "Assignment: {}".format(bp_data.assignment),
+                    f"Assignment: {bp_data.assignment}",
                     styles['DS_MetaData']))
                 content.append(Spacer(1, pica))
-                content.append(Paragraph("Report for {}".format(title),
+                content.append(Paragraph(f"Report for {title}",
                                          styles['DS_Student']))  # just for a demo
                 content.append(Divider(doc.width))
 
@@ -537,7 +536,7 @@ The text will not display properly, however the analysis is not affected.""",
                     content.append(Paragraph(cat_descriptions[cat]['name'],
                                              styles['DS_Heading1']))
                     for pat in lst:
-                        pat_ln = "{} ({})".format(pat[1], pat[0])
+                        pat_ln = f"{pat[1]} ({pat[0]})"
                         content.append(Paragraph(pat_ln, styles['DS_Pattern']))
 
                 content.append(PageBreak())
@@ -587,7 +586,7 @@ The text will not display properly, however the analysis is not affected.""",
                 content.append(Paragraph(cat_descriptions[cat]['name'],
                                          styles['DS_Heading1']))
                 for pat in lst:
-                    pat_ln = "{} ({})".format(pat[1], pat[0])
+                    pat_ln = f"{pat[1]} ({pat[0]})"
                     content.append(Paragraph(pat_ln, styles['DS_Pattern']))
 
             patterns_doc.build(content)
