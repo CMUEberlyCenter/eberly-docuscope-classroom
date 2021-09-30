@@ -72,6 +72,9 @@ describe('PatternsComponent', () => {
               { pattern: 'assisted', count: 2 },
             ],
           },
+          {
+            category: 'null',
+          },
         ])
       );
 

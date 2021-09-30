@@ -49,7 +49,7 @@ def get_common_dictionary() -> CommonDictionary:
     """Retrieve the DocuScope Common Dictionary."""
     try:
         with open(os.path.join(Config.DICTIONARY_HOME,
-                               "common_dict.json")) as cin:
+                               "common_dict.json"), encoding="UTF-8") as cin:
             data = json.load(cin)
     except ValueError as enc_error:
         logging.error("While parsing common_dictionary: %s", enc_error)

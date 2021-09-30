@@ -46,6 +46,7 @@ describe('SunburstChartComponent', () => {
       ],
     };
     component.ngOnChanges();
+    component.ngAfterViewInit();
     void expect(component).toBeTruthy();
 
     component.clicked(null, null);

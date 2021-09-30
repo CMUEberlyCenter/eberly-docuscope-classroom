@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import {
   MatCheckboxChange,
@@ -14,7 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
-import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -40,7 +40,7 @@ class SunburstStubComponent {
 }
 
 const test_html = `
-<p>
+<p id="testtext">
 <span id="tag_0" data-key="bogus" class="tag">
  <span id="w1" class="token">stub</span>
  <span id="w2" class="token">text</span>
@@ -53,6 +53,7 @@ const test_html = `
  <span id="w5" class="token">total</span>
  <span id="w6" class="token">bogus</span>
 </span>
+<span id="tag_3" data-key=" " class="tag"></span>
 </p>`;
 
 describe('TextViewComponent', () => {
@@ -61,115 +62,119 @@ describe('TextViewComponent', () => {
   let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let tagged_text_service_spy: Spied<DocumentService>;
 
-  beforeEach(async () => {
-    ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-      'start',
-      'stop',
-    ]) as Spied<NgxUiLoaderService>;
-    tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
-      'getData',
-    ]) as Spied<DocumentService>;
-    tagged_text_service_spy.getData.and.returnValue(
-      asyncData({
-        documents: [
-          {
-            text_id: 'stub_id',
-            word_count: 2,
-            html_content: test_html,
-            ownedby: 'student',
-            owner: 'TEST',
-            patterns: [
-              {
-                category: 'bogus',
-                patterns: [
-                  { pattern: 'text', count: 1 },
-                  { pattern: 'bogus', count: 1 },
-                ],
-              },
-              {
-                category: 'null',
-              },
-            ],
-          },
-        ],
-      })
-    );
-    const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
-    snapshot_spy.get.and.returnValues(['1', undefined]);
-    const activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['paramMap']);
-    activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
-    activatedRoute.snapshot.paramMap = snapshot_spy;
-    const sanitizer = jasmine.createSpyObj('DOMSanitizer', [
-      'bypassSecurityTrustHtml',
-    ]) as Spied<DomSanitizer>;
-    sanitizer.bypassSecurityTrustHtml.and.callFake(
-      (html: string) =>
-        ({
-          changingThisBreaksApplicationSecurity: html,
-          getTypeName: () => 'HTML',
-        } as SafeHtml)
-    );
-    const settings_spy = jasmine.createSpyObj('SettingsService', [
-      'getSettings',
-    ]) as Spied<SettingsService>;
-    settings_spy.getSettings.and.returnValue(
-      asyncData({
-        title: 'DocuScope Classroom',
-        institution: 'CMU',
-        unit: 100,
-        homepage:
-          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-        scatter: { width: 400, height: 400 },
-        boxplot: { cloud: true },
-        stv: { max_clusters: 1 },
-        mtv: { horizontal: false },
-      })
-    );
-    const commonDictionaryService_spy = jasmine.createSpyObj(
-      'CommonDictionaryService',
-      ['getJSON']
-    ) as Spied<CommonDictionaryService>;
-    commonDictionaryService_spy.getJSON.and.returnValue(
-      asyncData(FAKE_COMMON_DICTIONARY)
-    );
-    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-      'setAssignmentData',
-    ]) as Spied<AssignmentService>;
+  beforeEach(
+    waitForAsync(() => {
+      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
+        'start',
+        'stop',
+      ]) as Spied<NgxUiLoaderService>;
+      tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
+        'getData',
+      ]) as Spied<DocumentService>;
+      tagged_text_service_spy.getData.and.returnValue(
+        asyncData({
+          course: 'bogus_course',
+          assignment: 'bogus_assignment',
+          instructor: 'test_instructor',
+          documents: [
+            {
+              text_id: 'stub_id',
+              word_count: 2,
+              html_content: test_html,
+              ownedby: 'student',
+              owner: 'TEST',
+              patterns: [
+                {
+                  category: 'bogus',
+                  patterns: [
+                    { pattern: 'text', count: 1 },
+                    { pattern: 'bogus', count: 1 },
+                  ],
+                },
+                {
+                  category: 'null',
+                },
+              ],
+            },
+          ],
+        })
+      );
+      const snapshot_spy = jasmine.createSpyObj('snapshot', ['get']);
+      snapshot_spy.get.and.returnValues(['1', undefined]);
+      const activatedRoute = jasmine.createSpyObj('ActivatedRoute', [
+        'paramMap',
+      ]);
+      activatedRoute.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
+      activatedRoute.snapshot.paramMap = snapshot_spy;
+      /*const sanitizer = jasmine.createSpyObj('DOMSanitizer', [
+        'bypassSecurityTrustHtml',
+      ]) as Spied<DomSanitizer>;
+      sanitizer.bypassSecurityTrustHtml.and.callFake(
+        (html: string) =>
+          ({
+            changingThisBreaksApplicationSecurity: html,
+            getTypeName: () => 'HTML',
+          } as SafeHtml)
+      );*/
+      const settings_spy = jasmine.createSpyObj('SettingsService', [
+        'getSettings',
+      ]) as Spied<SettingsService>;
+      settings_spy.getSettings.and.returnValue(
+        asyncData({
+          title: 'DocuScope Classroom',
+          institution: 'CMU',
+          unit: 100,
+          homepage:
+            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+          scatter: { width: 400, height: 400 },
+          boxplot: { cloud: true },
+          stv: { max_clusters: 1 },
+          mtv: { horizontal: false },
+        })
+      );
+      const commonDictionaryService_spy = jasmine.createSpyObj(
+        'CommonDictionaryService',
+        ['getJSON']
+      ) as Spied<CommonDictionaryService>;
+      commonDictionaryService_spy.getJSON.and.returnValue(
+        asyncData(FAKE_COMMON_DICTIONARY)
+      );
+      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+        'setAssignmentData',
+      ]) as Spied<AssignmentService>;
 
-    await TestBed.configureTestingModule({
-      declarations: [
-        TextViewComponent,
-        PatternsTableStubComponent,
-        SunburstStubComponent,
-      ],
-      imports: [
-        HttpClientTestingModule, // settings import requires.
-        MatCardModule,
-        MatCheckboxModule,
-        MatIconModule,
-        MatSnackBarModule,
-        MatTreeModule,
-        MatToolbarModule,
-        MatTooltipModule,
-        NoopAnimationsModule,
-      ],
-      providers: [
-        { provide: ActivatedRoute, useValue: activatedRoute },
-        { provide: AssignmentService, useValue: assignment_spy },
-        {
-          provide: CommonDictionaryService,
-          useValue: commonDictionaryService_spy,
-        },
-        { provide: DomSanitizer, useValue: sanitizer },
-        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
-        { provide: SettingsService, useValue: settings_spy },
-        { provide: DocumentService, useValue: tagged_text_service_spy },
-      ],
-      schemas: [
-        /* NO_ERRORS_SCHEMA*/
-      ],
-    }).compileComponents();
-  });
+      void TestBed.configureTestingModule({
+        declarations: [
+          TextViewComponent,
+          PatternsTableStubComponent,
+          SunburstStubComponent,
+        ],
+        imports: [
+          HttpClientTestingModule, // settings import requires.
+          MatCardModule,
+          MatCheckboxModule,
+          MatIconModule,
+          MatSnackBarModule,
+          MatTreeModule,
+          MatToolbarModule,
+          MatTooltipModule,
+          NoopAnimationsModule,
+        ],
+        providers: [
+          { provide: ActivatedRoute, useValue: activatedRoute },
+          { provide: AssignmentService, useValue: assignment_spy },
+          {
+            provide: CommonDictionaryService,
+            useValue: commonDictionaryService_spy,
+          },
+          //{ provide: DomSanitizer, useValue: sanitizer },
+          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
+          { provide: SettingsService, useValue: settings_spy },
+          { provide: DocumentService, useValue: tagged_text_service_spy },
+        ],
+      }).compileComponents();
+    })
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TextViewComponent);
@@ -195,27 +200,32 @@ describe('TextViewComponent', () => {
     //await fixture.whenStable();
   });
 
-  it('click_select', async () => {
-    component.ngOnInit();
-    await fixture.whenStable();
-    fixture.detectChanges();
-    await fixture.whenRenderingDone();
-    void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-    void expect(component.tagged_text).toBeTruthy();
-    const txt = fixture.debugElement.query(By.css('.text_content'));
-    void expect(txt.nativeElement.innerText).toBeDefined();
-    txt.triggerEventHandler('click', {});
-    // it seems like innerText is not getting inserted into test DOM
-    // making it difficult to test this handler.
-    //const tag = fixture.debugElement.query(By.css('#tag_0'));
-    //void expect(tag.nativeElement).toBeDefined();
-    //void expect(component.htmlContent.query(By.css('#tag_0'))).toBeUndefined();
-    //tag.nativeElement.click();
-    //const word = fixture.debugElement.query(By.css('#w1'));
-    //word.nativeElement.click();
-    //fixture.detectChanges();
-    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-  });
+  it('click_select', () =>
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+      void expect(component.tagged_text).toBeTruthy();
+      const txt = fixture.debugElement.query(By.css('.text_content'));
+      void expect(txt.nativeElement.innerText).toBeDefined();
+      txt.triggerEventHandler('click', new MouseEvent('click'));
+      (
+        fixture.debugElement.query(By.css('#tag_3'))
+          .nativeElement as HTMLElement
+      ).click();
+      // it seems like innerText is not getting inserted into test DOM
+      // making it difficult to test this handler.
+      //const tag = fixture.debugElement.query(By.css('#tag_0'));
+      //void expect(tag.nativeElement).toBeDefined();
+      //void expect(component.htmlContent.query(By.css('#tag_0'))).toBeUndefined();
+      //tag.nativeElement.click();
+      const word = fixture.debugElement.query(By.css('#w1'));
+      void expect(word).toBeTruthy();
+      void expect(word.nativeElement).toBeDefined();
+      word.nativeElement.click();
+      word.nativeElement.click();
+      //fixture.detectChanges();
+      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+    }));
   /*it('checkRootNodeSelection', () => fixture.whenStable().then(() => {
     const root = component.treeData.data[3];
     const leaf = root.children[0].children[0];

@@ -54,4 +54,11 @@ describe('AssignmentService', () => {
     );
     service.setAssignmentData(stub);
   });
+  it('setAssignmentData Null', () => {
+    const stub: AssignmentData = {};
+    service.assignment$.subscribe((assign) => void expect(assign).toEqual(''));
+    service.course$.subscribe((course) => void expect(course).toEqual(''));
+    service.instructor$.subscribe((inst) => void expect(inst).toEqual(''));
+    service.setAssignmentData(stub);
+  });
 });

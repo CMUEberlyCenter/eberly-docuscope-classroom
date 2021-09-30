@@ -16,7 +16,7 @@ import {
 } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { Documents, DocumentService } from '../document.service';
-import { PatternTreeNode } from '../pattern-tree-node';
+import { partition, PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
 //import { SettingsService } from '../settings.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
@@ -119,12 +119,12 @@ export class TextViewComponent implements OnInit {
   getParentNode(node: PatternTreeNode): PatternTreeNode | null {
     if (this.treeControl.dataNodes) {
       for (const root of this.treeControl.dataNodes) {
-        if (root.children?.includes(node)) {
+        if (root.children.includes(node)) {
           return root;
         }
         const desc = this.treeControl
           .getDescendants(root)
-          .find((c) => c.children?.includes(node));
+          .find((c) => c.children.includes(node));
         if (desc) {
           return desc;
         }
@@ -181,16 +181,14 @@ export class TextViewComponent implements OnInit {
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
-    if (target && this.tagged_text) {
-      const key = target?.getAttribute('data-key');
-      if (key && key.trim()) {
-        const isSelected = d3.select(target).classed('selected_text');
-        d3.selectAll('.selected_text').classed('selected_text', false);
-        d3.selectAll('.cluster_id').classed('d_none', true);
-        if (!isSelected) {
-          d3.select(target).classed('selected_text', true);
-          d3.select(target).select('sup.cluster_id').classed('d_none', false);
-        }
+    const key = target?.getAttribute('data-key');
+    if (target && this.tagged_text && key && key.trim()) {
+      const isSelected = d3.select(target).classed('selected_text');
+      d3.selectAll('.selected_text').classed('selected_text', false);
+      d3.selectAll('.cluster_id').classed('d_none', true);
+      if (!isSelected) {
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -218,31 +216,39 @@ export class TextViewComponent implements OnInit {
       this.highlightSelection();
     }
   }
+  highlightById(id: string): void {
+    d3.selectAll(`.${id}`)
+      .classed('cluster', true)
+      .style('border-bottom-color', this.colors(id));
+  }
+  /**
+   * Updates to color underlining of selected categories.
+   */
   highlightSelection(): void {
     this.colors.range(d3.schemeCategory10);
     d3.selectAll('.cluster').classed('cluster', false);
-    for (const root of this.treeControl.dataNodes) {
-      if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${root.id}`)
-          .classed('cluster', true)
-          .style('border-bottom-color', this.colors(root.id));
-      } else {
-        for (const sub of root.children ?? []) {
-          if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${sub.id}`)
-              .classed('cluster', true)
-              .style('border-bottom-color', this.colors(sub.id));
-          } else {
-            for (const cat of sub.children ?? []) {
-              if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${cat.id}`)
-                  .classed('cluster', true)
-                  .style('border-bottom-color', this.colors(cat.id));
-              }
-            }
-          }
-        }
-      }
-    }
+    // Walk tree for highest levels of selected nodes in each branch
+    // Relies on the parent and decendant checks to maintain the
+    // proper state of all the nodes.
+    const [selectedRoot, unselectedRoot] = partition(
+      this.treeControl.dataNodes,
+      (root) => this.selection.isSelected(root)
+    );
+    selectedRoot.forEach((root) => this.highlightById(root.id));
+    const subs = unselectedRoot.reduce<PatternTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    const [selectedSubs, unselectedSubs] = partition(subs, (sub) =>
+      this.selection.isSelected(sub)
+    );
+    selectedSubs.forEach((sub) => this.highlightById(sub.id));
+    const cats = unselectedSubs.reduce<PatternTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    cats
+      .filter((cat) => this.selection.isSelected(cat))
+      .forEach((cat) => this.highlightById(cat.id));
   }
 }

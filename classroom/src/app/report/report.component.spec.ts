@@ -102,4 +102,13 @@ describe('ReportComponent', () => {
       void expect(report_service_spy.getReports).toHaveBeenCalled();
       void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
     }));
+  it('generate_report error', () =>
+    fixture.whenStable().then(() => {
+      report_service_spy.getReports.and.throwError('test');
+      fixture.detectChanges();
+      void expect(() =>
+        component.generate_report(new MouseEvent('click'))
+      ).toThrowError('test');
+      fixture.detectChanges();
+    }));
 });

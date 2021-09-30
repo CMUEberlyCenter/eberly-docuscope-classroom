@@ -160,6 +160,8 @@ describe('GroupingComponent', () => {
     void expect(component.size_max).toBe(3);
     component.corpus = ['a', 'b'];
     void expect(component.size_max).toBe(2);
+    component.corpus = [];
+    void expect(component.size_max).toEqual(2);
   });
   it('num_documents', async () => {
     await expect(component.num_documents).toBe(0);

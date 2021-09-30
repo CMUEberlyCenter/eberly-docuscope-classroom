@@ -20,7 +20,7 @@ export class GroupingComponent implements OnInit {
   size_min = 2; // Minimum size of groups (no singletons)
   /** Calculates the maximum size of the groupings. */
   get size_max(): number {
-    return this.corpus
+    return this.corpus.length
       ? Math.max(this.size_min, Math.floor(this.corpus.length / 2))
       : this.size_min;
   }
@@ -68,7 +68,7 @@ export class GroupingComponent implements OnInit {
 
   /** The size of the list of documents */
   get num_documents(): number {
-    return this.corpus ? this.corpus.length : 0;
+    return this.corpus.length;
   }
   /**
    * Event handler to start grouping.

@@ -34,5 +34,8 @@ describe('CommonDictionaryService', () => {
     const req = httpMock.expectOne(server);
     void expect(req.request.method).toBe('GET');
     req.flush(FAKE_COMMON_DICTIONARY);
+    service.getJSON().subscribe((common) => {
+      void expect(common.default_dict).toBe('fake_dict');
+    });
   });
 });

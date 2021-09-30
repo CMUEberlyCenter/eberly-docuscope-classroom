@@ -23,10 +23,8 @@ export class ReportComponent implements OnInit {
   ) {}
 
   getCorpus(): void {
-    //this._spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
-      //this._spinner.stop();
     });
   }
 
@@ -58,10 +56,6 @@ export class ReportComponent implements OnInit {
             link.click();
             window.URL.revokeObjectURL(url);
           }
-        },
-        error: (err) => {
-          this._spinner.stop();
-          if (err) throw err;
         },
         complete: () => this._spinner.stop(),
       });

@@ -17,7 +17,7 @@ from ds_report import Boxplot, Divider, add_page_number, generate_paragraph_styl
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from lat_frame import LAT_FRAME, LAT_MAP
-from lxml import etree
+from lxml import etree # nosec
 from pandas import DataFrame, Series, merge
 from pydantic import BaseModel
 from reportlab.lib.pagesizes import letter
@@ -41,6 +41,7 @@ class ReportsSchema(BaseModel):
 
 def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     """Generate the report for this corpus."""
+    #pylint: disable=too-many-locals,too-many-branches,too-many-statements
     course = set()
     assignment = set()
     instructor = set()
@@ -81,8 +82,12 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
         html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                        "</para><para>", html_content) + "</para></body>"
         pats = defaultdict(Counter)
+        parser = etree.XMLParser(load_dtd=False,
+                                 no_network=True,
+                                 remove_pis=True,
+                                 resolve_entities=False)
         try:
-            etr = etree.fromstring(html)
+            etr = etree.fromstring(html, parser) # nosec
         except Exception as exp:
             logging.error(html)
             raise exp
@@ -229,6 +234,7 @@ The text will not display properly, however the analysis is not affected.""",
                     BalancedColumns(pattern_content, nCols=3, endSlack=0.5),
                 ])
                 combined_content += copy.deepcopy(content)
+                combined_content.append(PageBreak())
                 idoc.build(content)
                 title = docu['title'] + '-' + '_'.join(docu['filename'].split('.')[0:-1])
                 title = re.sub(r'[/\.]', '_', title.strip())

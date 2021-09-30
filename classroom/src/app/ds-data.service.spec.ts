@@ -5,7 +5,13 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
-import { category_value, DsDataService } from './ds-data.service';
+import {
+  category_value,
+  DsDataService,
+  genCategoryDataMap,
+  max_boxplot_value,
+  max_document_data_value,
+} from './ds-data.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 
 const data = {
@@ -78,9 +84,19 @@ describe('DsDataService', () => {
 
   it('server', () => expect(service.server).toBe(server));
 
+  it('DocuScopeData', () => {
+    void expect(max_boxplot_value(data)).toEqual(4);
+    void expect(max_document_data_value(data)).toEqual(0.25);
+    void expect(max_document_data_value({ data: [] })).toEqual(1);
+  });
   it('category_value', () => {
     void expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
     void expect(category_value('bog', data.data[1])).toBe(0.0);
+    void expect(category_value('ownedby', data.data[1])).toBe(0.0);
+  });
+  it('genCategoryDataMap', () => {
+    // test null data
+    void expect(genCategoryDataMap({ data: [] }).size).toBe(0);
   });
 
   // This causes warning while testing.

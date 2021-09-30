@@ -22,6 +22,7 @@ import {
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { Documents, DocumentService } from '../document.service';
+import { partition } from '../pattern-tree-node';
 import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { Settings, SettingsService } from '../settings.service';
 
@@ -177,9 +178,9 @@ export class ComparisonComponent implements OnInit {
             }
             cluster.patterns.forEach((pat) => {
               const counts =
-                cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
+                cpmap.get(cluster.category).get(pat.pattern) ?? zero.slice();
               counts[i] += pat.count; // simple assignment works on unique assumption
-              cpmap.get(cluster.category)?.set(pat.pattern, counts);
+              cpmap.get(cluster.category).set(pat.pattern, counts);
             });
           });
         });
@@ -328,16 +329,14 @@ export class ComparisonComponent implements OnInit {
     while (target && !target.getAttribute('data-key')) {
       target = target.parentElement;
     }
-    if (target && this.documents) {
-      const key = target?.getAttribute('data-key');
-      if (key && key.trim()) {
-        const isSelected = d3.select(target).classed('selected_text');
-        d3.selectAll('.selected_text').classed('selected_text', false);
-        d3.selectAll('.cluster_id').classed('d_none', true);
-        if (!isSelected) {
-          d3.select(target).classed('selected_text', true);
-          d3.select(target).select('sup.cluster_id').classed('d_none', false);
-        }
+    const key = target.getAttribute('data-key');
+    if (target && this.documents && key && key.trim()) {
+      const isSelected = d3.select(target).classed('selected_text');
+      d3.selectAll('.selected_text').classed('selected_text', false);
+      d3.selectAll('.cluster_id').classed('d_none', true);
+      if (!isSelected) {
+        d3.select(target).classed('selected_text', true);
+        d3.select(target).select('sup.cluster_id').classed('d_none', false);
       }
     }
   }
@@ -390,6 +389,11 @@ export class ComparisonComponent implements OnInit {
       this.highlightSelection(); // update color underlining
     }
   }
+  highlightById(id: string): void {
+    d3.selectAll(`.${id}`)
+      .classed('cluster', true)
+      .style('border-bottom-color', this.colors(id));
+  }
   /**
    * Updates to color underlining of selected categories.
    */
@@ -399,28 +403,25 @@ export class ComparisonComponent implements OnInit {
     // Walk tree for highest levels of selected nodes in each branch
     // Relies on the parent and decendant checks to maintain the
     // proper state of all the nodes.
-    for (const root of this.treeControl.dataNodes) {
-      if (this.selection.isSelected(root)) {
-        d3.selectAll(`.${root.id}`)
-          .classed('cluster', true)
-          .style('border-bottom-color', this.colors(root.id));
-      } else {
-        for (const sub of root.children ?? []) {
-          if (this.selection.isSelected(sub)) {
-            d3.selectAll(`.${sub.id}`)
-              .classed('cluster', true)
-              .style('border-bottom-color', this.colors(sub.id));
-          } else {
-            for (const cat of sub.children ?? []) {
-              if (this.selection.isSelected(cat)) {
-                d3.selectAll(`.${cat.id}`)
-                  .classed('cluster', true)
-                  .style('border-bottom-color', this.colors(cat.id));
-              }
-            }
-          }
-        }
-      }
-    }
+    const [selectedRoot, unselectedRoot] = partition(
+      this.treeControl.dataNodes,
+      (root) => this.selection.isSelected(root)
+    );
+    selectedRoot.forEach((root) => this.highlightById(root.id));
+    const subs = unselectedRoot.reduce<CompareTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    const [selectedSubs, unselectedSubs] = partition(subs, (sub) =>
+      this.selection.isSelected(sub)
+    );
+    selectedSubs.forEach((sub) => this.highlightById(sub.id));
+    const cats = unselectedSubs.reduce<CompareTreeNode[]>(
+      (acc, cur) => [...acc, ...cur.children],
+      []
+    );
+    cats
+      .filter((cat) => this.selection.isSelected(cat))
+      .forEach((cat) => this.highlightById(cat.id));
   }
 }

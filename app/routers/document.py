@@ -9,8 +9,8 @@ from count_patterns import CategoryPatternData, count_patterns, sort_patterns
 from ds_db import Assignment, Filesystem
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_MAP
-from lxml import etree
-from lxml.html import Classes
+from lxml import etree # nosec
+from lxml.html import Classes # nosec
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
 from sqlalchemy.orm import Session
@@ -69,8 +69,10 @@ async def get_documents(corpus: List[UUID],
         html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                     "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
+        parser = etree.XMLParser(load_dtd=False, no_network=True,
+                                 remove_pis=True, resolve_entities=False)
         try:
-            etr = etree.fromstring(html)
+            etr = etree.fromstring(html, parser) # nosec
         except Exception as exp:
             logging.error(html)
             raise exp

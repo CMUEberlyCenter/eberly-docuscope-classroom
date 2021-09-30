@@ -14,6 +14,7 @@ class UUID(TypeDecorator):
     """A sqlalchemy type for handling UUIDs stored as bytes."""
     #pylint: disable=W0223
     impl = VARBINARY(16)
+    cache_ok = True
 
     def process_bind_param(self, value, dialect):
         """When binding the parameter, convert to bytes."""
@@ -52,8 +53,7 @@ class Filesystem(BASE): #pylint: disable=R0903
     pdf = Column(LargeBinary)
 
     def __repr__(self):
-        return "<File(id='{}', state='{}'>"\
-            .format(self.id, self.state)
+        return f"<File(id='{self.id}', state='{self.state}'>"
 
 #depricate this
 class DSDictionary(BASE): #pylint: disable=R0903
@@ -66,7 +66,7 @@ class DSDictionary(BASE): #pylint: disable=R0903
     enabled = Column(Boolean)
 
     def __repr__(self):
-        return "<DS_Dictionary(name='{}')>".format(self.name)
+        return f"<DS_Dictionary(name='{self.name}')>"
 
 class Assignment(BASE): #pylint: disable=R0903
     """The assignments table in the docuscope database."""
@@ -84,5 +84,5 @@ class Assignment(BASE): #pylint: disable=R0903
     report_stv_introduction = Column(String)
 
     def __repr__(self):
-        return "<Assignment(id='{}', name='{}', dictionary='{}', "\
-            .format(self.id, self.name, self.oli_id)
+        return f"<Assignment(id='{self.id}', name='{self.name}', "\
+            f"dictionary='{self.oli_id}', "

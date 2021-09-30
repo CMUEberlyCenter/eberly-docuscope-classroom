@@ -26,6 +26,7 @@ import {
   category_value,
   DocumentData,
   DsDataService,
+  max_document_data_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 
@@ -76,20 +77,6 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
     private spinner: NgxUiLoaderService
   ) {}
 
-  /** Calculate the maximal value over all documents and categories. */
-  calcMaxValue(): number {
-    const maxValue = Math.max(
-      ...this.data.map((doc) =>
-        Math.max(
-          ...Object.values(doc)
-            .map((p) => Number(p))
-            .filter((n) => !isNaN(n) && n <= 1) // Remove NaN and total count
-        )
-      )
-    );
-    return maxValue > 0 ? maxValue : 1;
-  }
-
   ngOnInit(): void {
     this.spinner.start();
     this.corpusService.getCorpus().subscribe((corpus) => {
@@ -107,7 +94,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         this.data = data.data;
         this.tableData = new MatTableDataSource(this.data);
         //this.tableData.sort = this.sort;
-        this.maxValue = this.calcMaxValue();
+        this.maxValue = max_document_data_value(data);
         this.scale = d3
           .scaleSqrt()
           //.scaleLinear()
@@ -197,7 +184,8 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
    */
   open(doc_id: string): void {
     if (doc_id) {
-      window.open(`stv/${doc_id}`);
+      const url = `stv/${doc_id}`.replaceAll('..', '');
+      window.open(url);
     }
   }
 }
