@@ -134,8 +134,8 @@ export class ScatterplotComponent implements OnInit {
         this.genPoints();
 
         this._spinner.stop();
-      })
-    })
+      });
+    });
   }
   on_select_x(clust: Entry): void {
     this.x_axis = clust;
