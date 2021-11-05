@@ -62,9 +62,10 @@ export class FrequencyComponent implements OnInit {
       ]).subscribe(([settings, common, data]) => {
         // Settings
         this.unit = settings.unit;
+        // Dictionary
+        this.dictionary = common;
         // DocuScope data
         this.data = data;
-        this.dictionary = common;
         this._assignment_service.setAssignmentData(data);
         this.dsmap = genCategoryDataMap(data);
         this.onSelectCategory(common.categories[0]);

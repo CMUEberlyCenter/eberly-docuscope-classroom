@@ -144,27 +144,16 @@ describe('ScatterplotComponent', () => {
     return expect(component).toBeTruthy();
   });
 
-  /*it(
-    'getData',
-    waitForAsync(async () => {
-      component.getData();
-      await fixture.whenStable();
-      return expect(component.data).toBeDefined();
-    })
-  );*/
-
-  /*it('genPoints null axis', async () => {
-    component.getData();
+  it('genPoints null axis', async () => {
     await fixture.whenStable();
     component.x_axis = null;
     await expect(() => component.genPoints()).not.toThrow();
   });
   it('genPoints null data', async () => {
-    component.getData();
     await fixture.whenStable();
     component.data = undefined;
     await expect(() => component.genPoints()).not.toThrow();
-  });*/
+  });
 
   /*it('select_point', async () => {
     window.open = jasmine.createSpy('open');
