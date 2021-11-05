@@ -5,6 +5,7 @@ import {
   GoogleChartComponent,
 } from 'angular-google-charts';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -75,41 +76,6 @@ export class ScatterplotComponent implements OnInit {
     private settingsService: SettingsService
   ) {}
 
-  getCorpus(): void {
-    //this._spinner.start();
-    this.corpusService.getCorpus().subscribe((corpus) => {
-      this.corpus = corpus;
-      // this._spinner.stop();
-      this.getData();
-    });
-  }
-  getData(): void {
-    this._spinner.start();
-    this.dataService.getData(this.corpus).subscribe((data) => {
-      this.data = data;
-      this._assignment_service.setAssignmentData(data);
-      this.x_category = this.categories[0];
-      this.y_category = this.categories[1];
-      this.x_axis = { label: this.x_category.id, help: '' }; // betting on top level name==label
-      this.y_axis = { label: this.y_category.id, help: '' };
-      this.genPoints();
-      this._spinner.stop();
-    });
-  }
-
-  getDictionary(): void {
-    this.dictionaryService.getJSON().subscribe((data) => {
-      this.dictionary = data;
-    });
-  }
-  getSettings(): void {
-    this.settingsService.getSettings().subscribe((settings) => {
-      this.unit = settings.unit;
-      this.chart_width = settings.scatter.width;
-      this.chart_height = settings.scatter.height;
-    });
-  }
-
   genPoints(): void {
     if (this.x_axis && this.y_axis) {
       const model = 'point {fill-color: blue; dataOpacity:0.4}';
@@ -142,9 +108,34 @@ export class ScatterplotComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getSettings();
-    this.getDictionary();
-    this.getCorpus();
+    this._spinner.start();
+    this.corpusService.getCorpus().subscribe((corpus) => {
+      this.corpus = corpus;
+      return forkJoin([
+        this.dictionaryService.getJSON(),
+        this.settingsService.getSettings(),
+        this.dataService.getData(this.corpus),
+      ]).subscribe(([common, settings, data]) => {
+        // Dictionary
+        this.dictionary = common;
+        // Settings
+        this.unit = settings.unit;
+        this.chart_width = settings.scatter.width;
+        this.chart_height = settings.scatter.height;
+        // DocuScope Data
+        this.data = data;
+        this._assignment_service.setAssignmentData(data);
+        const x = this.dictionary.categories[0];
+        const y = this.dictionary.categories[1];
+        this.x_category = this.get_category(x.name ?? x.label);
+        this.y_category = this.get_category(y.name ?? y.label);
+        this.x_axis = x;
+        this.y_axis = y;
+        this.genPoints();
+
+        this._spinner.stop();
+      })
+    })
   }
   on_select_x(clust: Entry): void {
     this.x_axis = clust;
