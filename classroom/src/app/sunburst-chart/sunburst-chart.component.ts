@@ -9,12 +9,16 @@ import {
 import * as d3 from 'd3';
 import { BaseType, HierarchyRectangularNode } from 'd3';
 
+interface Segment {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}
 export interface SunburstNode {
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  target?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  current?: any;
+  target?: Segment;
+  current?: Segment;
   children?: SunburstNode[];
   value?: number;
 }
@@ -26,9 +30,9 @@ const partition = (
   //.sort((a, b) => b.value - a.value);
   return d3.partition<SunburstNode>().size([2 * Math.PI, r.height + 1])(r);
 };
-const arcVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
+const arcVisible = (d: Segment): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
-const labelVisible = (d: HierarchyRectangularNode<SunburstNode>): boolean =>
+const labelVisible = (d: Segment): boolean =>
   d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
 const labelTransform = (
   d: {
@@ -59,7 +63,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
   format = d3.format(',d');
 
   svg?: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  arc!: d3.Arc<unknown, d3.HierarchyRectangularNode<SunburstNode>>;
+  arc!: d3.Arc<unknown, Segment>;
   path:
     | d3.Selection<
         SVGPathElement | BaseType,
@@ -144,7 +148,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
         .transition(trans)
         .tween('data', (d) => {
           const i = d3.interpolate(d.data.current, d.data.target);
-          return (t) => (d.data.current = i(t) as number);
+          return (t) => (d.data.current = i(t));
         })
         .filter(function (this: BaseType | SVGPathElement, d) {
           return (
@@ -248,7 +252,9 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       .attr('r', this.radius)
       .attr('fill', 'none')
       .attr('pointer-events', 'all');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.path.on('click', this.clicked.bind(this));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.parent.on('click', this.clicked.bind(this));
     this.path.append('title').text(
       (d) =>
