@@ -4,7 +4,8 @@
   <!-- label(category.id)-->
   <!-- </mat-card-title> -->
   <mat-card-content>
-    <mat-table *ngIf="ranking"
+    <mat-table
+      *ngIf="ranking"
       matSort
       #rankSort="matSort"
       matSortDisableClear
@@ -17,7 +18,9 @@
         </mat-header-cell>
         <mat-cell
           *matCellDef="let element; let rowIndex = index"
-          class="rank">{{ rowIndex + 1 }}</mat-cell>
+          class="rank"
+          >{{ rowIndex + 1 }}</mat-cell
+        >
       </ng-container>
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef mat-sort-header class="name">
@@ -41,7 +44,8 @@
           mat-sort-header
           start="desc"
           class="value"
-          >Value</mat-header-cell>
+          >Value</mat-header-cell
+        >
         <mat-cell *matCellDef="let element" class="value">{{
           element.value.toFixed(2)
         }}</mat-cell>
@@ -166,9 +170,7 @@
               [attr.height]="options.height + 'px'"
               [attr.data-value]="getValue(element)"
             >
-              <desc>
-                A bar that shows {{ bar_tip(getValue(element)) }}
-              </desc>
+              <desc>A bar that shows {{ bar_tip(getValue(element)) }}</desc>
               <line
                 [attr.x1]="x(median)"
                 [attr.x2]="x(median)"
@@ -197,7 +199,9 @@
           </div>
         </mat-cell>
       </ng-container>
-      <mat-header-row *matHeaderRowDef="displayedColumns; sticky: sticky"></mat-header-row>
+      <mat-header-row
+        *matHeaderRowDef="displayedColumns; sticky: sticky"
+      ></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
     </mat-table>
   </mat-card-content>

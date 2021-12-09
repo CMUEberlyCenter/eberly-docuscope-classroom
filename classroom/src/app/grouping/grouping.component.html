@@ -1,18 +1,31 @@
 <mat-card *ngIf="corpus">
   <mat-card-title>Groups</mat-card-title>
-  <mat-card-subtitle>Use this tool to automatically assign students to
-    groups.</mat-card-subtitle>
+  <mat-card-subtitle
+    >Use this tool to automatically assign students to
+    groups.</mat-card-subtitle
+  >
   <mat-card-content>
     <mat-drawer-container style="min-height: 200px">
       <mat-drawer mode="side" opened disableClose class="options">
         <h4>Group Parameters:</h4>
         <div>
           <mat-form-field appearance="standard">
-            <input matInput type="number" placeholder="Desired Group Sizes" [(ngModel)]="group_size" [min]="size_min"
-              [max]="size_max" />
+            <input
+              matInput
+              type="number"
+              placeholder="Desired Group Sizes"
+              [(ngModel)]="group_size"
+              [min]="size_min"
+              [max]="size_max"
+            />
           </mat-form-field>
         </div>
-        <button mat-raised-button color="primary" class="go_button" (click)="generate_groups($event)">
+        <button
+          mat-raised-button
+          color="primary"
+          class="go_button"
+          (click)="generate_groups($event)"
+        >
           Group Students
         </button>
       </mat-drawer>
@@ -26,8 +39,15 @@
           <div class="groups_container" cdkDropListGroup>
             <div class="group" *ngFor="let group of groups.groups; index as i">
               <em class="group_label">Group {{ i + 1 }}:</em>
-              <div aria-orientation="horizontal" class="group_list" cdkDropListOrientation="horizontal"
-                cdkDropListSortingDisabled cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="group">
+              <div
+                aria-orientation="horizontal"
+                class="group_list"
+                cdkDropListOrientation="horizontal"
+                cdkDropListSortingDisabled
+                cdkDropList
+                (cdkDropListDropped)="drop($event)"
+                [cdkDropListData]="group"
+              >
                 <!-- aria-label="Group {{i+1}} members">-->
                 <div class="group_member" *ngFor="let ind of group" cdkDrag>
                   {{ ind }}
@@ -36,8 +56,14 @@
             </div>
             <div class="group">
               <em class="group_label">Absent:</em>
-              <div class="group_list" cdkDropListOrientation="horizontal" cdkDropListSortingDisabled cdkDropList
-                (cdkDropListDropped)="drop($event)" [cdkDropListData]="absent">
+              <div
+                class="group_list"
+                cdkDropListOrientation="horizontal"
+                cdkDropListSortingDisabled
+                cdkDropList
+                (cdkDropListDropped)="drop($event)"
+                [cdkDropListData]="absent"
+              >
                 <div class="group_member" *ngFor="let a of absent" cdkDrag>
                   {{ a }}
                 </div>

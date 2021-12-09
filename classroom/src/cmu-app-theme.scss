@@ -48,7 +48,7 @@ $cmu-red-palette: (
     700: $light-primary-text,
     800: $light-primary-text,
     900: $light-primary-text,
-  )
+  ),
 );
 $cmu-blue-palette: (
   50: #e4f1f7,
@@ -72,7 +72,7 @@ $cmu-blue-palette: (
     700: $light-primary-text,
     800: $light-primary-text,
     900: $light-primary-text,
-  )
+  ),
 );
 $cmu-gold-palette: (
   50: #f5f0e0,
@@ -96,17 +96,19 @@ $cmu-gold-palette: (
     700: $light-primary-text,
     800: $light-primary-text,
     900: $light-primary-text,
-  )
+  ),
 );
 
 //$open-sans-typography: mat.define-typography-config($font-family: 'Open Sans');
 
 $cmu-primary: mat.define-palette($cmu-red-palette, 900);
 $cmu-accent: mat.define-palette($cmu-blue-palette);
-$cmu-theme: mat.define-light-theme((
-  color: (
-    primary: $cmu-primary,
-    accent: $cmu-accent,
-  ),
-  //typography: $open-sans-typography, // leave Roboto
-));
+$cmu-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $cmu-primary,
+      accent: $cmu-accent,
+    ),
+    //typography: $open-sans-typography, // leave Roboto
+  )
+);
