@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,34 +21,32 @@ describe('HeaderComponent', () => {
     'open',
   ]) as Spied<MatDialog>;
 
-  beforeEach(
-    waitForAsync(() => {
-      settings_spy = jasmine.createSpyObj('SettingsService', [
-        'getSettings',
-      ]) as Spied<SettingsService>;
-      settings_spy.getSettings.and.returnValue(
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: 'Home',
-          unit: 100,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
-        })
-      );
-      void TestBed.configureTestingModule({
-        declarations: [HeaderComponent],
-        imports: [MatIconModule, MatToolbarModule, MatTooltipModule],
-        providers: [
-          AssignmentService,
-          { provide: MatDialog, useValue: mat_dialog_spy },
-          { provide: SettingsService, useValue: settings_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(async () => {
+    settings_spy = jasmine.createSpyObj('SettingsService', [
+      'getSettings',
+    ]) as Spied<SettingsService>;
+    settings_spy.getSettings.and.returnValue(
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: 'Home',
+        unit: 100,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 4 },
+      })
+    );
+    await TestBed.configureTestingModule({
+      declarations: [HeaderComponent],
+      imports: [MatIconModule, MatToolbarModule, MatTooltipModule],
+      providers: [
+        AssignmentService,
+        { provide: MatDialog, useValue: mat_dialog_spy },
+        { provide: SettingsService, useValue: settings_spy },
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HeaderComponent);
@@ -103,33 +101,30 @@ describe('HeaderComponent', () => {
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 
-  it(
-    'getSettings',
-    waitForAsync(async () => {
-      void expect(component.institution).toBe('@ CMU');
-      component.getSettings();
-      fixture.detectChanges();
-      await fixture.whenStable().then(() => {
-        void expect(component.institution).toBe('@ Home');
-      });
+  it('getSettings', async () => {
+    void expect(component.institution).toBe('@ CMU');
+    component.getSettings();
+    fixture.detectChanges();
+    await fixture.whenStable().then(() => {
+      void expect(component.institution).toBe('@ Home');
+    });
 
-      settings_spy.getSettings.and.returnValue(
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: '',
-          unit: 100,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
-        })
-      );
-      component.getSettings();
-      fixture.detectChanges();
-      await fixture.whenStable().then(() => {
-        void expect(component.institution).toBe('');
-      });
-    })
-  );
+    settings_spy.getSettings.and.returnValue(
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: '',
+        unit: 100,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 4 },
+      })
+    );
+    component.getSettings();
+    fixture.detectChanges();
+    await fixture.whenStable().then(() => {
+      void expect(component.institution).toBe('');
+    });
+  });
 });
