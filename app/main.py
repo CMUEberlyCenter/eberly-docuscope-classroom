@@ -5,6 +5,9 @@ import os
 import traceback
 
 from fastapi import FastAPI
+from fastapi.middleware.gzip import GZipMiddleware
+#from brotli_asgi import BrotliMiddleware # brotli-asgi
+#from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.staticfiles import StaticFiles
 #from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
 from sqlalchemy import create_engine
@@ -13,6 +16,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse, Response
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+#from starlet_authlib.middlewar import AuthlibMiddleware # starlette-authlib
 
 from default_settings import Config
 from routers import document, ds_data, generate_reports, groups, patterns
@@ -47,6 +51,11 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=['GET', 'POST'],
     allow_headers=['*'])
+
+#app.add_middleware(BrotliMiddleware)
+app.add_middleware(GZipMiddleware)
+#app.add_middleware(HTTPSRedirectMiddleware)
+#app.add_middleware(AuthlibMiddleware, secret='secret')
 
 ## Add custom middleware for database connection.
 @app.middleware("http")
