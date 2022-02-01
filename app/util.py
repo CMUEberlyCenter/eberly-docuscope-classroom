@@ -82,7 +82,7 @@ def get_documents(documents: List[UUID], db_session: Session) -> Tuple[DataFrame
         document_state_check(state, doc_id, filename, doc, db_session)
         docs[doc_id] = Series({key: val['num_tags'] for key, val in
                                doc['ds_tag_dict'].items()})
-        desc = Series()
+        desc = Series(dtype='float64')
         desc['total_words'] = doc['ds_num_word_tokens']
         desc['doc_id'] = doc_id
         desc['title'] = fullname if ownedby == 'student' and fullname \

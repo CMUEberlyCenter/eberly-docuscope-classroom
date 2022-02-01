@@ -17,10 +17,12 @@ ujson = "*"
 lxml = "*"
 fastapi-profiler = "*"
 deprecation = "*"
+uvicorn = "*"
+pydantic = {extras = ["dotenv"], version = "*"}
 
 [dev-packages]
 pylint = "*"
 bandit = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.10"
