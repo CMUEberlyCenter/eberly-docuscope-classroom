@@ -7,12 +7,12 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import {
@@ -25,6 +25,10 @@ import { Documents, DocumentService } from '../document.service';
 import { partition } from '../pattern-tree-node';
 import { ComparePatternData, pattern_compare } from '../patterns.service';
 import { Settings, SettingsService } from '../settings.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 
 /**
  * Nodes in the dictionary tree.
@@ -118,12 +122,12 @@ export class ComparisonComponent implements OnInit {
     private _sanitizer: DomSanitizer,
     private _settings_service: SettingsService,
     private _snackBar: MatSnackBar,
-    private _spinner: NgxUiLoaderService,
+    private dialog: MatDialog,
     private _doc_service: DocumentService
   ) {}
 
   ngOnInit(): void {
-    this._spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this._corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       if (corpus.length === 0) {
@@ -135,7 +139,7 @@ export class ComparisonComponent implements OnInit {
         this.reportError(
           'Only one document specified, need two for comparison.'
         );
-        this._spinner.stop();
+        spinner.close();
         void this._router.navigate(['/stv', corpus[0]]); // redirect to single text-view
         return;
       } else if (corpus.length > 2) {
@@ -197,7 +201,7 @@ export class ComparisonComponent implements OnInit {
         this.max_count = Math.max(
           ...this.treeData.data.map((root) => root.max_count)
         );
-        this._spinner.stop();
+        spinner.close();
       });
     });
   }

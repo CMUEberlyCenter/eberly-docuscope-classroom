@@ -7,7 +7,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterTestingModule } from '@angular/router/testing';
 import {} from 'jasmine';
-import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 
@@ -28,7 +27,6 @@ describe('AppComponent', () => {
           MatIconModule,
           MatToolbarModule,
           MatTooltipModule,
-          NgxUiLoaderModule,
           RouterTestingModule,
         ],
         providers: [],

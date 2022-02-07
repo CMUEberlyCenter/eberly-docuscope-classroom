@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { AssignmentService } from '../assignment.service';
@@ -72,10 +73,6 @@ describe('FrequencyComponent', () => {
         ],
       })
     );
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-      'start',
-      'stop',
-    ]) as Spied<NgxUiLoaderService>;
     const settings_spy = jasmine.createSpyObj('SettingsService', [
       'getSettings',
     ]) as Spied<SettingsService>;
@@ -106,7 +103,9 @@ describe('FrequencyComponent', () => {
         FormsModule,
         GoogleChartsModule,
         MatCardModule,
+        MatDialogModule,
         MatFormFieldModule,
+        NoopAnimationsModule,
       ],
       providers: [
         { provide: AssignmentService, useValue: assignment_spy },
@@ -116,7 +115,6 @@ describe('FrequencyComponent', () => {
         },
         { provide: SettingsService, useValue: settings_spy },
         { provide: CorpusService, useValue: corpus_service_spy },
-        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         { provide: DsDataService, useValue: ds_data_service_spy },
       ],
     }).compileComponents();

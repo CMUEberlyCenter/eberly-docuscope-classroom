@@ -26,6 +26,7 @@ export const routes: Routes = [
       { path: 'frequency', component: FrequencyComponent },
       { path: 'report', component: ReportComponent },
       { path: 'scatterplot', component: ScatterplotComponent },
+      // { path: '', redirectTo: '/boxplot', pathMatch: 'full' }, // does not work
       { path: '**', component: PageNotFoundComponent },
     ],
   },

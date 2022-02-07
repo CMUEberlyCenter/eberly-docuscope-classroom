@@ -8,9 +8,9 @@ can be seen.
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import * as d3 from 'd3';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import {
@@ -28,6 +28,10 @@ import {
   max_boxplot_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
@@ -93,11 +97,11 @@ export class BoxplotComponent implements OnInit {
     private corpusService: CorpusService,
     private dataService: DsDataService,
     private settingsService: SettingsService,
-    private spinner: NgxUiLoaderService
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     const top = this.options.margin.top;
     const bottom = this.options.height - this.options.margin.bottom;
     this.scale_y = d3.scaleLinear().domain([0, 1]).range([top, bottom]);
@@ -164,7 +168,7 @@ export class BoxplotComponent implements OnInit {
 
         // Clear outliers.
         this.outliers = new Map<string, Outlier[]>();
-        this.spinner.stop();
+        spinner.close();
       });
     });
   }

@@ -9,6 +9,7 @@ import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,7 +18,6 @@ import { MatTreeModule } from '@angular/material/tree';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -59,15 +59,10 @@ const test_html = `
 describe('TextViewComponent', () => {
   let component: TextViewComponent;
   let fixture: ComponentFixture<TextViewComponent>;
-  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let tagged_text_service_spy: Spied<DocumentService>;
 
   beforeEach(
     waitForAsync(() => {
-      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-        'start',
-        'stop',
-      ]) as Spied<NgxUiLoaderService>;
       tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
         'getData',
       ]) as Spied<DocumentService>;
@@ -153,6 +148,7 @@ describe('TextViewComponent', () => {
           HttpClientTestingModule, // settings import requires.
           MatCardModule,
           MatCheckboxModule,
+          MatDialogModule,
           MatIconModule,
           MatSnackBarModule,
           MatTreeModule,
@@ -168,7 +164,6 @@ describe('TextViewComponent', () => {
             useValue: commonDictionaryService_spy,
           },
           //{ provide: DomSanitizer, useValue: sanitizer },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
           { provide: DocumentService, useValue: tagged_text_service_spy },
         ],

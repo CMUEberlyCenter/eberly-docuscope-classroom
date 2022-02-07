@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
@@ -29,10 +29,6 @@ describe('PatternsComponent', () => {
 
   beforeEach(
     waitForAsync(() => {
-      const ngx_spinner_service_spy = jasmine.createSpyObj(
-        'NgxSpinnerService',
-        ['start', 'stop']
-      ) as Spied<NgxUiLoaderService>;
       const corpusService_spy = jasmine.createSpyObj('CorpusService', [
         'getCorpus',
       ]) as Spied<CorpusService>;
@@ -87,6 +83,7 @@ describe('PatternsComponent', () => {
         imports: [
           NoopAnimationsModule,
           MatCardModule,
+          MatDialogModule,
           MatIconModule,
           MatTreeModule,
           MatTooltipModule,
@@ -98,7 +95,6 @@ describe('PatternsComponent', () => {
             useValue: commonDictionaryService_spy,
           },
           { provide: PatternsService, useValue: patternsService_spy },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
         ],
       }).compileComponents();
     })

@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -25,10 +26,6 @@ describe('ScatterplotComponent', () => {
       commonDictionaryService_spy.getJSON.and.returnValue(
         asyncData(FAKE_COMMON_DICTIONARY)
       );
-      const ngx_spinner_service_spy = jasmine.createSpyObj(
-        'NgxUiLoaderService',
-        ['start', 'stop']
-      ) as Spied<NgxUiLoaderService>;
       const corpusService_spy = jasmine.createSpyObj('CorpusService', [
         'getCorpus',
       ]) as Spied<CorpusService>;
@@ -117,7 +114,9 @@ describe('ScatterplotComponent', () => {
           FormsModule,
           GoogleChartsModule,
           MatCardModule,
+          MatDialogModule,
           MatFormFieldModule,
+          NoopAnimationsModule,
         ],
         providers: [
           {
@@ -126,7 +125,6 @@ describe('ScatterplotComponent', () => {
           },
           { provide: CorpusService, useValue: corpusService_spy },
           { provide: AssignmentService, useValue: assignment_spy },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
           { provide: DsDataService, useValue: dataService_spy },
         ],

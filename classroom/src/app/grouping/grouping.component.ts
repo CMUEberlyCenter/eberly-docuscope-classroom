@@ -5,10 +5,14 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
@@ -32,7 +36,7 @@ export class GroupingComponent implements OnInit {
   constructor(
     private corpus_service: CorpusService,
     private _assignment_service: AssignmentService,
-    private _spinner: NgxUiLoaderService,
+    private dialog: MatDialog,
     private _snack_bar: MatSnackBar,
     private data_service: GroupsService
   ) {}
@@ -51,14 +55,14 @@ export class GroupingComponent implements OnInit {
    * Retrieve the groupings.
    */
   getGroupsData(): void {
-    this._spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.data_service
       .getGroupsData(this.corpus, +this.group_size)
       .subscribe((data) => {
         this.groups = data;
         this._assignment_service.setAssignmentData(data);
         this.absent = [];
-        this._spinner.stop();
+        spinner.close();
       });
   }
 

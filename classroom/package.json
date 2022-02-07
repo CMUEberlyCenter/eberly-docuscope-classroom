@@ -42,7 +42,6 @@
     "angular-split": "^13.1.0",
     "core-js": "^3.20.2",
     "d3": "^7.3.0",
-    "ngx-ui-loader": "^11.0.0",
     "rxjs": "^7.5.2",
     "rxjs-compat": "^6.6.7",
     "service": "^0.1.4",

@@ -1,6 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { MatDialog } from '@angular/material/dialog';
 import { CorpusService } from '../corpus.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 import { ReportIntroductionService } from './report-introduction.service';
 import { ReportService } from './report.service';
 
@@ -17,7 +21,7 @@ export class ReportComponent implements OnInit {
 
   constructor(
     private corpusService: CorpusService,
-    private _spinner: NgxUiLoaderService,
+    private dialog: MatDialog,
     private introService: ReportIntroductionService,
     private reportService: ReportService
   ) {}
@@ -29,11 +33,11 @@ export class ReportComponent implements OnInit {
   }
 
   getIntro(): void {
-    this._spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.introService.getIntroductionText().subscribe((intro) => {
       this.intro = intro.introduction;
       this.stv_intro = intro.stv_introduction;
-      this._spinner.stop();
+      spinner.close();
     });
   }
 
@@ -43,7 +47,7 @@ export class ReportComponent implements OnInit {
   }
 
   generate_report(_$event: MouseEvent): void {
-    this._spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.reportService
       .getReports(this.corpus, this.intro, this.stv_intro)
       .subscribe({
@@ -57,7 +61,7 @@ export class ReportComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           }
         },
-        complete: () => this._spinner.stop(),
+        complete: () => spinner.close(),
       });
   }
 }
