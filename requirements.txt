@@ -22,10 +22,10 @@ idna==3.3; python_version >= '3.5'
 itsdangerous==2.0.1
 lxml==4.7.1
 mysqlclient==2.1.0
-numpy==1.22.1; python_version >= '3.10'
+numpy==1.22.2; python_version >= '3.10'
 packaging==21.3; python_version >= '3.6'
 pandas==1.4.0
-pillow==9.0.0; python_version >= '3.7'
+pillow==9.0.1; python_version >= '3.7'
 pydantic[dotenv]==1.9.0
 pyinstrument==4.1.1; python_version >= '3.7'
 pyparsing==3.0.7; python_version >= '3.6'
@@ -40,4 +40,4 @@ sqlalchemy==1.4.31
 starlette==0.17.1; python_version >= '3.6'
 typing-extensions==4.0.1; python_version >= '3.6'
 ujson==5.1.0
-uvicorn==0.17.1
+uvicorn==0.17.4

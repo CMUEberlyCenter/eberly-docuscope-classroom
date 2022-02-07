@@ -23,7 +23,7 @@ SETTINGS = Settings()
 SQLALCHEMY_DATABASE_URI: stricturl(tld_required = False, allowed_schemes=['mysql+mysqldb']) = (
         f"mysql+mysqldb://"
         f"{SETTINGS.db_user}"
-        f":{SETTINGS.db_password}"
+        f":{SETTINGS.db_password.get_secret_value()}"
         f"@{SETTINGS.db_host}"
         f":{SETTINGS.db_port}"
         f"/{SETTINGS.mysql_database}")
