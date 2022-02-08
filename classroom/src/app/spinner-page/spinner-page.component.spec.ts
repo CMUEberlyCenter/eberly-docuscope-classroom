@@ -8,9 +8,8 @@ describe('SpinnerPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SpinnerPageComponent ]
-    })
-    .compileComponents();
+      declarations: [SpinnerPageComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -20,6 +19,6 @@ describe('SpinnerPageComponent', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    return expect(component).toBeTruthy();
   });
 });

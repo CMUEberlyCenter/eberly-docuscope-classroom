@@ -5,6 +5,10 @@ import os
 from pydantic import BaseSettings, DirectoryPath, SecretStr, stricturl
 
 class Settings(BaseSettings):
+    """Configuration Settings.
+
+    With the magic of pydantic and dotenv, these settings are all configurable
+    with environment variables and .env files."""
     dictionary_home: DirectoryPath = os.path.join(os.path.dirname(__file__),
                                                   'dictionaries')
     sqlalchemy_track_modifications: bool = False
@@ -14,7 +18,8 @@ class Settings(BaseSettings):
     db_user: str = 'docuscope'
     mysql_database: str = 'docuscope'
 
-    class Config():
+    class Config(): #pylint: disable=too-few-public-methods
+        """Configuration class for Settings."""
         env_file = '.env'
         env_file_encoding = 'utf-8'
         secrets_dir = '/run/secrets' if os.path.isdir('/run/secrets') else None
