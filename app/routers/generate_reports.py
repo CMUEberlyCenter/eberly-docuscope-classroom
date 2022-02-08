@@ -67,17 +67,17 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
         assignment.add(a_name)
         doc_data[doc_id] = Series({key: val['num_tags'] for key, val in
                                    doc['ds_tag_dict'].items()})
-        desc = Series()
-        desc['total_words'] = doc['ds_num_word_tokens']
-        desc['doc_id'] = doc_id
-        desc['title'] = fullname if ownedby == 'student' and fullname \
+        descr = Series()
+        descr['total_words'] = doc['ds_num_word_tokens']
+        descr['doc_id'] = doc_id
+        descr['title'] = fullname if ownedby == 'student' and fullname \
             else '.'.join(filename.split('.')[0:-1])
-        desc['ownedby'] = ownedby
-        desc['dictionary_id'] = 'default' #ds_dictionary
-        desc['course_name'] = a_course
-        desc['assignment_name'] = a_name
-        desc['instructor_name'] = a_instructor
-        doc_info[doc_id] = desc
+        descr['ownedby'] = ownedby
+        descr['dictionary_id'] = 'default' #ds_dictionary
+        descr['course_name'] = a_course
+        descr['assignment_name'] = a_name
+        descr['instructor_name'] = a_instructor
+        doc_info[doc_id] = descr
         html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
         html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                        "</para><para>", html_content) + "</para></body>"

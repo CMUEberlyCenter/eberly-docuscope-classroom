@@ -30,7 +30,7 @@ from reportlab.platypus import (BaseDocTemplate, Frame, FrameBreak,
 # reportlab
 from reportlab.platypus.flowables import Flowable
 
-from default_settings import Config
+from default_settings import SETTINGS
 from routers.ds_data import DocuScopeData
 
 
@@ -158,7 +158,7 @@ def get_cat_descriptions(cats, dict_name):
         definitions for the clusters included in the list 'cats'
         """
     try:
-        with open(os.path.join(Config.DICTIONARY_HOME,
+        with open(os.path.join(SETTINGS.dictionary_home,
                                f"{dict_name}_clusters.json"),
                   encoding="UTF-8") as cin:
             clusters = json.load(cin)

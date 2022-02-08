@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+/// <reference types="@types/google.visualization" />
 import {
-  ChartSelectionChangedEvent,
-  ChartType,
-  GoogleChartComponent,
-} from 'angular-google-charts';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -16,16 +19,24 @@ import {
   DocuScopeData,
   DsDataService,
 } from '../ds-data.service';
+import { GoogleChartsLoaderService } from '../google-charts-loader.service';
 import { SettingsService } from '../settings.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 
 @Component({
   selector: 'app-scatterplot',
   templateUrl: './scatterplot.component.html',
   styleUrls: ['./scatterplot.component.scss'],
 })
-export class ScatterplotComponent implements OnInit {
+export class ScatterplotComponent implements AfterViewInit, OnInit {
+  @ViewChild('chart') scatterplot!: ElementRef<Element>;
+  chart: google.visualization.ScatterChart;
   corpus: string[] = [];
   data: DocuScopeData | undefined;
+  data_table: google.visualization.DataTable;
   dictionary: CommonDictionary | undefined;
   scatter_data: [number, number, string, string, string][] = [];
   get categories(): CategoryData[] {
@@ -36,11 +47,8 @@ export class ScatterplotComponent implements OnInit {
   y_axis: Entry | undefined;
   y_category: CategoryData | undefined;
   unit = 100;
-  chartType: ChartType = ChartType.ScatterChart;
-  chart_width = 400;
-  chart_height = 400;
 
-  options = {
+  options: google.visualization.ScatterChartOptions = {
     legend: 'none',
     colors: ['black'],
     dataOpacity: 0.6,
@@ -64,54 +72,22 @@ export class ScatterplotComponent implements OnInit {
       maxZoomOut: 1,
       keepInBounds: true,
     },
+    height: 400,
+    width: 400,
   };
 
   constructor(
     private corpusService: CorpusService,
     private dictionaryService: CommonDictionaryService,
     private _assignment_service: AssignmentService,
-    private _spinner: NgxUiLoaderService,
+    private dialog: MatDialog,
     private dataService: DsDataService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private googleChartService: GoogleChartsLoaderService
   ) {}
 
-  getCorpus(): void {
-    //this._spinner.start();
-    this.corpusService.getCorpus().subscribe((corpus) => {
-      this.corpus = corpus;
-      // this._spinner.stop();
-      this.getData();
-    });
-  }
-  getData(): void {
-    this._spinner.start();
-    this.dataService.getData(this.corpus).subscribe((data) => {
-      this.data = data;
-      this._assignment_service.setAssignmentData(data);
-      this.x_category = this.categories[0];
-      this.y_category = this.categories[1];
-      this.x_axis = { label: this.x_category.id, help: '' }; // betting on top level name==label
-      this.y_axis = { label: this.y_category.id, help: '' };
-      this.genPoints();
-      this._spinner.stop();
-    });
-  }
-
-  getDictionary(): void {
-    this.dictionaryService.getJSON().subscribe((data) => {
-      this.dictionary = data;
-    });
-  }
-  getSettings(): void {
-    this.settingsService.getSettings().subscribe((settings) => {
-      this.unit = settings.unit;
-      this.chart_width = settings.scatter.width;
-      this.chart_height = settings.scatter.height;
-    });
-  }
-
   genPoints(): void {
-    if (this.x_axis && this.y_axis) {
+    if (this.x_axis && this.y_axis && this.chart) {
       const model = 'point {fill-color: blue; dataOpacity:0.4}';
       const xLabel = this.x_axis.label;
       const yLabel = this.y_axis.label;
@@ -132,19 +108,75 @@ export class ScatterplotComponent implements OnInit {
             xVal(datum),
             yVal(datum),
             datum.id,
-            datum.ownedby === 'instructor' ? model : '',
+            datum.ownedby !== 'instructor' ? model : '',
             `${datum.title}\n${xLabel}: ${xVal(datum).toFixed(
               2
             )}\n${yLabel}: ${yVal(datum).toFixed(2)}`,
           ]
         ) ?? [];
+      const data = new google.visualization.DataTable();
+      data.addColumn('number', xLabel, 'x');
+      data.addColumn('number', yLabel, 'y');
+      data.addColumn({ type: 'string', role: 'id' });
+      data.addColumn({ type: 'string', role: 'style', id: 'student' });
+      data.addColumn({ type: 'string', role: 'tooltip', id: 'tip' });
+      data.addRows(this.scatter_data);
+      this.data_table = data;
+      this.chart.draw(data, this.options);
     }
   }
 
   ngOnInit(): void {
-    this.getSettings();
-    this.getDictionary();
-    this.getCorpus();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
+    this.corpusService.getCorpus().subscribe((corpus) => {
+      this.corpus = corpus;
+      return forkJoin([
+        this.dictionaryService.getJSON(),
+        this.settingsService.getSettings(),
+        this.dataService.getData(this.corpus),
+      ]).subscribe(([common, settings, data]) => {
+        // Dictionary
+        this.dictionary = common;
+        // Settings
+        this.unit = settings.unit;
+        this.options.width = settings.scatter.width;
+        this.options.height = settings.scatter.height;
+        // DocuScope Data
+        this.data = data;
+        this._assignment_service.setAssignmentData(data);
+        const x = this.dictionary.categories[0];
+        const y = this.dictionary.categories[1];
+        this.x_category = this.get_category(x.name ?? x.label);
+        this.y_category = this.get_category(y.name ?? y.label);
+        this.x_axis = x;
+        this.y_axis = y;
+        this.genPoints();
+        spinner.close();
+      });
+    });
+  }
+  ngAfterViewInit(): void {
+    void this.makeChart();
+  }
+  async makeChart(): Promise<void> {
+    await this.googleChartService.load();
+    // Google Chart
+    this.chart = new google.visualization.ScatterChart(
+      this.scatterplot.nativeElement
+    );
+
+    google.visualization.events.addListener(this.chart, 'select', () => {
+      for (const item of this.chart.getSelection()) {
+        console.log(item);
+        if (item.row !== null) {
+          const id = this.data_table.getValue(item.row, 2) as string;
+          if (id) {
+            window.open(`stv/${id}`);
+          }
+        }
+      }
+    });
+    this.genPoints();
   }
   on_select_x(clust: Entry): void {
     this.x_axis = clust;
@@ -158,17 +190,5 @@ export class ScatterplotComponent implements OnInit {
   }
   get_category(category: string): CategoryData | undefined {
     return this.categories.find((c) => c.id === category);
-  }
-  select_point(
-    plot: GoogleChartComponent, //{ dataTable?: { getValue: (a: number, b: number) => string } },
-    evt: ChartSelectionChangedEvent
-  ): void {
-    for (const sel of evt.selection) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const id: string = plot.chartWrapper
-        .getDataTable()
-        .getValue(sel.row ?? 0, 2) as string;
-      window.open(`stv/${id}`);
-    }
   }
 }

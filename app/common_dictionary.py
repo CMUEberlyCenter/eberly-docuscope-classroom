@@ -13,7 +13,7 @@ from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
-from default_settings import Config
+from default_settings import SETTINGS
 
 
 class Entry(BaseModel):
@@ -48,7 +48,7 @@ class CommonDictionary(BaseModel):
 def get_common_dictionary() -> CommonDictionary:
     """Retrieve the DocuScope Common Dictionary."""
     try:
-        with open(os.path.join(Config.DICTIONARY_HOME,
+        with open(os.path.join(SETTINGS.dictionary_home,
                                "common_dict.json"), encoding="UTF-8") as cin:
             data = json.load(cin)
     except ValueError as enc_error:

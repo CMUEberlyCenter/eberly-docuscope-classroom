@@ -4,24 +4,27 @@ import logging
 import os
 import traceback
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+#from brotli_asgi import BrotliMiddleware # brotli-asgi
+#from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.staticfiles import StaticFiles
 #from fastapi_profiler.profiler_middleware import PyInstrumentProfilerMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import FileResponse, Response
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+#from starlet_authlib.middlewar import AuthlibMiddleware # starlette-authlib
 
-from default_settings import Config
+from default_settings import SETTINGS, SQLALCHEMY_DATABASE_URI
 from routers import document, ds_data, generate_reports, groups, patterns
 
 #logging.basicConfig(level=logging.DEBUG)
 
 # Setup database sesson manager
 ENGINE = create_engine(
-    Config.SQLALCHEMY_DATABASE_URI,
+    SQLALCHEMY_DATABASE_URI,
     pool_pre_ping=True,
     pool_recycle=3600)
 SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
@@ -30,7 +33,7 @@ SESSION = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 app = FastAPI( #pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="4.0.0",
+    version="5.1.2",
     license={
         'name': 'CC BY-NC-SA 4.0',
         'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
@@ -47,6 +50,11 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=['GET', 'POST'],
     allow_headers=['*'])
+
+#app.add_middleware(BrotliMiddleware)
+app.add_middleware(GZipMiddleware)
+#app.add_middleware(HTTPSRedirectMiddleware)
+#app.add_middleware(AuthlibMiddleware, secret='secret')
 
 ## Add custom middleware for database connection.
 @app.middleware("http")
@@ -79,10 +87,10 @@ app.include_router(generate_reports.router)
 @app.get("/common_dictionary")
 async def common_dictionary():
     """Serve the common dictionary information."""
-    return FileResponse(os.path.join(Config.DICTIONARY_HOME, 'common_dict.json'))
+    return FileResponse(os.path.join(SETTINGS.dictionary_home, 'common_dict.json'))
 
 @app.middleware("http")
-async def add_custom_header(request, call_next):
+async def add_custom_header(request: Request, call_next):
     """Serve the classroom web application from static."""
     response = await call_next(request)
     if response.status_code == 404:
@@ -90,11 +98,14 @@ async def add_custom_header(request, call_next):
     return response
 
 @app.exception_handler(404)
-def not_found(_request, _exc):
+def not_found(_request: Request, _exc):
     """Handler for 404 error which instead returns index.html"""
     return FileResponse('static/index.html')
 
-app.mount("/classroom", StaticFiles(directory="static", html=True), name="static")
+app.mount("/classroom", StaticFiles(directory="static", html=True),
+          name="static")
 
-#if __name__ == '__main__':
-#    app.run(debug=True)
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")

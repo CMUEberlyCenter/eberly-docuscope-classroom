@@ -5,17 +5,31 @@
   <mat-menu #categoryMenu="matMenu">
     <ng-template matMenuContent>
       <ng-container *ngFor="let category of dictionary.categories">
-        <button mat-menu-item [matMenuTriggerFor]="subcat" (click)="selectCategory(category)" [value]="category.name">
+        <button
+          mat-menu-item
+          [matMenuTriggerFor]="subcat"
+          (click)="selectCategory(category)"
+          [value]="category.name"
+        >
           {{ category.label }}
         </button>
         <mat-menu #subcat="matMenu">
           <ng-container *ngFor="let sub of category.subcategories">
-            <button mat-menu-item [matMenuTriggerFor]="cluster" (click)="selectCategory(sub)" [value]="sub.name">
+            <button
+              mat-menu-item
+              [matMenuTriggerFor]="cluster"
+              (click)="selectCategory(sub)"
+              [value]="sub.name"
+            >
               {{ sub.label }}
             </button>
             <mat-menu #cluster="matMenu">
-              <button mat-menu-item *ngFor="let cluster of sub.clusters" (click)="selectCluster(cluster)"
-                [value]="cluster.name">
+              <button
+                mat-menu-item
+                *ngFor="let cluster of sub.clusters"
+                (click)="selectCluster(cluster)"
+                [value]="cluster.name"
+              >
                 {{ cluster.label }}
               </button>
             </mat-menu>

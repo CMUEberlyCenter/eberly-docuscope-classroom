@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { asyncData, Spied, FAKE_COMMON_DICTIONARY } from 'src/testing';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
 import { AssignmentService } from '../assignment.service';
@@ -22,10 +23,6 @@ describe('BubbleChartComponent', () => {
   let fixture: ComponentFixture<BubbleChartComponent>;
 
   beforeEach(async () => {
-    const ngx_spinner_service_spy = jasmine.createSpyObj('NgxSpinnerService', [
-      'start',
-      'stop',
-    ]) as Spied<NgxUiLoaderService>;
     const corpusService_spy = jasmine.createSpyObj('CorpusService', [
       'getCorpus',
     ]) as Spied<CorpusService>;
@@ -72,7 +69,13 @@ describe('BubbleChartComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [BubbleChartComponent, NavStubComponent],
-      imports: [MatCardModule, MatButtonToggleModule, MatFormFieldModule],
+      imports: [
+        MatCardModule,
+        MatButtonToggleModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         { provide: AssignmentService, useValue: assignment_spy },
         {
@@ -82,7 +85,6 @@ describe('BubbleChartComponent', () => {
         { provide: CorpusService, useValue: corpusService_spy },
         { provide: DsDataService, useValue: dataService_spy },
         { provide: SettingsService, useValue: settings_spy },
-        { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
       ],
     }).compileComponents();
   });

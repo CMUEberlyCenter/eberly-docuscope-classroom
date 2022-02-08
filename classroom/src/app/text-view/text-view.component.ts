@@ -2,12 +2,12 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import * as d3 from 'd3';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import {
@@ -18,7 +18,10 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 import { Documents, DocumentService } from '../document.service';
 import { partition, PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
-//import { SettingsService } from '../settings.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
@@ -45,12 +48,12 @@ export class TextViewComponent implements OnInit {
     private _sanitizer: DomSanitizer,
     // private _settings_service: SettingsService,
     private snackbar: MatSnackBar,
-    private _spinner: NgxUiLoaderService,
+    private dialog: MatDialog,
     private _text_service: DocumentService
   ) {}
 
   ngOnInit(): void {
-    this._spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     const id = this._route.snapshot.paramMap.get('doc');
     if (!id) {
       this.snackbar.open('Error: No document specified!');
@@ -91,7 +94,7 @@ export class TextViewComponent implements OnInit {
           : node.children?.map(sunmap),
       });
       this.sundata = { name: 'root', children: common.tree.map(sunmap) };
-      this._spinner.stop();
+      spinner.close();
     });
   }
   hasChild(_: number, node: PatternTreeNode): boolean {

@@ -13,10 +13,10 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import * as d3 from 'd3';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
@@ -29,6 +29,10 @@ import {
   max_document_data_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 
 interface ICell {
   proportion: number;
@@ -74,11 +78,11 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
     private corpusService: CorpusService,
     private dataService: DsDataService,
     private settingsService: SettingsService,
-    private spinner: NgxUiLoaderService
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       return forkJoin([
@@ -102,7 +106,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
           .range([0, this.maxRadius])
           .nice();
         this.assignmentService.setAssignmentData(data);
-        this.spinner.stop();
+        spinner.close();
       });
     });
   }

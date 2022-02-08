@@ -7,6 +7,7 @@ import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,7 +16,6 @@ import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AngularSplitModule } from 'angular-split';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { routes } from '../app-routing.module';
 import { AssignmentService } from '../assignment.service';
@@ -40,7 +40,6 @@ describe('ComparisonComponent', () => {
   // let router_spy;
   let settings_spy: Spied<SettingsService>;
   let snack_spy: Spied<MatSnackBar>;
-  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let documents_service_spy: Spied<DocumentService>;
   const test_html = `
   <p id="passage">
@@ -70,10 +69,6 @@ describe('ComparisonComponent', () => {
         asyncData(['a']),
         asyncData([])
       );
-      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-        'start',
-        'stop',
-      ]) as Spied<NgxUiLoaderService>;
       documents_service_spy = jasmine.createSpyObj('DocumentService', [
         'getData',
       ]) as Spied<DocumentService>;
@@ -167,6 +162,7 @@ describe('ComparisonComponent', () => {
           MatButtonToggleModule,
           MatCardModule,
           MatCheckboxModule,
+          MatDialogModule,
           MatIconModule,
           MatSnackBarModule,
           MatTreeModule,
@@ -182,7 +178,6 @@ describe('ComparisonComponent', () => {
             useValue: commonDictionaryService_spy,
           },
           { provide: DocumentService, useValue: documents_service_spy },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: SettingsService, useValue: settings_spy },
           { provide: MatSnackBar, useValue: snack_spy },
         ],

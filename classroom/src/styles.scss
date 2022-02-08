@@ -1,5 +1,5 @@
 /* angular material */
-@use '~@angular/material' as mat;
+@use '@angular/material' as mat;
 
 /* fonts */
 // Currently, it is better to use link in index.html to load foreign resoruces.
@@ -12,9 +12,8 @@
 @include mat.core();
 
 //@import "@angular/material/prebuilt-themes/indigo-pink.css";
-@import "cmu-app-theme";
+@import 'cmu-app-theme';
 @include mat.all-component-themes($cmu-theme);
-
 
 .cluster_id {
   background: $cmu-core-grey;
@@ -51,7 +50,7 @@ body {
   height: 100vh;
 }
 body {
-  font-family: "Open Sans", Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
   margin: 0;
 }
 app-root {

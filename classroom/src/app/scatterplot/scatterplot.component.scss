@@ -5,13 +5,11 @@
   padding-right: 10px;
 }
 .axis_selection {
-  align-content: center;
-  display: grid;
-  grid-template-columns: auto auto;
-  column-gap: 1em;
-  /*justify-content: space-around;*/
-  margin-left: 0em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 .axis_select {
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }

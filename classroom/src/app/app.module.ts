@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
@@ -21,9 +22,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { GoogleChartsModule } from 'angular-google-charts';
+//import { GoogleChartsModule } from 'angular-google-charts';
 import { AngularSplitModule } from 'angular-split';
-import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { AboutComponent } from './about/about.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -45,6 +45,7 @@ import { ReportComponent } from './report/report.component';
 import { ScatterplotComponent } from './scatterplot/scatterplot.component';
 import { SunburstChartComponent } from './sunburst-chart/sunburst-chart.component';
 import { TextViewComponent } from './text-view/text-view.component';
+import { SpinnerPageComponent } from './spinner-page/spinner-page.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { TextViewComponent } from './text-view/text-view.component';
     SunburstChartComponent,
     TextViewComponent,
     ToolLayoutComponent,
+    SpinnerPageComponent,
   ],
   entryComponents: [AboutComponent],
   imports: [
@@ -77,9 +79,8 @@ import { TextViewComponent } from './text-view/text-view.component';
     BrowserAnimationsModule,
     DragDropModule,
     FormsModule,
-    GoogleChartsModule,
+    //GoogleChartsModule,
     HttpClientModule,
-    NgxUiLoaderModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
@@ -89,6 +90,7 @@ import { TextViewComponent } from './text-view/text-view.component';
     MatIconModule,
     MatInputModule,
     MatMenuModule,
+    MatProgressSpinnerModule,
     MatSidenavModule,
     MatSnackBarModule,
     MatSortModule,

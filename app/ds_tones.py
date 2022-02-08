@@ -18,7 +18,7 @@ from pandas import DataFrame
 from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
-from default_settings import Config
+from default_settings import SETTINGS
 
 
 class DocuScopeToneTree(BaseModel):
@@ -39,7 +39,7 @@ class DocuScopeTone(BaseModel): #pylint: disable=R0903
 def get_local_tones(dictionary_name="default") -> List[DocuScopeTone]:
     """Retrieve the DocuScope tones data for a dictionary from a local file."""
     try:
-        tone_path = os.path.join(Config.DICTIONARY_HOME,
+        tone_path = os.path.join(SETTINGS.dictionary_home,
                                  f"{dictionary_name}_tones.json.gz")
         with gzip.open(tone_path, 'rt') as jin:
             data = json.loads(jin.read())

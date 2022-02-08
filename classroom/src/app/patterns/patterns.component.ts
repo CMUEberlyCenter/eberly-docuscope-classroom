@@ -4,9 +4,9 @@
   counts of each pattern over the corpus.
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin } from 'rxjs';
 import {
   CommonDictionary,
@@ -20,6 +20,10 @@ import {
   PatternData,
   PatternsService,
 } from '../patterns.service';
+import {
+  SpinnerConfig,
+  SpinnerPageComponent,
+} from '../spinner-page/spinner-page.component';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
@@ -28,8 +32,6 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
   styleUrls: ['./patterns.component.scss'],
 })
 export class PatternsComponent implements OnInit {
-  @ViewChild('sunburst', { static: true }) sunburst!: ElementRef;
-
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   sundata: SunburstNode = { name: 'root' }; // data formatted for sunburst visualization
@@ -38,7 +40,7 @@ export class PatternsComponent implements OnInit {
     private commonDictionaryService: CommonDictionaryService,
     private corpusService: CorpusService,
     private dataService: PatternsService,
-    private spinner: NgxUiLoaderService
+    private dialog: MatDialog
   ) {}
 
   /**
@@ -59,7 +61,7 @@ export class PatternsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.spinner.start();
+    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.corpusService.getCorpus().subscribe((corpus) => {
       forkJoin([
         this.dataService.getPatterns(corpus),
@@ -89,7 +91,7 @@ export class PatternsComponent implements OnInit {
             : node.children?.map(sunmap),
         });
         this.sundata = { name: 'root', children: common.tree.map(sunmap) };
-        this.spinner.stop();
+        spinner.close();
       });
     });
   }

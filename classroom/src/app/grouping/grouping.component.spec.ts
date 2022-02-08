@@ -7,12 +7,12 @@ import {
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { asyncData, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
@@ -79,7 +79,6 @@ describe('GroupingComponent', () => {
   let fixture: ComponentFixture<GroupingComponent>;
   let corpus_service_spy: Spied<CorpusService>;
   let groups_data_service_spy: Spied<GroupsService>;
-  let ngx_spinner_service_spy: Spied<NgxUiLoaderService>;
   let snack_spy: Spied<MatSnackBar>;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
@@ -95,10 +94,6 @@ describe('GroupingComponent', () => {
       groups_data_service_spy.getGroupsData.and.returnValue(
         asyncData({ groups: [] })
       );
-      ngx_spinner_service_spy = jasmine.createSpyObj('NgxUiLoaderService', [
-        'start',
-        'stop',
-      ]) as Spied<NgxUiLoaderService>;
       snack_spy = jasmine.createSpyObj('MatSnackBar', [
         'open',
       ]) as Spied<MatSnackBar>;
@@ -112,6 +107,7 @@ describe('GroupingComponent', () => {
           DragDropModule,
           FormsModule,
           MatCardModule,
+          MatDialogModule,
           MatInputModule,
           MatFormFieldModule,
           MatSidenavModule,
@@ -121,7 +117,6 @@ describe('GroupingComponent', () => {
         providers: [
           { provide: AssignmentService, useValue: assignment_spy },
           { provide: CorpusService, useValue: corpus_service_spy },
-          { provide: NgxUiLoaderService, useValue: ngx_spinner_service_spy },
           { provide: GroupsService, useValue: groups_data_service_spy },
           { provide: MatSnackBar, useValue: snack_spy },
         ],
@@ -144,8 +139,7 @@ describe('GroupingComponent', () => {
   it('getGroupsData', async () => {
     component.getGroupsData();
     await fixture.whenStable();
-    void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-    void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+    // TODO: check if spinner openned and closed.
     void expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
     void expect(component.absent).toEqual([]);
   });
@@ -197,8 +191,7 @@ describe('GroupingComponent', () => {
     component.group_size = 2;
     component.generate_groups({});
     return fixture.whenStable().then(() => {
-      void expect(ngx_spinner_service_spy.start).toHaveBeenCalled();
-      void expect(ngx_spinner_service_spy.stop).toHaveBeenCalled();
+      // TODO: check if spinner openned and closed.
       void expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
       void expect(component.absent).toEqual([]);
     });

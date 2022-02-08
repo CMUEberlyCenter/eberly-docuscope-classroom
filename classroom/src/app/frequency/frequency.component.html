@@ -3,17 +3,26 @@
   <mat-card-subtitle>
     Frequency of the selected category for each document.
   </mat-card-subtitle>
-  <mat-card-subtitle>The bar represents the difference from the
-    median value and is the average number of instances per
-    {{ unit }} words.
+  <mat-card-subtitle
+    >The bar represents the difference from the median value and is the average
+    number of instances per {{ unit }} words.
   </mat-card-subtitle>
   <mat-card-content *ngIf="data">
     <aside class="select_category_box">
-      <app-category-select [dictionary]="dictionary" [selectedCategory]="selected_category"
-        (selectedCategoryChange)="onSelectCategory($event)"></app-category-select>
+      <app-category-select
+        [dictionary]="dictionary"
+        [selectedCategory]="selected_category"
+        (selectedCategoryChange)="onSelectCategory($event)"
+      ></app-category-select>
     </aside>
     <article>
-      <app-frequency-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category" [sticky]="sticky">
+      <app-frequency-graph
+        *ngIf="category; else noData"
+        [data]="data"
+        [unit]="unit"
+        [category]="category"
+        [sticky]="sticky"
+      >
       </app-frequency-graph>
       <ng-template #noData>
         <mat-error>
@@ -21,18 +30,6 @@
           {{ selected_category?.label ?? 'UNKNOWN' }}
         </mat-error>
       </ng-template>
-      <!--<google-chart #rankTable *ngIf="rank_data"
-            [type]="'Table'"
-            [columnNames]="['Name', 'Frequency']"
-            [data]="rank_data"
-            ></google-chart>-->
-      <!--(select)=""-->
-      <!--<google-chart #rank *ngIf="rank_data"
-            [title]="'Ranking by '+get_label(category)"
-            [type]="'BarChart'"
-            [columnNames]="['Name', 'Frequency']"
-            [data]="rank_data"
-            [options]="options"></google-chart>-->
     </article>
   </mat-card-content>
 </mat-card>

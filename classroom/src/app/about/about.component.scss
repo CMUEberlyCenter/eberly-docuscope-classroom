@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '~@angular/material' as mat;
+@use '@angular/material' as mat;
 @import '../../cmu-app-theme.scss';
 
 $color-config: mat.get-color-config($cmu-theme);
