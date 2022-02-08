@@ -31,7 +31,7 @@ LABEL commit=${COMMIT}
 LABEL maintainer=${USER}
 LABEL version=${TAG}
 LABEL description="DocuScope Classroom visualization tools web interface"
-COPY --from-deps /.venv /.venv
+COPY --from=deps /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"
 RUN useradd --create-home appuser
 WORKDIR /home/appuser
