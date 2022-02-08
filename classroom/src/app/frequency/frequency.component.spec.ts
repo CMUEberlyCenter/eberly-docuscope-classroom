@@ -5,7 +5,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { GoogleChartsModule } from 'angular-google-charts';
 import { FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { AssignmentService } from '../assignment.service';
@@ -101,7 +100,6 @@ describe('FrequencyComponent', () => {
       declarations: [FrequencyComponent, FrequencyGraphStubComponent],
       imports: [
         FormsModule,
-        GoogleChartsModule,
         MatCardModule,
         MatDialogModule,
         MatFormFieldModule,

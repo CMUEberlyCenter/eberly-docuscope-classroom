@@ -4,7 +4,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { GoogleChartsModule } from 'angular-google-charts';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
@@ -112,7 +111,6 @@ describe('ScatterplotComponent', () => {
         declarations: [ScatterplotComponent],
         imports: [
           FormsModule,
-          GoogleChartsModule,
           MatCardModule,
           MatDialogModule,
           MatFormFieldModule,

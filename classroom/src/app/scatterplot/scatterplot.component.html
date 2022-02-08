@@ -1,29 +1,21 @@
 <mat-card *ngIf="corpus">
   <mat-card-title>Scatter Plot</mat-card-title>
-  <mat-card-subtitle
-    >Compares the frequecies of two patterns where each point represents a
-    document.</mat-card-subtitle
-  >
-  <mat-card-subtitle
-    >Units are average number of incidences per
-    {{ unit }} words.</mat-card-subtitle
-  >
+  <mat-card-subtitle>Compares the frequecies of two patterns where each point represents a
+    document.</mat-card-subtitle>
+  <mat-card-subtitle>Units are average number of incidences per
+    {{ unit }} words.</mat-card-subtitle>
   <mat-card-content class="scatter_container">
     <div class="axis_selection">
-      <mat-label class="grid-item">X Axis: </mat-label>
-      <mat-label class="grid-item">Y Axis: </mat-label>
-      <app-category-select
-        class="grid-item"
-        [dictionary]="dictionary"
-        [selectedCategory]="x_axis"
-        (selectedCategoryChange)="on_select_x($event)"
-      ></app-category-select>
-      <app-category-select
-        class="grid-item"
-        [dictionary]="dictionary"
-        [selectedCategory]="y_axis"
-        (selectedCategoryChange)="on_select_y($event)"
-      ></app-category-select>
+      <div class="axis_select">
+        <mat-label class="grid-item">X Axis: </mat-label>
+        <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="x_axis"
+          (selectedCategoryChange)="on_select_x($event)"></app-category-select>
+      </div>
+      <div class="axis_select">
+        <mat-label class="grid-item">Y Axis: </mat-label>
+        <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="y_axis"
+          (selectedCategoryChange)="on_select_y($event)"></app-category-select>
+      </div>
     </div>
     <div #chart></div>
   </mat-card-content>

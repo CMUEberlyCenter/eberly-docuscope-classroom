@@ -19,6 +19,7 @@ import {
   DocuScopeData,
   DsDataService,
 } from '../ds-data.service';
+import { GoogleChartsLoaderService } from '../google-charts-loader.service';
 import { SettingsService } from '../settings.service';
 import {
   SpinnerConfig,
@@ -81,7 +82,8 @@ export class ScatterplotComponent implements AfterViewInit, OnInit {
     private _assignment_service: AssignmentService,
     private dialog: MatDialog,
     private dataService: DsDataService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private googleChartService: GoogleChartsLoaderService
   ) {}
 
   genPoints(): void {
@@ -157,7 +159,7 @@ export class ScatterplotComponent implements AfterViewInit, OnInit {
     void this.makeChart();
   }
   async makeChart(): Promise<void> {
-    await google.charts.load('current', { packages: ['corechart'] });
+    await this.googleChartService.load();
     // Google Chart
     this.chart = new google.visualization.ScatterChart(
       this.scatterplot.nativeElement
