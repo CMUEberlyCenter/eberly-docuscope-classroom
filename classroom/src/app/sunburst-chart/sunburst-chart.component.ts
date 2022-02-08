@@ -108,19 +108,15 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  building_blocks_available(): boolean {
+    return Boolean(this.root && this.arc && this.path && this.g && this.label);
+  }
   clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>): void {
     if (!p) {
       this.current_path = '';
       return;
     }
-    if (
-      p.children &&
-      this.root &&
-      this.arc &&
-      this.path &&
-      this.g &&
-      this.label
-    ) {
+    if (p.children && this.building_blocks_available()) {
       this.parent?.datum(p.parent || this.root);
       this.current_path = p
         .ancestors()

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     sqlalchemy_track_modifications: bool = False
     db_host: str = '127.0.0.1'
     db_port: int = 3306
-    db_password: SecretStr = 'docuscope'
+    db_password: SecretStr = ''
     db_user: str = 'docuscope'
     mysql_database: str = 'docuscope'
 
@@ -22,6 +22,7 @@ class Settings(BaseSettings):
         """Configuration class for Settings."""
         env_file = '.env'
         env_file_encoding = 'utf-8'
+        # Following is for docker secrets.
         secrets_dir = '/run/secrets' if os.path.isdir('/run/secrets') else None
 
 SETTINGS = Settings()
