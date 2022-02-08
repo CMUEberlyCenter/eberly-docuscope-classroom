@@ -22,7 +22,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { GoogleChartsModule } from 'angular-google-charts';
+//import { GoogleChartsModule } from 'angular-google-charts';
 import { AngularSplitModule } from 'angular-split';
 import { AboutComponent } from './about/about.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -79,7 +79,7 @@ import { SpinnerPageComponent } from './spinner-page/spinner-page.component';
     BrowserAnimationsModule,
     DragDropModule,
     FormsModule,
-    GoogleChartsModule,
+    //GoogleChartsModule,
     HttpClientModule,
     MatButtonModule,
     MatButtonToggleModule,

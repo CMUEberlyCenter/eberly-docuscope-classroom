@@ -4,7 +4,7 @@
   counts of each pattern over the corpus.
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { forkJoin } from 'rxjs';
@@ -32,8 +32,6 @@ import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
   styleUrls: ['./patterns.component.scss'],
 })
 export class PatternsComponent implements OnInit {
-  @ViewChild('sunburst', { static: true }) sunburst!: ElementRef;
-
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);
   treeData = new MatTreeNestedDataSource<PatternTreeNode>();
   sundata: SunburstNode = { name: 'root' }; // data formatted for sunburst visualization
