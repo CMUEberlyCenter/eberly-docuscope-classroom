@@ -79,7 +79,7 @@ async def get_documents(corpus: List[UUID],
         count_patterns(etr, pats)
         for tag in etr.iterfind(".//*[@data-key]"):
             lat = tag.get('data-key')
-            categories = LAT_MAP[lat]
+            categories = LAT_MAP.get(lat, None)
             if categories:
                 if categories['cluster'] != 'Other': # Filter out Other
                     cats = [categories['category'],
@@ -96,8 +96,8 @@ async def get_documents(corpus: List[UUID],
                     tclasses = Classes(tag.attrib)
                     tclasses |= cats
                     tag.set('data-key', cpath)
-            else:
-                logging.info("No category mapping for %s.", lat)
+            #else:
+            #    logging.info("No category mapping for %s.", lat)
         docs.append(Document(
             text_id=filename,
             owner=fullname,

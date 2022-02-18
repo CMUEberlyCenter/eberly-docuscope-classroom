@@ -3,8 +3,7 @@ import uuid
 
 from sqlalchemy import (JSON, TIMESTAMP, VARBINARY, Boolean, Column, Enum,
                         ForeignKey, Integer, LargeBinary, SmallInteger, String)
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import TypeDecorator
 
 BASE = declarative_base()
