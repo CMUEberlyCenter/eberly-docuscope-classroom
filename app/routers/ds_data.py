@@ -1,17 +1,16 @@
 """ Handles /ds_data requests. """
 import logging
 import traceback
-from typing import List
 from uuid import UUID
 
+from database import get_documents, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_FRAME
 from pandas import DataFrame, concat, merge
 from pydantic import BaseModel
 from response import ERROR_RESPONSES
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
-from util import get_db_session, get_documents
 
 router = APIRouter()
 
@@ -44,8 +43,8 @@ class DocuScopeData(BaseModel):
     assignment: str = None
     course: str = None
     instructor: str = None
-    categories: List[CategoryData] = []
-    data: List[DocumentData] = []
+    categories: list[CategoryData] = []
+    data: list[DocumentData] = []
 
 def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
     """Generate the boxplot data for this request."""
@@ -92,15 +91,15 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
 
 @router.post('/ds_data', response_model=DocuScopeData,
              responses=ERROR_RESPONSES)
-async def get_ds_data(corpus: List[UUID],
-                      db_session: Session = Depends(get_db_session)):
+async def get_ds_data(corpus: list[UUID],
+                      session: AsyncSession = Depends(session)):
     """Responds to "ds_data" requests."""
     if not corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     logging.info("Metadata request for %s", corpus)
     try:
-        stats, info = get_documents(corpus, db_session)
+        stats, info = await get_documents(corpus, session)
         data = calculate_data(stats, info)
     except Exception as exp:
         traceback.print_exc()

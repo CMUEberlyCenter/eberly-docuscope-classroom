@@ -13,6 +13,7 @@ ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONFAULTHANDLER=1
+ENV PYTHONOPTIMIZE=2
 
 FROM base AS deps
 RUN pip install --upgrade pip
@@ -37,4 +38,4 @@ RUN useradd --create-home appuser
 WORKDIR /home/appuser
 COPY ./app .
 COPY --from=builder /classroom/dist/classroom ./static
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["hypercorn", "main:app", "--bind", "0.0.0.0:80"]
