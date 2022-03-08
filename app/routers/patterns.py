@@ -1,5 +1,4 @@
 """ Handles /patterns requests. """
-# import logging
 from collections import Counter, defaultdict
 from uuid import UUID
 
@@ -25,7 +24,11 @@ async def patterns(corpus: list[UUID],
     pats = defaultdict(Counter)
     parser = etree.XMLParser(load_dtd=False, no_network=True, remove_pis=True,
                              resolve_entities=False)
-    result = await sql.stream(select(Submission.id, Submission.processed, Submission.name, Submission.state))
+    result = await sql.stream(
+        select(Submission.id,
+               Submission.processed,
+               Submission.name,
+               Submission.state))
     async for (uuid, doc, filename, status) in result:
         await document_state_check(status, uuid, filename, doc, sql)
         if doc and doc['ds_tag_dict']:

@@ -9,9 +9,10 @@ import zipfile
 from collections import Counter, defaultdict
 from uuid import UUID
 
+from bounded_fences import bounded_fences
 from common_dictionary import COMMON_DICITONARY
 from count_patterns import sort_patterns
-from database import Assignment, Submission, document_state_check, session
+from database import DOCUMENTS_QUERY, Submission, document_state_check, session
 from ds_report import (Boxplot, Divider, add_page_number,
                        generate_paragraph_styles)
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,7 +26,6 @@ from reportlab.lib.units import pica
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
 from reportlab.platypus.flowables import BalancedColumns
 from response import ERROR_RESPONSES
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                               HTTP_500_INTERNAL_SERVER_ERROR)
@@ -41,7 +41,7 @@ class ReportsSchema(BaseModel):
     stv_intro: str = None
 
 
-async def get_reports(ids: list[UUID], gintro, sintro, session: AsyncSession):
+async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
     """Generate the report for this corpus."""
     #pylint: disable=too-many-locals,too-many-branches,too-many-statements
     course = set()
@@ -51,18 +51,13 @@ async def get_reports(ids: list[UUID], gintro, sintro, session: AsyncSession):
     documents = {}
     doc_data = {}
     doc_info = {}
-    result = await session.stream(select(Submission.processed,
-                                         Submission.fullname,
-                                         Submission.ownedby,
-                                         Submission.name,
-                                         Submission.id,
-                                         Submission.state,
-                                         Assignment.name,
-                                         Assignment.course,
-                                         Assignment.instructor)
-                                  .where(Submission.id.in_(ids))
-                                  .where(Assignment.id == Submission.assignment))
-    async for doc, fullname, ownedby, filename, doc_id, state, a_name, a_course, a_instructor in result:
+    result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(ids)))
+    parser = etree.XMLParser(load_dtd=False,
+                             no_network=True,
+                             remove_pis=True,
+                             resolve_entities=False)
+    async for (doc, fullname, ownedby, filename, doc_id, state,
+               a_name, a_course, a_instructor) in result:
         await document_state_check(state, doc_id, filename, doc, session)
         course.add(a_course)
         instructor.add(a_instructor)
@@ -84,10 +79,6 @@ async def get_reports(ids: list[UUID], gintro, sintro, session: AsyncSession):
         html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                        "</para><para>", html_content) + "</para></body>"
         pats = defaultdict(Counter)
-        parser = etree.XMLParser(load_dtd=False,
-                                 no_network=True,
-                                 remove_pis=True,
-                                 resolve_entities=False)
         try:
             etr = etree.fromstring(html, parser)  # nosec
         except Exception as exp:
@@ -133,17 +124,12 @@ async def get_reports(ids: list[UUID], gintro, sintro, session: AsyncSession):
     for key, val in nstats.to_dict().items():
         documents[key]['stats'] = val
     quants = nstats.transpose().quantile(q=[0, 0.25, 0.5, 0.75, 1])
+    upper_inner_fence, lower_inner_fence = bounded_fences(quants)
     mins = quants.loc[0]
     q1s = quants.loc[0.25]
     q2s = quants.loc[0.5]
     q3s = quants.loc[0.75]
     maxs = quants.loc[1]
-    iqr = quants.loc[0.75] - quants.loc[0.25]
-    upper_inner_fence = quants.loc[0.75] + 1.5 * iqr
-    upper_inner_fence = upper_inner_fence.clip(lower=mins, upper=maxs)
-    lower_inner_fence = quants.loc[0.25] - 1.5 * iqr
-    lower_inner_fence = lower_inner_fence.clip(lower=mins, upper=maxs)
-
     max_val = maxs.max()
 
     styles = generate_paragraph_styles()

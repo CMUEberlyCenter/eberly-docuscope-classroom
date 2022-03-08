@@ -20,9 +20,12 @@ class GroupsSchema(BaseModel):
     corpus: list[UUID]
     group_size: int = 2
 
-async def get_pairings(documents: list[UUID], group_size: int, session: AsyncSession) -> GroupsSchema:
+async def get_pairings(
+        documents: list[UUID],
+        group_size: int,
+        sql: AsyncSession) -> GroupsSchema:
     """Generate the groups for this corpus."""
-    stats, info = await get_documents(documents, session)
+    stats, info = await get_documents(documents, sql)
     # Keep only students.
     students = info.loc['ownedby'] == 'student'
     info = info.transpose()[students].transpose()

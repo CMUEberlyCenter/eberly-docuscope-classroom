@@ -5,14 +5,13 @@ from collections import Counter, defaultdict
 from uuid import UUID
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
-from database import Assignment, Submission, document_state_check, session
+from database import DOCUMENTS_QUERY, Submission, document_state_check, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_MAP
 from lxml import etree  # nosec
 from lxml.html import Classes  # nosec
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
 
@@ -44,7 +43,7 @@ async def get_document(file_id: UUID,
 
 @router.post('/document', response_model=Documents, responses=ERROR_RESPONSES)
 async def get_documents(corpus: list[UUID],
-                        session: AsyncSession = Depends(session)):
+                        sql: AsyncSession = Depends(session)):
     """ Responds to post requests for tagged documents. """
     #pylint: disable=too-many-locals
     if not corpus:
@@ -55,21 +54,12 @@ async def get_documents(corpus: list[UUID],
     course = set()
     assignment = set()
     instructor = set()
-    result = await session.stream(
-        select(Submission.processed,
-               Submission.fullname,
-               Submission.ownedby,
-               Submission.name,
-               Submission.id,
-               Submission.state,
-               Assignment.name,
-               Assignment.course,
-               Assignment.instructor)
-        .where(Submission.id.in_(corpus))
-        .where(Assignment.id == Submission.assignment))
+    result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(corpus)))
+    parser = etree.XMLParser(load_dtd=False, no_network=True,
+                             remove_pis=True, resolve_entities=False)
     async for doc, fullname, ownedby, filename, doc_id, state, \
             a_name, a_course, a_instructor in result:
-        await document_state_check(state, doc_id, filename, doc, session)
+        await document_state_check(state, doc_id, filename, doc, sql)
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
@@ -77,13 +67,11 @@ async def get_documents(corpus: list[UUID],
         html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                     "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
-        parser = etree.XMLParser(load_dtd=False, no_network=True,
-                                 remove_pis=True, resolve_entities=False)
         try:
             etr = etree.fromstring(html, parser)  # nosec
-        except Exception as exp:
+        except Exception as p_exp:
             logging.error(html)
-            raise exp
+            raise p_exp
         count_patterns(etr, pats)
         for tag in etr.iterfind(".//*[@data-key]"):
             lat = tag.get('data-key')

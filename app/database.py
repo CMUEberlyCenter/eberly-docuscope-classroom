@@ -120,40 +120,30 @@ class Assignment(BASE):  # pylint: disable=R0903
             f"dictionary='{self.oli_id}', "
 
 
-async def get_ds_info(ds_dict: str, session: AsyncSession):
-    """Get the dictionary of DocuScope Dictionary information."""
-    query = await session.execute(select(DSDictionary.class_info).where(DSDictionary.name == ds_dict, DSDictionary.enabled))
-    return query.first()
-    # return db_session\
-    #    .query(DSDictionary.class_info)\
-    #    .filter(DSDictionary.name == ds_dict, DSDictionary.enabled)\
-    #    .one_or_none()[0]
-
-
-async def queue_length(session: AsyncSession):
+async def queue_length(sql: AsyncSession):
     """ Returns the number of documents that are yet to be tagged. """
-    result = await session.execute(select(func.count(Submission.id)).execution_options(populate_existing=True).where(Submission.state.in_(['pending', 'submitted'])))
+    result = await sql.execute(
+        select(func.count(Submission.id))
+        .execution_options(populate_existing=True)
+        .where(Submission.state.in_(['pending', 'submitted'])))
     (untagged,) = result.first() or (0,)
     return untagged
 
-    # return db_session.query(Submission.id, Submission.state)\
-    #                 .filter(Submission.state.in_(['pending', 'submitted']))\
-    #                 .count()
 
-
-async def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
-                               db_session: AsyncSession):
+async def document_state_check(
+        status: str, doc_id: UUID, filename: str, doc: str,
+        db_session: AsyncSession):
     """ Raises HTTPExceptions when the status is problematic. """
-    logging.debug('%s, %s, %s', status, uuid, filename)
+    logging.debug('%s, %s, %s', status, doc_id, filename)
     if status == 'error':
-        logging.error("Aborting: error in %s (%s): %s", uuid, filename, doc)
+        logging.error("Aborting: error in %s (%s): %s", doc_id, filename, doc)
         raise HTTPException(
             detail=f"There was an error while tagging {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     if status != 'tagged':
         queue = await queue_length(db_session)
         logging.error("Aborting: %s (%s) has state %s, queue: %s",
-                      uuid, filename, status, queue)
+                      doc_id, filename, status, queue)
         raise HTTPException(
             detail=(f"{filename} is not yet tagged (state: {status})"
                     f" and should be available soon."
@@ -163,38 +153,38 @@ async def document_state_check(status: str, uuid: UUID, filename: str, doc: str,
                     f" for more than five minutes."),
             status_code=HTTP_503_SERVICE_UNAVAILABLE)
     if not doc:
-        logging.error("No tagging data for %s (%s)", filename, uuid)
+        logging.error("No tagging data for %s (%s)", filename, doc_id)
         raise HTTPException(
             detail=f"No tagging data for {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     if doc['ds_num_word_tokens'] == 0:
         logging.error(
-            "Invalid documenxt, no content for %s (%s)", filename, uuid)
+            "Invalid documenxt, no content for %s (%s)", filename, doc_id)
         raise HTTPException(
             detail=f"Tagger failed to parse {filename}",
             status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-async def get_documents(documents: list[UUID], session: AsyncSession) -> tuple[DataFrame, DataFrame]:
+DOCUMENTS_QUERY = select(Submission.processed,
+                         Submission.fullname,
+                         Submission.ownedby,
+                         Submission.name,
+                         Submission.id,
+                         Submission.state,
+                         Assignment.name,
+                         Assignment.course,
+                         Assignment.instructor)\
+                         .where(Assignment.id == Submission.assignment)
+async def get_documents(
+        documents: list[UUID],
+        sql: AsyncSession) -> tuple[DataFrame, DataFrame]:
     """ Retrieve the documents and preprocess each one. """
     docs = {}
     info = {}
-    result = await session.stream(
-        select(Submission.processed,
-               Submission.fullname,
-               Submission.ownedby,
-               Submission.name,
-               Submission.id,
-               Submission.state,
-               Assignment.name,
-               Assignment.course,
-               Assignment.instructor)
-        .where(Submission.id.in_(documents))
-        .where(Assignment.id == Submission.assignment))
-    async for row in result:
-        (doc, fullname, ownedby, filename, doc_id,
-         state, a_name, a_course, a_instructor) = row
-        await document_state_check(state, doc_id, filename, doc, session)
+    result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(documents)))
+    async for (doc, fullname, ownedby, filename, doc_id,
+               state, a_name, a_course, a_instructor) in result:
+        await document_state_check(state, doc_id, filename, doc, sql)
         docs[doc_id] = Series({key: val['num_tags'] for key, val in
                                doc['ds_tag_dict'].items()})
         desc = Series(dtype='float64')
