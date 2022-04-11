@@ -28,18 +28,16 @@ describe('AboutComponent', () => {
     })
   );
 
-  beforeEach(
-    waitForAsync(() => {
-      return TestBed.configureTestingModule({
-        declarations: [AboutComponent],
-        imports: [MatDialogModule, MatIconModule],
-        providers: [
-          { provide: MatDialogRef, useValue: mat_dialog_spy },
-          { provide: SettingsService, useValue: settings_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    return TestBed.configureTestingModule({
+      declarations: [AboutComponent],
+      imports: [MatDialogModule, MatIconModule],
+      providers: [
+        { provide: MatDialogRef, useValue: mat_dialog_spy },
+        { provide: SettingsService, useValue: settings_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AboutComponent);

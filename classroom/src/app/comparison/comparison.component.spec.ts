@@ -58,132 +58,130 @@ describe('ComparisonComponent', () => {
   <span id="tag_3" data-key=" " class="tag"></span>
   </p>`;
 
-  beforeEach(
-    waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
-        'getCorpus',
-      ]) as Spied<CorpusService>;
-      corpus_service_spy.getCorpus.and.returnValues(
-        asyncData(['a', 'b']),
-        asyncData(['a', 'b', 'c']),
-        asyncData(['a']),
-        asyncData([])
-      );
-      documents_service_spy = jasmine.createSpyObj('DocumentService', [
-        'getData',
-      ]) as Spied<DocumentService>;
-      documents_service_spy.getData.and.returnValue(
-        asyncData({
-          course: 'bogus_course',
-          assignment: 'bogus_assignment',
-          instructor: 'test_instructor',
-          documents: [
-            {
-              text_id: 'a',
-              owner: 'astudent',
-              ownedby: 'student',
-              word_count: 2,
-              html_content: test_html,
-              patterns: [
-                {
-                  category: 'bogus',
-                  patterns: [
-                    { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 },
-                  ],
-                },
-              ],
-            },
-            {
-              text_id: 'b',
-              owner: 'ata',
-              ownedby: 'instructor',
-              word_count: 2,
-              html_content: test_html,
-              patterns: [
-                {
-                  category: 'bogus',
-                  patterns: [
-                    { pattern: 'text', count: 1 },
-                    { pattern: 'bogus', count: 1 },
-                  ],
-                },
-              ],
-            },
-          ],
-        })
-      );
-      settings_spy = jasmine.createSpyObj('SettingsService', [
-        'getSettings',
-      ]) as Spied<SettingsService>;
-      settings_spy.getSettings.and.returnValues(
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: 'CMU',
-          unit: 2,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
-          mtv: { horizontal: false, documentColors: ['#1c66aa', '#639c54'] },
-        }),
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: 'CMU',
-          unit: 2,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
-          mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
-        })
-      );
-      const commonDictionaryService_spy = jasmine.createSpyObj(
-        'CommonDictionaryService',
-        ['getJSON']
-      ) as Spied<CommonDictionaryService>;
-      commonDictionaryService_spy.getJSON.and.returnValue(
-        asyncData(FAKE_COMMON_DICTIONARY)
-      );
-      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData',
-      ]) as Spied<AssignmentService>;
-      snack_spy = jasmine.createSpyObj('MatSnackBar', [
-        'open',
-      ]) as Spied<MatSnackBar>;
-
-      void TestBed.configureTestingModule({
-        declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
-        imports: [
-          HttpClientTestingModule,
-          AngularSplitModule,
-          MatButtonToggleModule,
-          MatCardModule,
-          MatCheckboxModule,
-          MatDialogModule,
-          MatIconModule,
-          MatSnackBarModule,
-          MatTreeModule,
-          MatTooltipModule,
-          NoopAnimationsModule,
-          RouterTestingModule.withRoutes(routes),
-        ],
-        providers: [
-          { provide: AssignmentService, useValue: assignment_spy },
-          { provide: CorpusService, useValue: corpus_service_spy },
+  beforeEach(waitForAsync(() => {
+    corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+      'getCorpus',
+    ]) as Spied<CorpusService>;
+    corpus_service_spy.getCorpus.and.returnValues(
+      asyncData(['a', 'b']),
+      asyncData(['a', 'b', 'c']),
+      asyncData(['a']),
+      asyncData([])
+    );
+    documents_service_spy = jasmine.createSpyObj('DocumentService', [
+      'getData',
+    ]) as Spied<DocumentService>;
+    documents_service_spy.getData.and.returnValue(
+      asyncData({
+        course: 'bogus_course',
+        assignment: 'bogus_assignment',
+        instructor: 'test_instructor',
+        documents: [
           {
-            provide: CommonDictionaryService,
-            useValue: commonDictionaryService_spy,
+            text_id: 'a',
+            owner: 'astudent',
+            ownedby: 'student',
+            word_count: 2,
+            html_content: test_html,
+            patterns: [
+              {
+                category: 'bogus',
+                patterns: [
+                  { pattern: 'text', count: 1 },
+                  { pattern: 'bogus', count: 1 },
+                ],
+              },
+            ],
           },
-          { provide: DocumentService, useValue: documents_service_spy },
-          { provide: SettingsService, useValue: settings_spy },
-          { provide: MatSnackBar, useValue: snack_spy },
+          {
+            text_id: 'b',
+            owner: 'ata',
+            ownedby: 'instructor',
+            word_count: 2,
+            html_content: test_html,
+            patterns: [
+              {
+                category: 'bogus',
+                patterns: [
+                  { pattern: 'text', count: 1 },
+                  { pattern: 'bogus', count: 1 },
+                ],
+              },
+            ],
+          },
         ],
-      }).compileComponents();
-    })
-  );
+      })
+    );
+    settings_spy = jasmine.createSpyObj('SettingsService', [
+      'getSettings',
+    ]) as Spied<SettingsService>;
+    settings_spy.getSettings.and.returnValues(
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: 'CMU',
+        unit: 2,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 4 },
+        mtv: { horizontal: false, documentColors: ['#1c66aa', '#639c54'] },
+      }),
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: 'CMU',
+        unit: 2,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 4 },
+        mtv: { horizontal: true, documentColors: ['#1c66aa', '#639c54'] },
+      })
+    );
+    const commonDictionaryService_spy = jasmine.createSpyObj(
+      'CommonDictionaryService',
+      ['getJSON']
+    ) as Spied<CommonDictionaryService>;
+    commonDictionaryService_spy.getJSON.and.returnValue(
+      asyncData(FAKE_COMMON_DICTIONARY)
+    );
+    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+      'setAssignmentData',
+    ]) as Spied<AssignmentService>;
+    snack_spy = jasmine.createSpyObj('MatSnackBar', [
+      'open',
+    ]) as Spied<MatSnackBar>;
+
+    void TestBed.configureTestingModule({
+      declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
+      imports: [
+        HttpClientTestingModule,
+        AngularSplitModule,
+        MatButtonToggleModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatTreeModule,
+        MatTooltipModule,
+        NoopAnimationsModule,
+        RouterTestingModule.withRoutes(routes),
+      ],
+      providers: [
+        { provide: AssignmentService, useValue: assignment_spy },
+        { provide: CorpusService, useValue: corpus_service_spy },
+        {
+          provide: CommonDictionaryService,
+          useValue: commonDictionaryService_spy,
+        },
+        { provide: DocumentService, useValue: documents_service_spy },
+        { provide: SettingsService, useValue: settings_spy },
+        { provide: MatSnackBar, useValue: snack_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ComparisonComponent);

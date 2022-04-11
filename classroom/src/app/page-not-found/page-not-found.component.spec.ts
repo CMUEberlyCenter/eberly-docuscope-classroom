@@ -6,14 +6,12 @@ describe('PageNotFoundComponent', () => {
   let component: PageNotFoundComponent;
   let fixture: ComponentFixture<PageNotFoundComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [PageNotFoundComponent],
-        imports: [MatCardModule],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [PageNotFoundComponent],
+      imports: [MatCardModule],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PageNotFoundComponent);

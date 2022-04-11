@@ -11,21 +11,19 @@ describe('PatternsTableComponent', () => {
   let component: PatternsTableComponent;
   let fixture: ComponentFixture<PatternsTableComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [PatternsTableComponent],
-        imports: [
-          NoopAnimationsModule,
-          MatCardModule,
-          MatIconModule,
-          MatSortModule,
-          MatTableModule,
-          MatTooltipModule,
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [PatternsTableComponent],
+      imports: [
+        NoopAnimationsModule,
+        MatCardModule,
+        MatIconModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule,
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PatternsTableComponent);

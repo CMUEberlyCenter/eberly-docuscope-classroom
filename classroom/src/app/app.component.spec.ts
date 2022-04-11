@@ -17,22 +17,20 @@ describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let app: AppComponent;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
-        imports: [
-          HttpClientTestingModule,
-          MatDialogModule,
-          MatIconModule,
-          MatToolbarModule,
-          MatTooltipModule,
-          RouterTestingModule,
-        ],
-        providers: [],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
+      imports: [
+        HttpClientTestingModule,
+        MatDialogModule,
+        MatIconModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        RouterTestingModule,
+      ],
+      providers: [],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);

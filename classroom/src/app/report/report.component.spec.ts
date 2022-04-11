@@ -20,44 +20,42 @@ describe('ReportComponent', () => {
   let report_service_spy: Spied<ReportService>;
   let intro_service_spy: Spied<ReportIntroductionService>;
 
-  beforeEach(
-    waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
-        'getCorpus',
-      ]) as Spied<CorpusService>;
-      corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-      report_service_spy = jasmine.createSpyObj('ReportService', [
-        'getReports',
-      ]) as Spied<ReportService>;
-      report_service_spy.getReports.and.returnValue(asyncData(''));
-      intro_service_spy = jasmine.createSpyObj('ReportIntroductionService', [
-        'getIntroductionText',
-      ]) as Spied<ReportIntroductionService>;
-      intro_service_spy.getIntroductionText.and.returnValue(
-        asyncData({
-          introduction: 'Intro Text',
-          stv_introduction: 'STV Introduction',
-        })
-      );
+  beforeEach(waitForAsync(() => {
+    corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+      'getCorpus',
+    ]) as Spied<CorpusService>;
+    corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
+    report_service_spy = jasmine.createSpyObj('ReportService', [
+      'getReports',
+    ]) as Spied<ReportService>;
+    report_service_spy.getReports.and.returnValue(asyncData(''));
+    intro_service_spy = jasmine.createSpyObj('ReportIntroductionService', [
+      'getIntroductionText',
+    ]) as Spied<ReportIntroductionService>;
+    intro_service_spy.getIntroductionText.and.returnValue(
+      asyncData({
+        introduction: 'Intro Text',
+        stv_introduction: 'STV Introduction',
+      })
+    );
 
-      void TestBed.configureTestingModule({
-        declarations: [ReportComponent],
-        imports: [
-          FormsModule,
-          MatCardModule,
-          MatDialogModule,
-          MatFormFieldModule,
-          MatInputModule,
-          NoopAnimationsModule,
-        ],
-        providers: [
-          { provide: CorpusService, useValue: corpus_service_spy },
-          { provide: ReportService, useValue: report_service_spy },
-          { provide: ReportIntroductionService, useValue: intro_service_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+    void TestBed.configureTestingModule({
+      declarations: [ReportComponent],
+      imports: [
+        FormsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        NoopAnimationsModule,
+      ],
+      providers: [
+        { provide: CorpusService, useValue: corpus_service_spy },
+        { provide: ReportService, useValue: report_service_spy },
+        { provide: ReportIntroductionService, useValue: intro_service_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ReportComponent);

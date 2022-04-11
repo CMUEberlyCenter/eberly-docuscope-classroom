@@ -27,78 +27,76 @@ describe('PatternsComponent', () => {
   let component: PatternsComponent;
   let fixture: ComponentFixture<PatternsComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      const corpusService_spy = jasmine.createSpyObj('CorpusService', [
-        'getCorpus',
-      ]) as Spied<CorpusService>;
-      corpusService_spy.getCorpus.and.returnValue(
-        asyncData({
-          course: 'stub',
-          assignment: 'stub',
-          documents: ['1', '2', '3'],
-          intro: 'stub',
-          stv_intro: 'stub',
-        })
-      );
-      const commonDictionaryService_spy = jasmine.createSpyObj(
-        'CommonDictionaryService',
-        ['getJSON']
-      ) as Spied<CommonDictionaryService>;
-      commonDictionaryService_spy.getJSON.and.returnValue(
-        asyncData(FAKE_COMMON_DICTIONARY)
-      );
-      const patternsService_spy = jasmine.createSpyObj('PatternsService', [
-        'getPatterns',
-      ]) as Spied<PatternsService>;
-      patternsService_spy.getPatterns.and.returnValue(
-        asyncData([
-          {
-            category: 'future',
-            patterns: [
-              { pattern: 'i will', count: 4 },
-              { pattern: 'future of', count: 1 },
-              { pattern: 'potential', count: 1 },
-            ],
-          },
-          {
-            category: 'facilitate',
-            patterns: [
-              { pattern: 'allowed me', count: 2 },
-              { pattern: 'assisted', count: 2 },
-            ],
-          },
-          {
-            category: 'null',
-          },
-        ])
-      );
+  beforeEach(waitForAsync(() => {
+    const corpusService_spy = jasmine.createSpyObj('CorpusService', [
+      'getCorpus',
+    ]) as Spied<CorpusService>;
+    corpusService_spy.getCorpus.and.returnValue(
+      asyncData({
+        course: 'stub',
+        assignment: 'stub',
+        documents: ['1', '2', '3'],
+        intro: 'stub',
+        stv_intro: 'stub',
+      })
+    );
+    const commonDictionaryService_spy = jasmine.createSpyObj(
+      'CommonDictionaryService',
+      ['getJSON']
+    ) as Spied<CommonDictionaryService>;
+    commonDictionaryService_spy.getJSON.and.returnValue(
+      asyncData(FAKE_COMMON_DICTIONARY)
+    );
+    const patternsService_spy = jasmine.createSpyObj('PatternsService', [
+      'getPatterns',
+    ]) as Spied<PatternsService>;
+    patternsService_spy.getPatterns.and.returnValue(
+      asyncData([
+        {
+          category: 'future',
+          patterns: [
+            { pattern: 'i will', count: 4 },
+            { pattern: 'future of', count: 1 },
+            { pattern: 'potential', count: 1 },
+          ],
+        },
+        {
+          category: 'facilitate',
+          patterns: [
+            { pattern: 'allowed me', count: 2 },
+            { pattern: 'assisted', count: 2 },
+          ],
+        },
+        {
+          category: 'null',
+        },
+      ])
+    );
 
-      void TestBed.configureTestingModule({
-        declarations: [
-          PatternsComponent,
-          PatternsTableStubComponent,
-          SunburstStubComponent,
-        ],
-        imports: [
-          NoopAnimationsModule,
-          MatCardModule,
-          MatDialogModule,
-          MatIconModule,
-          MatTreeModule,
-          MatTooltipModule,
-        ],
-        providers: [
-          { provide: CorpusService, useValue: corpusService_spy },
-          {
-            provide: CommonDictionaryService,
-            useValue: commonDictionaryService_spy,
-          },
-          { provide: PatternsService, useValue: patternsService_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+    void TestBed.configureTestingModule({
+      declarations: [
+        PatternsComponent,
+        PatternsTableStubComponent,
+        SunburstStubComponent,
+      ],
+      imports: [
+        NoopAnimationsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatIconModule,
+        MatTreeModule,
+        MatTooltipModule,
+      ],
+      providers: [
+        { provide: CorpusService, useValue: corpusService_spy },
+        {
+          provide: CommonDictionaryService,
+          useValue: commonDictionaryService_spy,
+        },
+        { provide: PatternsService, useValue: patternsService_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PatternsComponent);

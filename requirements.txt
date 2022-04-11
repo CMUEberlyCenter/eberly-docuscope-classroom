@@ -8,7 +8,7 @@
 -i https://pypi.org/simple
 aiomysql==0.0.22
 anyio==3.5.0; python_full_version >= '3.6.2'
-beautifulsoup4==4.10.0
+beautifulsoup4==4.11.1
 fastapi==0.75.1
 greenlet==1.1.2; python_version >= '3' and platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))
 h11==0.13.0; python_version >= '3.6'

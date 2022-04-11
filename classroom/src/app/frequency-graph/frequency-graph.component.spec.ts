@@ -65,23 +65,21 @@ describe('RankGraphComponent', () => {
   let component: TestRankComponent;
   let fixture: ComponentFixture<TestRankComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [FrequencyGraphComponent, TestRankComponent],
-        imports: [
-          MatCardModule,
-          MatSortModule,
-          MatTableModule,
-          MatTooltipModule,
-          NoopAnimationsModule,
-        ],
-        schemas: [
-          /* NO_ERRORS_SCHEMA*/
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [FrequencyGraphComponent, TestRankComponent],
+      imports: [
+        MatCardModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule,
+        NoopAnimationsModule,
+      ],
+      schemas: [
+        /* NO_ERRORS_SCHEMA*/
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TestRankComponent);
