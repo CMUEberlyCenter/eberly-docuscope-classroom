@@ -175,7 +175,7 @@ export class TextViewComponent implements OnInit {
 
   /**
    * Handler for click event on the document text.
-   * It reveals or hids the categorization path annotation.
+   * It reveals or hides the categorization path annotation.
    *
    * @param $event a MouseEvent like clicking.
    */
