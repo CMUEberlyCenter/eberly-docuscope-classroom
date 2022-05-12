@@ -265,7 +265,7 @@ describe('ComparisonComponent', () => {
       void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
       const txt = fixture.debugElement.query(By.css('.text_content'));
       //expect(txt.nativeElement.innerText).toBeNull();
-      txt.triggerEventHandler('click', {});
+      txt.triggerEventHandler('click', new MouseEvent('click'));
       const word = fixture.debugElement.query(By.css('#w1'))
         .nativeElement as HTMLElement;
       void expect(word).toBeTruthy();

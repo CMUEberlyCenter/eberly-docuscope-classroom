@@ -8,6 +8,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
 import { asyncData } from '../../testing/async-observable-helpers';
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
@@ -19,6 +20,12 @@ class FrequencyGraphStubComponent {
   @Input() data: DocuScopeData;
   @Input() category: CategoryData;
   @Input() unit: number;
+}
+
+@Component({ selector: 'app-category-select', template: '' })
+class CategorySelectStubComponent {
+  @Input() dictionary: CommonDictionary | undefined;
+  @Input() selectedCategory: Entry | undefined;
 }
 
 describe('FrequencyComponent', () => {
@@ -97,7 +104,11 @@ describe('FrequencyComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      declarations: [FrequencyComponent, FrequencyGraphStubComponent],
+      declarations: [
+        FrequencyComponent,
+        FrequencyGraphStubComponent,
+        CategorySelectStubComponent,
+      ],
       imports: [
         FormsModule,
         MatCardModule,

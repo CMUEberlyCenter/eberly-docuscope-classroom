@@ -1,3 +1,4 @@
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -6,11 +7,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
 import { AssignmentService } from '../assignment.service';
+import { CommonDictionary, Entry } from '../common-dictionary';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { ScatterplotComponent } from './scatterplot.component';
+
+@Component({ selector: 'app-category-select', template: '' })
+class CategorySelectStubComponent {
+  @Input() dictionary: CommonDictionary | undefined;
+  @Input() selectedCategory: Entry | undefined;
+}
 
 describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
@@ -107,7 +115,7 @@ describe('ScatterplotComponent', () => {
     ]) as Spied<AssignmentService>;
 
     void TestBed.configureTestingModule({
-      declarations: [ScatterplotComponent],
+      declarations: [ScatterplotComponent, CategorySelectStubComponent],
       imports: [
         FormsModule,
         MatCardModule,
