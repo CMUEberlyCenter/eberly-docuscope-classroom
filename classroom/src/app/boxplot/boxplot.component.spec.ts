@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
@@ -70,12 +69,7 @@ describe('BoxplotComponent', () => {
 
     void TestBed.configureTestingModule({
       declarations: [BoxplotComponent, FrequencyGraphStubComponent],
-      imports: [
-        MatCardModule,
-        MatDialogModule,
-        MatTreeModule,
-        NoopAnimationsModule,
-      ],
+      imports: [MatCardModule, MatTreeModule, NoopAnimationsModule],
       providers: [
         { provide: AssignmentService, useValue: assignment_spy },
         {

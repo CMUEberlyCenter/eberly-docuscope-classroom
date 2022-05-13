@@ -2,7 +2,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -44,7 +43,6 @@ describe('ReportComponent', () => {
       imports: [
         FormsModule,
         MatCardModule,
-        MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
         NoopAnimationsModule,

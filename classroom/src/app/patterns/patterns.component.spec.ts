@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
@@ -82,7 +81,6 @@ describe('PatternsComponent', () => {
       imports: [
         NoopAnimationsModule,
         MatCardModule,
-        MatDialogModule,
         MatIconModule,
         MatTreeModule,
         MatTooltipModule,

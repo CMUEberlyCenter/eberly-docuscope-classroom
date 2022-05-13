@@ -9,7 +9,6 @@ import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -145,7 +144,6 @@ describe('TextViewComponent', () => {
         HttpClientTestingModule, // settings import requires.
         MatCardModule,
         MatCheckboxModule,
-        MatDialogModule,
         MatIconModule,
         MatSnackBarModule,
         MatTreeModule,

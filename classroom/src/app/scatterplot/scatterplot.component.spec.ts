@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
@@ -119,7 +118,6 @@ describe('ScatterplotComponent', () => {
       imports: [
         FormsModule,
         MatCardModule,
-        MatDialogModule,
         MatFormFieldModule,
         NoopAnimationsModule,
       ],

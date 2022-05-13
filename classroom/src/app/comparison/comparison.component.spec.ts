@@ -7,7 +7,6 @@ import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -161,7 +160,6 @@ describe('ComparisonComponent', () => {
         MatButtonToggleModule,
         MatCardModule,
         MatCheckboxModule,
-        MatDialogModule,
         MatIconModule,
         MatSnackBarModule,
         MatTreeModule,

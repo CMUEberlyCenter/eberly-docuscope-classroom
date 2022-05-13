@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_COMMON_DICTIONARY, Spied } from 'src/testing';
@@ -112,7 +111,6 @@ describe('FrequencyComponent', () => {
       imports: [
         FormsModule,
         MatCardModule,
-        MatDialogModule,
         MatFormFieldModule,
         NoopAnimationsModule,
       ],
