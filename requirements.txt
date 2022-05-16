@@ -1,8 +1,8 @@
 -i https://pypi.org/simple
 aiomysql==0.1.1
-anyio==3.5.0
+anyio==3.6.1
 beautifulsoup4==4.11.1
-fastapi==0.77.1
+fastapi==0.78.0
 greenlet==1.1.2
 h11==0.13.0
 h2==4.1.0
