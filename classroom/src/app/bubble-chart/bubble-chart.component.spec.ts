@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { asyncData, Spied, FAKE_COMMON_DICTIONARY } from 'src/testing';
@@ -72,7 +71,6 @@ describe('BubbleChartComponent', () => {
       imports: [
         MatCardModule,
         MatButtonToggleModule,
-        MatDialogModule,
         MatFormFieldModule,
         NoopAnimationsModule,
       ],

@@ -14,29 +14,25 @@ describe('NavComponent', () => {
   let fixture: ComponentFixture<NavComponent>;
   let activated_route_spy; //: jasmine.SpyObj<ActivatedRoute>;
 
-  beforeEach(
-    waitForAsync(() => {
-      activated_route_spy = jasmine.createSpyObj('activatedRoute', [
-        'paramMap',
-      ]);
-      activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
-      activated_route_spy.snapshot.url = ['stub'];
-      activated_route_spy.snapshot.queryParamMap = new Map();
-      void TestBed.configureTestingModule({
-        imports: [
-          FormsModule,
-          RouterTestingModule,
-          MatTabsModule,
-          MatTooltipModule,
-        ],
-        declarations: [NavComponent],
-        providers: [{ provide: ActivatedRoute, useValue: activated_route_spy }],
-        schemas: [
-          /* NO_ERRORS_SCHEMA*/
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    activated_route_spy = jasmine.createSpyObj('activatedRoute', ['paramMap']);
+    activated_route_spy.snapshot = jasmine.createSpyObj('snapshot', ['pmap']);
+    activated_route_spy.snapshot.url = ['stub'];
+    activated_route_spy.snapshot.queryParamMap = new Map();
+    void TestBed.configureTestingModule({
+      imports: [
+        FormsModule,
+        RouterTestingModule,
+        MatTabsModule,
+        MatTooltipModule,
+      ],
+      declarations: [NavComponent],
+      providers: [{ provide: ActivatedRoute, useValue: activated_route_spy }],
+      schemas: [
+        /* NO_ERRORS_SCHEMA*/
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NavComponent);

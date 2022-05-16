@@ -107,7 +107,7 @@ describe('DsDataService', () => {
     });
     const req = httpMock.expectOne(server);
     void expect(req.request.method).toBe('POST');
-    req.error(new ErrorEvent('fail'), { status: 404 });
+    req.error(new ProgressEvent('fail'), { status: 404 });
   });
 
   it('getData', () => {

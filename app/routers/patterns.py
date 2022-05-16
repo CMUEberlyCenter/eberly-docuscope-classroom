@@ -1,24 +1,22 @@
 """ Handles /patterns requests. """
-# import logging
 from collections import Counter, defaultdict
-from typing import List
 from uuid import UUID
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
-from ds_db import Filesystem
+from database import Submission, document_state_check, session
 from fastapi import APIRouter, Depends, HTTPException
-from lxml import etree # nosec
+from lxml import etree  # nosec
 from response import ERROR_RESPONSES
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
-from util import document_state_check, get_db_session
 
 router = APIRouter()
 
-@router.post('/patterns', response_model=List[CategoryPatternData],
+@router.post('/patterns', response_model=list[CategoryPatternData],
              responses=ERROR_RESPONSES)
-def patterns(corpus: List[UUID],
-             db_session: Session = Depends(get_db_session)):
+async def patterns(corpus: list[UUID],
+             sql: AsyncSession = Depends(session)):
     """Generate the list of categorized patterns in the given corpus."""
     if not corpus:
         raise HTTPException(detail="No documents specified.",
@@ -26,10 +24,13 @@ def patterns(corpus: List[UUID],
     pats = defaultdict(Counter)
     parser = etree.XMLParser(load_dtd=False, no_network=True, remove_pis=True,
                              resolve_entities=False)
-    for (uuid, doc, filename, status) in db_session.query(
-            Filesystem.id, Filesystem.processed, Filesystem.name,
-            Filesystem.state).filter(Filesystem.id.in_(corpus)):
-        document_state_check(status, uuid, filename, doc, db_session)
+    result = await sql.stream(
+        select(Submission.id,
+               Submission.processed,
+               Submission.name,
+               Submission.state))
+    async for (uuid, doc, filename, status) in result:
+        await document_state_check(status, uuid, filename, doc, sql)
         if doc and doc['ds_tag_dict']:
             etr = etree.fromstring(f"<body>{doc['ds_output']}</body>", parser) # nosec
             count_patterns(etr, pats)

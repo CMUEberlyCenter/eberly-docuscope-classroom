@@ -6,7 +6,6 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
@@ -21,10 +20,6 @@ import {
 } from '../ds-data.service';
 import { GoogleChartsLoaderService } from '../google-charts-loader.service';
 import { SettingsService } from '../settings.service';
-import {
-  SpinnerConfig,
-  SpinnerPageComponent,
-} from '../spinner-page/spinner-page.component';
 
 @Component({
   selector: 'app-scatterplot',
@@ -80,7 +75,6 @@ export class ScatterplotComponent implements AfterViewInit, OnInit {
     private corpusService: CorpusService,
     private dictionaryService: CommonDictionaryService,
     private _assignment_service: AssignmentService,
-    private dialog: MatDialog,
     private dataService: DsDataService,
     private settingsService: SettingsService,
     private googleChartService: GoogleChartsLoaderService
@@ -127,7 +121,6 @@ export class ScatterplotComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.corpusService.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       return forkJoin([
@@ -151,7 +144,6 @@ export class ScatterplotComponent implements AfterViewInit, OnInit {
         this.x_axis = x;
         this.y_axis = y;
         this.genPoints();
-        spinner.close();
       });
     });
   }

@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
@@ -24,72 +23,65 @@ describe('BoxplotComponent', () => {
   let component: BoxplotComponent;
   let fixture: ComponentFixture<BoxplotComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      const corpusService_spy = jasmine.createSpyObj('CorpusService', [
-        'getCorpus',
-      ]) as Spied<CorpusService>;
-      corpusService_spy.getCorpus.and.returnValue(
-        asyncData({
-          course: 'stub',
-          assignment: 'stub',
-          documents: ['1', '2', '3'],
-          intro: 'stub',
-          stv_intro: 'stub',
-        })
-      );
-      const dataService_spy = jasmine.createSpyObj('DsDataService', [
-        'getData',
-      ]) as Spied<DsDataService>;
-      dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
-      const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
-        'SettingsService',
-        ['getSettings']
-      ) as Spied<SettingsService>;
-      settings_spy.getSettings.and.returnValue(
-        asyncData({
-          title: 'DocuScope Classroom',
-          institution: 'CMU',
-          unit: 100,
-          homepage:
-            'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-          scatter: { width: 400, height: 400 },
-          boxplot: { cloud: true },
-          stv: { max_clusters: 4 },
-        })
-      );
-      const commonDictionaryService_spy = jasmine.createSpyObj(
-        'CommonDictionaryService',
-        ['getJSON']
-      ) as Spied<CommonDictionaryService>;
-      commonDictionaryService_spy.getJSON.and.returnValue(
-        asyncData(FAKE_COMMON_DICTIONARY)
-      );
-      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData',
-      ]) as Spied<AssignmentService>;
+  beforeEach(waitForAsync(() => {
+    const corpusService_spy = jasmine.createSpyObj('CorpusService', [
+      'getCorpus',
+    ]) as Spied<CorpusService>;
+    corpusService_spy.getCorpus.and.returnValue(
+      asyncData({
+        course: 'stub',
+        assignment: 'stub',
+        documents: ['1', '2', '3'],
+        intro: 'stub',
+        stv_intro: 'stub',
+      })
+    );
+    const dataService_spy = jasmine.createSpyObj('DsDataService', [
+      'getData',
+    ]) as Spied<DsDataService>;
+    dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
+    const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
+      'SettingsService',
+      ['getSettings']
+    ) as Spied<SettingsService>;
+    settings_spy.getSettings.and.returnValue(
+      asyncData({
+        title: 'DocuScope Classroom',
+        institution: 'CMU',
+        unit: 100,
+        homepage:
+          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+        scatter: { width: 400, height: 400 },
+        boxplot: { cloud: true },
+        stv: { max_clusters: 4 },
+      })
+    );
+    const commonDictionaryService_spy = jasmine.createSpyObj(
+      'CommonDictionaryService',
+      ['getJSON']
+    ) as Spied<CommonDictionaryService>;
+    commonDictionaryService_spy.getJSON.and.returnValue(
+      asyncData(FAKE_COMMON_DICTIONARY)
+    );
+    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+      'setAssignmentData',
+    ]) as Spied<AssignmentService>;
 
-      void TestBed.configureTestingModule({
-        declarations: [BoxplotComponent, FrequencyGraphStubComponent],
-        imports: [
-          MatCardModule,
-          MatDialogModule,
-          MatTreeModule,
-          NoopAnimationsModule,
-        ],
-        providers: [
-          { provide: AssignmentService, useValue: assignment_spy },
-          {
-            provide: CommonDictionaryService,
-            useValue: commonDictionaryService_spy,
-          },
-          { provide: CorpusService, useValue: corpusService_spy },
-          { provide: DsDataService, useValue: dataService_spy },
-          { provide: SettingsService, useValue: settings_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+    void TestBed.configureTestingModule({
+      declarations: [BoxplotComponent, FrequencyGraphStubComponent],
+      imports: [MatCardModule, MatTreeModule, NoopAnimationsModule],
+      providers: [
+        { provide: AssignmentService, useValue: assignment_spy },
+        {
+          provide: CommonDictionaryService,
+          useValue: commonDictionaryService_spy,
+        },
+        { provide: CorpusService, useValue: corpusService_spy },
+        { provide: DsDataService, useValue: dataService_spy },
+        { provide: SettingsService, useValue: settings_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BoxplotComponent);

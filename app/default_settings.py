@@ -26,8 +26,8 @@ class Settings(BaseSettings):
         secrets_dir = '/run/secrets' if os.path.isdir('/run/secrets') else None
 
 SETTINGS = Settings()
-SQLALCHEMY_DATABASE_URI: stricturl(tld_required = False, allowed_schemes=['mysql+mysqldb']) = (
-        f"mysql+mysqldb://"
+SQLALCHEMY_DATABASE_URI: stricturl(tld_required = False, allowed_schemes=['mysql+aiomysql']) = (
+        f"mysql+aiomysql://"
         f"{SETTINGS.db_user}"
         f":{SETTINGS.db_password.get_secret_value()}" #pylint: disable=no-member
         f"@{SETTINGS.db_host}"

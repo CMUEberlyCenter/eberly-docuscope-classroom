@@ -7,7 +7,6 @@ import {
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -82,47 +81,44 @@ describe('GroupingComponent', () => {
   let snack_spy: Spied<MatSnackBar>;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-  beforeEach(
-    waitForAsync(() => {
-      corpus_service_spy = jasmine.createSpyObj('CorpusService', [
-        'getCorpus',
-      ]) as Spied<CorpusService>;
-      corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-      groups_data_service_spy = jasmine.createSpyObj('GroupsService', [
-        'getGroupsData',
-      ]) as Spied<GroupsService>;
-      groups_data_service_spy.getGroupsData.and.returnValue(
-        asyncData({ groups: [] })
-      );
-      snack_spy = jasmine.createSpyObj('MatSnackBar', [
-        'open',
-      ]) as Spied<MatSnackBar>;
-      const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-        'setAssignmentData',
-      ]) as Spied<AssignmentService>;
+  beforeEach(waitForAsync(() => {
+    corpus_service_spy = jasmine.createSpyObj('CorpusService', [
+      'getCorpus',
+    ]) as Spied<CorpusService>;
+    corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
+    groups_data_service_spy = jasmine.createSpyObj('GroupsService', [
+      'getGroupsData',
+    ]) as Spied<GroupsService>;
+    groups_data_service_spy.getGroupsData.and.returnValue(
+      asyncData({ groups: [] })
+    );
+    snack_spy = jasmine.createSpyObj('MatSnackBar', [
+      'open',
+    ]) as Spied<MatSnackBar>;
+    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
+      'setAssignmentData',
+    ]) as Spied<AssignmentService>;
 
-      void TestBed.configureTestingModule({
-        declarations: [GroupingComponent],
-        imports: [
-          DragDropModule,
-          FormsModule,
-          MatCardModule,
-          MatDialogModule,
-          MatInputModule,
-          MatFormFieldModule,
-          MatSidenavModule,
-          MatSnackBarModule,
-          NoopAnimationsModule,
-        ],
-        providers: [
-          { provide: AssignmentService, useValue: assignment_spy },
-          { provide: CorpusService, useValue: corpus_service_spy },
-          { provide: GroupsService, useValue: groups_data_service_spy },
-          { provide: MatSnackBar, useValue: snack_spy },
-        ],
-      }).compileComponents();
-    })
-  );
+    void TestBed.configureTestingModule({
+      declarations: [GroupingComponent],
+      imports: [
+        DragDropModule,
+        FormsModule,
+        MatCardModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSidenavModule,
+        MatSnackBarModule,
+        NoopAnimationsModule,
+      ],
+      providers: [
+        { provide: AssignmentService, useValue: assignment_spy },
+        { provide: CorpusService, useValue: corpus_service_spy },
+        { provide: GroupsService, useValue: groups_data_service_spy },
+        { provide: MatSnackBar, useValue: snack_spy },
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(GroupingComponent);

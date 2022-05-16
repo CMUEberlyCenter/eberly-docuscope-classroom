@@ -2,22 +2,21 @@
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import List
 from uuid import UUID
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
-from ds_db import Assignment, Filesystem
+from database import DOCUMENTS_QUERY, Submission, document_state_check, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_MAP
-from lxml import etree # nosec
-from lxml.html import Classes # nosec
+from lxml import etree  # nosec
+from lxml.html import Classes  # nosec
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
-from util import document_state_check, get_db_session
 
 router = APIRouter()
+
 
 class Document(BaseModel):
     """ Schema for tagged document information. """
@@ -26,22 +25,25 @@ class Document(BaseModel):
     ownedby: str = ...
     word_count: int = 0
     html_content: str = ""
-    patterns: List[CategoryPatternData]
+    patterns: list[CategoryPatternData]
+
 
 class Documents(AssignmentData):
     """ Schema for a collection of tagged documents. """
-    documents: List[Document]
+    documents: list[Document]
+
 
 @router.get('/document/{file_id}', response_model=Documents,
             responses=ERROR_RESPONSES)
 async def get_document(file_id: UUID,
-                       db_session: Session = Depends(get_db_session)):
+                       db_session: AsyncSession = Depends(session)):
     """Get the tagged text information for the given file."""
     return await get_documents([file_id], db_session)
 
+
 @router.post('/document', response_model=Documents, responses=ERROR_RESPONSES)
-async def get_documents(corpus: List[UUID],
-                        db_session: Session = Depends(get_db_session)):
+async def get_documents(corpus: list[UUID],
+                        sql: AsyncSession = Depends(session)):
     """ Responds to post requests for tagged documents. """
     #pylint: disable=too-many-locals
     if not corpus:
@@ -52,16 +54,12 @@ async def get_documents(corpus: List[UUID],
     course = set()
     assignment = set()
     instructor = set()
-    for doc, fullname, ownedby, filename, doc_id, state, \
-        a_name, a_course, a_instructor in \
-        db_session.query(Filesystem.processed, Filesystem.fullname,
-                         Filesystem.ownedby, Filesystem.name, Filesystem.id,
-                         Filesystem.state,
-                         Assignment.name, Assignment.course,
-                         Assignment.instructor)\
-                  .filter(Filesystem.id.in_(corpus))\
-                  .filter(Assignment.id == Filesystem.assignment):
-        document_state_check(state, doc_id, filename, doc, db_session)
+    result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(corpus)))
+    parser = etree.XMLParser(load_dtd=False, no_network=True,
+                             remove_pis=True, resolve_entities=False)
+    async for doc, fullname, ownedby, filename, doc_id, state, \
+            a_name, a_course, a_instructor in result:
+        await document_state_check(state, doc_id, filename, doc, sql)
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
@@ -69,19 +67,17 @@ async def get_documents(corpus: List[UUID],
         html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                     "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
-        parser = etree.XMLParser(load_dtd=False, no_network=True,
-                                 remove_pis=True, resolve_entities=False)
         try:
-            etr = etree.fromstring(html, parser) # nosec
-        except Exception as exp:
+            etr = etree.fromstring(html, parser)  # nosec
+        except Exception as p_exp:
             logging.error(html)
-            raise exp
+            raise p_exp
         count_patterns(etr, pats)
         for tag in etr.iterfind(".//*[@data-key]"):
             lat = tag.get('data-key')
-            categories = LAT_MAP[lat]
+            categories = LAT_MAP.get(lat, None)
             if categories:
-                if categories['cluster'] != 'Other': # Filter out Other
+                if categories['cluster'] != 'Other':  # Filter out Other
                     cats = [categories['category'],
                             categories['subcategory'],
                             categories['cluster']]
@@ -96,8 +92,8 @@ async def get_documents(corpus: List[UUID],
                     tclasses = Classes(tag.attrib)
                     tclasses |= cats
                     tag.set('data-key', cpath)
-            else:
-                logging.info("No category mapping for %s.", lat)
+            # else:
+            #    logging.info("No category mapping for %s.", lat)
         docs.append(Document(
             text_id=filename,
             owner=fullname,

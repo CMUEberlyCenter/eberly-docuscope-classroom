@@ -6,7 +6,6 @@
   TODO: side-by-side displays for comparison. (pending approval)
 */
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
@@ -20,10 +19,6 @@ import {
   genCategoryDataMap,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
-import {
-  SpinnerConfig,
-  SpinnerPageComponent,
-} from '../spinner-page/spinner-page.component';
 
 @Component({
   selector: 'app-frequency',
@@ -49,13 +44,11 @@ export class FrequencyComponent implements OnInit {
     private _assignment_service: AssignmentService,
     private commonDictionaryService: CommonDictionaryService,
     private _corpus_service: CorpusService,
-    private dialog: MatDialog,
     private _data_service: DsDataService,
     private _settings_service: SettingsService
   ) {}
 
   ngOnInit(): void {
-    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this._corpus_service.getCorpus().subscribe((corpus) => {
       this.corpus = corpus;
       return forkJoin([
@@ -73,7 +66,6 @@ export class FrequencyComponent implements OnInit {
         this._assignment_service.setAssignmentData(data);
         this.dsmap = genCategoryDataMap(data);
         this.onSelectCategory(common.categories[0]);
-        spinner.close();
       });
     });
   }

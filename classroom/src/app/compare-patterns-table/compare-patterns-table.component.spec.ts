@@ -28,24 +28,22 @@ describe('ComparePatternsTableComponent', () => {
   let tcomponent: TestComparePatternsTableComponent;
   let tfixture: ComponentFixture<TestComparePatternsTableComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      void TestBed.configureTestingModule({
-        declarations: [
-          ComparePatternsTableComponent,
-          TestComparePatternsTableComponent,
-        ],
-        imports: [
-          NoopAnimationsModule,
-          MatCardModule,
-          MatIconModule,
-          MatSortModule,
-          MatTableModule,
-          MatTooltipModule,
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    void TestBed.configureTestingModule({
+      declarations: [
+        ComparePatternsTableComponent,
+        TestComparePatternsTableComponent,
+      ],
+      imports: [
+        NoopAnimationsModule,
+        MatCardModule,
+        MatIconModule,
+        MatSortModule,
+        MatTableModule,
+        MatTooltipModule,
+      ],
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ComparePatternsTableComponent);

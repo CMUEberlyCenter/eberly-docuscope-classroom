@@ -5,7 +5,6 @@
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { forkJoin } from 'rxjs';
 import {
@@ -20,10 +19,6 @@ import {
   PatternData,
   PatternsService,
 } from '../patterns.service';
-import {
-  SpinnerConfig,
-  SpinnerPageComponent,
-} from '../spinner-page/spinner-page.component';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
@@ -39,8 +34,7 @@ export class PatternsComponent implements OnInit {
   constructor(
     private commonDictionaryService: CommonDictionaryService,
     private corpusService: CorpusService,
-    private dataService: PatternsService,
-    private dialog: MatDialog
+    private dataService: PatternsService
   ) {}
 
   /**
@@ -61,7 +55,6 @@ export class PatternsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const spinner = this.dialog.open(SpinnerPageComponent, SpinnerConfig);
     this.corpusService.getCorpus().subscribe((corpus) => {
       forkJoin([
         this.dataService.getPatterns(corpus),
@@ -91,7 +84,6 @@ export class PatternsComponent implements OnInit {
             : node.children?.map(sunmap),
         });
         this.sundata = { name: 'root', children: common.tree.map(sunmap) };
-        spinner.close();
       });
     });
   }

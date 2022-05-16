@@ -7,22 +7,18 @@ name = "pypi"
 reportlab = "*"
 pandas = "*"
 "beautifulsoup4" = "*"
-mysqlclient = "*"
-sqlalchemy = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
 fastapi = "*"
-itsdangerous = "*"
-aiofiles = "*"
-email-validator = "*"
 ujson = "*"
 lxml = "*"
-fastapi-profiler = "*"
-deprecation = "*"
-uvicorn = "*"
 pydantic = {extras = ["dotenv"], version = "*"}
+aiomysql = "*"
+hypercorn = "*"
 
 [dev-packages]
 pylint = "*"
 bandit = "*"
+autopep8 = "*"
 
 [requires]
 python_version = "3.10"

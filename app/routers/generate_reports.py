@@ -7,39 +7,41 @@ import time
 import traceback
 import zipfile
 from collections import Counter, defaultdict
-from typing import List
 from uuid import UUID
 
+from bounded_fences import bounded_fences
 from common_dictionary import COMMON_DICITONARY
 from count_patterns import sort_patterns
-from ds_db import Assignment, Filesystem
-from ds_report import Boxplot, Divider, add_page_number, generate_paragraph_styles
+from database import DOCUMENTS_QUERY, Submission, document_state_check, session
+from ds_report import (Boxplot, Divider, add_page_number,
+                       generate_paragraph_styles)
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from lat_frame import LAT_FRAME, LAT_MAP
-from lxml import etree # nosec
+from lxml import etree  # nosec
 from pandas import DataFrame, Series, merge
 from pydantic import BaseModel
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import pica
-from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate, Spacer)
+from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
 from reportlab.platypus.flowables import BalancedColumns
 from response import ERROR_RESPONSES
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                               HTTP_500_INTERNAL_SERVER_ERROR)
-from util import document_state_check, get_db_session
 
 router = APIRouter()
+
 
 class ReportsSchema(BaseModel):
     """Schema for '/report' requests."""
     #pylint: disable=too-few-public-methods
-    corpus: List[UUID] = ...
+    corpus: list[UUID] = ...
     intro: str = None
     stv_intro: str = None
 
-def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
+
+async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
     """Generate the report for this corpus."""
     #pylint: disable=too-many-locals,too-many-branches,too-many-statements
     course = set()
@@ -49,31 +51,26 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     documents = {}
     doc_data = {}
     doc_info = {}
-    for doc, fullname, ownedby, filename, doc_id, state, a_name, a_course, a_instructor in \
-        db_session.query(Filesystem.processed,
-                         Filesystem.fullname,
-                         Filesystem.ownedby,
-                         Filesystem.name,
-                         Filesystem.id,
-                         Filesystem.state,
-                         Assignment.name,
-                         Assignment.course,
-                         Assignment.instructor)\
-                  .filter(Filesystem.id.in_(ids))\
-                  .filter(Assignment.id == Filesystem.assignment):
-        document_state_check(state, doc_id, filename, doc, db_session)
+    result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(ids)))
+    parser = etree.XMLParser(load_dtd=False,
+                             no_network=True,
+                             remove_pis=True,
+                             resolve_entities=False)
+    async for (doc, fullname, ownedby, filename, doc_id, state,
+               a_name, a_course, a_instructor) in result:
+        await document_state_check(state, doc_id, filename, doc, session)
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
         doc_data[doc_id] = Series({key: val['num_tags'] for key, val in
                                    doc['ds_tag_dict'].items()})
-        descr = Series()
+        descr = Series(dtype=str)
         descr['total_words'] = doc['ds_num_word_tokens']
         descr['doc_id'] = doc_id
         descr['title'] = fullname if ownedby == 'student' and fullname \
             else '.'.join(filename.split('.')[0:-1])
         descr['ownedby'] = ownedby
-        descr['dictionary_id'] = 'default' #ds_dictionary
+        descr['dictionary_id'] = 'default'  # ds_dictionary
         descr['course_name'] = a_course
         descr['assignment_name'] = a_name
         descr['instructor_name'] = a_instructor
@@ -82,30 +79,25 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
         html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
                                        "</para><para>", html_content) + "</para></body>"
         pats = defaultdict(Counter)
-        parser = etree.XMLParser(load_dtd=False,
-                                 no_network=True,
-                                 remove_pis=True,
-                                 resolve_entities=False)
         try:
-            etr = etree.fromstring(html, parser) # nosec
+            etr = etree.fromstring(html, parser)  # nosec
         except Exception as exp:
             logging.error(html)
             raise exp
         for tag in etr.iterfind(".//*[@data-key]"):
             lat = tag.get('data-key')
-            categories = LAT_MAP[lat]
-            if categories:
-                if categories['cluster'] != 'Other':
-                    cat = f"{categories['category_label']} > {categories['subcategory_label']}"
-                    key = ' '.join(tag.xpath('string()').split()).lower()
-                    tag.attrib.clear()
-                    pats[cat].update([key])
-                    all_pats[cat].update([key])
-                    parent = tag.getparent()
-                    tag.tag = 'u' # underline text
-                    # add category label
-                    parent.insert(parent.index(tag)+1,
-                                  etree.XML(f'<font face="Helvetica" size="7"> [{cat}]</font>'))
+            categories = LAT_MAP.get(lat)
+            if categories and categories['cluster'] != 'Other':
+                cat = f"{categories['category_label']} > {categories['subcategory_label']}"
+                key = ' '.join(tag.xpath('string()').split()).lower()
+                tag.attrib.clear()
+                pats[cat].update([key])
+                all_pats[cat].update([key])
+                parent = tag.getparent()
+                tag.tag = 'u'  # underline text
+                # add category label
+                parent.insert(parent.index(tag)+1,
+                              etree.XML(f'<font face="Helvetica" size="7"> [{cat}]</font>'))
         # Clear all attributes from span's as they confuse reportlab
         for span in etr.iter("span"):
             span.attrib.clear()
@@ -117,13 +109,14 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
             'html': etr,
             'filename': filename,
             'fullname': fullname,
-            'title': 'Instructor' if ownedby=='instructor' else fullname,
+            'title': 'Instructor' if ownedby == 'instructor' else fullname,
             'stats': {}
         }
     stats = DataFrame(data=doc_data, dtype="Int64")
     info = DataFrame(data=doc_info)
-    hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
-    hdata['lat'] = hdata['lat'].astype("string") # fix typeing from merge
+    hdata = merge(LAT_FRAME, stats, left_on="lat",
+                  right_index=True, how="outer")
+    hdata['lat'] = hdata['lat'].astype("string")  # fix typeing from merge
     docs = range(8, len(hdata.columns))
     cstats = hdata.iloc[:, [2, *docs]].groupby('subcategory').sum()
     nstats = cstats / info.loc['total_words'].astype('Int64')
@@ -131,23 +124,18 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
     for key, val in nstats.to_dict().items():
         documents[key]['stats'] = val
     quants = nstats.transpose().quantile(q=[0, 0.25, 0.5, 0.75, 1])
+    upper_inner_fence, lower_inner_fence = bounded_fences(quants)
     mins = quants.loc[0]
     q1s = quants.loc[0.25]
     q2s = quants.loc[0.5]
     q3s = quants.loc[0.75]
     maxs = quants.loc[1]
-    iqr = quants.loc[0.75] - quants.loc[0.25]
-    upper_inner_fence = quants.loc[0.75] + 1.5 * iqr
-    upper_inner_fence = upper_inner_fence.clip(lower=mins, upper=maxs)
-    lower_inner_fence = quants.loc[0.25] - 1.5 * iqr
-    lower_inner_fence = lower_inner_fence.clip(lower=mins, upper=maxs)
-
     max_val = maxs.max()
 
     styles = generate_paragraph_styles()
     zip_stream = io.BytesIO()
     with zipfile.ZipFile(zip_stream, 'w') as zip_file, \
-         io.BytesIO() as all_reports:
+            io.BytesIO() as all_reports:
         combined_content = [
             Paragraph(f"created:       {time.ctime()}", styles['DS_Date']),
             Spacer(1, pica),
@@ -174,10 +162,13 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
                                          title=f"Report for {docu['fullname']}",
                                          creator='DocuScope@CMU')
                 content = [
-                    Paragraph(f"<b>{docu['course']}</b>", styles['DS_MetaData']),
-                    Paragraph(f"Assignment: {docu['assignment']}", styles['DS_MetaData']),
+                    Paragraph(f"<b>{docu['course']}</b>",
+                              styles['DS_MetaData']),
+                    Paragraph(
+                        f"Assignment: {docu['assignment']}", styles['DS_MetaData']),
                     Spacer(1, pica),
-                    Paragraph(f"Report for {docu['fullname']}", styles['DS_Student']),
+                    Paragraph(
+                        f"Report for {docu['fullname']}", styles['DS_Student']),
                     Divider(idoc.width),
                     Paragraph(gintro, styles['DS_Intro']),
                     Spacer(1, pica)
@@ -199,21 +190,23 @@ def get_reports(ids: List[UUID], gintro, sintro, db_session: Session):
                                 'max': maxs.at[index_name],
                                 'uifence': upper_inner_fence.at[index_name],
                                 'lifence': lower_inner_fence.at[index_name]},
-                                    val=docu['stats'][index_name],
-                                    max_val=max_val)
-                    ])
+                                val=docu['stats'][index_name],
+                                max_val=max_val)
+                        ])
 
                 # Tagged text
                 content.extend([
                     PageBreak(),
-                    Paragraph(f"Your Text ({docu['filename']})", styles['DS_Title']),
+                    Paragraph(
+                        f"Your Text ({docu['filename']})", styles['DS_Title']),
                     Paragraph(sintro, styles['DS_Intro']),
                     Spacer(1, 2*pica)
                 ])
                 for para in docu['html']:
                     # could do it all at once, but looping prints more text.
                     try:
-                        content.append(Paragraph(etree.tostring(para), styles['DS_Body']))
+                        content.append(
+                            Paragraph(etree.tostring(para), styles['DS_Body']))
                     except ValueError as v_err:
                         logging.error(v_err)
                         content.append(Paragraph("""ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT.
@@ -236,7 +229,8 @@ The text will not display properly, however the analysis is not affected.""",
                 combined_content += copy.deepcopy(content)
                 combined_content.append(PageBreak())
                 idoc.build(content)
-                title = docu['title'] + '-' + '_'.join(docu['filename'].split('.')[0:-1])
+                title = docu['title'] + '-' + \
+                    '_'.join(docu['filename'].split('.')[0:-1])
                 title = re.sub(r'[/\.]', '_', title.strip())
                 zip_file_name = f"{title}.pdf"
                 i = 0
@@ -257,7 +251,8 @@ The text will not display properly, however the analysis is not affected.""",
                                              create='DocuScope@CMU')
             pattern_content = []
             for category in sort_patterns(all_pats):
-                pattern_content.append(Paragraph(category['category'], styles['DS_Heading1']))
+                pattern_content.append(
+                    Paragraph(category['category'], styles['DS_Heading1']))
                 pattern_content.extend([Paragraph(f"{pat['pattern']} ({pat['count']})",
                                                   styles['DS_Pattern'])
                                         for pat in category['patterns']])
@@ -270,8 +265,9 @@ The text will not display properly, however the analysis is not affected.""",
     zip_stream.seek(0)
     return zip_stream
 
+
 @router.post('/generate_reports',
-             #response_class=StreamingResponse,
+             # response_class=StreamingResponse,
              responses={
                  **ERROR_RESPONSES,
                  HTTP_200_OK: {
@@ -280,17 +276,17 @@ The text will not display properly, however the analysis is not affected.""",
                  }
              })
 async def generate_reports(corpus: ReportsSchema,
-                           db_session: Session = Depends(get_db_session)):
+                           db_session: AsyncSession = Depends(session)):
     """Responds to generate_reports requests by streaming the report zipfile."""
     if not corpus.corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
     logging.info("Generate reports for %s", corpus.corpus)
     try:
-        zip_buffer = get_reports(corpus.corpus,
-                                 corpus.intro,
-                                 corpus.stv_intro,
-                                 db_session)
+        zip_buffer = await get_reports(corpus.corpus,
+                                       corpus.intro,
+                                       corpus.stv_intro,
+                                       db_session)
     except Exception as excp:
         logging.error("%s\n%s", corpus.corpus, excp)
         traceback.print_exc()
