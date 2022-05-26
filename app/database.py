@@ -174,7 +174,9 @@ DOCUMENTS_QUERY = select(Submission.processed,
                          Assignment.name,
                          Assignment.course,
                          Assignment.instructor)\
-                         .where(Assignment.id == Submission.assignment)
+    .where(Assignment.id == Submission.assignment)
+
+
 async def get_documents(
         documents: list[UUID],
         sql: AsyncSession) -> tuple[DataFrame, DataFrame]:
@@ -187,15 +189,15 @@ async def get_documents(
         await document_state_check(state, doc_id, filename, doc, sql)
         docs[doc_id] = Series({key: val['num_tags'] for key, val in
                                doc['ds_tag_dict'].items()})
-        desc = Series(dtype='float64')
-        desc['total_words'] = doc['ds_num_word_tokens']
-        desc['doc_id'] = doc_id
-        desc['title'] = fullname if ownedby == 'student' and fullname \
-            else '.'.join(filename.split('.')[0:-1])
-        desc['ownedby'] = ownedby
-        desc['dictionary_id'] = 'default'  # ds_dictionary
-        desc['course_name'] = a_course
-        desc['assignment_name'] = a_name
-        desc['instructor_name'] = a_instructor
-        info[doc_id] = desc
+        info[doc_id] = Series({
+            'total_words': doc['ds_num_word_tokens'],
+            'doc_id': doc_id,
+            'title': fullname if ownedby == 'student' and fullname
+            else '.'.join(filename.split('.')[0:-1]),
+            'ownedby': ownedby,
+            'dictionary_id': 'default',  # ds_dictionary
+            'course_name': a_course,
+            'assignment_name': a_name,
+            'instructor_name': a_instructor
+        })
     return DataFrame(data=docs, dtype="Int64"), DataFrame(data=info)
