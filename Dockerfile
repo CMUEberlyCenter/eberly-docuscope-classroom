@@ -24,6 +24,7 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 FROM base
 ENV PYTHONOPTIMIZE=2
 ENV PATH="/.venv/bin:$PATH"
+ENV ROOT_PATH /
 RUN useradd --create-home appuser
 ARG BRANCH="master"
 ARG COMMIT=""
@@ -38,4 +39,4 @@ COPY --from=deps /.venv /.venv
 WORKDIR /home/appuser
 COPY ./app .
 COPY --from=builder /classroom/dist/classroom ./static
-CMD ["hypercorn", "main:app", "--bind", "0.0.0.0:80"]
+CMD ["sh", "-c", "hypercorn main:app --bind 0.0.0.0:80 --root-path ${ROOT_PATH}"]
