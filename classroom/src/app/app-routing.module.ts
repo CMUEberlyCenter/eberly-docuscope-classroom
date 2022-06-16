@@ -57,7 +57,7 @@ export const routes: Routes = [
             (m) => m.ScatterplotModule
           ),
       },
-      // { path: '', redirectTo: '/boxplot', pathMatch: 'full' }, // does not work
+      // { path: '', redirectTo: '/boxplot', pathMatch: 'full' }, // Does not work.
       { path: '**', component: PageNotFoundComponent },
     ],
   },
@@ -65,6 +65,6 @@ export const routes: Routes = [
 
 @NgModule({
   exports: [RouterModule],
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+  imports: [RouterModule.forRoot(routes)],
 })
 export class AppRoutingModule {}

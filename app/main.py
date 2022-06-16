@@ -63,28 +63,10 @@ app.include_router(patterns.router)
 app.include_router(generate_reports.router)
 
 # Serve static files.
-
-
 @app.get("/common_dictionary")
 async def common_dictionary():
     """Serve the common dictionary information."""
     return FileResponse(os.path.join(SETTINGS.dictionary_home, 'common_dict.json'))
-
-
-@app.middleware("http")
-async def add_custom_header(request: Request, call_next):
-    """Serve the classroom web application from static."""
-    response = await call_next(request)
-    if response.status_code == 404:
-        return FileResponse('static/index.html')
-    return response
-
-
-@app.exception_handler(404)
-def not_found(_request: Request, _exc):
-    """Handler for 404 error which instead returns index.html"""
-    return FileResponse('static/index.html')
-
 
 app.mount("/classroom", StaticFiles(directory="static", html=True),
           name="static")
