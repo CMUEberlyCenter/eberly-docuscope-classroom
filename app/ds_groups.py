@@ -93,7 +93,7 @@ def order(vals, small=0.01):
         Uses 'small' to add random values of that order of magnitude to
         resolve ties (if needed)
     """
-    max_cpy = max([vals.count(i) for i in vals])
+    max_cpy = max(vals.count(i) for i in vals)
     slav = copy.copy(vals)
     slav.sort(reverse=True)
     if max_cpy > 1:
@@ -144,7 +144,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True): #pylint: 
         if grp == num_groups - 1 and num_students == group_size:
             grps.append(ids)
             ids = []
-            qualities.append(max([max_abs_diff(data[0], b) for b in data[1:]]))
+            qualities.append(max(max_abs_diff(data[0], b) for b in data[1:]))
         else:
             if randomize:
                 # Swap first student with a random student ('data' and 'ids')
@@ -160,8 +160,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True): #pylint: 
             # Choose students to join the index student.
             others = order(mad)[:group_size-1]
             # Compute group quality (tentative, as left-overs may join later).
-            qualities.append(min([d for (i, d) in enumerate(mad)
-                                  if i in others]))
+            qualities.append(min(d for (i, d) in enumerate(mad) if i in others))
             # Store student ids in 'grp'
             this_group = [0] + [i + 1 for i in others]
             grps.append([ids[i] for i in range(num_students) if i in this_group])
@@ -174,7 +173,7 @@ def make_pairs(data, ids, group_size, min_group_size, randomize=True): #pylint: 
     if n_left > 0 and n_left >= min_group_size:
         grps.append(ids)
         extra = []
-        qualities.append(min([max_abs_diff(data[0], b) for b in data[1:]]))
+        qualities.append(min(max_abs_diff(data[0], b) for b in data[1:]))
     else:
         extra = ids
 

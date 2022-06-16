@@ -314,7 +314,7 @@ def generate_pdf_reports(dframe, corpus, dict_name: str, bp_data: DocuScopeData,
 
     # calculate the max value for the box-plot. It will be used to determine
     # the scale factor by Boxplot class.
-    max_val = max([max(d['max'], d['uifence']) for d in bp_data.categories],
+    max_val = max((max(d['max'], d['uifence']) for d in bp_data.categories),
                   default=0.0)
 
     # let's extract the cluster names (i.e., categories)
