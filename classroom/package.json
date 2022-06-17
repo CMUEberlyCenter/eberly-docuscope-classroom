@@ -1,6 +1,6 @@
 {
   "name": "docuscope-classroom",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "description": "Visualization of DocuScope analytics of a set of documents.",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --output-hashing none",
-    "build:docuscope": "ng build --base-href=./ --configuration=production",
+    "build:docuscope": "ng build --base-href=/classroom/ --configuration=production",
     "build:dev": "ng build --base-href=/classroom/ --output-hashing none --configuration=development",
     "build:deploy": "ng build --base-href=/docuscope/classroom/ --configuration=deploy",
     "test": "ng test --code-coverage=true",
