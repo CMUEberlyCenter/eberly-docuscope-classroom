@@ -57,6 +57,7 @@ class DragDropEventFactory<T> {
       previousContainer: undefined,
       isPointerOverContainer: true,
       distance: { x: 0, y: 0 },
+      event: new MouseEvent('dragdrop'),
     };
   }
 

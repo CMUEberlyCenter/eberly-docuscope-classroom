@@ -29,7 +29,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     PageNotFoundComponent,
     ToolLayoutComponent,
   ],
-  entryComponents: [AboutComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
