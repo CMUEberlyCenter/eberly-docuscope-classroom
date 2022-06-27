@@ -24,7 +24,7 @@ reportlab==3.6.10
 six==1.16.0
 sniffio==1.2.0
 soupsieve==2.3.2.post1
-sqlalchemy[asyncio]==1.4.38
+sqlalchemy[asyncio]==1.4.39
 starlette==0.19.1
 toml==0.10.2
 typing-extensions==4.2.0
