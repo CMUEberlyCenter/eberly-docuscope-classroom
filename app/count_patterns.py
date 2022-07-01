@@ -1,8 +1,9 @@
 """ Utility functions for dealing with patterns. """
-from operator import itemgetter
 import re
-from typing import List
+from operator import itemgetter
+from typing import Counter, DefaultDict, List
 
+from bs4 import BeautifulSoup
 from pydantic import BaseModel
 
 from lat_frame import LAT_MAP
@@ -18,17 +19,17 @@ class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
     category: str = ...
     patterns: List[PatternData] = []
 
-def count_patterns(node, patterns_all):
+def count_patterns(node: BeautifulSoup, patterns_all: DefaultDict[str, Counter]):
     """ Accumulate patterns for each cluster into patterns_all. """
-    for child in node.findall(".//*[@data-key]"):
-        lat = child.get('data-key')
-        key = ' '.join(child.itertext()).strip().lower()
+    for child in node.find_all(attrs={"data-key": True}):
+        lat = child.get("data-key", None)
+        key = ' '.join(child.stripped_strings).lower()
         key = re.sub(' +', ' ', key)
         cluster = LAT_MAP.get(lat, {'cluster': '?'})['cluster']
         if cluster != 'Other':
             patterns_all[cluster].update([key])
 
-def sort_patterns(patterns_all) -> List[CategoryPatternData]:
+def sort_patterns(patterns_all: DefaultDict[str, Counter]) -> List[CategoryPatternData]:
     """ Sort the patterns by count and secondarily alphabetically. """
     return [
         {'category': cat,

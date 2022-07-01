@@ -9,6 +9,8 @@ import zipfile
 from collections import Counter, defaultdict
 from uuid import UUID
 
+from bs4 import BeautifulSoup
+
 from bounded_fences import bounded_fences
 from common_dictionary import COMMON_DICITONARY
 from count_patterns import sort_patterns
@@ -18,7 +20,6 @@ from ds_report import (Boxplot, Divider, add_page_number,
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from lat_frame import LAT_FRAME, LAT_MAP
-from lxml import etree  # nosec
 from pandas import DataFrame, Series, merge
 from pydantic import BaseModel
 from reportlab.lib.pagesizes import letter
@@ -52,10 +53,6 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
     doc_data = {}
     doc_info = {}
     result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(ids)))
-    parser = etree.XMLParser(load_dtd=False,
-                             no_network=True,
-                             remove_pis=True,
-                             resolve_entities=False)
     async for (doc, fullname, ownedby, filename, doc_id, state,
                a_name, a_course, a_instructor) in result:
         await document_state_check(state, doc_id, filename, doc, session)
@@ -80,33 +77,33 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
                                        "</para><para>", html_content) + "</para></body>"
         pats = defaultdict(Counter)
         try:
-            etr = etree.fromstring(html, parser)  # nosec
+            soup = BeautifulSoup(html, features="lxml")
         except Exception as exp:
             logging.error(html)
             raise exp
-        for tag in etr.iterfind(".//*[@data-key]"):
-            lat = tag.get('data-key')
-            categories = LAT_MAP.get(lat)
+        for tag in soup.find_all(attrs={"data-key": True}):
+            lat = tag.get('data-key', None)
+            categories = LAT_MAP.get(lat, None)
             if categories and categories['cluster'] != 'Other':
                 cat = f"{categories['category_label']} > {categories['subcategory_label']}"
-                key = ' '.join(tag.xpath('string()').split()).lower()
-                tag.attrib.clear()
+                key = ' '.join(tag.stripped_strings).lower()
+                tag.attrs.clear()
                 pats[cat].update([key])
                 all_pats[cat].update([key])
-                parent = tag.getparent()
-                tag.tag = 'u'  # underline text
+                tag.name = 'u'  # underline text
                 # add category label
-                parent.insert(parent.index(tag)+1,
-                              etree.XML(f'<font face="Helvetica" size="7"> [{cat}]</font>'))
+                label = soup.new_tag("font", face="Helvetica", size=7)
+                label.string = f" [{cat}]"
+                tag.insert_after(label)
         # Clear all attributes from span's as they confuse reportlab
-        for span in etr.iter("span"):
-            span.attrib.clear()
+        for span in soup.find_all("span"):
+            span.attrs.clear()
         documents[doc_id] = {
             'course': a_course,
             'instructor': a_instructor,
             'assignment': a_name,
             'patterns': sort_patterns(pats) if pats else [],
-            'html': etr,
+            'html': soup,
             'filename': filename,
             'fullname': fullname,
             'title': 'Instructor' if ownedby == 'instructor' else fullname,
@@ -202,11 +199,11 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
                     Paragraph(sintro, styles['DS_Intro']),
                     Spacer(1, 2*pica)
                 ])
-                for para in docu['html']:
+                for para in docu['html'].findall("para"):
                     # could do it all at once, but looping prints more text.
                     try:
                         content.append(
-                            Paragraph(etree.tostring(para), styles['DS_Body']))
+                            Paragraph(str(para), styles['DS_Body']))
                     except ValueError as v_err:
                         logging.error(v_err)
                         content.append(Paragraph("""ERROR: ILLEGAL CHARACTERS DETECTED IN TEXT.

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     sqlalchemy_track_modifications: bool = False
     db_host: str = '127.0.0.1'
     db_port: int = 3306
-    db_password: SecretStr = ''
+    db_password: SecretStr = None
     db_user: str = 'docuscope'
     mysql_database: str = 'docuscope'
 

@@ -4,16 +4,16 @@ import re
 from collections import Counter, defaultdict
 from uuid import UUID
 
+from bs4 import BeautifulSoup
+
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
 from database import DOCUMENTS_QUERY, Submission, document_state_check, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_MAP
-from lxml import etree  # nosec
-from lxml.html import Classes  # nosec
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 router = APIRouter()
 
@@ -55,8 +55,6 @@ async def get_documents(corpus: list[UUID],
     assignment = set()
     instructor = set()
     result = await sql.stream(DOCUMENTS_QUERY.where(Submission.id.in_(corpus)))
-    parser = etree.XMLParser(load_dtd=False, no_network=True,
-                             remove_pis=True, resolve_entities=False)
     async for doc, fullname, ownedby, filename, doc_id, state, \
             a_name, a_course, a_instructor in result:
         await document_state_check(state, doc_id, filename, doc, sql)
@@ -68,38 +66,19 @@ async def get_documents(corpus: list[UUID],
                                     "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
         try:
-            etr = etree.fromstring(html, parser)  # nosec
-        except Exception as p_exp:
-            logging.error(html)
-            raise p_exp
-        count_patterns(etr, pats)
-        for tag in etr.iterfind(".//*[@data-key]"):
-            lat = tag.get('data-key')
-            categories = LAT_MAP.get(lat, None)
-            if categories:
-                if categories['cluster'] != 'Other':  # Filter out Other
-                    cats = [categories['category'],
-                            categories['subcategory'],
-                            categories['cluster']]
-                    cpath = " > ".join([categories['category_label'],
-                                        categories['subcategory_label'],
-                                        categories['cluster_label']])
-                    sup = etree.SubElement(tag, "sup")
-                    sup.text = "{" + cpath + "}"
-                    sclasses = Classes(sup.attrib)
-                    sclasses |= cats
-                    sclasses |= ['d_none', 'cluster_id']
-                    tclasses = Classes(tag.attrib)
-                    tclasses |= cats
-                    tag.set('data-key', cpath)
-            # else:
-            #    logging.info("No category mapping for %s.", lat)
+            soup = BeautifulSoup(html, features="lxml")
+        except Exception as exp:
+            logging.error("%s (%s): %s", doc_id, filename, html)
+            logging.error(exp)
+            raise HTTPException(detail="Unparsable tagged text.",
+                            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
+        count_patterns(soup, pats)
         docs.append(Document(
             text_id=filename,
             owner=fullname,
             ownedby=ownedby,
             word_count=doc['ds_num_word_tokens'],
-            html_content=etree.tostring(etr),
+            html_content=generate_tagged_html(soup),
             patterns=sort_patterns(pats)
         ))
     if len(course) > 1 or len(instructor) > 1 or len(assignment) > 1:
@@ -112,3 +91,26 @@ async def get_documents(corpus: list[UUID],
         assignment=assignment.pop() if assignment else None,
         documents=docs
     )
+
+def generate_tagged_html(soup: BeautifulSoup) -> str:
+    """Takes an etree and adds the tag elements and classes."""
+    for tag in soup.find_all(attrs={"data-key": True}):
+        lat = tag.get('data-key', None)
+        categories = LAT_MAP.get(lat, None)
+        if categories:
+            if categories['cluster'] != 'Other':
+                cats = [categories['category'],
+                        categories['subcategory'],
+                        categories['cluster']]
+                cpath = " > ".join([categories['category_label'],
+                                    categories['subcategory_label'],
+                                    categories['cluster_label']])
+                sup = soup.new_tag("sup")
+                sup.string = f"{{{cpath}}}"
+                sup["class"] = sup.get('class', []) + cats + ['d_none', 'cluster_id']
+                tag.append(sup)
+                tag['class'] = tag.get('class', []) + cats
+                tag['data-key'] = cpath
+        # else:
+        #    logging.info("No category mapping for %s.", lat)
+    return str(soup)
