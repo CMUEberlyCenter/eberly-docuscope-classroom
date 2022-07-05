@@ -95,7 +95,7 @@
                   <a [ngClass]="{
                         student_col: true,
                         model_entry: doc.instructor
-                      }" (click)="open('stv/' + doc.id)">{{ doc.label }}</a>
+                      }" [routerLink]="'/stv/' + doc.id" target="_blank" rel="noreferrer noopener">{{ doc.label }}</a>
                   <ng-container [ngTemplateOutlet]="docbox" [ngTemplateOutletContext]="{ row: doc }"></ng-container>
                 </div>
               </li>
@@ -145,7 +145,7 @@
     <line [attr.x1]="scale_x(row.uifence)" [attr.x2]="scale_x(row.uifence)" [attr.y1]="scale_y(0.25)"
       [attr.y2]="scale_y(0.75)" [style.stroke]="'#3c3c3c'" [style.stroke-width]="1" />
     <g>
-      <a *ngFor="let out of get_outliers(row)" (click)="open('stv/' + out.id)">
+      <a *ngFor="let out of get_outliers(row)" [routerLink]="'/stv/' + out.id" target="_blank" rel="noreferrer noopener">
         <circle [attr.cx]="scale_x(out.value)" [attr.cy]="scale_y(0.5)" [attr.r]="scale_y(0.1)" [style.fill]="'#52be80'"
           [style.stroke-width]="1" [style.stroke]="'#eeeeee'" matTooltip="{{ out.title }}: {{ scale(out.value) }}" />
       </a>

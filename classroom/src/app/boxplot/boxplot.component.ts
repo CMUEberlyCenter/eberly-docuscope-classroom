@@ -181,13 +181,6 @@ export class BoxplotComponent implements OnInit {
     return `${(this.unit * value).toFixed(2)}`;
   }
   /**
-   * Opens a new window showing the specified document.
-   * @param doc_id the UUID of a document
-   */
-  open(doc_id: string): void {
-    window.open(doc_id);
-  }
-  /**
    * Returns the outliers for the given category.
    * Memoizes results.
    * @param category The category to retrieve outliers for.

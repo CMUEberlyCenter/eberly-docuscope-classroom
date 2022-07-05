@@ -49,7 +49,9 @@
               name_entry: true,
               model_entry: doc.ownedby === 'instructor'
             }"
-            (click)="open(doc.id)"
+            [routerLink]="'/stv/' + doc.id"
+            rel="noreferrer noopener"
+            target="_blank"
             matTooltip="{{ doc.title }}"
           >
             {{ doc.title }}

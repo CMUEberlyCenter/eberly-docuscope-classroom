@@ -174,14 +174,4 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         .reduce((p, t) => p + this.scale(t), 0) * 2
     );
   }
-  /**
-   * Open the given document in a new window/tab.
-   * @param doc_id the database id of the document.
-   */
-  open(doc_id: string): void {
-    if (doc_id) {
-      const url = `stv/${doc_id}`.replaceAll('..', '');
-      window.open(url);
-    }
-  }
 }
