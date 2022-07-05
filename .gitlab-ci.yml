@@ -26,10 +26,11 @@ pylint:
   stage: test
   image: python:latest
   before_script:
-    - pip install --no-cache-dir --upgrade --quiet -r requirements.txt
-    - pip install pylint --quiet
+    - python -m pip install --upgrade --quiet pip
+    - python -m pip install --user --quiet pipenv
   script:
-    - pylint --extension-pkg-whitelist=pydantic,lxml --disable=R0801 app
+    - PIPENV_VENV_IN_PROJECT=1 python -m pipenv install --dev
+    - python -m pipenv run pylint app
   allow_failure: true
 
 classroom_lint:
