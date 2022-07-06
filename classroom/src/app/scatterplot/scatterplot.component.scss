@@ -13,3 +13,6 @@
   display: flex;
   flex-direction: column;
 }
+::ng-deep .multiline-tooltip {
+  white-space: pre-line;
+}
