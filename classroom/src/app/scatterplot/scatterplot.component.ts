@@ -74,7 +74,7 @@ export class ScatterplotComponent implements OnInit {
         );
   }
   is_model(datum: DocumentData) {
-    return datum.ownedby !== 'instructor';
+    return datum.ownedby === 'instructor';
   }
 
   ngOnInit(): void {

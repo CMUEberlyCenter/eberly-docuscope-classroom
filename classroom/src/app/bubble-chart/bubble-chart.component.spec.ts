@@ -201,11 +201,4 @@ describe('BubbleChartComponent', () => {
     void expect(component.legend_offset(0)).toBe(0);
     void expect(component.legend_offset(1)).toBeCloseTo(18, 0);
   });
-  it('open', () => {
-    window.open = jasmine.createSpy('open');
-    component.open('123');
-    expect(window.open).toHaveBeenCalledWith('stv/123');
-    component.open('');
-    void expect(window.open).toHaveBeenCalledTimes(1);
-  });
 });

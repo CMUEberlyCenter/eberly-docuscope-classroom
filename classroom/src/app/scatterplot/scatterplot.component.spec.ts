@@ -144,24 +144,6 @@ describe('ScatterplotComponent', () => {
     return expect(component).toBeTruthy();
   });
 
-  it('genPoints null axis', async () => {
-    await fixture.whenStable();
-    component.x_axis = null;
-    await expect(() => component.genPoints()).not.toThrow();
-  });
-  it('genPoints null data', async () => {
-    await fixture.whenStable();
-    component.data = undefined;
-    await expect(() => component.genPoints()).not.toThrow();
-  });
-
-  /*it('select_point', async () => {
-    window.open = jasmine.createSpy('open');
-    await fixture.whenRenderingDone();
-    component.select_point(component.scatterplot, { selection: [{ row: 1 }] });
-    expect(window.open).toHaveBeenCalledWith('stv/123');
-  });*/
-
   it('on_select_x', () =>
     fixture.whenStable().then(() => {
       component.on_select_x({
@@ -187,5 +169,15 @@ describe('ScatterplotComponent', () => {
     void expect(component.categories).toEqual([]);
     await fixture.whenStable();
     void expect(component.categories.length).toBe(2);
+  });
+  it('is_model', () => {
+    expect(
+      component.is_model({
+        ownedby: 'instructor',
+        title: 'foo',
+        id: '0',
+        total_words: 0,
+      })
+    ).toBeTrue();
   });
 });

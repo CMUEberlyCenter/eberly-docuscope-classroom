@@ -115,11 +115,6 @@ describe('BoxplotComponent', () => {
     })
   );*/
 
-  it('open', () => {
-    window.open = jasmine.createSpy('open');
-    component.open('stv/123');
-    expect(window.open).toHaveBeenCalledWith('stv/123');
-  });
   it('scale', () => {
     void expect(component.scale(0.2)).toBe('20.00');
     void expect(component.scale(0.25678)).toBe('25.68');
