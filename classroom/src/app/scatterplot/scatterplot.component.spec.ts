@@ -180,4 +180,81 @@ describe('ScatterplotComponent', () => {
       })
     ).toBeTrue();
   });
+  it('get_value', () => {
+    void expect(
+      component.get_value(
+        {
+          q1: 0.1,
+          q2: 0.2,
+          q3: 0.3,
+          min: 0,
+          max: 0.4,
+          uifence: 0.6,
+          lifence: 0,
+          id: 'STUB_X',
+        },
+        {
+          id: 'bogus_index',
+          title: 'A test essay in 2 words.',
+          text: 'bogus text',
+          ownedby: 'student',
+          bogus: 0.5,
+          STUB_X: 0.1,
+          STUB_Y: 0.2,
+          total_words: 2,
+        }
+      )
+    ).toBe(10);
+  });
+  it('get_max_value', async () => {
+    await expect(
+      component.get_max_value(
+        {
+          q1: 0.1,
+          q2: 0.2,
+          q3: 0.3,
+          min: 0,
+          max: 0.4,
+          uifence: 0.6,
+          lifence: 0,
+          id: 'STUB_X',
+        },
+        {
+          q1: 0.2,
+          q2: 0.3,
+          q3: 0.4,
+          min: 0,
+          max: 0.5,
+          uifence: 0.6,
+          lifence: 0.1,
+          id: 'STUB_Y',
+        }
+      )
+    ).toBe(0);
+    await fixture.whenStable();
+    await expect(
+      component.get_max_value(
+        {
+          q1: 0.1,
+          q2: 0.2,
+          q3: 0.3,
+          min: 0,
+          max: 0.4,
+          uifence: 0.6,
+          lifence: 0,
+          id: 'bogus',
+        },
+        {
+          q1: 0.2,
+          q2: 0.3,
+          q3: 0.4,
+          min: 0,
+          max: 0.5,
+          uifence: 0.6,
+          lifence: 0.1,
+          id: 'STUB_Y',
+        }
+      )
+    ).toBe(50);
+  });
 });

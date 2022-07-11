@@ -18,6 +18,12 @@ export interface DocumentData {
   //value?: number;
 }
 
+/**
+ * Retrieve the value of the given category from the document data.
+ * @param category Either the CategoryData object or its string id
+ * @param datum the document to retrieve the given category value from
+ * @returns the value of category in datum.
+ */
 export function category_value(
   category: CategoryData | string | undefined,
   datum: DocumentData
@@ -48,6 +54,7 @@ export interface DocuScopeData extends AssignmentData {
   data: DocumentData[];
 }
 export type CategoryInfoMap = Map<string, CategoryData>;
+/** generate the lookup table of category data by id. */
 export function genCategoryDataMap(data: DocuScopeData): CategoryInfoMap {
   const cmap = new Map<string, CategoryData>();
   for (const clust of data.categories ?? []) {
@@ -56,6 +63,7 @@ export function genCategoryDataMap(data: DocuScopeData): CategoryInfoMap {
   return cmap;
 }
 
+/** Calculate the maximum value in the sumative categories data. */
 export function max_boxplot_value(data?: DocuScopeData): number {
   let maximum = 0.0;
   if (data && data.categories) {
