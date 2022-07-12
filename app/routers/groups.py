@@ -28,7 +28,7 @@ async def get_pairings(
     stats, info = await get_documents(documents, sql)
     # Keep only students.
     students = info.loc['ownedby'] == 'student'
-    if len(students) < group_size:
+    if students.sum() < group_size:
         raise HTTPException(
             detail=
             f"Not enough student documents in selected corpus to make groups of size {group_size}.",
