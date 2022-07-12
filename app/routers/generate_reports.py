@@ -103,7 +103,7 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
             'instructor': a_instructor,
             'assignment': a_name,
             'patterns': sort_patterns(pats) if pats else [],
-            'html': soup,
+            'html': copy.copy(soup),
             'filename': filename,
             'fullname': fullname,
             'title': 'Instructor' if ownedby == 'instructor' else fullname,
@@ -199,7 +199,7 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
                     Paragraph(sintro, styles['DS_Intro']),
                     Spacer(1, 2*pica)
                 ])
-                for para in docu['html'].findall("para"):
+                for para in docu['html'].find_all("para"):
                     # could do it all at once, but looping prints more text.
                     try:
                         content.append(
