@@ -18,7 +18,7 @@
     "build": "ng build --output-hashing none",
     "build:docuscope": "ng build --base-href=/classroom/ --configuration=production",
     "build:dev": "ng build --base-href=/classroom/ --output-hashing none --configuration=development",
-    "build:deploy": "ng build --base-href=/docuscope/classroom/ --configuration=deploy",
+    "build:exodar": "ng build --base-href=/docuscope/classroom/ --configuration=production",
     "test": "ng test --code-coverage=true",
     "test_headless": "ng test --progress=false --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage=true",
     "lint": "eslint -c .eslintrc.json src",

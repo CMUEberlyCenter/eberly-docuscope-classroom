@@ -28,6 +28,11 @@ async def get_pairings(
     stats, info = await get_documents(documents, sql)
     # Keep only students.
     students = info.loc['ownedby'] == 'student'
+    if len(students) < group_size:
+        raise HTTPException(
+            detail=
+            f"Not enough student documents in selected corpus to make groups of size {group_size}.",
+            status_code=HTTP_400_BAD_REQUEST)
     info = info.transpose()[students].transpose()
     stats = stats.transpose()[students].transpose()
 
@@ -66,6 +71,8 @@ async def generate_groups(group_req: GroupsSchema, db_session: AsyncSession = De
             status_code=HTTP_400_BAD_REQUEST)
     try:
         return await get_pairings(group_req.corpus, group_req.group_size, db_session)
+    except HTTPException:
+        raise
     except Exception as excp:
         logging.error(excp)
         raise HTTPException(
