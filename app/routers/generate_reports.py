@@ -72,14 +72,11 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
         descr['assignment_name'] = a_name
         descr['instructor_name'] = a_instructor
         doc_info[doc_id] = descr
-        html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
-        html = '<body><para>' + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
-                                       "</para><para>", html_content) + "</para></body>"
         pats = defaultdict(Counter)
         try:
-            soup = BeautifulSoup(html, features="lxml")
+            soup = BeautifulSoup(doc['ds_output'], features="lxml")
         except Exception as exp:
-            logging.error(html)
+            logging.error(doc['ds_output'])
             raise exp
         for tag in soup.find_all(attrs={"data-key": True}):
             lat = tag.get('data-key', None)
@@ -199,7 +196,7 @@ async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):
                     Paragraph(sintro, styles['DS_Intro']),
                     Spacer(1, 2*pica)
                 ])
-                for para in docu['html'].find_all("para"):
+                for para in docu['html'].find_all("p"):
                     # could do it all at once, but looping prints more text.
                     try:
                         content.append(
