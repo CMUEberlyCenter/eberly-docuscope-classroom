@@ -46,7 +46,7 @@
     "rxjs-compat": "^6.6.7",
     "service": "^0.1.4",
     "tslib": "^2.4.0",
-    "zone.js": "^0.11.7"
+    "zone.js": "^0.11.8"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.1.2",
@@ -61,12 +61,12 @@
     "@types/d3": "^7.4.0",
     "@types/jasmine": "^4.0.3",
     "@types/jasminewd2": "^2.0.10",
-    "@types/node": "^18.7.2",
+    "@types/node": "^18.7.4",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "ajv": "^8.11.0",
     "ajv-keywords": "^5.1.0",
-    "eslint": "^8.21.0",
+    "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-formatter-gitlab": "^3.0.0",
     "eslint-plugin-import": "^2.26.0",
