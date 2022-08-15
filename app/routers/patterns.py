@@ -34,8 +34,7 @@ async def patterns(corpus: list[UUID],
         await document_state_check(status, uuid, filename, doc, sql)
         if doc and doc['ds_tag_dict']:
             try:
-                soup = BeautifulSoup(
-                    f"<body>{doc['ds_output']}</body>", features="lxml")
+                soup = BeautifulSoup(doc['ds_output'], features="lxml")
             except Exception as exp:
                 logging.error("%s (%s): %s", uuid, filename, doc['ds_output'])
                 logging.error(exp)

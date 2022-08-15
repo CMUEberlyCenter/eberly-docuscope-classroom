@@ -22,11 +22,13 @@ interface ICategory extends Entry {
   subcategories: ISubcategory[];
 }
 export interface ICommonDictionary {
-  default_dict: string;
-  custom_dict: string;
-  use_default_dict: boolean;
-  timestamp: string;
   categories: ICategory[];
+  custom_dict?: string;
+  default_dict: string;
+  default_dict_customized?: boolean;
+  dict_name?: string;
+  timestamp: string;
+  use_default_dict?: boolean;
 }
 
 export interface CommonDictionaryTreeNode {
@@ -37,11 +39,13 @@ export interface CommonDictionaryTreeNode {
 }
 
 export class CommonDictionary implements ICommonDictionary {
-  default_dict!: string;
-  custom_dict!: string;
-  use_default_dict!: boolean;
-  timestamp!: string;
   categories!: ICategory[];
+  custom_dict?: string;
+  default_dict!: string;
+  default_dict_customized?: boolean;
+  dict_name?: string;
+  timestamp!: string;
+  use_default_dict?: boolean;
 
   constructor(data: ICommonDictionary) {
     Object.assign(this, data);

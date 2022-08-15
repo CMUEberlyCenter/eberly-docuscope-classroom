@@ -1,6 +1,5 @@
 """ Handle /document requests. """
 import logging
-import re
 from collections import Counter, defaultdict
 from uuid import UUID
 
@@ -61,14 +60,11 @@ async def get_documents(corpus: list[UUID],
         course.add(a_course)
         instructor.add(a_instructor)
         assignment.add(a_name)
-        html_content = re.sub(r'(\n|\s)+', ' ', doc['ds_output'])
-        html = "<body><p>" + re.sub(r"<span[^>]*>\s*PZPZPZ\s*</span>",
-                                    "</p><p>", html_content) + "</p></body>"
         pats = defaultdict(Counter)
         try:
-            soup = BeautifulSoup(html, features="lxml")
+            soup = BeautifulSoup(doc['ds_output'], features="lxml")
         except Exception as exp:
-            logging.error("%s (%s): %s", doc_id, filename, html)
+            logging.error("%s (%s): %s", doc_id, filename, doc['ds_output'])
             logging.error(exp)
             raise HTTPException(detail="Unparsable tagged text.",
                             status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
