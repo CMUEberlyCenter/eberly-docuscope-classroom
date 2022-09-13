@@ -239,7 +239,8 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       .datum(this.root)
       .attr('r', this.radius)
       .attr('fill', 'none')
-      .attr('pointer-events', 'all');
+      .attr('pointer-events', 'all')
+      .style('cursor', 'pointer');
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.path.on('click', this.clicked.bind(this));
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
