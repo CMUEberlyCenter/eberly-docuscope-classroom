@@ -14,7 +14,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatLegacyMenuTrigger as MatMenuTrigger } from '@angular/material/legacy-menu';
 import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
 
 @Component({
