@@ -14,7 +14,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import * as d3 from 'd3';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 /*import {
   NavigationEnd,
   NavigationStart,
@@ -12,6 +13,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./tool-layout.component.scss'],
 })
 export class ToolLayoutComponent {
+  constructor(private route: ActivatedRoute) {}
   /*loading: boolean;
   constructor(router: Router) {
     this.loading = false;
@@ -23,4 +25,11 @@ export class ToolLayoutComponent {
       }
     });
   }*/
+  is_instructor(): boolean {
+    const qmap = this.route.snapshot.queryParamMap;
+    return (
+      Boolean(qmap?.has('roles')) &&
+      qmap.get('roles').search(/Instructor/i) >= 0
+    );
+  }
 }

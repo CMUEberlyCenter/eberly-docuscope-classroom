@@ -1,6 +1,6 @@
 /* Component for the application header */
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
 import { SettingsService } from '../settings.service';

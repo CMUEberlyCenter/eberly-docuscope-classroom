@@ -1,54 +1,32 @@
 <div class="container">
-  <mat-card class="sidebar">
-    <app-sunburst-chart
-      [data]="sundata"
-      [width]="sunwidth"
-    ></app-sunburst-chart>
-    <mat-card-title>Dictionary Categories</mat-card-title>
-    <mat-card-subtitle>
-      Select categories to highlight instances in the text.<br />
-      Colors will start repeating after {{ max_clusters }} selections.
-    </mat-card-subtitle>
+  <mat-card appearance="outlined" class="sidebar">
+    <app-sunburst-chart [data]="sundata" [width]="sunwidth"></app-sunburst-chart>
+    <mat-card-header>
+      <mat-card-title>Dictionary Categories</mat-card-title>
+      <mat-card-subtitle>
+        Select categories to highlight instances in the text.<br />
+        Colors will start repeating after {{ max_clusters }} selections.
+      </mat-card-subtitle>
+    </mat-card-header>
     <mat-card-content>
-      <mat-toolbar>
-        <button
-          mat-icon-button
-          (click)="treeControl.expandAll()"
-          aria-label="Expand All"
-          matTooltip="Expand All"
-        >
+      <div class="tree-tools">
+        <button mat-icon-button (click)="treeControl.expandAll()" aria-label="Expand All" matTooltip="Expand All">
           <mat-icon class="mat-icon-rtl-mirror">arrow_drop_down</mat-icon>
         </button>
-        <button
-          mat-icon-button
-          (click)="treeControl.collapseAll()"
-          aria-label="Collapse All"
-          matTooltip="Collapse All"
-        >
+        <button mat-icon-button (click)="treeControl.collapseAll()" aria-label="Collapse All" matTooltip="Collapse All">
           <mat-icon>arrow_right</mat-icon>
         </button>
         <!--<button mat-icon-button (click)="selection.clear()"><mat-icon>check_box_outline_blank</mat-icon></button>-->
-      </mat-toolbar>
-      <mat-tree
-        [dataSource]="treeData"
-        [treeControl]="treeControl"
-        class="tree"
-      >
+      </div>
+      <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="tree">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
           <li class="mat-tree-node tree-node">
             <div>
               <button mat-icon-button disabled></button>
-              <mat-checkbox
-                [checked]="selection.isSelected(node)"
-                (click)="$event.stopPropagation()"
-                [value]="node"
-                [disabled]="node.count === 0"
-                [aria-label]="node.label"
-              >
-                <ng-container
-                  [ngTemplateOutlet]="patternlabel"
-                  [ngTemplateOutletContext]="{ row: node }"
-                ></ng-container>
+              <mat-checkbox [checked]="selection.isSelected(node)" (click)="$event.stopPropagation()" [value]="node"
+                [disabled]="node.count === 0" [aria-label]="node.label">
+                <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                </ng-container>
               </mat-checkbox>
             </div>
             <div>{{ node.count }}</div>
@@ -58,32 +36,21 @@
           <li>
             <div class="mat-tree-node tree-node">
               <div>
-                <button
-                  mat-icon-button
-                  matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label"
-                >
+                <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
-                      treeControl.isExpanded(node)
-                        ? 'expand_more'
-                        : 'chevron_right'
+                    treeControl.isExpanded(node)
+                    ? 'expand_more'
+                    : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>
-                <mat-checkbox
-                  [checked]="descendantsAllSelected(node)"
-                  [indeterminate]="descendantsPartiallySelected(node)"
-                  (click)="$event.stopPropagation()"
-                  (change)="selectionChange($event, node)"
-                  [disabled]="node.count === 0"
-                  [value]="node"
-                  [aria-label]="node.label"
-                >
-                  <ng-container
-                    [ngTemplateOutlet]="patternlabel"
-                    [ngTemplateOutletContext]="{ row: node }"
-                  ></ng-container>
+                <mat-checkbox [checked]="descendantsAllSelected(node)"
+                  [indeterminate]="descendantsPartiallySelected(node)" (click)="$event.stopPropagation()"
+                  (change)="selectionChange($event, node)" [disabled]="node.count === 0" [value]="node"
+                  [aria-label]="node.label">
+                  <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                  </ng-container>
                 </mat-checkbox>
               </div>
               <div [class.d_none]="treeControl.isExpanded(node)">
@@ -99,69 +66,44 @@
           <li [style.width]="'100%'">
             <div class="mat-tree-node tree-node">
               <div>
-                <button
-                  mat-icon-button
-                  matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label"
-                >
+                <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
-                      treeControl.isExpanded(node)
-                        ? 'expand_more'
-                        : 'chevron_right'
+                    treeControl.isExpanded(node)
+                    ? 'expand_more'
+                    : 'chevron_right'
                     }}
                   </mat-icon>
                 </button>
-                <mat-checkbox
-                  [checked]="selection.isSelected(node)"
-                  (click)="$event.stopPropagation()"
-                  (change)="selectionLeafChange($event, node)"
-                  [value]="node"
-                  [disabled]="node.count === 0"
-                  [aria-label]="node.label"
-                >
-                  <ng-container
-                    [ngTemplateOutlet]="patternlabel"
-                    [ngTemplateOutletContext]="{ row: node }"
-                  ></ng-container>
+                <mat-checkbox [checked]="selection.isSelected(node)" (click)="$event.stopPropagation()"
+                  (change)="selectionLeafChange($event, node)" [value]="node" [disabled]="node.count === 0"
+                  [aria-label]="node.label">
+                  <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }">
+                  </ng-container>
                 </mat-checkbox>
               </div>
               <div>{{ node.count }}</div>
             </div>
-            <div
-              [class.pattern-table]="true"
-              [class.d_none]="!treeControl.isExpanded(node)"
-            >
-              <app-patterns-table
-                [patterns]="node.patterns"
-              ></app-patterns-table>
+            <div [class.pattern-table]="true" [class.d_none]="!treeControl.isExpanded(node)">
+              <app-patterns-table [patterns]="node.patterns"></app-patterns-table>
             </div>
           </li>
         </mat-tree-node>
       </mat-tree>
     </mat-card-content>
   </mat-card>
-  <mat-card *ngIf="tagged_text" class="text_card">
+  <mat-card appearance="outlined" *ngIf="tagged_text" class="text_card">
     <mat-card-title class="text_head">
       ID:&nbsp;{{ tagged_text.documents[0].text_id }}
     </mat-card-title>
     <mat-card-content>
-      <article
-        class="text_content"
-        [innerHTML]="htmlContent"
-        (click)="click_select($event)"
-      ></article>
+      <article class="text_content" [innerHTML]="htmlContent" (click)="click_select($event)"></article>
     </mat-card-content>
   </mat-card>
 </div>
 <ng-template #patternlabel let-row="row">
   <span [class]="getCategories(row)">{{ row.label }}</span>
-  <button
-    *ngIf="row.help"
-    mat-icon-button
-    matTooltip="{{ row.help }}"
-    matTooltipPosition="after"
-  >
+  <button *ngIf="row.help" mat-icon-button matTooltip="{{ row.help }}" matTooltipPosition="after">
     <mat-icon class="tooltip-icon">comment</mat-icon>
   </button>
 </ng-template>

@@ -1,8 +1,10 @@
-<mat-card *ngIf="corpus">
-  <mat-card-title>Box Plot</mat-card-title>
-  <mat-card-subtitle>Shows the distribution of various pattern types.</mat-card-subtitle>
-  <mat-card-subtitle>Units are average number of instances per
-    {{ unit }} words.</mat-card-subtitle>
+<mat-card appearance="outlined" *ngIf="corpus">
+  <mat-card-header>
+    <mat-card-title>Box Plot</mat-card-title>
+    <mat-card-subtitle>Shows the distribution of various pattern types.</mat-card-subtitle>
+    <mat-card-subtitle>Units are average number of instances per
+      {{ unit }} words.</mat-card-subtitle>
+  </mat-card-header>
   <mat-card-content class="graph_container">
     <div>
       <div *ngIf="data" class="tree-node">
@@ -104,24 +106,12 @@
         </mat-nested-tree-node>
       </mat-tree>
     </div>
-    <!--<div>
-        <app-frequency-graph
-          *ngIf="selected_category"
-          [data]="data"
-          [category]="selected_category"
-          [unit]="unit"
-        ></app-frequency-graph>
-      </div>-->
   </mat-card-content>
 </mat-card>
 <ng-template #svgboxplot let-row="row">
   <svg class="box_plot_tree_item" [attr.width]="options.width + 'px'" [attr.height]="options.height + 'px'"
     [attr.data-min]="row.lifence" [attr.data-q1]="row.q1" [attr.data-q2]="row.q2" [attr.data-q3]="row.q3"
-    [attr.data-max]="row.uifence" matTooltip="Minimum={{ scale(row.min) }};  First Quantile={{
-      scale(row.q1)
-    }};  Median={{ scale(row.q2) }};  Third Quantile={{
-      scale(row.q3)
-    }};  Maximum={{ scale(row.max) }}">
+    [attr.data-max]="row.uifence" [matTooltip]="box_tooltip(row)" [matTooltipClass]="'boxplot-tooltip'">
     <desc>
       A box plot where the minimum is {{ scale(row.lifence) }}, the first
       quantile is {{ scale(row.q1) }}, the median is {{ scale(row.q2) }}, the
@@ -145,7 +135,8 @@
     <line [attr.x1]="scale_x(row.uifence)" [attr.x2]="scale_x(row.uifence)" [attr.y1]="scale_y(0.25)"
       [attr.y2]="scale_y(0.75)" [style.stroke]="'#3c3c3c'" [style.stroke-width]="1" />
     <g>
-      <a *ngFor="let out of get_outliers(row)" [routerLink]="'/stv/' + out.id" target="_blank" rel="noreferrer noopener">
+      <a *ngFor="let out of get_outliers(row)" [routerLink]="'/stv/' + out.id" target="_blank"
+        rel="noreferrer noopener">
         <circle [attr.cx]="scale_x(out.value)" [attr.cy]="scale_y(0.5)" [attr.r]="scale_y(0.1)" [style.fill]="'#52be80'"
           [style.stroke-width]="1" [style.stroke]="'#eeeeee'" matTooltip="{{ out.title }}: {{ scale(out.value) }}" />
       </a>

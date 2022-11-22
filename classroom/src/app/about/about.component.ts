@@ -7,7 +7,7 @@ with some minor customization available from
 assets/settings.json
 */
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { version } from '../../environments/version';
 import { SettingsService } from '../settings.service';
 
