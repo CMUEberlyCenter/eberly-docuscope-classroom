@@ -39,16 +39,16 @@ describe('CorpusService', () => {
     service = TestBed.inject(CorpusService);
   });
 
-  it('should be created', () => {
-    void expect(service).toBeDefined();
+  it('should be created', async () => {
+    await expect(service).toBeDefined();
   });
 
-  it('getDocumentIds', () => {
-    void expect(service.getDocumentIds()).toEqual(['1', '2', '3']);
+  it('getDocumentIds', async () => {
+    await expect(service.getDocumentIds()).toEqual(['1', '2', '3']);
     console.error = jasmine.createSpy('error');
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue(undefined);
-    void expect(service.getDocumentIds()).toEqual([]);
-    void expect(console.error).toHaveBeenCalled();
+    await expect(service.getDocumentIds()).toEqual([]);
+    await expect(console.error).toHaveBeenCalled();
     activatedRoute_spy.snapshot.queryParamMap.get.and.returnValue('1,2,3');
   });
 

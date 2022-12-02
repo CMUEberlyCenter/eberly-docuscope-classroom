@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,7 +23,7 @@ describe('ScatterplotComponent', () => {
   let component: ScatterplotComponent;
   let fixture: ComponentFixture<ScatterplotComponent>;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     const commonDictionaryService_spy = jasmine.createSpyObj(
       'CommonDictionaryService',
       ['getJSON']
@@ -113,7 +113,7 @@ describe('ScatterplotComponent', () => {
       'setAssignmentData',
     ]) as Spied<AssignmentService>;
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [ScatterplotComponent, CategorySelectStubComponent],
       imports: [
         FormsModule,
@@ -132,43 +132,40 @@ describe('ScatterplotComponent', () => {
         { provide: DsDataService, useValue: dataService_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(ScatterplotComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    return expect(component).toBeTruthy();
+  it('should create', async () => {
+    await expect(component).toBeTruthy();
   });
 
-  it('on_select_x', () =>
-    fixture.whenStable().then(() => {
-      component.on_select_x({
-        name: 'STUB_X',
-        label: 'Stub X',
-        help: '',
-      });
-      void expect(component.x_category.id).toBe('STUB_X');
-      component.on_select_x({
-        label: 'STUB_X',
-        help: '',
-      });
-      void expect(component.x_category.id).toBe('STUB_X');
-    }));
-  it('on_select_y', () =>
-    fixture.whenStable().then(() => {
-      component.on_select_y({ name: 'STUB_Y', label: 'Stub Y', help: '' });
-      void expect(component.y_category.id).toBe('STUB_Y');
-      component.on_select_y({ label: 'STUB_Y', help: '' });
-      void expect(component.y_category.id).toBe('STUB_Y');
-    }));
-  it('categories', async () => {
-    void expect(component.categories).toEqual([]);
+  it('on_select_x', async () => {
     await fixture.whenStable();
-    void expect(component.categories.length).toBe(2);
+    component.on_select_x({
+      name: 'STUB_X',
+      label: 'Stub X',
+      help: '',
+    });
+    await expect(component.x_category.id).toBe('STUB_X');
+    component.on_select_x({
+      label: 'STUB_X',
+      help: '',
+    });
+    await expect(component.x_category.id).toBe('STUB_X');
+  });
+  it('on_select_y', async () => {
+    await fixture.whenStable();
+    component.on_select_y({ name: 'STUB_Y', label: 'Stub Y', help: '' });
+    await expect(component.y_category.id).toBe('STUB_Y');
+    component.on_select_y({ label: 'STUB_Y', help: '' });
+    await expect(component.y_category.id).toBe('STUB_Y');
+  });
+  it('categories', async () => {
+    await expect(component.categories).toEqual([]);
+    await fixture.whenStable();
+    await expect(component.categories.length).toBe(2);
   });
   it('is_model', () => {
     expect(
@@ -180,8 +177,8 @@ describe('ScatterplotComponent', () => {
       })
     ).toBeTrue();
   });
-  it('get_value', () => {
-    void expect(
+  it('get_value', async () => {
+    await expect(
       component.get_value(
         {
           q1: 0.1,

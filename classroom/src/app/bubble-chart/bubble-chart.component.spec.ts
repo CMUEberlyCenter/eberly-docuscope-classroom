@@ -85,9 +85,6 @@ describe('BubbleChartComponent', () => {
         { provide: SettingsService, useValue: settings_spy },
       ],
     }).compileComponents();
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(BubbleChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

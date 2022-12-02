@@ -1,6 +1,8 @@
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import {
@@ -34,6 +36,7 @@ class ComparePatternsTableStubComponent {
 describe('ComparisonComponent', () => {
   let component: ComparisonComponent;
   let fixture: ComponentFixture<ComparisonComponent>;
+  let loader: HarnessLoader;
   // let assignment_service_spy;
   let corpus_service_spy: Spied<CorpusService>;
   // let router_spy;
@@ -57,7 +60,7 @@ describe('ComparisonComponent', () => {
   <span id="tag_3" data-key=" " class="tag"></span>
   </p>`;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', [
       'getCorpus',
     ]) as Spied<CorpusService>;
@@ -152,7 +155,7 @@ describe('ComparisonComponent', () => {
       'open',
     ]) as Spied<MatSnackBar>;
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
       imports: [
         HttpClientTestingModule,
@@ -179,102 +182,104 @@ describe('ComparisonComponent', () => {
         { provide: MatSnackBar, useValue: snack_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(ComparisonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  it('should create', () =>
-    fixture.whenStable().then(() => {
-      void expect(component).toBeTruthy();
-      void expect(component.corpus).toEqual(['a', 'b']);
-      void expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
-      void expect(component.direction).toBe('vertical');
-    }));
+  it('should create', async () => {
+    await fixture.whenStable();
+    await expect(component).toBeTruthy();
+    await expect(component.corpus).toEqual(['a', 'b']);
+    await expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(1);
+    await expect(component.direction).toBe('vertical');
+  });
 
-  it('should warn on 3+ document', () =>
-    fixture.whenStable().then(async () => {
-      // too many documents
-      component.ngOnInit();
-      await fixture.whenStable();
-      void expect(component.corpus).toEqual(['a', 'b']);
-      void expect(snack_spy.open).toHaveBeenCalled();
-      void expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
-      //expect(component.direction).toBe('horizontal');
-    }));
-  it('should error on 1 document', () =>
-    fixture.whenStable().then(async () => {
-      // too many documents
-      component.ngOnInit();
-      // too few documents
-      component.ngOnInit();
-      await fixture.whenStable();
-      void expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
-      void expect(component.corpus).toEqual(['a']);
-      void expect(snack_spy.open).toHaveBeenCalled();
-    }));
-  it('should error on 0 document', () =>
-    fixture.whenStable().then(async () => {
-      // too many documents
-      component.ngOnInit();
-      // too few documents
-      component.ngOnInit();
-      // no documents
-      component.ngOnInit();
-      await fixture.whenStable();
-      void expect(component.corpus).toEqual([]);
-      void expect(snack_spy.open).toHaveBeenCalled();
-    }));
+  it('should warn on 3+ document', async () => {
+    await fixture.whenStable();
+    // too many documents
+    component.ngOnInit();
+    await fixture.whenStable();
+    await expect(component.corpus).toEqual(['a', 'b']);
+    await expect(snack_spy.open).toHaveBeenCalled();
+    await expect(settings_spy.getSettings).toHaveBeenCalledTimes(2);
+    //expect(component.direction).toBe('horizontal');
+  });
 
-  it('selection', () =>
-    fixture.whenStable().then(() => {
-      const root = component.treeData.data[3];
-      const leaf = root.children[0].children[0];
-      component.selectionChange(null, null);
-      component.selectionChange(new MatCheckboxChange(), null);
-      component.selectionLeafChange(null, null);
-      component.selectionLeafChange(new MatCheckboxChange(), null);
-      component.selectionLeafChange(new MatCheckboxChange(), leaf);
-      expect(component.selection.isSelected(leaf)).toBeTrue();
-      component.selectionLeafChange(new MatCheckboxChange(), leaf);
-      expect(component.selection.isSelected(leaf)).toBeFalse();
-      component.selectionChange(new MatCheckboxChange(), root);
-      expect(component.selection.isSelected(root)).toBeTrue();
-      component.selectionChange(new MatCheckboxChange(), root);
-      expect(component.selection.isSelected(root)).toBeFalse();
-      const riot = component.treeData.data[0].children[0].children[0];
-      component.selectionLeafChange(new MatCheckboxChange(), riot);
-      expect(component.selection.isSelected(riot)).toBeTrue();
-      expect(
-        component.descendantsPartiallySelected(
-          component.treeData.data[0].children[0]
-        )
-      ).toBeTrue();
-      const past = component.treeData.data[1].children[1];
-      component.selectionChange(new MatCheckboxChange(), past);
-      expect(component.selection.isSelected(past)).toBeTrue();
-    }));
-  it('click_select', () =>
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
-      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-      const txt = fixture.debugElement.query(By.css('.text_content'));
-      //expect(txt.nativeElement.innerText).toBeNull();
-      txt.triggerEventHandler('click', new MouseEvent('click'));
-      const word = fixture.debugElement.query(By.css('#w1'))
-        .nativeElement as HTMLElement;
-      void expect(word).toBeTruthy();
-      word.click();
-      word.click();
-      (
-        fixture.debugElement.query(By.css('#tag_3'))
-          .nativeElement as HTMLElement
-      ).click();
-      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-    }));
+  it('should error on 1 document', async () => {
+    await fixture.whenStable();
+    // too many documents
+    component.ngOnInit();
+    // too few documents
+    component.ngOnInit();
+    await fixture.whenStable();
+    await expect(corpus_service_spy.getCorpus).toHaveBeenCalledTimes(3);
+    await expect(component.corpus).toEqual(['a']);
+    await expect(snack_spy.open).toHaveBeenCalled();
+  });
+
+  it('should error on 0 document', async () => {
+    await fixture.whenStable();
+    // too many documents
+    component.ngOnInit();
+    // too few documents
+    component.ngOnInit();
+    // no documents
+    component.ngOnInit();
+    await fixture.whenStable();
+    await expect(component.corpus).toEqual([]);
+    await expect(snack_spy.open).toHaveBeenCalled();
+  });
+
+  it('selection', async () => {
+    await fixture.whenStable();
+    const root = component.treeData.data[3];
+    const leaf = root.children[0].children[0];
+    component.selectionChange(null, null);
+    component.selectionChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(null, null);
+    component.selectionLeafChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeTrue();
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeTrue();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    const riot = component.treeData.data[0].children[0].children[0];
+    component.selectionLeafChange(new MatCheckboxChange(), riot);
+    expect(component.selection.isSelected(riot)).toBeTrue();
+    expect(
+      component.descendantsPartiallySelected(
+        component.treeData.data[0].children[0]
+      )
+    ).toBeTrue();
+    const past = component.treeData.data[1].children[1];
+    component.selectionChange(new MatCheckboxChange(), past);
+    expect(component.selection.isSelected(past)).toBeTrue();
+  });
+
+  it('click_select', async () => {
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    const txt = fixture.debugElement.query(By.css('.text_content'));
+    const text_content = await loader.getChildLoader('.text_content');
+    await expect(text_content).not.toBeNull();
+    //expect(txt.nativeElement.innerText).toBeNull();
+    txt.triggerEventHandler('click', new MouseEvent('click'));
+    const word = fixture.debugElement.query(By.css('#w1'))
+      .nativeElement as HTMLElement;
+    await expect(word).toBeTruthy();
+    word.click();
+    word.click();
+    (
+      fixture.debugElement.query(By.css('#tag_3')).nativeElement as HTMLElement
+    ).click();
+    //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
+  });
   /*it('click_select invalid', () =>
     fixture.whenStable().then(() => {
       const evt = {

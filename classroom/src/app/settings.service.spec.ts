@@ -3,6 +3,7 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { firstValueFrom } from 'rxjs';
 import { SettingsService } from './settings.service';
 
 describe('SettingsService', () => {
@@ -19,18 +20,18 @@ describe('SettingsService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('should be created', () => {
-    void expect(service).toBeTruthy();
+  it('should be created', async () => {
+    await expect(service).toBeTruthy();
   });
 
-  it('getSettings', () => {
-    service.getSettings().subscribe((data) => {
-      void expect(data.title).toBe('DocuScope Classroom');
-      void expect(data.unit).toBe(100);
+  it('getSettings', async () => {
+    void firstValueFrom(service.getSettings()).then(async (data) => {
+      await expect(data.title).toBe('DocuScope Classroom');
+      await expect(data.unit).toBe(100);
     });
     const ereq = httpMock.expectOne('assets/settings.json');
-    void expect(ereq.request.method).toBe('GET');
-    ereq.error(new ErrorEvent('fail'), { status: 404 });
+    await expect(ereq.request.method).toBe('GET');
+    ereq.error(new ProgressEvent('fail'), { status: 404 });
 
     service.getSettings().subscribe((data) => {
       void expect(data.title).toBe('TestScope');
@@ -38,7 +39,7 @@ describe('SettingsService', () => {
       void expect(data.sticky_headers).toBeTrue(); // check defaults.
     });
     const req = httpMock.expectOne('assets/settings.json');
-    void expect(req.request.method).toBe('GET');
+    await expect(req.request.method).toBe('GET');
     req.flush({
       title: 'TestScope',
       institution: 'TEST',

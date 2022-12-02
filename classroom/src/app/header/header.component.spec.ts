@@ -46,12 +46,9 @@ describe('HeaderComponent', () => {
         { provide: SettingsService, useValue: settings_spy },
       ],
     }).compileComponents();
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    //fixture.detectChanges();
     service = TestBed.inject(AssignmentService);
   });
 
@@ -59,55 +56,52 @@ describe('HeaderComponent', () => {
     void expect(component).toBeTruthy();
   });
 
-  it('should have as title "DocuScope Classroom @ CMU"', () => {
-    void expect(component.title).toEqual('DocuScope Classroom');
-    void expect(component.institution).toEqual('@ CMU');
+  it('should have as title "DocuScope Classroom @ CMU"', async () => {
+    await expect(component.title).toEqual('DocuScope Classroom');
+    await expect(component.institution).toEqual('@ CMU');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await expect(component.institution).toEqual('@ Home');
   });
 
-  it('check assignment', () => {
+  it('check assignment', async () => {
     service.setAssignment('assignment');
     fixture.detectChanges();
-    return fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      void expect(
-        compiled.querySelector('#assignment_name').textContent
-      ).toContain('assignment');
-    });
+    await fixture.whenStable();
+    const compiled = fixture.debugElement.nativeElement;
+    await expect(
+      compiled.querySelector('#assignment_name').textContent
+    ).toContain('assignment');
   });
-  it('check course', () => {
+  it('check course', async () => {
     service.setCourse('course');
     fixture.detectChanges();
-    return fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      void expect(compiled.querySelector('#course_name').textContent).toContain(
-        'course'
-      );
-    });
+    await fixture.whenStable();
+    const compiled = fixture.debugElement.nativeElement;
+    await expect(compiled.querySelector('#course_name').textContent).toContain(
+      'course'
+    );
   });
-  it('check instructor', () => {
+  it('check instructor', async () => {
     service.setInstructor('instructor');
     fixture.detectChanges();
-    return fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      void expect(
-        compiled.querySelector('#instructor_name').textContent
-      ).toContain('instructor');
-    });
+    await fixture.whenStable();
+    const compiled = fixture.debugElement.nativeElement;
+    await expect(
+      compiled.querySelector('#instructor_name').textContent
+    ).toContain('instructor');
   });
 
-  it('about', () => {
+  it('about', async () => {
     component.openAbout();
-    void expect(mat_dialog_spy.open).toHaveBeenCalled();
+    await expect(mat_dialog_spy.open).toHaveBeenCalled();
     expect(mat_dialog_spy.open).toHaveBeenCalledWith(AboutComponent);
   });
 
   it('getSettings', async () => {
-    void expect(component.institution).toBe('@ CMU');
-    component.getSettings();
     fixture.detectChanges();
-    await fixture.whenStable().then(() => {
-      void expect(component.institution).toBe('@ Home');
-    });
+    await fixture.whenStable();
+    await expect(component.institution).toBe('@ Home');
 
     settings_spy.getSettings.and.returnValue(
       asyncData({
@@ -123,8 +117,7 @@ describe('HeaderComponent', () => {
     );
     component.getSettings();
     fixture.detectChanges();
-    await fixture.whenStable().then(() => {
-      void expect(component.institution).toBe('');
-    });
+    await fixture.whenStable();
+    await expect(component.institution).toBe('');
   });
 });

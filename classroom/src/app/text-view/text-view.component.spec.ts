@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import {
   MatCheckboxChange,
@@ -60,7 +60,7 @@ describe('TextViewComponent', () => {
   let fixture: ComponentFixture<TextViewComponent>;
   let tagged_text_service_spy: Spied<DocumentService>;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     tagged_text_service_spy = jasmine.createSpyObj('DocumentService', [
       'getData',
     ]) as Spied<DocumentService>;
@@ -134,7 +134,7 @@ describe('TextViewComponent', () => {
       'setAssignmentData',
     ]) as Spied<AssignmentService>;
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [
         TextViewComponent,
         PatternsTableStubComponent,
@@ -163,25 +163,22 @@ describe('TextViewComponent', () => {
         { provide: DocumentService, useValue: tagged_text_service_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(TextViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', async () => {
-    void expect(component).toBeDefined();
+    await expect(component).toBeDefined();
     await fixture.whenStable();
     await expect(component.htmlContent).toBeTruthy();
-    void expect(component.tagged_text).toBeTruthy();
-    void expect(component.htmlContent).toBeTruthy();
-    void expect(component.sundata).toBeTruthy();
-    void expect(() => component.ngOnInit()).not.toThrow();
+    await expect(component.tagged_text).toBeTruthy();
+    await expect(component.htmlContent).toBeTruthy();
+    await expect(component.sundata).toBeTruthy();
+    await expect(() => component.ngOnInit()).not.toThrow();
   });
-  it('getParentNode', () => {
-    void expect(
+  it('getParentNode', async () => {
+    await expect(
       component.getParentNode(
         new PatternTreeNode({ id: 'foo', label: 'bar', help: 'foobar' }, [], [])
       )
@@ -189,32 +186,29 @@ describe('TextViewComponent', () => {
     //await fixture.whenStable();
   });
 
-  it('click_select', () =>
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
-      void expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-      void expect(component.tagged_text).toBeTruthy();
-      const txt = fixture.debugElement.query(By.css('.text_content'));
-      void expect(txt.nativeElement.innerText).toBeDefined();
-      txt.triggerEventHandler('click', new MouseEvent('click'));
-      (
-        fixture.debugElement.query(By.css('#tag_3'))
-          .nativeElement as HTMLElement
-      ).click();
-      // it seems like innerText is not getting inserted into test DOM
-      // making it difficult to test this handler.
-      //const tag = fixture.debugElement.query(By.css('#tag_0'));
-      //void expect(tag.nativeElement).toBeDefined();
-      //void expect(component.htmlContent.query(By.css('#tag_0'))).toBeUndefined();
-      //tag.nativeElement.click();
-      const word = fixture.debugElement.query(By.css('#w1'));
-      void expect(word).toBeTruthy();
-      void expect(word.nativeElement).toBeDefined();
-      word.nativeElement.click();
-      word.nativeElement.click();
-      //fixture.detectChanges();
-      //expect(fixture.debugElement.query(By.css('.future')).classes['selected_text']).toBeTrue();
-    }));
+  it('click_select', async () => {
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    await expect(component.tagged_text).toBeTruthy();
+    const txt = fixture.debugElement.query(By.css('.text_content'));
+    await expect(txt.nativeElement.innerText).toBeDefined();
+    txt.triggerEventHandler('click', new MouseEvent('click'));
+    (
+      fixture.debugElement.query(By.css('#tag_3')).nativeElement as HTMLElement
+    ).click();
+    // it seems like innerText is not getting inserted into test DOM
+    // making it difficult to test this handler.
+    //const tag = fixture.debugElement.query(By.css('#tag_0'));
+    //void expect(tag.nativeElement).toBeDefined();
+    //void expect(component.htmlContent.query(By.css('#tag_0'))).toBeUndefined();
+    //tag.nativeElement.click();
+    const word = fixture.debugElement.query(By.css('#w1'));
+    await expect(word).toBeTruthy();
+    await expect(word.nativeElement).toBeDefined();
+    word.nativeElement.click();
+    word.nativeElement.click();
+  });
   /*it('checkRootNodeSelection', () => fixture.whenStable().then(() => {
     const root = component.treeData.data[3];
     const leaf = root.children[0].children[0];
@@ -232,34 +226,34 @@ describe('TextViewComponent', () => {
     component.checkAllParentsSelection(root);
     component.checkAllParentsSelection(leaf);
   }));*/
-  it('selection', () =>
-    fixture.whenStable().then(() => {
-      const root = component.treeData.data[3];
-      const leaf = root.children[0].children[0];
-      component.selectionChange(null, null);
-      component.selectionChange(new MatCheckboxChange(), null);
-      component.selectionLeafChange(null, null);
-      component.selectionLeafChange(new MatCheckboxChange(), null);
-      component.selectionLeafChange(new MatCheckboxChange(), leaf);
-      expect(component.selection.isSelected(leaf)).toBeTrue();
-      component.selectionLeafChange(new MatCheckboxChange(), leaf);
-      expect(component.selection.isSelected(leaf)).toBeFalse();
-      component.selectionChange(new MatCheckboxChange(), root);
-      expect(component.selection.isSelected(root)).toBeTrue();
-      component.selectionChange(new MatCheckboxChange(), root);
-      expect(component.selection.isSelected(root)).toBeFalse();
-      const riot = component.treeData.data[0].children[0].children[0];
-      component.selectionLeafChange(new MatCheckboxChange(), riot);
-      expect(component.selection.isSelected(riot)).toBeTrue();
-      expect(
-        component.descendantsPartiallySelected(
-          component.treeData.data[0].children[0]
-        )
-      ).toBeTrue();
-      const past = component.treeData.data[1].children[1];
-      component.selectionChange(new MatCheckboxChange(), past);
-      expect(component.selection.isSelected(past)).toBeTrue();
-    }));
+  it('selection', async () => {
+    await fixture.whenStable();
+    const root = component.treeData.data[3];
+    const leaf = root.children[0].children[0];
+    component.selectionChange(null, null);
+    component.selectionChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(null, null);
+    component.selectionLeafChange(new MatCheckboxChange(), null);
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeTrue();
+    component.selectionLeafChange(new MatCheckboxChange(), leaf);
+    expect(component.selection.isSelected(leaf)).toBeFalse();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeTrue();
+    component.selectionChange(new MatCheckboxChange(), root);
+    expect(component.selection.isSelected(root)).toBeFalse();
+    const riot = component.treeData.data[0].children[0].children[0];
+    component.selectionLeafChange(new MatCheckboxChange(), riot);
+    expect(component.selection.isSelected(riot)).toBeTrue();
+    expect(
+      component.descendantsPartiallySelected(
+        component.treeData.data[0].children[0]
+      )
+    ).toBeTrue();
+    const past = component.treeData.data[1].children[1];
+    component.selectionChange(new MatCheckboxChange(), past);
+    expect(component.selection.isSelected(past)).toBeTrue();
+  });
   /*it('show_expanded', () => {
     expect(component.show_expanded(null)).toBe('collapsed');
     return fixture.whenStable().then(() => {

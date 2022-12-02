@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,8 +17,8 @@ describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let app: AppComponent;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
       imports: [
         HttpClientTestingModule,
@@ -30,21 +30,18 @@ describe('AppComponent', () => {
       ],
       providers: [],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.debugElement.componentInstance as AppComponent;
     fixture.detectChanges();
   });
 
-  it('should create the app', () => {
-    void expect(app).toBeTruthy();
+  it('should create the app', async () => {
+    await expect(app).toBeTruthy();
   });
 
-  it('should render title in the toolbar', () => {
+  it('should render title in the toolbar', async () => {
     const compiled = fixture.debugElement.nativeElement as HTMLElement;
-    void expect(
+    await expect(
       compiled.querySelector('mat-toolbar > span')?.textContent
     ).toContain('DocuScope Classroom @ CMU');
   });

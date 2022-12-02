@@ -1,4 +1,7 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { asyncData, Spied } from '../../testing';
@@ -8,6 +11,7 @@ import { AboutComponent } from './about.component';
 describe('AboutComponent', () => {
   let component: AboutComponent;
   let fixture: ComponentFixture<AboutComponent>;
+  let loader: HarnessLoader;
   const mat_dialog_spy: Spied<MatDialogRef<AboutComponent>> =
     jasmine.createSpyObj('MatDialogRef', ['close']) as Spied<
       MatDialogRef<AboutComponent>
@@ -28,8 +32,8 @@ describe('AboutComponent', () => {
     })
   );
 
-  beforeEach(waitForAsync(() => {
-    return TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [AboutComponent],
       imports: [MatDialogModule, MatIconModule],
       providers: [
@@ -37,20 +41,19 @@ describe('AboutComponent', () => {
         { provide: SettingsService, useValue: settings_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(AboutComponent);
+    //fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     return expect(component).toBeTruthy();
   });
 
-  it('close', () => {
-    component.onNoClick();
+  it('close', async () => {
+    const button = await loader.getHarness(MatButtonHarness);
+    await button.click();
     return expect(mat_dialog_spy.close).toHaveBeenCalled();
   });
 });

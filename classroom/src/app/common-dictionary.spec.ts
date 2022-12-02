@@ -7,11 +7,11 @@ describe('CommonDictionary', () => {
     void expect(new CommonDictionary(FAKE_COMMON_DICTIONARY)).toBeTruthy();
   });
 
-  it('tree', () => {
-    void expect(cd.tree).toBeTruthy();
+  it('tree', async () => {
+    await expect(cd.tree).toBeTruthy();
   });
 
-  it('nodes', () => {
-    void expect(cd.nodes).toBeTruthy();
+  it('nodes', async () => {
+    await expect(cd.nodes).toBeTruthy();
   });
 });

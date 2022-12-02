@@ -21,19 +21,19 @@ describe('HttpErrorHandlerService', () => {
     });
   });
 
-  it('should be created', () => {
+  it('should be created', async () => {
     const service: HttpErrorHandlerService = TestBed.inject(
       HttpErrorHandlerService
     );
-    return expect(service).toBeTruthy();
+    await expect(service).toBeTruthy();
   });
 
-  it('createHandleError', () => {
+  it('createHandleError', async () => {
     const service: HttpErrorHandlerService = TestBed.inject(
       HttpErrorHandlerService
     );
     const handler: HandleError = service.createHandleError('http-service-spec');
-    return expect(handler).toBeTruthy();
+    await expect(handler).toBeTruthy();
   });
 
   it('handleError default', () => {

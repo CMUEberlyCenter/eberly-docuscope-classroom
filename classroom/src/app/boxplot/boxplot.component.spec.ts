@@ -1,5 +1,7 @@
+//import { HarnessLoader } from '@angular/cdk/testing';
+//import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatTreeModule } from '@angular/material/tree';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -11,6 +13,7 @@ import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
+//import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 
 @Component({ selector: 'app-frequency-graph', template: '' })
 class FrequencyGraphStubComponent {
@@ -22,8 +25,9 @@ class FrequencyGraphStubComponent {
 describe('BoxplotComponent', () => {
   let component: BoxplotComponent;
   let fixture: ComponentFixture<BoxplotComponent>;
+  //let loader: HarnessLoader;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     const corpusService_spy = jasmine.createSpyObj('CorpusService', [
       'getCorpus',
     ]) as Spied<CorpusService>;
@@ -67,7 +71,7 @@ describe('BoxplotComponent', () => {
       'setAssignmentData',
     ]) as Spied<AssignmentService>;
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [BoxplotComponent, FrequencyGraphStubComponent],
       imports: [MatCardModule, MatTreeModule, NoopAnimationsModule],
       providers: [
@@ -81,12 +85,12 @@ describe('BoxplotComponent', () => {
         { provide: SettingsService, useValue: settings_spy },
       ],
     }).compileComponents();
-  }));
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(BoxplotComponent);
     component = fixture.componentInstance;
+    //loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
+    //await fixture.whenStable();
   });
 
   it('should create', () => {
@@ -152,15 +156,36 @@ describe('BoxplotComponent', () => {
     return expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
   });
   it('hasDocuments', async () => {
-    await fixture.whenStable(); //.then(() => {
+    await fixture.whenStable();
     const td = component.treeData.data[2];
-    void expect(td.documents).toEqual([]);
+    await expect(td.documents).toEqual([]);
     expect(component.hasDocuments(2, component.treeData.data[2])).toBeFalse();
   });
   it('treeControl child acsesson', async () => {
     await fixture.whenStable();
-    return expect(
+    await expect(
       component.treeControl.getChildren(component.treeData.data[0])
     ).toBeTruthy();
+  });
+  it('box_tooltip', async () => {
+    //const svg = await loader.getChildLoader('.box_plot_tree_item');
+    await fixture.whenStable();
+    //const tooltip = await loader.getHarness(
+    //  MatTooltipHarness
+    //);
+    //await tooltip.show();
+    const tip = component.box_tooltip({
+      label: 'test',
+      min: 0,
+      q1: 1,
+      q2: 2,
+      q3: 3,
+      max: 4,
+      help: 'Some help',
+      id: 'tst3',
+      uifence: 3.5,
+      lifence: 0.5,
+    });
+    expect(tip.startsWith('test')).toBeTrue();
   });
 });

@@ -15,9 +15,6 @@ describe('ToolLayoutComponent', () => {
       declarations: [ToolLayoutComponent, AppNavStubComponent],
       imports: [RouterTestingModule],
     }).compileComponents();
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(ToolLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

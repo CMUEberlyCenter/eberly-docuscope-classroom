@@ -59,8 +59,8 @@ describe('DocumentService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('should be created', () => {
-    void expect(service).toBeTruthy();
+  it('should be created', async () => {
+    await expect(service).toBeTruthy();
     expect(errorServiceMock.createHandleError).toHaveBeenCalledWith(
       'DocumentService'
     );
@@ -68,12 +68,12 @@ describe('DocumentService', () => {
 
   // it('server', () => expect(service.server).toBe(server));
 
-  it('getData', () => {
+  it('getData', async () => {
     service.getData(['1', '2']).subscribe((d) => {
       void expect(d.documents[0].text_id).toBe('1');
     });
     const req = httpMock.expectOne(server);
-    void expect(req.request.method).toBe('POST');
+    await expect(req.request.method).toBe('POST');
     req.flush(data);
   });
 });

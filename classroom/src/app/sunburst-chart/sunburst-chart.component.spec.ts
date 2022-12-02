@@ -9,22 +9,19 @@ describe('SunburstChartComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [SunburstChartComponent],
     }).compileComponents();
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(SunburstChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    void expect(component).toBeTruthy();
+  it('should create', async () => {
+    await expect(component).toBeTruthy();
     component.ngOnChanges();
   });
 
-  it('setting data', () => {
+  it('setting data', async () => {
     component.drawChart();
-    void expect(component.arc).toBeUndefined();
+    await expect(component.arc).toBeUndefined();
     component.data = {
       name: 'root',
       children: [
@@ -47,7 +44,7 @@ describe('SunburstChartComponent', () => {
     };
     component.ngOnChanges();
     component.ngAfterViewInit();
-    void expect(component).toBeTruthy();
+    await expect(component).toBeTruthy();
 
     component.clicked(null, null);
     component.clicked(null, component.root);

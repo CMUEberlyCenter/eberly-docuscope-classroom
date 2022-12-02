@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,7 +26,7 @@ describe('PatternsComponent', () => {
   let component: PatternsComponent;
   let fixture: ComponentFixture<PatternsComponent>;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     const corpusService_spy = jasmine.createSpyObj('CorpusService', [
       'getCorpus',
     ]) as Spied<CorpusService>;
@@ -72,7 +72,7 @@ describe('PatternsComponent', () => {
       ])
     );
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [
         PatternsComponent,
         PatternsTableStubComponent,
@@ -94,9 +94,6 @@ describe('PatternsComponent', () => {
         { provide: PatternsService, useValue: patternsService_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(PatternsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

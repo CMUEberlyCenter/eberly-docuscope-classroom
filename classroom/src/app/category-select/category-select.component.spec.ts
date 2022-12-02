@@ -30,9 +30,6 @@ describe('CategorySelectComponent', () => {
       imports: [HttpClientTestingModule, MatMenuModule],
       providers: [],
     }).compileComponents();
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(TestCategorySelectComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
