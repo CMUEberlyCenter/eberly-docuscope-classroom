@@ -254,4 +254,21 @@ describe('ScatterplotComponent', () => {
       )
     ).toBe(50);
   });
+
+  it('point_tooltip', async () => {
+    component.x_axis = { label: 'STUB_X', help: '' };
+    component.y_axis = { label: 'STUB_Y', help: '' };
+    await expect(
+      component.point_tooltip({
+        id: 'bogus_index',
+        title: 'A test essay in 2 words.',
+        text: 'bogus text',
+        ownedby: 'student',
+        bogus: 0.5,
+        STUB_X: 0.1,
+        STUB_Y: 0.2,
+        total_words: 2,
+      })
+    ).toBeTruthy();
+  });
 });
