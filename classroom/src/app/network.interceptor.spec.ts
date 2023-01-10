@@ -40,7 +40,7 @@ describe('NetworkInterceptor', () => {
     await expect(interceptor).toBeTruthy();
   });*/
 
-  it('should call show and hide on request.', () => {
+  it('should call show and hide on request.', async () => {
     spyOn(mockService, 'show').and.callFake(() => of());
     spyOn(mockService, 'hide').and.callFake(() => of());
     http.get('/ds_data').subscribe((data) => {
@@ -50,9 +50,9 @@ describe('NetworkInterceptor', () => {
     successReq.flush('Payload', { status: 200, statusText: 'OK' });
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    void expect(mockService.show).toHaveBeenCalled();
+    await expect(mockService.show).toHaveBeenCalled();
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    void expect(mockService.hide).toHaveBeenCalled();
+    await expect(mockService.hide).toHaveBeenCalled();
     httpTestingController.verify();
   });
 });

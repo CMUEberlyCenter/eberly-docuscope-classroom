@@ -20,7 +20,6 @@ variables:
   RELEASE_CONTAINER:  ${CI_REGISTRY_IMAGE}:latest
 
 before_script:
-  
 
 pylint:
   stage: test
@@ -29,8 +28,9 @@ pylint:
     - python -m pip install --upgrade --quiet pip
     - python -m pip install --user --quiet pipenv
   script:
+    #- sed -i '/\"markers\":\ \"python_version/d' Pipfile.lock # remove markers
     - PIPENV_VENV_IN_PROJECT=1 python -m pipenv install --dev
-    - python -m pipenv run pylint app
+    - PIPENV_VENV_IN_PROJECT=1 python -m pipenv run pylint app
   allow_failure: true
 
 classroom_lint:

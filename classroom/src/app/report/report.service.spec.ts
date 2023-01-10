@@ -22,11 +22,11 @@ describe('ReportService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('should be created', () => {
-    void expect(service).toBeTruthy();
+  it('should be created', async () => {
+    await expect(service).toBeTruthy();
   });
 
-  it('getReports', () => {
+  it('getReports', async () => {
     service
       .getReports(['a', 'b', 'c'], 'my intro', 'my other intro')
       .subscribe((data) => {
@@ -35,7 +35,7 @@ describe('ReportService', () => {
     const req = httpMock.expectOne(
       `${environment.backend_server}/generate_reports`
     );
-    void expect(req.request.method).toBe('POST');
+    await expect(req.request.method).toBe('POST');
     req.flush(new Blob(['report']));
   });
 });

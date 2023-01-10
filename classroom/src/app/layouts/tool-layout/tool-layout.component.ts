@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
-/*import {
-  NavigationEnd,
-  NavigationStart,
-  Router,
-  RouterEvent,
-} from '@angular/router';*/
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tool-layout',
@@ -12,15 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./tool-layout.component.scss'],
 })
 export class ToolLayoutComponent {
-  /*loading: boolean;
-  constructor(router: Router) {
-    this.loading = false;
-    router.events.subscribe((event: RouterEvent) => {
-      if (event instanceof NavigationStart) {
-        this.loading = true;
-      } else if (event instanceof NavigationEnd) {
-        this.loading = false;
-      }
-    });
-  }*/
+  constructor(private route: ActivatedRoute) {}
+  is_instructor(): boolean {
+    const qmap = this.route.snapshot.queryParamMap;
+    return (
+      Boolean(qmap?.has('roles')) &&
+      qmap.get('roles').search(/Instructor/i) >= 0
+    );
+  }
 }

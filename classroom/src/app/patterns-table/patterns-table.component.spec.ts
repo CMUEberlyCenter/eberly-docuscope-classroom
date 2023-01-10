@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -11,8 +11,8 @@ describe('PatternsTableComponent', () => {
   let component: PatternsTableComponent;
   let fixture: ComponentFixture<PatternsTableComponent>;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [PatternsTableComponent],
       imports: [
         NoopAnimationsModule,
@@ -23,9 +23,6 @@ describe('PatternsTableComponent', () => {
         MatTooltipModule,
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(PatternsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

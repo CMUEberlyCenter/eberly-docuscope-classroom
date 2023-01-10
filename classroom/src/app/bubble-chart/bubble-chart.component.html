@@ -1,32 +1,22 @@
-<mat-card *ngIf="corpus">
-  <mat-card-title>Bubble Chart</mat-card-title>
-  <mat-card-subtitle>
-    Units are average number of instances per {{ unit }} words.
-  </mat-card-subtitle>
-  <mat-card-subtitle *ngIf="scale">
-    Scale:
-    <svg
-      [attr.width]="maxRadius * 7 + 'px'"
-      [attr.height]="maxRadius * 2 + 'px'"
-    >
-      <g *ngFor="let tick of scale.ticks(4).slice(1); index as i">
-        <circle
-          class="tick"
-          [attr.data-value]="tick"
-          [attr.cy]="maxRadius"
-          [attr.cx]="scale(tick) + legend_offset(i)"
-          [attr.r]="scale(tick)"
-        />
-        <text
-          class="tick"
-          [attr.y]="maxRadius"
-          [attr.x]="scale(tick) + legend_offset(i)"
-        >
-          {{ tick * unit }}
-        </text>
-      </g>
-    </svg>
-  </mat-card-subtitle>
+<mat-card appearance="outlined" *ngIf="corpus">
+  <mat-card-header>
+    <mat-card-title>Bubble Chart</mat-card-title>
+    <mat-card-subtitle>
+      Units are average number of instances per {{ unit }} words.
+    </mat-card-subtitle>
+    <mat-card-subtitle *ngIf="scale">
+      Scale:
+      <svg [attr.width]="maxRadius * 7 + 'px'" [attr.height]="maxRadius * 2 + 'px'">
+        <g *ngFor="let tick of scale.ticks(4).slice(1); index as i">
+          <circle class="tick" [attr.data-value]="tick" [attr.cy]="maxRadius" [attr.cx]="scale(tick) + legend_offset(i)"
+            [attr.r]="scale(tick)" />
+          <text class="tick" [attr.y]="maxRadius" [attr.x]="scale(tick) + legend_offset(i)">
+            {{ tick * unit }}
+          </text>
+        </g>
+      </svg>
+    </mat-card-subtitle>
+  </mat-card-header>
   <mat-card-content>
     <mat-label>Level to display:</mat-label>
     <mat-button-toggle-group [(value)]="depth">
@@ -34,45 +24,27 @@
       <mat-button-toggle value="Subcategory">Subcategory</mat-button-toggle>
       <mat-button-toggle value="Cluster">Cluster</mat-button-toggle>
     </mat-button-toggle-group>
-    <table
-      mat-table
-      *ngIf="data && dictionary"
-      matSort
-      #documentSort="matSort"
-      [dataSource]="tableData"
-    >
+    <table mat-table *ngIf="data && dictionary" matSort #documentSort="matSort" [dataSource]="tableData">
       <ng-container matColumnDef="title" sticky>
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
         <td mat-cell *matCellDef="let doc">
-          <a
-            [ngClass]="{
+          <a [ngClass]="{
               name_entry: true,
               model_entry: doc.ownedby === 'instructor'
-            }"
-            [routerLink]="'/stv/' + doc.id"
-            rel="noreferrer noopener"
-            target="_blank"
-            matTooltip="{{ doc.title }}"
-          >
+            }" [routerLink]="'/stv/' + doc.id" rel="noreferrer noopener" target="_blank" matTooltip="{{ doc.title }}">
             {{ doc.title }}
           </a>
         </td>
       </ng-container>
 
-      <ng-container
-        *ngFor="let category of dictionary.nodes"
-        matColumnDef="{{ category.name ?? category.label }}"
-      >
-        <th mat-header-cell *matHeaderCellDef class="bubble-col">
+      <ng-container *ngFor="let category of dictionary.nodes" matColumnDef="{{ category.name ?? category.label }}">
+        <th mat-header-cell *matHeaderCellDef class="bubble-col bubble-col-header">
           <span matTooltip="{{ category.path }}" matTooltipPosition="above">{{
             category.label
-          }}</span>
+            }}</span>
         </th>
         <td mat-cell *matCellDef="let doc" class="bubble-col">
-          <ng-container
-            [ngTemplateOutlet]="bubble"
-            [ngTemplateOutletContext]="{ cell: getCell(doc, category) }"
-          >
+          <ng-container [ngTemplateOutlet]="bubble" [ngTemplateOutletContext]="{ cell: getCell(doc, category) }">
           </ng-container>
         </td>
       </ng-container>
@@ -83,18 +55,8 @@
   </mat-card-content>
 </mat-card>
 <ng-template #bubble let-cell="cell">
-  <svg
-    [attr.width]="maxRadius * 2 + 'px'"
-    [attr.height]="maxRadius * 2 + 'px'"
-    [attr.data-value]="cell"
-    matTooltipPosition="after"
-    [matTooltipClass]="'linebreaking'"
-    [matTooltip]="genTooltip(cell)"
-  >
-    <circle
-      [attr.cx]="maxRadius"
-      [attr.cy]="maxRadius"
-      [attr.r]="cell.proportion"
-    />
+  <svg [attr.width]="maxRadius * 2 + 'px'" [attr.height]="maxRadius * 2 + 'px'" [attr.data-value]="cell"
+    matTooltipPosition="after" [matTooltipClass]="'bubble-tooltip'" [matTooltip]="genTooltip(cell)">
+    <circle [attr.cx]="maxRadius" [attr.cy]="maxRadius" [attr.r]="cell.proportion" />
   </svg>
 </ng-template>

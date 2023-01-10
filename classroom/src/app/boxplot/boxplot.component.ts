@@ -200,6 +200,14 @@ export class BoxplotComponent implements OnInit {
     return this.outliers.get(category.id);
   }
 
+  box_tooltip(row: BoxTreeNode) {
+    return `${row.label}:
+      Minimum=${this.scale(row.min)};
+      First Quantile=${this.scale(row.q1)};
+      Median=${this.scale(row.q2)};
+      Third Quantile=${this.scale(row.q3)};
+      Maximum=${this.scale(row.max)};`;
+  }
   /** Event handler for when a category is selected in the boxplot-graph. */
   //onSelectCategory(category: CategoryData): void { // used when side-by-side rank
   //  this.selected_category = category;

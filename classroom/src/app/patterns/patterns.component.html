@@ -1,9 +1,11 @@
-<mat-card>
-  <mat-card-title>Patterns</mat-card-title>
-  <mat-card-subtitle>
-    Breakdown of the number of instances of each category across all documents.
-  </mat-card-subtitle>
-  <mat-card-subtitle> Click on a category to expand it. </mat-card-subtitle>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Patterns</mat-card-title>
+    <mat-card-subtitle>
+      Breakdown of the number of instances of each category across all documents.
+    </mat-card-subtitle>
+    <mat-card-subtitle> Click on a category to expand it. </mat-card-subtitle>
+  </mat-card-header>
   <mat-card-content class="patterns_container">
     <app-sunburst-chart [data]="sundata"></app-sunburst-chart>
     <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="tree">
@@ -11,10 +13,7 @@
         <li class="mat-tree-node tree-node">
           <div>
             <button mat-icon-button disabled></button>
-            <ng-container
-              [ngTemplateOutlet]="patternlabel"
-              [ngTemplateOutletContext]="{ row: node }"
-            ></ng-container>
+            <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }"></ng-container>
           </div>
           <div>{{ node.count }}</div>
         </li>
@@ -23,23 +22,16 @@
         <li>
           <div class="mat-tree-node tree-node">
             <div>
-              <button
-                mat-icon-button
-                matTreeNodeToggle
-                [attr.aria-label]="'Toggle ' + node.label"
-              >
+              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
                 <mat-icon class="mat-icon-rtl-mirror">
                   {{
-                    treeControl.isExpanded(node)
-                      ? 'expand_more'
-                      : 'chevron_right'
+                  treeControl.isExpanded(node)
+                  ? 'expand_more'
+                  : 'chevron_right'
                   }}
                 </mat-icon>
               </button>
-              <ng-container
-                [ngTemplateOutlet]="patternlabel"
-                [ngTemplateOutletContext]="{ row: node }"
-              ></ng-container>
+              <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }"></ng-container>
             </div>
             <div [class.tree-node-invisible]="treeControl.isExpanded(node)">
               {{ node.count }}
@@ -54,30 +46,20 @@
         <li [style.width]="'100%'">
           <div class="mat-tree-node tree-node">
             <div>
-              <button
-                mat-icon-button
-                matTreeNodeToggle
-                [attr.aria-label]="'Toggle ' + node.label"
-              >
+              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.label">
                 <mat-icon class="mat-icon-rtl-mirror">
                   {{
-                    treeControl.isExpanded(node)
-                      ? 'expand_more'
-                      : 'chevron_right'
+                  treeControl.isExpanded(node)
+                  ? 'expand_more'
+                  : 'chevron_right'
                   }}
                 </mat-icon>
               </button>
-              <ng-container
-                [ngTemplateOutlet]="patternlabel"
-                [ngTemplateOutletContext]="{ row: node }"
-              ></ng-container>
+              <ng-container [ngTemplateOutlet]="patternlabel" [ngTemplateOutletContext]="{ row: node }"></ng-container>
             </div>
             <div>{{ node.count }}</div>
           </div>
-          <div
-            [class.pattern-table]="true"
-            [class.tree-node-invisible]="!treeControl.isExpanded(node)"
-          >
+          <div [class.pattern-table]="true" [class.tree-node-invisible]="!treeControl.isExpanded(node)">
             <app-patterns-table [patterns]="node.patterns"></app-patterns-table>
           </div>
         </li>
@@ -87,12 +69,7 @@
 </mat-card>
 <ng-template #patternlabel let-row="row">
   {{ row.label }}
-  <button
-    *ngIf="row.help"
-    mat-icon-button
-    matTooltip="{{ row.help }}"
-    matTooltipPosition="after"
-  >
+  <button *ngIf="row.help" mat-icon-button matTooltip="{{ row.help }}" matTooltipPosition="after">
     <mat-icon class="tooltip-icon">comment</mat-icon>
   </button>
 </ng-template>

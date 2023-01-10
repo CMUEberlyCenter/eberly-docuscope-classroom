@@ -125,4 +125,15 @@ export class ScatterplotComponent implements OnInit {
   get_category(category: string): CategoryData | undefined {
     return this.categories.find((c) => c.id === category);
   }
+  point_tooltip(datum: DocumentData): string {
+    return `${datum.title}
+              ${this.x_axis.label}: ${this.get_value(
+      this.x_category,
+      datum
+    ).toFixed(2)}
+              ${this.y_axis.label}: ${this.get_value(
+      this.y_category,
+      datum
+    ).toFixed(2)}`;
+  }
 }

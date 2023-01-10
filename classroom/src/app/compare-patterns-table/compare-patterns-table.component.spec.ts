@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -28,8 +28,8 @@ describe('ComparePatternsTableComponent', () => {
   let tcomponent: TestComparePatternsTableComponent;
   let tfixture: ComponentFixture<TestComparePatternsTableComponent>;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [
         ComparePatternsTableComponent,
         TestComparePatternsTableComponent,
@@ -43,9 +43,6 @@ describe('ComparePatternsTableComponent', () => {
         MatTooltipModule,
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(ComparePatternsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

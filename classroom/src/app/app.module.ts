@@ -16,7 +16,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { ToolLayoutComponent } from './layouts/tool-layout/tool-layout.component';
-import { NavComponent } from './nav/nav.component';
 import { NetworkInterceptor } from './network.interceptor';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
@@ -25,7 +24,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     AboutComponent,
     AppComponent,
     HeaderComponent,
-    NavComponent,
     PageNotFoundComponent,
     ToolLayoutComponent,
   ],

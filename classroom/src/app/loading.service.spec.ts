@@ -15,8 +15,8 @@ describe('LoadingService', () => {
     await expect(service).toBeTruthy();
     service.loading$.pipe(first()).subscribe((d) => expect(d).toBeFalse());
   });
-  it('show/hide', () => {
-    void expect(() =>
+  it('show/hide', async () => {
+    await expect(() =>
       service.loading$.pipe(first()).subscribe((d) => expect(d).toBeFalse())
     ).not.toThrow();
     service.show();

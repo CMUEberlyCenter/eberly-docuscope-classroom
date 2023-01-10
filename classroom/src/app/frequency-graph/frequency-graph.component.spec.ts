@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
@@ -65,8 +65,8 @@ describe('RankGraphComponent', () => {
   let component: TestRankComponent;
   let fixture: ComponentFixture<TestRankComponent>;
 
-  beforeEach(waitForAsync(() => {
-    void TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [FrequencyGraphComponent, TestRankComponent],
       imports: [
         MatCardModule,
@@ -79,30 +79,27 @@ describe('RankGraphComponent', () => {
         /* NO_ERRORS_SCHEMA*/
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(TestRankComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    void expect(component).toBeDefined();
-    void expect(component.rank).toBeDefined();
+  it('should create', async () => {
+    await expect(component).toBeDefined();
+    await expect(component.rank).toBeDefined();
   });
 
-  it('ngOnChanges', () => {
+  it('ngOnChanges', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(() => component.rank.ngOnChanges()).not.toThrow();
+    await expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.category = null;
     fixture.detectChanges();
-    void expect(() => component.rank.ngOnChanges()).not.toThrow();
+    await expect(() => component.rank.ngOnChanges()).not.toThrow();
     component.rank.data = null;
     fixture.detectChanges();
-    void expect(() => component.rank.ngOnChanges()).not.toThrow();
+    await expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
   it('median', async () => {
@@ -110,55 +107,55 @@ describe('RankGraphComponent', () => {
     component.rank.category = data.categories[0];
     fixture.detectChanges();
     await fixture.whenStable();
-    return expect(component.rank.median).toBe(50);
+    await expect(component.rank.median).toBe(50);
   });
-  it('max_value', () => {
+  it('max_value', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(component.rank.max_value).toBe(100);
-    void expect(component.rank.max_value).toBe(100);
+    await expect(component.rank.max_value).toBe(100);
+    await expect(component.rank.max_value).toBe(100);
   });
-  it('getValue', () => {
+  it('getValue', async () => {
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(component.rank.getValue(data.data[0])).toBe(60);
+    await expect(component.rank.getValue(data.data[0])).toBe(60);
   });
   it('left', () => expect(component.rank.left).toBe(10));
   it('right', () => expect(component.rank.right).toBe(240));
   it('x', () => expect(component.rank.x(0)).toBe(125));
-  it('mean_start', () => {
+  it('mean_start', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(component.rank.mean_start(30)).toBe(30);
-    void expect(component.rank.mean_start(60)).toBe(50);
+    await expect(component.rank.mean_start(30)).toBe(30);
+    await expect(component.rank.mean_start(60)).toBe(50);
   });
-  it('mean_width', () => {
+  it('mean_width', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(component.rank.mean_width(30)).toBe(20);
-    void expect(component.rank.mean_width(75)).toBe(25);
+    await expect(component.rank.mean_width(30)).toBe(20);
+    await expect(component.rank.mean_width(75)).toBe(25);
   });
 
-  it('bar_tip', () => {
+  it('bar_tip', async () => {
     component.rank.data = data;
     component.rank.category = data.categories[0];
     fixture.detectChanges();
-    void expect(component.rank.bar_tip(20)).toBe(
+    await expect(component.rank.bar_tip(20)).toBe(
       '20.00 which is about 30.00 less than the median of 50.00.'
     );
-    void expect(component.rank.bar_tip(60)).toBe(
+    await expect(component.rank.bar_tip(60)).toBe(
       '60.00 which is about 10.00 more than the median of 50.00.'
     );
   });
 
-  it('open', () => {
+  it('open', async () => {
     window.open = jasmine.createSpy('open');
     component.rank.open('123');
     expect(window.open).toHaveBeenCalledWith('stv/123');
     component.rank.open('');
-    return expect(window.open).toHaveBeenCalledTimes(1);
+    await expect(window.open).toHaveBeenCalledTimes(1);
   });
 });

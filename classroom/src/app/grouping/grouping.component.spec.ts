@@ -4,7 +4,7 @@ import {
   CdkDropList,
   DragDropModule,
 } from '@angular/cdk/drag-drop';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -82,7 +82,7 @@ describe('GroupingComponent', () => {
   let snack_spy: Spied<MatSnackBar>;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     corpus_service_spy = jasmine.createSpyObj('CorpusService', [
       'getCorpus',
     ]) as Spied<CorpusService>;
@@ -100,7 +100,7 @@ describe('GroupingComponent', () => {
       'setAssignmentData',
     ]) as Spied<AssignmentService>;
 
-    void TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [GroupingComponent],
       imports: [
         DragDropModule,
@@ -119,9 +119,6 @@ describe('GroupingComponent', () => {
         { provide: MatSnackBar, useValue: snack_spy },
       ],
     }).compileComponents();
-  }));
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(GroupingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -141,72 +138,71 @@ describe('GroupingComponent', () => {
     void expect(component.absent).toEqual([]);
   });
 
-  it('size_min', () => {
-    void expect(component.size_min).toBe(2);
+  it('size_min', async () => {
+    await expect(component.size_min).toBe(2);
   });
-  it('size_max', () => {
-    void expect(component.size_max).toBe(2);
+  it('size_max', async () => {
+    await expect(component.size_max).toBe(2);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     component.corpus = JSON.parse(JSON.stringify(test_corpus));
-    void expect(component.size_max).toBe(3);
+    await expect(component.size_max).toBe(3);
     component.corpus = ['a', 'b'];
-    void expect(component.size_max).toBe(2);
+    await expect(component.size_max).toBe(2);
     component.corpus = [];
-    void expect(component.size_max).toEqual(2);
+    await expect(component.size_max).toEqual(2);
   });
   it('num_documents', async () => {
     await expect(component.num_documents).toBe(0);
     component.corpus = test_corpus;
     await expect(component.num_documents).toBe(6);
   });
-  it('generate_groups too low', () => {
-    [null, 0, 1].forEach((v) => {
+  it('generate_groups too low', async () => {
+    for (const v of [null, 0, 1]) {
       component.group_size = v;
       component.generate_groups({});
-      void expect(snack_spy.open).toHaveBeenCalled();
-    });
+      await expect(snack_spy.open).toHaveBeenCalled();
+    }
     component.corpus = test_corpus;
-    [null, 0, 1].forEach((v) => {
+    for (const v of [null, 0, 1]) {
       component.group_size = v;
       component.generate_groups({});
-      void expect(snack_spy.open).toHaveBeenCalled();
-    });
+      await expect(snack_spy.open).toHaveBeenCalled();
+    }
   });
 
-  it('generate_groups too high', () => {
+  it('generate_groups too high', async () => {
     component.corpus = test_corpus;
-    [7, 6, 5, 4].forEach((v) => {
+    for (const v of [7, 6, 5, 4]) {
       component.group_size = v;
       component.generate_groups({});
-      void expect(snack_spy.open).toHaveBeenCalled();
-    });
+      await expect(snack_spy.open).toHaveBeenCalled();
+    }
   });
 
-  it('generate_groups', () => {
+  it('generate_groups', async () => {
     component.corpus = test_corpus;
-    void expect(component.group_size).toBe(2);
+    await expect(component.group_size).toBe(2);
     component.group_size = 2;
     component.generate_groups({});
-    return fixture.whenStable().then(() => {
-      // TODO: check if spinner openned and closed.
-      void expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
-      void expect(component.absent).toEqual([]);
-    });
+    await fixture.whenStable();
+    // TODO: check if spinner openned and closed.
+    await expect(groups_data_service_spy.getGroupsData).toHaveBeenCalled();
+    await expect(component.absent).toEqual([]);
   });
 
-  it('drop', () => {
+  it('drop', async () => {
     const drag_within = dragDropEventFactory.createInContainerEvent(
       'group0',
       ['foo', 'bar', 'baz'],
       1,
       0
     );
-    void expect(() => component.drop(drag_within)).not.toThrow();
+    await expect(() => component.drop(drag_within)).not.toThrow();
 
     const drag_between = dragDropEventFactory.createCrossContainerEvent(
       { id: 'group0', data: ['foo'], index: 0 },
       { id: 'group1', data: ['bar'], index: 0 }
     );
-    void expect(() => component.drop(drag_between)).not.toThrow();
+    await expect(() => component.drop(drag_between)).not.toThrow();
   });
 });

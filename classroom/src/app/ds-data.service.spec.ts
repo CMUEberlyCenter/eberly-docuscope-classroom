@@ -78,45 +78,45 @@ describe('DsDataService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('should be created', () => {
-    void expect(service).toBeTruthy();
+  it('should be created', async () => {
+    await expect(service).toBeTruthy();
   });
 
   it('server', () => expect(service.server).toBe(server));
 
-  it('DocuScopeData', () => {
-    void expect(max_boxplot_value(data)).toEqual(4);
-    void expect(max_document_data_value(data)).toEqual(0.25);
-    void expect(max_document_data_value({ data: [] })).toEqual(1);
+  it('DocuScopeData', async () => {
+    await expect(max_boxplot_value(data)).toEqual(4);
+    await expect(max_document_data_value(data)).toEqual(0.25);
+    await expect(max_document_data_value({ data: [] })).toEqual(1);
   });
-  it('category_value', () => {
-    void expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
-    void expect(category_value('bog', data.data[1])).toBe(0.0);
-    void expect(category_value('ownedby', data.data[1])).toBe(0.0);
+  it('category_value', async () => {
+    await expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
+    await expect(category_value('bog', data.data[1])).toBe(0.0);
+    await expect(category_value('ownedby', data.data[1])).toBe(0.0);
   });
-  it('genCategoryDataMap', () => {
+  it('genCategoryDataMap', async () => {
     // test null data
-    void expect(genCategoryDataMap({ data: [] }).size).toBe(0);
+    await expect(genCategoryDataMap({ data: [] }).size).toBe(0);
   });
 
   // This causes warning while testing.
-  xit('getData error', () => {
+  xit('getData error', async () => {
     service.getData(['1', '2', '3']).subscribe((rdata) => {
       void expect(rdata.categories).toEqual([]);
       void expect(rdata.data).toEqual([]);
     });
     const req = httpMock.expectOne(server);
-    void expect(req.request.method).toBe('POST');
+    await expect(req.request.method).toBe('POST');
     req.error(new ProgressEvent('fail'), { status: 404 });
   });
 
-  it('getData', () => {
+  it('getData', async () => {
     service.getData(['1', '2', '3']).subscribe((edata) => {
       void expect(edata.categories[0].q1).toEqual(1);
       void expect(edata.data[0].id).toEqual('over_outlier');
     });
     const req = httpMock.expectOne(server);
-    void expect(req.request.method).toBe('POST');
+    await expect(req.request.method).toBe('POST');
     req.flush(data);
     // check caching
     service.getData(['1', '2', '3']).subscribe((cdata) => {

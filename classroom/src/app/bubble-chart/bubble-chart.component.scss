@@ -10,15 +10,18 @@ circle {
   text-overflow: ellipsis;
 }
 
+.bubble-col-header {
+  text-overflow: ellipsis;
+}
 .bubble-col {
   //flex: 0 0 44px !important;
   max-width: 46px;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-::ng-deep .linebreaking {
+::ng-deep .bubble-tooltip > div {
   white-space: pre-line;
+  text-align: start;
 }
 
 .tilt-header {
