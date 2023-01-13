@@ -1,3 +1,7 @@
+default:
+  tags:
+    - docuscope
+
 image: docker:latest
 
 services:
