@@ -6,9 +6,11 @@ import uuid
 from fastapi import HTTPException
 from pandas import DataFrame, Series
 
-from sqlalchemy import (JSON, VARBINARY, ForeignKey, SmallInteger, String, func, select)
+from sqlalchemy import (JSON, VARBINARY, ForeignKey,
+                        SmallInteger, String, func, select)
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker, MappedAsDataclass, Mapped, mapped_column
+from sqlalchemy.orm import (DeclarativeBase, relationship, sessionmaker,
+                            MappedAsDataclass, Mapped, mapped_column)
 from sqlalchemy.types import TypeDecorator
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
 
@@ -37,10 +39,9 @@ async def session() -> AsyncSession:
 TINY_TEXT = String(255)
 TinyText = Annotated[str, mapped_column(TINY_TEXT)]
 
-
-class UUID(TypeDecorator):
+class UUID(TypeDecorator): # pylint: disable=too-many-ancestors
     """A sqlalchemy type for handling UUIDs stored as bytes."""
-    #pylint: disable=W0223
+    # pylint: disable=W0223
     impl = VARBINARY(16)
     cache_ok = True
 
@@ -65,8 +66,11 @@ class UUID(TypeDecorator):
         return value
 
 # pylint: disable=too-few-public-methods
+
+
 class Base(MappedAsDataclass, DeclarativeBase):
     """Base declarative dataclass for database tables."""
+
 
 SubmissionState = Literal['pending', 'submitted', 'tagged', 'error']
 OwnerRole = Literal['student', 'instructor']
@@ -93,6 +97,7 @@ class Submission(Base):
         return f"<File(id='{self.id}', state='{self.state}'>"
 
 # depricate this
+
 
 class DSDictionary(Base):  # pylint: disable=too-few-public-methods
     """A table of valid DocuScope dictionaries."""
@@ -132,7 +137,7 @@ class Assignment(Base):  # pylint: disable=too-few-public-methods
 async def queue_length(sql: AsyncSession):
     """ Returns the number of documents that are yet to be tagged. """
     result = await sql.execute(
-        select(func.count(Submission.id))
+        select(func.count(Submission.id)) # pylint: disable=not-callable
         .execution_options(populate_existing=True)
         .where(Submission.state.in_(['pending', 'submitted'])))
     untagged = result.scalar_one_or_none() or 0

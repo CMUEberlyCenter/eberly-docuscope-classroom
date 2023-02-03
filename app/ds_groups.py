@@ -49,27 +49,27 @@ def get_best_groups(dtf, group_size=2, min_group_size=2, #pylint: disable=R0913
     """
     # Verify input
     if not isinstance(dtf, pandas.core.frame.DataFrame):
-        raise Exception("'dtf' is not a pandas DataFrame")
+        raise TypeError("'dtf' is not a pandas DataFrame")
     if not isinstance(group_size, int):
-        raise Exception("'group_size' is not an integer")
+        raise TypeError("'group_size' is not an integer")
     if not isinstance(min_group_size, int):
-        raise Exception("'min_group_size' is not an integer")
+        raise TypeError("'min_group_size' is not an integer")
     if not isinstance(nsim, int):
-        raise Exception("'nsim' is not an integer")
+        raise TypeError("'nsim' is not an integer")
 
     num = dtf.shape[0]
     k = dtf.shape[1]
     if k < 2:
-        raise Exception("Need at least two DocuScope categories.")
+        raise ValueError("Need at least two DocuScope categories.")
     if num < 4:
-        raise Exception("Need at least four students in a class.")
+        raise ValueError("Need at least four students in a class.")
     if group_size < 2 or group_size > num/2:
-        raise Exception("Group Size must be between 2 and half the number" +\
+        raise ValueError("Group Size must be between 2 and half the number" +\
                         " of students.")
     if min_group_size < 2 or min_group_size > group_size:
-        raise Exception("Invalid 'min_group_size'.")
+        raise ValueError("Invalid 'min_group_size'.")
     if nsim < 1 or nsim > 10000000:
-        raise Exception("'nsim' should be between 2 and 10,000,000.")
+        raise ValueError("'nsim' should be between 2 and 10,000,000.")
 
     # Format data as a list of lists and an index list
     lst = [dtf.iloc[i, :].tolist() for i in range(dtf.shape[0])]
