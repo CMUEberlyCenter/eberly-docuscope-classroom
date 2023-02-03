@@ -1,13 +1,14 @@
 """Schemas for the SQL DocuScope sidecar database."""
+from datetime import datetime
 import logging
+from typing import Annotated, Literal, Optional
 import uuid
 from fastapi import HTTPException
 from pandas import DataFrame, Series
 
-from sqlalchemy import (JSON, TIMESTAMP, VARBINARY, Boolean, Column, Enum,
-                        ForeignKey, Integer, LargeBinary, SmallInteger, String, func, select)
+from sqlalchemy import (JSON, VARBINARY, ForeignKey, SmallInteger, String, func, select)
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker, MappedAsDataclass, Mapped, mapped_column
 from sqlalchemy.types import TypeDecorator
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_503_SERVICE_UNAVAILABLE
 
@@ -33,8 +34,8 @@ async def session() -> AsyncSession:
     finally:
         await my_session.close()
 
-BASE = declarative_base()
 TINY_TEXT = String(255)
+TinyText = Annotated[str, mapped_column(TINY_TEXT)]
 
 
 class UUID(TypeDecorator):
@@ -63,57 +64,65 @@ class UUID(TypeDecorator):
             value = uuid.UUID(bytes=value)
         return value
 
+# pylint: disable=too-few-public-methods
+class Base(MappedAsDataclass, DeclarativeBase):
+    """Base declarative dataclass for database tables."""
 
-class Submission(BASE):  # pylint: disable=R0903
+SubmissionState = Literal['pending', 'submitted', 'tagged', 'error']
+OwnerRole = Literal['student', 'instructor']
+
+
+class Submission(Base):
     """The filesystem table in the docuscope database."""
     __tablename__ = 'filesystem'
 
-    id = Column(UUID, primary_key=True)
-    name = Column(TINY_TEXT)
-    assignment = Column(Integer, ForeignKey("assignments.id"))
-    Assignment = relationship("Assignment")
-    owner = Column(TINY_TEXT)
-    created = Column(TIMESTAMP)
-    fullname = Column(TINY_TEXT)
-    state = Column(Enum('pending', 'submitted', 'tagged', 'error'))
-    ownedby = Column(Enum('student', 'instructor'))
-    content = Column(LargeBinary)
-    processed = Column(JSON)
-    pdf = Column(LargeBinary)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
+    name: Mapped[TinyText]
+    assignment: Mapped[int] = mapped_column(ForeignKey("assignments.id"))
+    Assignment: Mapped["Assignment"] = relationship()
+    owner: Mapped[TinyText]
+    created: Mapped[datetime]  # = mapped_column(TIMESTAMP)
+    fullname: Mapped[TinyText]
+    state: Mapped[SubmissionState]
+    ownedby: Mapped[OwnerRole]
+    content: Mapped[bytes]  # = mapped_column(LargeBinary)
+    processed = mapped_column(JSON)
+    pdf: Mapped[bytes]  # = mapped_column(LargeBinary)
 
     def __repr__(self):
         return f"<File(id='{self.id}', state='{self.state}'>"
 
 # depricate this
 
-
-class DSDictionary(BASE):  # pylint: disable=R0903
-    """The valid dictionaries in the docuscope database."""
+class DSDictionary(Base):  # pylint: disable=too-few-public-methods
+    """A table of valid DocuScope dictionaries."""
     __tablename__ = 'dictionaries'
 
-    id = Column(SmallInteger, primary_key=True)
-    name = Column(TINY_TEXT)
-    class_info = Column(JSON)
-    enabled = Column(Boolean)
+    id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    name: Mapped[TinyText]
+    class_info = mapped_column(JSON)
+    enabled: Mapped[bool]
 
     def __repr__(self):
         return f"<DS_Dictionary(name='{self.name}')>"
 
 
-class Assignment(BASE):  # pylint: disable=R0903
+class Assignment(Base):  # pylint: disable=too-few-public-methods
     """The assignments table in the docuscope database."""
     __tablename__ = 'assignments'
 
-    id = Column(Integer, primary_key=True)
-    oli_id = Column(VARBINARY(20))
-    #dictionary = Column(SmallInteger, ForeignKey("dictionaries.id"))
-    #Dictionary = relationship("DSDictionary")
-    name = Column(TINY_TEXT)
-    course = Column(TINY_TEXT)
-    instructor = Column(TINY_TEXT)
-    showmodel = Column(Boolean)
-    report_introduction = Column(String)
-    report_stv_introduction = Column(String)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    oli_id = mapped_column(VARBINARY(20))
+    dictionary: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("dictionaries.id"))
+    Dictionary: Mapped[Optional["DSDictionary"]] = relationship()
+    name: Mapped[TinyText]
+    course: Mapped[TinyText]
+    instructor: Mapped[TinyText]
+    showmodel: Mapped[bool]
+    showstudent: Mapped[bool]
+    report_introduction: Mapped[str]
+    report_stv_introduction: Mapped[str]
 
     def __repr__(self):
         return f"<Assignment(id='{self.id}', name='{self.name}', "\
@@ -126,7 +135,7 @@ async def queue_length(sql: AsyncSession):
         select(func.count(Submission.id))
         .execution_options(populate_existing=True)
         .where(Submission.state.in_(['pending', 'submitted'])))
-    (untagged,) = result.first() or (0,)
+    untagged = result.scalar_one_or_none() or 0
     return untagged
 
 
