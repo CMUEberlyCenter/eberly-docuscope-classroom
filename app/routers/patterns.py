@@ -29,7 +29,8 @@ async def patterns(corpus: list[UUID],
         select(Submission.id,
                Submission.processed,
                Submission.name,
-               Submission.state))
+               Submission.state)
+               .where(Submission.id.in_(corpus))) # add where state = "tagged"?
     async for (uuid, doc, filename, status) in result:
         await document_state_check(status, uuid, filename, doc, sql)
         if doc and doc['ds_tag_dict']:
