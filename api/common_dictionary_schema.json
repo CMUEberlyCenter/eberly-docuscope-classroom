@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitlab.com/CMU_Sidecar/docuscope-classroom/-/raw/master/api/common_dictionary_schema.json",
+  "title": "DocuScope Common Dictionary Hierarchy",
+  "description": "A three level hierarchy mapping categories to subcategories to clusters with annotations for each item in the hierarchy.",
+  "type": "object",
+  "properties": {
+    "dict_name": {
+      "description": "Name of the source dictionary",
+      "type": "string"
+    },
+    "default_dict": {
+      "description": "Source dictionary version information",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "Date when the file was generated."
+      "type": "string"
+    },
+    "categories": {
+      "description": "Top level entries",
+      "type": "array",
+      "items": {
+        "description": "Category information",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Machine readable identifier",
+            "type": "string"
+          },
+          "label": {
+            "description": "Human readable identifier",
+            "type": "string"
+          },
+          "help": {
+            "description": "Description of the category",
+            "type": "string"
+          },
+          "subcategories": {
+            "description": "Middle level entries",
+            "type": "array",
+            "items": {
+              "description": "Subcategory information",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Machine readable identifier",
+                  "type": "string"
+                },
+                "label": {
+                  "description": "Human readable identifier",
+                  "type": "string"
+                },
+                "help": {
+                  "description": "Description of the subcategory",
+                  "type": "string"
+                },
+                "clusters": {
+                  "description": "Bottom level entries",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine readable identifier, must match cluster identifier in thie DocuScope dictionary's _tones.txt file",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Human readable identifier",
+                      "type": "string"
+                    },
+                    "help": {
+                      "description": "Description of the cluster",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
