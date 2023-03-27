@@ -5,9 +5,9 @@ CMU_Sidecar/docuscope-tag>
 
 ## Administration and Support
 
-For any questions regarding overall project or the language model used, please contact suguru@cmu.edu
+For any questions regarding overall project or the language model used, please contact <suguru@cmu.edu>.
 
-The project code is supported and maintained by the [Eberly Center](https://www.cmu.edu/teaching/) at [Carnegie Mellon University](www.cmu.edu). For help with this fork, project or service please contact eberly-assist@andrew.cmu.edu.
+The project code is supported and maintained by the [Eberly Center](https://www.cmu.edu/teaching/) at [Carnegie Mellon University](www.cmu.edu). For help with this fork, project or service please contact <eberly-assist@andrew.cmu.edu>.
 
 ## Requirements
 
@@ -23,6 +23,28 @@ The project code is supported and maintained by the [Eberly Center](https://www.
    Categories/Subcategories/Clusters and their descriptions.
    See api/common_dictionary_schema.json for details.
 
+## Configuration
+The following environment variable should be set so that DocuScope Classroom
+can access the various required services.  The defaults tend to be reasonable values for a development environment where everything is hosted locally and do not reflect values that should be used in any production environment.
+
+| Variable | Description | Default |
+| ---      | ---         | ---     |
+| **DICTIONARY_HOME** | Path to base directory of necessary runtime dictionary files specified above. | `<Application's base directory>/dictionary` |
+| **DB_HOST** | Hostname of the MySQL database for storing processed documents. | `127.0.0.1` |
+| **DB_PORT** | Port of the MySQL document database. | `3306` |
+| **DB_PASSWORD** | Password for accessing the document database. [^docker_secrets] | [^blank] |
+| **DB_USER** | Username for accessing the document database. [^docker_secrets] | `docuscope` |
+| **MYSQL_DATABASE** | Identifier for document database. | `docuscope` |
+
+The required DocuScope language model files (common_dict.json and default_tones.json.gz) should be located in **DICTIONARY_HOME**.
+
+Customization of the interface can be achieved by replacing the contents of the app/static/assets directory.  The defaults are found in classroom/src/assets.
+
+[^docker_secrets]: It is recommended to use [Docker secrets](https://docs.docker.com/engine/swarm/secrets/) to get these values.  The application is able to retrieve values from specified files if the environment variable has the `_FILE` affix added.
+
+[^blank]: Passwords intentionally default to None value for security reasons.
+
+
 ## Usage
 
 1. Build docker image: `docker build -t <tag> .`
@@ -30,4 +52,6 @@ When deployed, service is bound to port 80 of the docker container.
 
 ## Acknowledgements
 
-This project was partially funded by the [A.W. Mellon Foundation](https://mellon.org/), [Carnegie Mello University](https://www.cmu.edu/)'s [Simon Initiative](https://www.cmu.edu/simon/) Seed Grant and [Berkman Faculty Development Fund](https://www.cmu.edu/proseed/proseed-seed-grants/berkman-faculty-development-fund.html).
+This project was partially funded by the [A.W. Mellon Foundation](https://mellon.org/), [Carnegie Mello University](https://www.cmu.edu/)'s [Simon Initiative](https://www.cmu.edu/simon/) Seed Grant, and the [Berkman Faculty Development Fund](https://www.cmu.edu/proseed/proseed-seed-grants/berkman-faculty-development-fund.html).
+
+---
