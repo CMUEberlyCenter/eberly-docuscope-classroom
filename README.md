@@ -7,7 +7,7 @@ CMU_Sidecar/docuscope-tag>
 
 For any questions regarding overall project or the language model used, please contact <suguru@cmu.edu>.
 
-The project code is supported and maintained by the [Eberly Center](https://www.cmu.edu/teaching/) at [Carnegie Mellon University](www.cmu.edu). For help with this fork, project or service please contact <eberly-assist@andrew.cmu.edu>.
+The project code is supported and maintained by the [Eberly Center](https://www.cmu.edu/teaching/) at [Carnegie Mellon University](www.cmu.edu). For help with this fork, project, or service please contact <eberly-assist@andrew.cmu.edu>.
 
 ## Requirements
 
