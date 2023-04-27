@@ -14,19 +14,28 @@ from starlette.middleware.cors import CORSMiddleware
 
 from database import ENGINE
 from default_settings import SETTINGS
-from routers import document, ds_data, generate_reports, groups, patterns
+from routers import document, ds_data, files, generate_reports, groups, patterns
 
 # from starlet_authlib.middlewar import AuthlibMiddleware # starlette-authlib
 
 
 # logging.basicConfig(level=logging.DEBUG)
 
+async def lifespan(_app: FastAPI):
+    """Cleanly shut down database engine on shutdown event."""
+    # Startup
+    # noop
+    yield
+    # Shutdown
+    if ENGINE is not None:
+        await ENGINE.dispose()
 
 # Setup API service.
 app = FastAPI(  # pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
     version="5.1.2",
+    lifespan=lifespan,
     license={
         'name': 'CC BY-NC-SA 4.0',
         'url': 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
@@ -49,18 +58,12 @@ app.add_middleware(GZipMiddleware)
 # app.add_middleware(HTTPSRedirectMiddleware)
 #app.add_middleware(AuthlibMiddleware, secret='secret')
 
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanly shut down database engine on shutdown event."""
-    if ENGINE is not None:
-        await ENGINE.dispose()
-
 app.include_router(document.router)
 app.include_router(ds_data.router)  # boxplot, rank, and scatter use ds_data
 app.include_router(groups.router)
 app.include_router(patterns.router)
 app.include_router(generate_reports.router)
+app.include_router(files.router)
 
 # Serve static files.
 @app.get("/common_dictionary")
