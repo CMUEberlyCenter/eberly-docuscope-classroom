@@ -93,6 +93,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+secrets/
 
 # Spyder project settings
 .spyderproject
@@ -118,3 +119,4 @@ dmypy.json
 
 # Proprietary dictionaries
 /app/dictionaries/
+/dictionaries

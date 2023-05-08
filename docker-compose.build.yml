@@ -1,0 +1,44 @@
+# Example docker compose files for launching the DocuScope Classroom service.
+version: "3.9"
+services:
+  mysql: # this should be the same database that docuscope-tag has access to.
+    image: docker.io/mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=128M
+    env_file: common.env
+    volumes:
+      - ./mysql_conf:/etc/mysql/conf.d
+      - ./mysql_db:/docker-entrypoint-initdb.d
+    secrets:
+      - db_root_password
+      - db_user
+      - db_password
+    environment:
+      - MYSQL_USER_FILE=/run/secrets/db_user
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_password
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
+  classroom:
+    build: .
+    env_file: common.env
+    environment:
+      - DICTIONARY_HOME=/app/dictionaries
+      - ROOT_PATH=/classroom
+    depends_on:
+      - mysql
+    ports:
+      - "8001:80"
+    restart: always
+    secrets:
+      - db_user
+      - db_password
+    volumes:
+      - "dictionaries:/app/dictionaries:ro" # should minimally contain default_tones.json and common-dict.json
+      # - "assets:/app/static/assets:ro" # uncomment and populate with modified version of those found in classroom/src/assets
+
+secrets:
+  db_user:
+    file: secrets/db_user
+  db_password:
+    file: secrets/db_password
+  db_root_password:
+    file: secrets/db_root_password
