@@ -1,13 +1,14 @@
 """ Handle /document requests. """
 import logging
 from collections import Counter, defaultdict
+from typing import Annotated
 from uuid import UUID
 
 from bs4 import BeautifulSoup
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
 from database import DOCUMENTS_QUERY, Submission, document_state_check, session
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from lat_frame import LAT_MAP
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
@@ -34,7 +35,7 @@ class Documents(AssignmentData):
 
 @router.get('/document/{file_id}', response_model=Documents,
             responses=ERROR_RESPONSES)
-async def get_document(file_id: UUID,
+async def get_document(file_id: Annotated[UUID, Path(title="The UUID of the document.")],
                        db_session: AsyncSession = Depends(session)):
     """Get the tagged text information for the given file."""
     return await get_documents([file_id], db_session)
