@@ -30,7 +30,11 @@ import { SettingsService } from '../settings.service';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
-  constructor(public id: string, public title: string, public value: number) {}
+  constructor(
+    public id: string,
+    public title: string,
+    public value: number
+  ) {}
 }
 
 /** Interface for the nodes in the tree display */

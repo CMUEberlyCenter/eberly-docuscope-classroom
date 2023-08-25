@@ -34,7 +34,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(  # pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="5.1.2",
+    version="5.3.6",
     lifespan=lifespan,
     license={
         'name': 'CC BY-NC-SA 4.0',
@@ -88,7 +88,7 @@ def not_found(_request: Request, _exc):
     return FileResponse('static/index.html')
 
 
-app.mount("/classroom", StaticFiles(directory="static", html=True),
+app.mount("/classroom/", StaticFiles(directory="static", html=True),
           name="static")
 
 if __name__ == "__main__":

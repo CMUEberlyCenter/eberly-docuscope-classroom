@@ -45,7 +45,7 @@ async def get_document(file_id: Annotated[UUID, Path(title="The UUID of the docu
 async def get_documents(corpus: list[UUID],
                         sql: AsyncSession = Depends(session)):
     """ Responds to post requests for tagged documents. """
-    #pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals
     if not corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
@@ -68,7 +68,7 @@ async def get_documents(corpus: list[UUID],
             logging.error("%s (%s): %s", doc_id, filename, doc['ds_output'])
             logging.error(exp)
             raise HTTPException(detail="Unparsable tagged text.",
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
+                                status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
         count_patterns(soup, pats)
         docs.append(Document(
             text_id=filename,
@@ -89,6 +89,7 @@ async def get_documents(corpus: list[UUID],
         documents=docs
     )
 
+
 def generate_tagged_html(soup: BeautifulSoup) -> str:
     """Takes an etree and adds the tag elements and classes."""
     for tag in soup.find_all(attrs={"data-key": True}):
@@ -104,7 +105,8 @@ def generate_tagged_html(soup: BeautifulSoup) -> str:
                                     categories['cluster_label']])
                 sup = soup.new_tag("sup")
                 sup.string = f"{{{cpath}}}"
-                sup["class"] = sup.get('class', []) + cats + ['d_none', 'cluster_id']
+                sup["class"] = sup.get('class', []) + \
+                    cats + ['d_none', 'cluster_id']
                 tag.append(sup)
                 tag['class'] = tag.get('class', []) + cats
                 tag['data-key'] = cpath

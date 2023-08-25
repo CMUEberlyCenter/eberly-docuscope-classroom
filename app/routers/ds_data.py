@@ -8,7 +8,7 @@ from database import get_documents, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_FRAME
 from pandas import DataFrame, concat, merge
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 from response import ERROR_RESPONSES
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -22,10 +22,7 @@ class DocumentData(BaseModel):
     title: str = ...  # human readable student name or document name
     ownedby: str = ...  # 'student' or 'instructor'
     total_words: int = 0
-
-    class Config:  # pylint: disable=too-few-public-methods
-        """ Configuration settings for DocumentData. """
-        extra = 'allow'
+    model_config = ConfigDict(extra='allow')
 
 
 class CategoryData(BaseModel):

@@ -18,11 +18,12 @@
   background-color: $cmu-core-grey;
 }
 .tree {
-  ul, li {
-  margin-top: 0;
-  margin-bottom: 0;
-  list-style-type: none;
-}
+  ul,
+  li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+  }
 }
 .tree-node {
   display: flex;
