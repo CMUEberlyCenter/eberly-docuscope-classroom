@@ -1,6 +1,7 @@
 """ Handles /ds_data requests. """
 import logging
 import traceback
+from typing import Optional
 from uuid import UUID
 
 from bounded_fences import bounded_fences
@@ -18,32 +19,32 @@ router = APIRouter()
 
 class DocumentData(BaseModel):
     """ Schema for metadata of a document. """
-    id: UUID = ...
-    title: str = ...  # human readable student name or document name
-    ownedby: str = ...  # 'student' or 'instructor'
+    id: UUID
+    title: str # human readable student name or document name
+    ownedby: str # 'student' or 'instructor'
     total_words: int = 0
     model_config = ConfigDict(extra='allow')
 
 
 class CategoryData(BaseModel):
     """ Schema for category metadata. """
-    id: str = ...
-    #name: str = ...
+    id: str
+    #name: str
     #description: str = None
-    q1: float = ...
-    q2: float = ...  # median
-    q3: float = ...
-    min: float = ...
-    max: float = ...
-    uifence: float = ...
-    lifence: float = ...
+    q1: float
+    q2: float  # median
+    q3: float
+    min: float
+    max: float
+    uifence: float
+    lifence: float
 
 
 class DocuScopeData(BaseModel):
     """ Response schema for DocuScope statistical data. """
-    assignment: str = None
-    course: str = None
-    instructor: str = None
+    assignment: Optional[str] = None
+    course: Optional[str] = None
+    instructor: Optional[str] = None
     categories: list[CategoryData] = []
     data: list[DocumentData] = []
 
@@ -77,10 +78,10 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
         "uifence": upper_inner_fence,
         "lifence": lower_inner_fence
     }).fillna(0)
-    data.categories = [{'id': i, **d} for i, d in categories.iterrows()]
+    data.categories = [CategoryData(**{'id': i, **d}) for i, d in categories.iterrows()]
 
     # want frequency not raw
-    data.data = [{'id': k, **v}
+    data.data = [DocumentData(**{'id': k, **v})
                  for k, v in concat([info, nstats]).to_dict().items()]
 
     logging.info("Returned data: %s", data)

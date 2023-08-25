@@ -20,17 +20,17 @@ router = APIRouter()
 
 class Document(BaseModel):
     """ Schema for tagged document information. """
-    text_id: str = ...
-    owner: str = ...
-    ownedby: str = ...
+    text_id: str
+    owner: str
+    ownedby: str
     word_count: int = 0
     html_content: str = ""
-    patterns: list[CategoryPatternData]
+    patterns: list[CategoryPatternData] = []
 
 
 class Documents(AssignmentData):
     """ Schema for a collection of tagged documents. """
-    documents: list[Document]
+    documents: list[Document] = []
 
 
 @router.get('/document/{file_id}', response_model=Documents,
