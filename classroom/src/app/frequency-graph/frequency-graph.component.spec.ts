@@ -50,11 +50,7 @@ const data = {
 
 @Component({
   selector: 'app-fake-rank-component',
-  template: `<app-frequency-graph
-    data=""
-    category="${data.categories[0]}"
-    unit="100"
-  ></app-frequency-graph>`,
+  template: `<app-frequency-graph data="" unit="100"></app-frequency-graph>`,
 })
 class TestRankComponent {
   @ViewChild(FrequencyGraphComponent)
@@ -82,6 +78,7 @@ describe('RankGraphComponent', () => {
     fixture = TestBed.createComponent(TestRankComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    component.rank.category = data.categories[0];
   });
 
   it('should create', async () => {

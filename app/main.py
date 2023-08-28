@@ -14,7 +14,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from database import ENGINE
 from default_settings import SETTINGS
-from routers import document, ds_data, files, generate_reports, groups, patterns
+from routers import document, ds_data, generate_reports, groups, patterns
 
 # from starlet_authlib.middlewar import AuthlibMiddleware # starlette-authlib
 
@@ -63,7 +63,6 @@ app.include_router(ds_data.router)  # boxplot, rank, and scatter use ds_data
 app.include_router(groups.router)
 app.include_router(patterns.router)
 app.include_router(generate_reports.router)
-app.include_router(files.router)
 
 # Serve static files.
 @app.get("/common_dictionary")
