@@ -11,12 +11,12 @@ from lat_frame import LAT_MAP
 
 class PatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data."""
-    pattern: str = ...
+    pattern: str
     count: int = 0
 
 class CategoryPatternData(BaseModel): #pylint: disable=too-few-public-methods
     """Schema for pattern data for each category."""
-    category: str = ...
+    category: str
     patterns: List[PatternData] = []
 
 def count_patterns(node: BeautifulSoup, patterns_all: DefaultDict[str, Counter]):

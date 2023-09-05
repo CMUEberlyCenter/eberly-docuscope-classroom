@@ -1,5 +1,7 @@
 """ Handles /groups requests. """
 import logging
+import traceback
+from typing import Optional
 from uuid import UUID
 from database import get_documents, session
 
@@ -40,8 +42,8 @@ async def get_pairings(
     hdata = merge(LAT_FRAME, stats, left_on="lat", right_index=True, how="outer")
     hdata['lat'] = hdata['lat'].astype("string")
     docs = range(6, len(hdata.columns))
-    frame = hdata.iloc[:, [0, *docs]].groupby('category').sum()
-    #frame = frame.drop('Other', errors='ignore') # Unnecessary when using category
+    frame = hdata.iloc[:, [0, *docs]].drop(['dimension', 'lat'], axis=1).groupby('category').sum()
+    # frame = frame.drop('Other', errors='ignore') # Unnecessary when using category
     frame = frame / info.loc['total_words'].astype('Int64') # Normalize
     # Set index to student's name.
     frame = concat([frame.fillna(0).transpose(), info.loc['title']], axis=1).set_index('title')
@@ -55,8 +57,8 @@ async def get_pairings(
 class GroupsData(AssignmentData): #pylint: disable=too-few-public-methods
     """Schema for "groups" data."""
     groups: list[list[str]] = ...
-    grp_qualities: list[float] = None
-    quality: float = None
+    grp_qualities: Optional[list[float]] = None
+    quality: Optional[float] = None
 
 @router.post('/groups', response_model=GroupsData,
              responses=ERROR_RESPONSES)
@@ -71,10 +73,12 @@ async def generate_groups(group_req: GroupsSchema, db_session: AsyncSession = De
             status_code=HTTP_400_BAD_REQUEST)
     try:
         return await get_pairings(group_req.corpus, group_req.group_size, db_session)
-    except HTTPException:
+    except HTTPException as http_excp:
+        logging.error(http_excp)
         raise
     except Exception as excp:
         logging.error(excp)
+        traceback.print_exception(excp)
         raise HTTPException(
             detail=excp.args[0],
             status_code=HTTP_500_INTERNAL_SERVER_ERROR) from excp

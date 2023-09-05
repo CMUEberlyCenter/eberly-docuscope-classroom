@@ -1,13 +1,14 @@
 """ Handle /document requests. """
 import logging
 from collections import Counter, defaultdict
+from typing import Annotated
 from uuid import UUID
 
 from bs4 import BeautifulSoup
 
 from count_patterns import CategoryPatternData, count_patterns, sort_patterns
 from database import DOCUMENTS_QUERY, Submission, document_state_check, session
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from lat_frame import LAT_MAP
 from pydantic import BaseModel
 from response import ERROR_RESPONSES, AssignmentData
@@ -19,22 +20,22 @@ router = APIRouter()
 
 class Document(BaseModel):
     """ Schema for tagged document information. """
-    text_id: str = ...
-    owner: str = ...
-    ownedby: str = ...
+    text_id: str
+    owner: str
+    ownedby: str
     word_count: int = 0
     html_content: str = ""
-    patterns: list[CategoryPatternData]
+    patterns: list[CategoryPatternData] = []
 
 
 class Documents(AssignmentData):
     """ Schema for a collection of tagged documents. """
-    documents: list[Document]
+    documents: list[Document] = []
 
 
 @router.get('/document/{file_id}', response_model=Documents,
             responses=ERROR_RESPONSES)
-async def get_document(file_id: UUID,
+async def get_document(file_id: Annotated[UUID, Path(title="The UUID of the document.")],
                        db_session: AsyncSession = Depends(session)):
     """Get the tagged text information for the given file."""
     return await get_documents([file_id], db_session)
@@ -44,7 +45,7 @@ async def get_document(file_id: UUID,
 async def get_documents(corpus: list[UUID],
                         sql: AsyncSession = Depends(session)):
     """ Responds to post requests for tagged documents. """
-    #pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals
     if not corpus:
         raise HTTPException(detail="No documents specified.",
                             status_code=HTTP_400_BAD_REQUEST)
@@ -67,7 +68,7 @@ async def get_documents(corpus: list[UUID],
             logging.error("%s (%s): %s", doc_id, filename, doc['ds_output'])
             logging.error(exp)
             raise HTTPException(detail="Unparsable tagged text.",
-                            status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
+                                status_code=HTTP_500_INTERNAL_SERVER_ERROR) from exp
         count_patterns(soup, pats)
         docs.append(Document(
             text_id=filename,
@@ -88,6 +89,7 @@ async def get_documents(corpus: list[UUID],
         documents=docs
     )
 
+
 def generate_tagged_html(soup: BeautifulSoup) -> str:
     """Takes an etree and adds the tag elements and classes."""
     for tag in soup.find_all(attrs={"data-key": True}):
@@ -103,7 +105,8 @@ def generate_tagged_html(soup: BeautifulSoup) -> str:
                                     categories['cluster_label']])
                 sup = soup.new_tag("sup")
                 sup.string = f"{{{cpath}}}"
-                sup["class"] = sup.get('class', []) + cats + ['d_none', 'cluster_id']
+                sup["class"] = sup.get('class', []) + \
+                    cats + ['d_none', 'cluster_id']
                 tag.append(sup)
                 tag['class'] = tag.get('class', []) + cats
                 tag['data-key'] = cpath

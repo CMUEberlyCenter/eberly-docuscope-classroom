@@ -97,8 +97,6 @@ class Submission(Base):
         return f"<File(id='{self.id}', state='{self.state}'>"
 
 # depricate this
-
-
 class DSDictionary(Base):  # pylint: disable=too-few-public-methods
     """A table of valid DocuScope dictionaries."""
     __tablename__ = 'dictionaries'

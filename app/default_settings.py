@@ -2,7 +2,9 @@
  and their default settings."""
 import os
 
-from pydantic import BaseSettings, DirectoryPath, SecretStr, stricturl
+from pydantic import DirectoryPath, MySQLDsn, SecretStr
+from pydantic_settings import SettingsConfigDict, BaseSettings
+
 
 class Settings(BaseSettings):
     """Configuration Settings.
@@ -17,19 +19,17 @@ class Settings(BaseSettings):
     db_password: SecretStr = None
     db_user: str = 'docuscope'
     mysql_database: str = 'docuscope'
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        secrets_dir='/run/secrets' if os.path.isdir('/run/secrets') else None)
 
-    class Config(): #pylint: disable=too-few-public-methods
-        """Configuration class for Settings."""
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
-        # Following is for docker secrets.
-        secrets_dir = '/run/secrets' if os.path.isdir('/run/secrets') else None
 
 SETTINGS = Settings()
-SQLALCHEMY_DATABASE_URI: stricturl(tld_required = False, allowed_schemes=['mysql+aiomysql']) = (
-        f"mysql+aiomysql://"
-        f"{SETTINGS.db_user}"
-        f":{SETTINGS.db_password.get_secret_value()}" #pylint: disable=no-member
-        f"@{SETTINGS.db_host}"
-        f":{SETTINGS.db_port}"
-        f"/{SETTINGS.mysql_database}")
+SQLALCHEMY_DATABASE_URI: MySQLDsn = (
+    f"mysql+aiomysql://"
+    f"{SETTINGS.db_user}"
+    f":{SETTINGS.db_password.get_secret_value()}"  # pylint: disable=no-member
+    f"@{SETTINGS.db_host}"
+    f":{SETTINGS.db_port}"
+    f"/{SETTINGS.mysql_database}")

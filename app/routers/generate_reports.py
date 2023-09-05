@@ -5,6 +5,7 @@ import logging
 import re
 import time
 import traceback
+from typing import Optional
 import zipfile
 from collections import Counter, defaultdict
 from uuid import UUID
@@ -37,9 +38,9 @@ router = APIRouter()
 class ReportsSchema(BaseModel):
     """Schema for '/report' requests."""
     #pylint: disable=too-few-public-methods
-    corpus: list[UUID] = ...
-    intro: str = None
-    stv_intro: str = None
+    corpus: list[UUID]
+    intro: Optional[str] = None
+    stv_intro: Optional[str] = None
 
 
 async def get_reports(ids: list[UUID], gintro, sintro, sql: AsyncSession):

@@ -1,6 +1,7 @@
 """ Handles /ds_data requests. """
 import logging
 import traceback
+from typing import Optional
 from uuid import UUID
 
 from bounded_fences import bounded_fences
@@ -8,7 +9,7 @@ from database import get_documents, session
 from fastapi import APIRouter, Depends, HTTPException
 from lat_frame import LAT_FRAME
 from pandas import DataFrame, concat, merge
-from pydantic import BaseModel
+from pydantic import ConfigDict, BaseModel
 from response import ERROR_RESPONSES
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -18,35 +19,32 @@ router = APIRouter()
 
 class DocumentData(BaseModel):
     """ Schema for metadata of a document. """
-    id: UUID = ...
-    title: str = ...  # human readable student name or document name
-    ownedby: str = ...  # 'student' or 'instructor'
+    id: UUID
+    title: str # human readable student name or document name
+    ownedby: str # 'student' or 'instructor'
     total_words: int = 0
-
-    class Config:  # pylint: disable=too-few-public-methods
-        """ Configuration settings for DocumentData. """
-        extra = 'allow'
+    model_config = ConfigDict(extra='allow')
 
 
 class CategoryData(BaseModel):
     """ Schema for category metadata. """
-    id: str = ...
-    #name: str = ...
+    id: str
+    #name: str
     #description: str = None
-    q1: float = ...
-    q2: float = ...  # median
-    q3: float = ...
-    min: float = ...
-    max: float = ...
-    uifence: float = ...
-    lifence: float = ...
+    q1: float
+    q2: float  # median
+    q3: float
+    min: float
+    max: float
+    uifence: float
+    lifence: float
 
 
 class DocuScopeData(BaseModel):
     """ Response schema for DocuScope statistical data. """
-    assignment: str = None
-    course: str = None
-    instructor: str = None
+    assignment: Optional[str] = None
+    course: Optional[str] = None
+    instructor: Optional[str] = None
     categories: list[CategoryData] = []
     data: list[DocumentData] = []
 
@@ -80,10 +78,10 @@ def calculate_data(stats: DataFrame, info: DataFrame) -> DocuScopeData:
         "uifence": upper_inner_fence,
         "lifence": lower_inner_fence
     }).fillna(0)
-    data.categories = [{'id': i, **d} for i, d in categories.iterrows()]
+    data.categories = [CategoryData(**{'id': i, **d}) for i, d in categories.iterrows()]
 
     # want frequency not raw
-    data.data = [{'id': k, **v}
+    data.data = [DocumentData(**{'id': k, **v})
                  for k, v in concat([info, nstats]).to_dict().items()]
 
     logging.info("Returned data: %s", data)
