@@ -11,7 +11,7 @@ sqlalchemy = {extras = ["asyncio"], version = "*"}
 fastapi = "*"
 ujson = "*"
 lxml = "*"
-pydantic = {extras = ["dotenv"], version = "*"}
+pydantic = "*"
 aiomysql = "*"
 hypercorn = "*"
 python-multipart = "*"
@@ -24,4 +24,4 @@ bandit = "*"
 autopep8 = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
