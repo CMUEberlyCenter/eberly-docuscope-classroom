@@ -1,20 +1,78 @@
 <div class="tool">
   <div class="tool">
     <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-      <a mat-tab-link routerLink="/boxplot" queryParamsHandling="preserve" routerLinkActive #bprla="routerLinkActive"
-        [active]="bprla.isActive" matTooltip="Corpus Analytics">Box Plot</a>
-      <a mat-tab-link routerLink="/frequency" queryParamsHandling="preserve" routerLinkActive #rrla="routerLinkActive"
-        [active]="rrla.isActive" matTooltip="Category Frequency Analytics">Frequency</a>
-      <a mat-tab-link routerLink="/scatterplot" queryParamsHandling="preserve" routerLinkActive
-        #sprla="routerLinkActive" [active]="sprla.isActive" matTooltip="Compare Categories">Scatter Plot</a>
-      <a mat-tab-link routerLink="/bubble" queryParamsHandling="preserve" routerLinkActive #brla="routerLinkActive"
-        [active]="brla.isActive" matTooltip="Bubble Chart Visualization">Bubble Chart</a>
-      <a mat-tab-link routerLink="/patterns" queryParamsHandling="preserve" routerLinkActive #prla="routerLinkActive"
-        [active]="prla.isActive" matTooltip="Show Categorized Patterns">Patterns</a>
-      <a mat-tab-link *ngIf="is_instructor()" routerLink="/groups" queryParamsHandling="preserve" routerLinkActive
-        #grla="routerLinkActive" [active]="grla.isActive" matTooltip="Generate Groups">Groups</a>
-      <a mat-tab-link *ngIf="is_instructor()" routerLink="/report" queryParamsHandling="preserve" routerLinkActive
-        #rla="routerLinkActive" [active]="rla.isActive" matTooltip="Generate Reports">Reports</a>
+      <a
+        mat-tab-link
+        routerLink="/boxplot"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #bprla="routerLinkActive"
+        [active]="bprla.isActive"
+        matTooltip="Corpus Analytics"
+        >Box Plot</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/frequency"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #rrla="routerLinkActive"
+        [active]="rrla.isActive"
+        matTooltip="Category Frequency Analytics"
+        >Frequency</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/scatterplot"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #sprla="routerLinkActive"
+        [active]="sprla.isActive"
+        matTooltip="Compare Categories"
+        >Scatter Plot</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/bubble"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #brla="routerLinkActive"
+        [active]="brla.isActive"
+        matTooltip="Bubble Chart Visualization"
+        >Bubble Chart</a
+      >
+      <a
+        mat-tab-link
+        routerLink="/patterns"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #prla="routerLinkActive"
+        [active]="prla.isActive"
+        matTooltip="Show Categorized Patterns"
+        >Patterns</a
+      >
+      <a
+        mat-tab-link
+        *ngIf="is_instructor()"
+        routerLink="/groups"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #grla="routerLinkActive"
+        [active]="grla.isActive"
+        matTooltip="Generate Groups"
+        >Groups</a
+      >
+      <a
+        mat-tab-link
+        *ngIf="is_instructor()"
+        routerLink="/report"
+        queryParamsHandling="preserve"
+        routerLinkActive
+        #rla="routerLinkActive"
+        [active]="rla.isActive"
+        matTooltip="Generate Reports"
+        >Reports</a
+      >
     </nav>
     <article class="container">
       <mat-tab-nav-panel #tabPanel>
@@ -22,3 +80,4 @@
       </mat-tab-nav-panel>
     </article>
   </div>
+</div>

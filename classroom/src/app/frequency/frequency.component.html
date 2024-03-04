@@ -11,12 +11,20 @@
   </mat-card-header>
   <mat-card-content *ngIf="data">
     <aside class="select_category_box">
-      <app-category-select [dictionary]="dictionary" [selectedCategory]="selected_category"
-        (selectedCategoryChange)="onSelectCategory($event)"></app-category-select>
+      <app-category-select
+        [dictionary]="dictionary"
+        [selectedCategory]="selected_category"
+        (selectedCategoryChange)="onSelectCategory($event)"
+      ></app-category-select>
     </aside>
     <article>
-      <app-frequency-graph *ngIf="category; else noData" [data]="data" [unit]="unit" [category]="category"
-        [sticky]="sticky">
+      <app-frequency-graph
+        *ngIf="category; else noData"
+        [data]="data"
+        [unit]="unit"
+        [category]="category"
+        [sticky]="sticky"
+      >
       </app-frequency-graph>
       <ng-template #noData>
         <mat-error>

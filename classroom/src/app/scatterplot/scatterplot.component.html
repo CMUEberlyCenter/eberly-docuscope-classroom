@@ -2,7 +2,8 @@
   <mat-card-header>
     <mat-card-title>Scatter Plot</mat-card-title>
     <mat-card-subtitle>
-      Compares the frequecies of two patterns where each point represents a document.
+      Compares the frequecies of two patterns where each point represents a
+      document.
     </mat-card-subtitle>
     <mat-card-subtitle>
       Units are average number of incidences per {{ unit }} words.
@@ -12,57 +13,123 @@
     <div class="axis_selection">
       <div class="axis_select">
         <mat-label class="grid-item">X Axis: </mat-label>
-        <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="x_axis"
-          (selectedCategoryChange)="on_select_x($event)"></app-category-select>
+        <app-category-select
+          class="grid-item"
+          [dictionary]="dictionary"
+          [selectedCategory]="x_axis"
+          (selectedCategoryChange)="on_select_x($event)"
+        ></app-category-select>
       </div>
       <div class="axis_select">
         <mat-label class="grid-item">Y Axis: </mat-label>
-        <app-category-select class="grid-item" [dictionary]="dictionary" [selectedCategory]="y_axis"
-          (selectedCategoryChange)="on_select_y($event)"></app-category-select>
+        <app-category-select
+          class="grid-item"
+          [dictionary]="dictionary"
+          [selectedCategory]="y_axis"
+          (selectedCategoryChange)="on_select_y($event)"
+        ></app-category-select>
       </div>
     </div>
     <div #chart>
-      <svg *ngIf="data" xmlns="http://www.w3.org/2000/svg" [style.width]="width" [style.height]="height">
+      <svg
+        *ngIf="data"
+        xmlns="http://www.w3.org/2000/svg"
+        [style.width]="width"
+        [style.height]="height"
+      >
         <desc>
           Scatterplot of {{ x_axis ? x_axis.label : 'Undefined' }} on the X axis
           versus {{ y_axis ? y_axis.label : 'Undefined' }} on the Y axis.
         </desc>
         <g attr.transform="translate({{ margin.left }},{{ margin.top }})">
-          <g attr.transform="translate(0,{{ p_height }})" font-size="12" text-anchor="middle">
+          <g
+            attr.transform="translate(0,{{ p_height }})"
+            font-size="12"
+            text-anchor="middle"
+          >
             <!-- X axis -->
-            <line stroke="currentColor" [attr.x1]="0" [attr.x2]="p_width" [attr.y1]="0" [attr.y2]="0" />
+            <line
+              stroke="currentColor"
+              [attr.x1]="0"
+              [attr.x2]="p_width"
+              [attr.y1]="0"
+              [attr.y2]="0"
+            />
             <g *ngFor="let tick of x.ticks(10); index as i">
-              <line *ngIf="i % 2 === 1; else xmajor" stroke="currentColor" stroke-width="0.25" fill="none"
-                [attr.x1]="x(tick)" [attr.x2]="x(tick)" [attr.y1]="0" [attr.y2]="-p_height" />
+              <line
+                *ngIf="i % 2 === 1; else xmajor"
+                stroke="currentColor"
+                stroke-width="0.25"
+                fill="none"
+                [attr.x1]="x(tick)"
+                [attr.x2]="x(tick)"
+                [attr.y1]="0"
+                [attr.y2]="-p_height"
+              />
               <ng-template #xmajor>
-                <line stroke="currentColor" stroke-width="0.5" fill="none" [attr.x1]="x(tick)" [attr.x2]="x(tick)"
-                  [attr.y1]="0" [attr.y2]="-p_height" />
+                <line
+                  stroke="currentColor"
+                  stroke-width="0.5"
+                  fill="none"
+                  [attr.x1]="x(tick)"
+                  [attr.x2]="x(tick)"
+                  [attr.y1]="0"
+                  [attr.y2]="-p_height"
+                />
                 <text [attr.x]="x(tick)" [attr.y]="16">
                   {{ x.tickFormat(5)(tick) }}
                 </text>
               </ng-template>
             </g>
-            <text [attr.x]="p_width / 2" [attr.y]="margin.bottom" font-size="16" font-style="italic">
+            <text
+              [attr.x]="p_width / 2"
+              [attr.y]="margin.bottom"
+              font-size="16"
+              font-style="italic"
+            >
               {{ x_axis.label }}
             </text>
           </g>
           <g fill="currentColor" font-size="12" text-anchor="middle">
             <!-- Y axis -->
-            <line stroke="currentColor" [attr.x1]="0" [attr.x2]="0" [attr.y1]="0" [attr.y2]="p_height" />
+            <line
+              stroke="currentColor"
+              [attr.x1]="0"
+              [attr.x2]="0"
+              [attr.y1]="0"
+              [attr.y2]="p_height"
+            />
             <g *ngFor="let tick of y.ticks(10); index as i">
-              <line *ngIf="i % 2 === 1; else ymajor" stroke="currentColor" fill="none" stroke-width="0.25" [attr.x1]="0"
-                [attr.x2]="p_width" [attr.y1]="y(tick)" [attr.y2]="y(tick)" />
+              <line
+                *ngIf="i % 2 === 1; else ymajor"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="0.25"
+                [attr.x1]="0"
+                [attr.x2]="p_width"
+                [attr.y1]="y(tick)"
+                [attr.y2]="y(tick)"
+              />
               <ng-template #ymajor>
-                <line stroke="currentColor" fill="none" stroke-width="0.5" [attr.x1]="0" [attr.x2]="p_width"
-                  [attr.y1]="y(tick)" [attr.y2]="y(tick)" />
+                <line
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-width="0.5"
+                  [attr.x1]="0"
+                  [attr.x2]="p_width"
+                  [attr.y1]="y(tick)"
+                  [attr.y2]="y(tick)"
+                />
                 <text [attr.x]="-16" [attr.y]="y(tick) + 4">
                   {{ y.tickFormat(5)(tick) }}
                 </text>
               </ng-template>
             </g>
-            <g attr.transform="translate(-{{ margin.left - 16 }},{{
+            <g
+              attr.transform="translate(-{{ margin.left - 16 }},{{
                 p_height / 2
-              }})">
+              }})"
+            >
               <text transform="rotate(-90)" font-size="16" font-style="italic">
                 {{ y_axis.label }}
               </text>
@@ -70,12 +137,21 @@
           </g>
           <g>
             <!-- Chart -->
-            <a *ngFor="let point of data.data" [routerLink]="'/stv/' + point.id" target="_blank"
-              rel="noreferrer noopener">
-              <circle [matTooltip]="point_tooltip(point)"
-                [matTooltipClass]="'scatter-tooltip'" [attr.cx]="x(get_value(x_category, point))"
-                [attr.cy]="y(get_value(y_category, point))" [attr.r]="4"
-                [style.fill]="is_model(point) ? 'black' : 'blue'" [style.opacity]="is_model(point) ? 0.6 : 0.4" />
+            <a
+              *ngFor="let point of data.data"
+              [routerLink]="'/stv/' + point.id"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <circle
+                [matTooltip]="point_tooltip(point)"
+                [matTooltipClass]="'scatter-tooltip'"
+                [attr.cx]="x(get_value(x_category, point))"
+                [attr.cy]="y(get_value(y_category, point))"
+                [attr.r]="4"
+                [style.fill]="is_model(point) ? 'black' : 'blue'"
+                [style.opacity]="is_model(point) ? 0.6 : 0.4"
+              />
             </a>
           </g>
         </g>
