@@ -15,7 +15,6 @@ pydantic = "*"
 aiomysql = "*"
 hypercorn = "*"
 python-multipart = "*"
-python-jose = {extras = ["cryptography"], version = "*"}
 pydantic-settings = "*"
 
 [dev-packages]
