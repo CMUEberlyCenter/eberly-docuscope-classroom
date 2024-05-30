@@ -355,7 +355,10 @@ export class ComparisonComponent implements OnInit {
    * @param $event Event from clicking on category checkbox.
    * @param node The tree node associated with the checkbox.
    */
-  selectionChange($event: MatCheckboxChange, node: CompareTreeNode): void {
+  selectionChange(
+    $event: MatCheckboxChange | null,
+    node: CompareTreeNode | null
+  ): void {
     if ($event && node) {
       this.selection.toggle(node);
       const descendants = this.treeControl
@@ -378,7 +381,10 @@ export class ComparisonComponent implements OnInit {
    * @param $event Event from clicking on checkbox's at the leaf nodes.
    * @param node The clicked tree leaf node.
    */
-  selectionLeafChange($event: MatCheckboxChange, node: CompareTreeNode): void {
+  selectionLeafChange(
+    $event: MatCheckboxChange | null,
+    node: CompareTreeNode | null
+  ): void {
     if ($event && node) {
       this.selection.toggle(node);
       this.checkAllParentsSelection(node); // update parents

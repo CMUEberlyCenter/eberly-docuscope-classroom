@@ -53,7 +53,7 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   get data(): DocuScopeData | undefined {
     return this.ds_data;
   }
-  @Input() category!: CategoryData;
+  @Input() category: CategoryData | null = null;
   @Input() unit!: number;
   @Input() sticky = true;
   @ViewChild('rankSort') sort!: MatSort;
@@ -91,7 +91,7 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
 
   /** Get the median value of the category. */
   get median(): number {
-    return this.unit * this.category.q2;
+    return this.unit * (this.category?.q2 ?? 0);
   }
 
   /** The maximum value over all documents and categories. */

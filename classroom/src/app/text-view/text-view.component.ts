@@ -187,7 +187,10 @@ export class TextViewComponent implements OnInit {
     }
   }
 
-  selectionChange($event: MatCheckboxChange, node: PatternTreeNode): void {
+  selectionChange(
+    $event: MatCheckboxChange | null,
+    node: PatternTreeNode | null
+  ): void {
     if ($event && node) {
       this.selection.toggle(node);
       const descendants = this.treeControl
@@ -203,7 +206,10 @@ export class TextViewComponent implements OnInit {
       this.highlightSelection();
     }
   }
-  selectionLeafChange($event: MatCheckboxChange, node: PatternTreeNode): void {
+  selectionLeafChange(
+    $event: MatCheckboxChange | null,
+    node: PatternTreeNode | null
+  ): void {
     if ($event && node) {
       this.selection.toggle(node);
       this.checkAllParentsSelection(node);

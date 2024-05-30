@@ -17,9 +17,9 @@ import { BoxplotComponent } from './boxplot.component';
 
 @Component({ selector: 'app-frequency-graph', template: '' })
 class FrequencyGraphStubComponent {
-  @Input() data: DocuScopeData;
-  @Input() category: CategoryData;
-  @Input() unit: number;
+  @Input() data!: DocuScopeData;
+  @Input() category!: CategoryData;
+  @Input() unit!: number;
 }
 
 describe('BoxplotComponent', () => {
@@ -127,17 +127,17 @@ describe('BoxplotComponent', () => {
   it('get_outliers', async () => {
     await fixture.whenStable();
     await expect(
-      component.get_outliers(component.data.categories[0])
+      component.get_outliers(component.data?.categories?.at(0))
     ).toBeTruthy();
     await expect(
-      component.get_outliers(component.data.categories[0])
+      component.get_outliers(component.data?.categories?.at(0))
     ).toBeTruthy(); // cache check
     await expect(
-      component.get_outliers(component.data.categories[1])
+      component.get_outliers(component.data?.categories?.at(1))
     ).toBeTruthy();
 
     // handle null data
-    component.data = null;
+    component.data = undefined;
     expect(
       component.get_outliers({
         id: 'na',
@@ -158,8 +158,8 @@ describe('BoxplotComponent', () => {
   it('hasDocuments', async () => {
     await fixture.whenStable();
     const td = component.treeData.data[2];
-    await expect(td.documents).toEqual([]);
-    expect(component.hasDocuments(2, component.treeData.data[2])).toBeFalse();
+    await expect(td.documents?.length).toEqual(2);
+    expect(component.hasDocuments(2, component.treeData.data[2])).toBeTrue();
   });
   it('treeControl child acsesson', async () => {
     await fixture.whenStable();

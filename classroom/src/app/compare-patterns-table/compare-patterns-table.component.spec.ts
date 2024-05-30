@@ -19,7 +19,7 @@ import { ComparePatternsTableComponent } from './compare-patterns-table.componen
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)
-  public table: ComparePatternsTableComponent;
+  public table!: ComparePatternsTableComponent;
 }
 
 describe('ComparePatternsTableComponent', () => {

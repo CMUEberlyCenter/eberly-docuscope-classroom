@@ -5,6 +5,7 @@ RUN npm ci
 RUN mkdir -p /classroom && cp -a /tmp/node_modules /classroom
 WORKDIR /classroom
 COPY ./classroom .
+RUN npm run version # Make sure version is up to date.
 RUN npm run build:docuscope
 
 FROM docker.io/python:latest AS base 

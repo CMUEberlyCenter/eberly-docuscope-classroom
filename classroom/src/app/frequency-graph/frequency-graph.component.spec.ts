@@ -54,7 +54,7 @@ const data = {
 })
 class TestRankComponent {
   @ViewChild(FrequencyGraphComponent)
-  public rank: FrequencyGraphComponent;
+  public rank!: FrequencyGraphComponent;
 }
 
 describe('RankGraphComponent', () => {
@@ -94,7 +94,7 @@ describe('RankGraphComponent', () => {
     component.rank.category = null;
     fixture.detectChanges();
     await expect(() => component.rank.ngOnChanges()).not.toThrow();
-    component.rank.data = null;
+    component.rank.data = undefined;
     fixture.detectChanges();
     await expect(() => component.rank.ngOnChanges()).not.toThrow();
   });

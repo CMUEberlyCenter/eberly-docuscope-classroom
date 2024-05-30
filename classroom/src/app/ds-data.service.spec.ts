@@ -118,7 +118,7 @@ describe('DsDataService', () => {
 
   it('getData', async () => {
     service.getData(['1', '2', '3']).subscribe((edata) => {
-      void expect(edata.categories[0].q1).toEqual(1);
+      void expect(edata.categories?.at(0)?.q1).toEqual(1);
       void expect(edata.data[0].id).toEqual('over_outlier');
     });
     const req = httpMock.expectOne(server);
@@ -126,7 +126,7 @@ describe('DsDataService', () => {
     req.flush(data);
     // check caching
     service.getData(['1', '2', '3']).subscribe((cdata) => {
-      void expect(cdata.categories[0].q1).toEqual(1);
+      void expect(cdata.categories?.at(0)?.q1).toEqual(1);
       void expect(cdata.data[0].id).toEqual('over_outlier');
     });
   });

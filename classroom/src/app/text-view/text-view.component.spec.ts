@@ -32,14 +32,14 @@ import {
 
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
-  @Input() patterns: PatternData[];
+  @Input() patterns!: PatternData[];
 }
 
 @Component({ selector: 'app-sunburst-chart', template: '' })
 class SunburstStubComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() data: any;
-  @Input() width: number;
+  @Input() width!: number;
 }
 
 const test_html = `

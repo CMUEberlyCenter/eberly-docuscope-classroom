@@ -198,7 +198,10 @@ export class BoxplotComponent implements OnInit {
    * Memoizes results.
    * @param category The category to retrieve outliers for.
    */
-  get_outliers(category: CategoryData): Outlier[] {
+  get_outliers(category?: CategoryData): Outlier[] {
+    if (!category) {
+      return [];
+    }
     if (!this.outliers.has(category.id)) {
       const uf: number = category.uifence;
       const lf: number = category.lifence;

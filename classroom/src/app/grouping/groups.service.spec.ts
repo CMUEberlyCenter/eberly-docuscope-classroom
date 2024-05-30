@@ -21,7 +21,7 @@ describe('GroupsService', () => {
       'createHandleError',
     ]) as Spied<HttpErrorHandlerService>;
     heh_spy.createHandleError.and.returnValue(
-      () => (_fn: unknown, data) =>
+      () => (_fn: unknown, data: any) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         data
     );

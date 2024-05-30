@@ -148,19 +148,19 @@ describe('ScatterplotComponent', () => {
       label: 'Stub X',
       help: '',
     });
-    await expect(component.x_category.id).toBe('STUB_X');
+    await expect(component.x_category?.id).toBe('STUB_X');
     component.on_select_x({
       label: 'STUB_X',
       help: '',
     });
-    await expect(component.x_category.id).toBe('STUB_X');
+    await expect(component.x_category?.id).toBe('STUB_X');
   });
   it('on_select_y', async () => {
     await fixture.whenStable();
     component.on_select_y({ name: 'STUB_Y', label: 'Stub Y', help: '' });
-    await expect(component.y_category.id).toBe('STUB_Y');
+    await expect(component.y_category?.id).toBe('STUB_Y');
     component.on_select_y({ label: 'STUB_Y', help: '' });
-    await expect(component.y_category.id).toBe('STUB_Y');
+    await expect(component.y_category?.id).toBe('STUB_Y');
   });
   it('categories', async () => {
     await expect(component.categories).toEqual([]);

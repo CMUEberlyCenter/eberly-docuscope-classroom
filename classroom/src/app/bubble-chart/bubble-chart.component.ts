@@ -52,7 +52,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
   data: DocumentData[] = [];
   maxRadius = 20; // max radius of any given circle.
   maxValue = 0; // maximum value across all categories and documents.
-  scale!: d3.ScaleLinear<number, number, never>;
+  scale = d3.scaleSqrt();
   stickyHeader = true; // if the column headers should be sticky.
   tableData: MatTableDataSource<DocumentData> = new MatTableDataSource();
   unit = 100; // multiplier for proportion values.
@@ -93,12 +93,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         // this.tableData = new MatTableDataSource(this.data);
         //this.tableData.sort = this.sort;
         this.maxValue = max_document_data_value(data);
-        this.scale = d3
-          .scaleSqrt()
-          //.scaleLinear()
-          .domain([0, this.maxValue])
-          .range([0, this.maxRadius])
-          .nice();
+        this.scale.domain([0, this.maxValue]).range([0, this.maxRadius]).nice();
         this.assignmentService.setAssignmentData(data);
       });
     });

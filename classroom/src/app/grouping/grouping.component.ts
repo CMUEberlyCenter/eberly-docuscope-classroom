@@ -24,7 +24,7 @@ export class GroupingComponent implements OnInit {
       : this.size_min;
   }
   corpus: string[] = []; // List of document UUID's.
-  group_size = 2; // Current group size.
+  group_size: number | null = 2; // Current group size.
   groups: GroupsData | undefined; // data from GroupsService.
   absent: string[] = []; // extra group for absent students.
 
@@ -48,7 +48,7 @@ export class GroupingComponent implements OnInit {
    */
   getGroupsData(): void {
     this.data_service
-      .getGroupsData(this.corpus, +this.group_size)
+      .getGroupsData(this.corpus, this.group_size ?? 2)
       .subscribe((data) => {
         this.groups = data;
         this._assignment_service.setAssignmentData(data);

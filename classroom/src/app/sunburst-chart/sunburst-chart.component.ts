@@ -106,7 +106,10 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
   building_blocks_available(): boolean {
     return Boolean(this.root && this.path && this.g && this.label);
   }
-  clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>): void {
+  clicked(
+    _event: MouseEvent | null,
+    p?: HierarchyRectangularNode<SunburstNode> | null
+  ): void {
     if (!p) {
       this.current_path = '';
       return;
@@ -217,7 +220,9 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       .attr('fill-opacity', (d) =>
         arcVisible(d.data.current) ? (d.children ? 0.8 : 0.4) : 0
       )
-      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) => this.arc(d.data.current!));
+      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
+        this.arc(d.data.current!)
+      );
     this.path
       .filter((d: HierarchyRectangularNode<SunburstNode>) =>
         d.children ? d.children.length > 0 : false

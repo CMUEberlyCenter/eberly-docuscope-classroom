@@ -25,36 +25,32 @@ class DragDropEventFactory<T> {
     fromIndex: number,
     toIndex: number
   ): CdkDragDrop<T[], T[]> {
-    const event = this.createEvent(fromIndex, toIndex);
-    const container = { id: containerId, data };
-    event.container = container as CdkDropList<T[]>;
-    event.previousContainer = event.container;
-    event.item = { data: data[fromIndex] } as CdkDrag<T>;
-    return event;
+    const container = { id: containerId, data } as CdkDropList<T[]>;
+    return {
+      ...this.createEvent(fromIndex, toIndex),
+      container,
+      previousContainer: container,
+      item: { data: data[fromIndex] } as CdkDrag<T>,
+    };
   }
 
   createCrossContainerEvent(
     from: ContainerModel<T>,
     to: ContainerModel<T>
   ): CdkDragDrop<T[], T[]> {
-    const event = this.createEvent(from.index, to.index);
-    event.container = this.createContainer(to);
-    event.previousContainer = this.createContainer(from);
-    event.item = { data: from.data[from.index] } as CdkDrag<T>;
-    return event;
+    return {
+      ...this.createEvent(from.index, to.index),
+      container: this.createContainer(to),
+      previousContainer: this.createContainer(from),
+      item: { data: from.data[from.index] } as CdkDrag<T>,
+    };
   }
 
-  private createEvent(
-    previousIndex: number,
-    currentIndex: number
-  ): CdkDragDrop<T[], T[]> {
+  private createEvent(previousIndex: number, currentIndex: number) {
     return {
       dropPoint: { x: 0, y: 0 },
       previousIndex,
       currentIndex,
-      item: undefined,
-      container: undefined,
-      previousContainer: undefined,
       isPointerOverContainer: true,
       distance: { x: 0, y: 0 },
       event: new MouseEvent('dragdrop'),

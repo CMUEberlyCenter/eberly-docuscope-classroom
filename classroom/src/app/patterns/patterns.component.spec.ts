@@ -13,13 +13,13 @@ import { PatternsComponent } from './patterns.component';
 
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
-  @Input() patterns: PatternData[];
+  @Input() patterns!: PatternData[];
 }
 
 @Component({ selector: 'app-sunburst-chart', template: '' })
 class SunburstStubComponent {
   @Input() data: unknown;
-  @Input() width: number;
+  @Input() width!: number;
 }
 
 describe('PatternsComponent', () => {

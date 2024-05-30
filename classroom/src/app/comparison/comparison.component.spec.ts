@@ -33,8 +33,8 @@ import {
 
 @Component({ selector: 'app-compare-patterns-table' })
 class ComparePatternsTableStubComponent {
-  @Input() colors: string[];
-  @Input() patterns: ComparePatternData[];
+  @Input() colors!: string[];
+  @Input() patterns!: ComparePatternData[];
 }
 
 describe('ComparisonComponent', () => {

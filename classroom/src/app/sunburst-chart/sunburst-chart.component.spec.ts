@@ -48,9 +48,9 @@ describe('SunburstChartComponent', () => {
 
     component.clicked(null, null);
     component.clicked(null, component.root);
-    const leaf = component.root.find((n) => n.data.name === 'cluster');
+    const leaf = component.root?.find((n) => n.data.name === 'cluster');
     component.clicked(null, leaf);
-    const pat = component.root.find((n) => n.data.name === 'pat');
+    const pat = component.root?.find((n) => n.data.name === 'pat');
     component.clicked(null, pat);
     fixture.detectChanges();
   });

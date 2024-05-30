@@ -25,7 +25,7 @@ export interface DocumentData {
  * @returns the value of category in datum.
  */
 export function category_value(
-  category: CategoryData | string | undefined,
+  category: CategoryData | string | undefined | null,
   datum: DocumentData
 ): number {
   if (category) {

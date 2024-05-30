@@ -19,7 +19,7 @@ import {
 })
 class TestCategorySelectComponent {
   @ViewChild(CategorySelectComponent)
-  public select: CategorySelectComponent;
+  public select!: CategorySelectComponent;
   dictionary = FAKE_COMMON_DICTIONARY;
 }
 
@@ -50,14 +50,14 @@ describe('CategorySelectComponent', () => {
   it('selectCategory', () =>
     fixture.whenStable().then(async () => {
       component.select.selectCategory({ label: 'Insurection', help: '' });
-      void expect(component.select.selectedCategory.label).toBe('Insurection');
+      void expect(component.select.selectedCategory?.label).toBe('Insurection');
       await loader.getHarness(MatMenuHarness);
       component.select.selectCategory({
         name: 'foo',
         label: 'foobar',
         help: '',
       });
-      void expect(component.select.selectedCategory.label).toBe('foobar');
+      void expect(component.select.selectedCategory?.label).toBe('foobar');
     }));
   it('selectCluster', () =>
     fixture.whenStable().then(() => {
@@ -66,6 +66,6 @@ describe('CategorySelectComponent', () => {
         label: 'foobar',
         help: '',
       });
-      void expect(component.select.selectedCategory.label).toBe('foobar');
+      void expect(component.select.selectedCategory?.label).toBe('foobar');
     }));
 });

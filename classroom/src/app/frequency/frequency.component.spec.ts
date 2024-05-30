@@ -16,9 +16,9 @@ import { FrequencyComponent } from './frequency.component';
 
 @Component({ selector: 'app-frequency-graph', template: '' })
 class FrequencyGraphStubComponent {
-  @Input() data: DocuScopeData;
-  @Input() category: CategoryData;
-  @Input() unit: number;
+  @Input() data!: DocuScopeData;
+  @Input() category!: CategoryData;
+  @Input() unit!: number;
 }
 
 @Component({ selector: 'app-category-select', template: '' })
@@ -172,9 +172,9 @@ describe('FrequencyComponent', () => {
     //component.ngOnInit();
     await fixture.whenStable();
     component.onSelectCategory({ label: 'STUB_X', help: '' });
-    await expect(component.category.id).toBe('STUB_X');
+    await expect(component.category?.id).toBe('STUB_X');
     component.onSelectCategory({ name: 'STUB_X', label: 'Stub X', help: '' });
-    await expect(component.category.id).toBe('STUB_X');
+    await expect(component.category?.id).toBe('STUB_X');
     component.dsmap = undefined;
     component.onSelectCategory({ label: 'STUB_X', help: '' });
     await expect(component.category).toBeUndefined();
