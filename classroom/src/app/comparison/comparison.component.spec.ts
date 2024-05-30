@@ -1,6 +1,6 @@
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -26,6 +26,10 @@ import { DocumentService } from '../document.service';
 import { ComparePatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { ComparisonComponent } from './comparison.component';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 @Component({ selector: 'app-compare-patterns-table' })
 class ComparePatternsTableStubComponent {
@@ -158,7 +162,6 @@ describe('ComparisonComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ComparisonComponent, ComparePatternsTableStubComponent],
       imports: [
-        HttpClientTestingModule,
         AngularSplitModule,
         MatButtonToggleModule,
         MatCardModule,
@@ -180,6 +183,8 @@ describe('ComparisonComponent', () => {
         { provide: DocumentService, useValue: documents_service_spy },
         { provide: SettingsService, useValue: settings_spy },
         { provide: MatSnackBar, useValue: snack_spy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ComparisonComponent);

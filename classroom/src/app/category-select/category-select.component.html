@@ -1,10 +1,13 @@
-<ng-container *ngIf="dictionary">
+@if (dictionary) {
   <button mat-raised-button color="primary" [matMenuTriggerFor]="categoryMenu">
-    Category<span *ngIf="selectedCategory">: {{ selectedCategory.path }}</span>
+    Category
+    @if (selectedCategory) {
+      <span>: {{ selectedCategory.path }}</span>
+    }
   </button>
   <mat-menu #categoryMenu="matMenu">
     <ng-template matMenuContent>
-      <ng-container *ngFor="let category of dictionary.categories">
+      @for (category of dictionary.categories; track category) {
         <button
           mat-menu-item
           [matMenuTriggerFor]="subcat"
@@ -14,7 +17,7 @@
           {{ category.label }}
         </button>
         <mat-menu #subcat="matMenu">
-          <ng-container *ngFor="let sub of category.subcategories">
+          @for (sub of category.subcategories; track sub) {
             <button
               mat-menu-item
               [matMenuTriggerFor]="cluster"
@@ -24,18 +27,19 @@
               {{ sub.label }}
             </button>
             <mat-menu #cluster="matMenu">
-              <button
-                mat-menu-item
-                *ngFor="let cluster of sub.clusters"
-                (click)="selectCluster(cluster)"
-                [value]="cluster.name"
-              >
-                {{ cluster.label }}
-              </button>
+              @for (cluster of sub.clusters; track cluster) {
+                <button
+                  mat-menu-item
+                  (click)="selectCluster(cluster)"
+                  [value]="cluster.name"
+                >
+                  {{ cluster.label }}
+                </button>
+              }
             </mat-menu>
-          </ng-container>
+          }
         </mat-menu>
-      </ng-container>
+      }
     </ng-template>
   </mat-menu>
-</ng-container>
+}

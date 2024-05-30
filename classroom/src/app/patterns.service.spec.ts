@@ -1,6 +1,6 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -13,6 +13,10 @@ import {
   PatternsService,
   pattern_compare,
 } from './patterns.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('PatternsService', () => {
   let service: PatternsService;
@@ -26,10 +30,12 @@ describe('PatternsService', () => {
       () => (_fn: () => unknown, edata: unknown) => edata
     );
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatSnackBarModule],
+      imports: [MatSnackBarModule],
       providers: [
         PatternsService,
         { provide: HttpErrorHandlerService, useValue: heh_spy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(PatternsService);

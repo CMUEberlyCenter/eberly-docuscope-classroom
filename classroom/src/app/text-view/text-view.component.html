@@ -146,27 +146,30 @@
       </mat-tree>
     </mat-card-content>
   </mat-card>
-  <mat-card appearance="outlined" *ngIf="tagged_text" class="text_card">
-    <mat-card-title class="text_head">
-      ID:&nbsp;{{ tagged_text.documents[0].text_id }}
-    </mat-card-title>
-    <mat-card-content>
-      <article
-        class="text_content"
-        [innerHTML]="htmlContent"
-        (click)="click_select($event)"
-      ></article>
-    </mat-card-content>
-  </mat-card>
+  @if (tagged_text) {
+    <mat-card appearance="outlined" class="text_card">
+      <mat-card-title class="text_head">
+        ID:&nbsp;{{ tagged_text.documents[0].text_id }}
+      </mat-card-title>
+      <mat-card-content>
+        <article
+          class="text_content"
+          [innerHTML]="htmlContent"
+          (click)="click_select($event)"
+        ></article>
+      </mat-card-content>
+    </mat-card>
+  }
 </div>
 <ng-template #patternlabel let-row="row">
   <span [class]="getCategories(row)">{{ row.label }}</span>
-  <button
-    *ngIf="row.help"
-    mat-icon-button
-    matTooltip="{{ row.help }}"
-    matTooltipPosition="after"
-  >
-    <mat-icon class="tooltip-icon">comment</mat-icon>
-  </button>
+  @if (row.help) {
+    <button
+      mat-icon-button
+      matTooltip="{{ row.help }}"
+      matTooltipPosition="after"
+    >
+      <mat-icon class="tooltip-icon">comment</mat-icon>
+    </button>
+  }
 </ng-template>

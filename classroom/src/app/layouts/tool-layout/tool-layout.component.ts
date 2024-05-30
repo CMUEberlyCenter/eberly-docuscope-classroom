@@ -10,9 +10,6 @@ export class ToolLayoutComponent {
   constructor(private route: ActivatedRoute) {}
   is_instructor(): boolean {
     const qmap = this.route.snapshot.queryParamMap;
-    return (
-      Boolean(qmap?.has('roles')) &&
-      qmap.get('roles').search(/Instructor/i) >= 0
-    );
+    return /Instructor/i.test(qmap.get('roles') ?? '');
   }
 }

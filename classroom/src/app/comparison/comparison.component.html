@@ -133,68 +133,74 @@
       </mat-tree>
     </mat-card-content>
   </mat-card>
-  <div class="document_area" *ngIf="!is_safari && documents">
-    <nav class="layout mat-accent">
-      <mat-button-toggle-group [(value)]="direction">
-        <mat-button-toggle value="vertical" aria-label="Top-Bottom View">
-          <mat-icon>view_stream</mat-icon>
-        </mat-button-toggle>
-        <mat-button-toggle value="horizontal" aria-label="Left-Right View">
-          <mat-icon>view_column</mat-icon>
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </nav>
-    <main *ngIf="documents" class="text_cards">
-      <as-split unit="percent" [direction]="direction">
-        <as-split-area
-          *ngFor="let doc of documents.documents; index as i"
-          [style.overflow]="'hidden'"
-        >
-          <div class="document_entry">
-            <div class="text_head" [style.background]="doc_colors(doc.text_id)">
-              <span>ID:&nbsp;{{ doc.text_id }}</span>
-              <span>Owner:&nbsp;{{ doc.owner }}</span>
-            </div>
-            <div class="document_body">
-              <article
-                class="text_content"
-                [innerHTML]="html_content[i]"
-                (click)="click_select($event)"
-              ></article>
-            </div>
-          </div>
-        </as-split-area>
-      </as-split>
-    </main>
-  </div>
-  <ng-container *ngIf="is_safari && documents">
-    <main
-      class="safari_entry"
-      *ngFor="let doc of documents.documents; index as i"
-    >
-      <div class="safari_head" [style.background]="doc_colors(doc.text_id)">
-        <span>ID:&nbsp;{{ doc.text_id }}</span>
-        <span>Owner:&nbsp;{{ doc.owner }}</span>
-      </div>
-      <article
-        class="text_content"
-        [innerHTML]="html_content[i]"
-        (click)="click_select($event)"
-      ></article>
-    </main>
-  </ng-container>
+  @if (!is_safari && documents) {
+    <div class="document_area">
+      <nav class="layout mat-accent">
+        <mat-button-toggle-group [(value)]="direction">
+          <mat-button-toggle value="vertical" aria-label="Top-Bottom View">
+            <mat-icon>view_stream</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="horizontal" aria-label="Left-Right View">
+            <mat-icon>view_column</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </nav>
+      @if (documents) {
+        <main class="text_cards">
+          <as-split unit="percent" [direction]="direction">
+            @for (doc of documents.documents; track doc; let i = $index) {
+              <as-split-area [style.overflow]="'hidden'">
+                <div class="document_entry">
+                  <div
+                    class="text_head"
+                    [style.background]="doc_colors(doc.text_id)"
+                  >
+                    <span>ID:&nbsp;{{ doc.text_id }}</span>
+                    <span>Owner:&nbsp;{{ doc.owner }}</span>
+                  </div>
+                  <div class="document_body">
+                    <article
+                      class="text_content"
+                      [innerHTML]="html_content[i]"
+                      (click)="click_select($event)"
+                    ></article>
+                  </div>
+                </div>
+              </as-split-area>
+            }
+          </as-split>
+        </main>
+      }
+    </div>
+  }
+  @if (is_safari && documents) {
+    @for (doc of documents.documents; track doc; let i = $index) {
+      <main class="safari_entry">
+        <div class="safari_head" [style.background]="doc_colors(doc.text_id)">
+          <span>ID:&nbsp;{{ doc.text_id }}</span>
+          <span>Owner:&nbsp;{{ doc.owner }}</span>
+        </div>
+        <article
+          class="text_content"
+          [innerHTML]="html_content[i]"
+          (click)="click_select($event)"
+        ></article>
+      </main>
+    }
+  }
 </div>
 
 <ng-template #patternlabel let-row="row">
   <span [class]="getCategories(row)">{{ row.label }}</span>
-  <button
-    *ngIf="row.help"
-    mat-icon-button
-    matTooltip="{{ row.help }}"
-    matTooltipPosition="after"
-  >
-    <mat-icon class="tooltip-icon">comment</mat-icon>
-  </button>
+  @if (row.help) {
+    <button
+      mat-icon-button
+      matTooltip="{{ row.help }}"
+      matTooltipPosition="after"
+    >
+      <mat-icon class="tooltip-icon">comment</mat-icon>
+    </button>
+  }
 </ng-template>
 <ng-template #patterncount let-row="row">
   <div

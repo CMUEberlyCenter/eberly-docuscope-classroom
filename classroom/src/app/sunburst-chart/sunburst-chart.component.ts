@@ -30,11 +30,14 @@ const partition = (
   //.sort((a, b) => b.value - a.value);
   return d3.partition<SunburstNode>().size([2 * Math.PI, r.height + 1])(r);
 };
-const arcVisible = (d: Segment): boolean =>
-  d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
-const labelVisible = (d: Segment): boolean =>
-  d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
-const labelTransform = (d: Segment, radius: number): string => {
+const arcVisible = (d: Segment | undefined): boolean =>
+  !!d && d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
+const labelVisible = (d: Segment | undefined): boolean =>
+  !!d && d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+const labelTransform = (d: Segment | undefined, radius: number): string => {
+  if (!d) {
+    return '';
+  }
   const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
   const y = ((d.y0 + d.y1) / 2) * radius;
   return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
@@ -101,7 +104,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
   }
 
   building_blocks_available(): boolean {
-    return Boolean(this.root && this.arc && this.path && this.g && this.label);
+    return Boolean(this.root && this.path && this.g && this.label);
   }
   clicked(_event: MouseEvent, p: HierarchyRectangularNode<SunburstNode>): void {
     if (!p) {
@@ -116,7 +119,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
         .slice(1)
         .map((d) => d.data.name)
         .join(' > ');
-      this.root.each(
+      this.root?.each(
         (d) =>
           (d.data.target = {
             x0:
@@ -133,9 +136,9 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       );
       const trans = d3.transition('sunburst').duration(750);
       this.path
-        .transition(trans)
+        ?.transition(trans)
         .tween('data', (d) => {
-          const i = d3.interpolate(d.data.current, d.data.target);
+          const i = d3.interpolate(d.data.current, d.data.target!);
           return (t) => (d.data.current = i(t));
         })
         .filter(function (this: BaseType | SVGPathElement, d) {
@@ -147,9 +150,9 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
         .attr('fill-opacity', (d) =>
           arcVisible(d.data.target) ? (d.children ? 0.8 : 0.4) : 0
         )
-        .attrTween('d', (d) => () => this.arc(d.data.current) ?? '');
+        .attrTween('d', (d) => () => this.arc(d.data.current!) ?? '');
       this.label
-        .filter(function (this: BaseType | SVGTextElement, d): boolean {
+        ?.filter(function (this: BaseType | SVGTextElement, d): boolean {
           return (
             Boolean(+((this as Element).getAttribute('fill-opacity') ?? 0)) ||
             labelVisible(d.data.target)
@@ -166,7 +169,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
   drawChart(): void {
     if (!this.data || !this.data.children) return;
     this.arc = d3
-      .arc<HierarchyRectangularNode<SunburstNode>>()
+      .arc<Segment>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
@@ -214,9 +217,7 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       .attr('fill-opacity', (d) =>
         arcVisible(d.data.current) ? (d.children ? 0.8 : 0.4) : 0
       )
-      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) =>
-        this.arc(d.data.current)
-      );
+      .attr('d', (d: HierarchyRectangularNode<SunburstNode>) => this.arc(d.data.current!));
     this.path
       .filter((d: HierarchyRectangularNode<SunburstNode>) =>
         d.children ? d.children.length > 0 : false

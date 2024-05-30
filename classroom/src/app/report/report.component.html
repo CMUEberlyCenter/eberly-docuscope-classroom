@@ -1,36 +1,42 @@
-<mat-card appearance="outlined" *ngIf="corpus">
-  <mat-card-header>
-    <mat-card-title>Reports</mat-card-title>
-    <mat-card-subtitle
-      >Generate reports using the below text.</mat-card-subtitle
-    >
-  </mat-card-header>
-  <mat-card-content class="report_form">
-    <mat-form-field class="edit_textarea">
-      <mat-label>Report Introduction Text:</mat-label>
-      <textarea
-        matInput
-        placeholder="Customize the introduction text:"
-        [(ngModel)]="intro"
-        rows="6"
-        cols="80"
-      ></textarea>
-    </mat-form-field>
-    <br />
-    <mat-form-field class="edit_textarea">
-      <mat-label>Introduction to Text Analysis Section:</mat-label>
-      <textarea
-        matInput
-        placeholder="Customize the introduction to the text analysis section"
-        [(ngModel)]="stv_intro"
-        rows="6"
-        cols="80"
-      ></textarea>
-    </mat-form-field>
-    <br />
-    <button mat-raised-button color="primary" (click)="generate_report($event)">
-      Generate Report
-    </button>
-    <a #download_link></a>
-  </mat-card-content>
-</mat-card>
+@if (corpus) {
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Reports</mat-card-title>
+      <mat-card-subtitle
+        >Generate reports using the below text.</mat-card-subtitle
+      >
+    </mat-card-header>
+    <mat-card-content class="report_form">
+      <mat-form-field class="edit_textarea">
+        <mat-label>Report Introduction Text:</mat-label>
+        <textarea
+          matInput
+          placeholder="Customize the introduction text:"
+          [(ngModel)]="intro"
+          rows="6"
+          cols="80"
+        ></textarea>
+      </mat-form-field>
+      <br />
+      <mat-form-field class="edit_textarea">
+        <mat-label>Introduction to Text Analysis Section:</mat-label>
+        <textarea
+          matInput
+          placeholder="Customize the introduction to the text analysis section"
+          [(ngModel)]="stv_intro"
+          rows="6"
+          cols="80"
+        ></textarea>
+      </mat-form-field>
+      <br />
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="generate_report($event)"
+      >
+        Generate Report
+      </button>
+      <a #download_link></a>
+    </mat-card-content>
+  </mat-card>
+}

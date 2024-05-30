@@ -5,7 +5,6 @@ RUN npm ci
 RUN mkdir -p /classroom && cp -a /tmp/node_modules /classroom
 WORKDIR /classroom
 COPY ./classroom .
-RUN npm run version # Make sure version is up to date.
 RUN npm run build:docuscope
 
 FROM docker.io/python:latest AS base 
@@ -38,5 +37,5 @@ LABEL description="DocuScope Classroom visualization tools web interface"
 COPY --from=deps /.venv /.venv
 WORKDIR /home/appuser
 COPY ./app .
-COPY --from=builder /classroom/dist/classroom ./static
+COPY --from=builder /classroom/dist/classroom/browser ./static
 CMD ["sh", "-c", "hypercorn main:app --bind 0.0.0.0:80 --root-path ${ROOT_PATH}"]

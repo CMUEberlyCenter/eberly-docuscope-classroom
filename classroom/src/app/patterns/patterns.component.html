@@ -90,12 +90,13 @@
 </mat-card>
 <ng-template #patternlabel let-row="row">
   {{ row.label }}
-  <button
-    *ngIf="row.help"
-    mat-icon-button
-    matTooltip="{{ row.help }}"
-    matTooltipPosition="after"
-  >
-    <mat-icon class="tooltip-icon">comment</mat-icon>
-  </button>
+  @if (row.help) {
+    <button
+      mat-icon-button
+      matTooltip="{{ row.help }}"
+      matTooltipPosition="after"
+    >
+      <mat-icon class="tooltip-icon">comment</mat-icon>
+    </button>
+  }
 </ng-template>

@@ -1,4 +1,4 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -9,6 +9,10 @@ import { RouterTestingModule } from '@angular/router/testing';
 import {} from 'jasmine';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 @Component({ selector: 'app-messages', template: '' })
 class MessagesStubComponent {}
@@ -21,14 +25,16 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
       imports: [
-        HttpClientTestingModule,
         MatDialogModule,
         MatIconModule,
         MatToolbarModule,
         MatTooltipModule,
         RouterTestingModule,
       ],
-      providers: [],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.debugElement.componentInstance as AppComponent;

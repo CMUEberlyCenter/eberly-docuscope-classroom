@@ -1,78 +1,88 @@
-<mat-card appearance="outlined" *ngIf="corpus">
-  <mat-card-header>
-    <mat-card-title>Groups</mat-card-title>
-    <mat-card-subtitle>
-      Use this tool to automatically assign students to groups.
-    </mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-drawer-container style="min-height: 200px">
-      <mat-drawer mode="side" opened disableClose class="options">
-        <h4>Group Parameters:</h4>
-        <div>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              placeholder="Desired Group Sizes"
-              [(ngModel)]="group_size"
-              [min]="size_min"
-              [max]="size_max"
-            />
-          </mat-form-field>
-        </div>
-        <button
-          mat-raised-button
-          color="primary"
-          class="go_button"
-          (click)="generate_groups($event)"
-        >
-          Group Students
-        </button>
-      </mat-drawer>
-      <mat-drawer-content class="groups_content">
-        <h2>Generated Groups</h2>
-        <p *ngIf="!groups">Click on the "Group Students" button.</p>
-        <ng-container *ngIf="groups">
-          <p>
-            Groups can be adjusted by dragging and dropping individual names.
-          </p>
-          <div class="groups_container" cdkDropListGroup>
-            <div class="group" *ngFor="let group of groups.groups; index as i">
-              <em class="group_label">Group {{ i + 1 }}:</em>
-              <div
-                aria-orientation="horizontal"
-                class="group_list"
-                cdkDropListOrientation="horizontal"
-                cdkDropListSortingDisabled
-                cdkDropList
-                (cdkDropListDropped)="drop($event)"
-                [cdkDropListData]="group"
-              >
-                <!-- aria-label="Group {{i+1}} members">-->
-                <div class="group_member" *ngFor="let ind of group" cdkDrag>
-                  {{ ind }}
-                </div>
-              </div>
-            </div>
-            <div class="group">
-              <em class="group_label">Absent:</em>
-              <div
-                class="group_list"
-                cdkDropListOrientation="horizontal"
-                cdkDropListSortingDisabled
-                cdkDropList
-                (cdkDropListDropped)="drop($event)"
-                [cdkDropListData]="absent"
-              >
-                <div class="group_member" *ngFor="let a of absent" cdkDrag>
-                  {{ a }}
-                </div>
-              </div>
-            </div>
+@if (corpus) {
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Groups</mat-card-title>
+      <mat-card-subtitle>
+        Use this tool to automatically assign students to groups.
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-drawer-container style="min-height: 200px">
+        <mat-drawer mode="side" opened disableClose class="options">
+          <h4>Group Parameters:</h4>
+          <div>
+            <mat-form-field>
+              <input
+                matInput
+                type="number"
+                placeholder="Desired Group Sizes"
+                [(ngModel)]="group_size"
+                [min]="size_min"
+                [max]="size_max"
+              />
+            </mat-form-field>
           </div>
-        </ng-container>
-      </mat-drawer-content>
-    </mat-drawer-container>
-  </mat-card-content>
-</mat-card>
+          <button
+            mat-raised-button
+            color="primary"
+            class="go_button"
+            (click)="generate_groups($event)"
+          >
+            Group Students
+          </button>
+        </mat-drawer>
+        <mat-drawer-content class="groups_content">
+          <h2>Generated Groups</h2>
+          @if (!groups) {
+            <p>Click on the "Group Students" button.</p>
+          }
+          @if (groups) {
+            <p>
+              Groups can be adjusted by dragging and dropping individual names.
+            </p>
+            <div class="groups_container" cdkDropListGroup>
+              @for (group of groups.groups; track group; let i = $index) {
+                <div class="group">
+                  <em class="group_label">Group {{ i + 1 }}:</em>
+                  <div
+                    aria-orientation="horizontal"
+                    class="group_list"
+                    cdkDropListOrientation="horizontal"
+                    cdkDropListSortingDisabled
+                    cdkDropList
+                    (cdkDropListDropped)="drop($event)"
+                    [cdkDropListData]="group"
+                  >
+                    <!-- aria-label="Group {{i+1}} members">-->
+                    @for (ind of group; track ind) {
+                      <div class="group_member" cdkDrag>
+                        {{ ind }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <div class="group">
+                <em class="group_label">Absent:</em>
+                <div
+                  class="group_list"
+                  cdkDropListOrientation="horizontal"
+                  cdkDropListSortingDisabled
+                  cdkDropList
+                  (cdkDropListDropped)="drop($event)"
+                  [cdkDropListData]="absent"
+                >
+                  @for (a of absent; track a) {
+                    <div class="group_member" cdkDrag>
+                      {{ a }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </mat-drawer-content>
+      </mat-drawer-container>
+    </mat-card-content>
+  </mat-card>
+}

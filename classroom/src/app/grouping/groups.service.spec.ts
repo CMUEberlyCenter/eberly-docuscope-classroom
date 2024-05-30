@@ -1,12 +1,16 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Spied } from 'src/testing';
 import { environment } from '../../environments/environment';
 import { HttpErrorHandlerService } from '../http-error-handler.service';
 import { GroupsService } from './groups.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('GroupsService', () => {
   let service: GroupsService;
@@ -22,8 +26,12 @@ describe('GroupsService', () => {
         data
     );
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [{ provide: HttpErrorHandlerService, useValue: heh_spy }],
+      imports: [],
+      providers: [
+        { provide: HttpErrorHandlerService, useValue: heh_spy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(GroupsService);
     httpMock = TestBed.inject(HttpTestingController);

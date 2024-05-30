@@ -1,9 +1,13 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ReportIntroductionService } from './report-introduction.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('ReportIntroductionService', () => {
   let service: ReportIntroductionService;
@@ -11,8 +15,12 @@ describe('ReportIntroductionService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [ReportIntroductionService],
+      imports: [],
+      providers: [
+        ReportIntroductionService,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(ReportIntroductionService);
     httpMock = TestBed.inject(HttpTestingController);

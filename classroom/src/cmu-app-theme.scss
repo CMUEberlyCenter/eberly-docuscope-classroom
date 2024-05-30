@@ -101,9 +101,9 @@ $cmu-gold-palette: (
 
 //$open-sans-typography: mat.define-typography-config($font-family: 'Open Sans');
 
-$cmu-primary: mat.define-palette($cmu-red-palette, 900);
-$cmu-accent: mat.define-palette($cmu-blue-palette);
-$cmu-theme: mat.define-light-theme(
+$cmu-primary: mat.m2-define-palette($cmu-red-palette, 900);
+$cmu-accent: mat.m2-define-palette($cmu-blue-palette);
+$cmu-theme: mat.m2-define-light-theme(
   (
     color: (
       primary: $cmu-primary,

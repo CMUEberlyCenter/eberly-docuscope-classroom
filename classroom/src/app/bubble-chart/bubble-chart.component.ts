@@ -44,7 +44,7 @@ interface ICell {
 })
 export class BubbleChartComponent implements OnInit, AfterViewChecked {
   @ViewChild('bubble') bubble!: ElementRef;
-  @ViewChild('documentSort') sort: MatSort;
+  @ViewChild('documentSort') sort!: MatSort;
   columns: string[] = []; // current set of columns to show.
   corpus: string[] = []; // list of document ids.
   #depth = 'Category'; // Currently selected depth to show.
@@ -54,7 +54,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
   maxValue = 0; // maximum value across all categories and documents.
   scale!: d3.ScaleLinear<number, number, never>;
   stickyHeader = true; // if the column headers should be sticky.
-  tableData: MatTableDataSource<DocumentData> | undefined;
+  tableData: MatTableDataSource<DocumentData> = new MatTableDataSource();
   unit = 100; // multiplier for proportion values.
 
   /** Currently selected dictionary level to show. */
@@ -89,7 +89,8 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
         this.dictionary = common;
         this.columns = this.genColumns();
         this.data = data.data;
-        this.tableData = new MatTableDataSource(this.data);
+        this.tableData.data = this.data;
+        // this.tableData = new MatTableDataSource(this.data);
         //this.tableData.sort = this.sort;
         this.maxValue = max_document_data_value(data);
         this.scale = d3
@@ -104,7 +105,7 @@ export class BubbleChartComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    if (this.dictionary && this.data) {
+    if (this.dictionary && this.data && this.tableData) {
       this.tableData.sort = this.sort;
     }
   }

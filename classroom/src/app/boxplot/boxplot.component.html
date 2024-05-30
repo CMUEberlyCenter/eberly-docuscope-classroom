@@ -1,180 +1,193 @@
-<mat-card appearance="outlined" *ngIf="corpus">
-  <mat-card-header>
-    <mat-card-title>Box Plot</mat-card-title>
-    <mat-card-subtitle
-      >Shows the distribution of various pattern types.</mat-card-subtitle
-    >
-    <mat-card-subtitle
-      >Units are average number of instances per
-      {{ unit }} words.</mat-card-subtitle
-    >
-  </mat-card-header>
-  <mat-card-content class="graph_container">
-    <div>
-      <div *ngIf="data" class="tree-node">
-        <span class="column-header">Category</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="column-header"
-          [style.width]="options.width + 'px'"
-          [style.height]="options.height + 'px'"
-        >
-          <desc>
-            Linear scale ruler from 0 to
-            {{ x ? x.tickFormat(10)(x.ticks(10)[10]) : 1 }}.
-          </desc>
-          <g
-            fill="none"
-            font-size="9"
-            font-weight="normal"
-            text-anchor="middle"
-          >
-            <line
-              stroke="currentColor"
-              [attr.x1]="scale_x(0)"
-              [attr.x2]="scale_x(max_value)"
-              [attr.y1]="17"
-              [attr.y2]="17"
-            />
-            <g class="tick" *ngFor="let tick of x.ticks(10); index as i">
-              <line
-                stroke="currentColor"
-                [attr.x1]="x(tick)"
-                [attr.x2]="x(tick)"
-                y1="12"
-                y2="17"
-              />
-              <text [attr.x]="x(tick)" [attr.y]="11" fill="currentColor">
-                {{ x.tickFormat(10)(tick) }}
-              </text>
-            </g>
-          </g>
-        </svg>
-      </div>
-      <mat-tree
-        *ngIf="data"
-        [dataSource]="treeData"
-        [treeControl]="treeControl"
-        class="tree"
+@if (corpus) {
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Box Plot</mat-card-title>
+      <mat-card-subtitle
+        >Shows the distribution of various pattern types.</mat-card-subtitle
       >
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-          <li class="mat-tree-node tree-node">
-            <div>
-              <button mat-icon-button disabled></button>
-              {{ node.label }}
-              <button
-                mat-icon-button
-                matTooltip="{{ node.help }}"
-                matTooltipPosition="after"
+      <mat-card-subtitle
+        >Units are average number of instances per
+        {{ unit }} words.</mat-card-subtitle
+      >
+    </mat-card-header>
+    <mat-card-content class="graph_container">
+      <div>
+        @if (data) {
+          <div class="tree-node">
+            <span class="column-header">Category</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="column-header"
+              [style.width]="options.width + 'px'"
+              [style.height]="options.height + 'px'"
+            >
+              <desc>
+                Linear scale ruler from 0 to
+                {{ x.tickFormat(10)(x.ticks(10)[10]) }}.
+              </desc>
+              <g
+                fill="none"
+                font-size="9"
+                font-weight="normal"
+                text-anchor="middle"
               >
-                <mat-icon class="tooltip-icon">comment</mat-icon>
-              </button>
-            </div>
-            <div>
-              <ng-container
-                [ngTemplateOutlet]="svgboxplot"
-                [ngTemplateOutletContext]="{ row: node }"
-              ></ng-container>
-            </div>
-          </li>
-        </mat-tree-node>
-        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-          <li>
-            <div class="mat-tree-node tree-node">
-              <div>
-                <button
-                  mat-icon-button
-                  matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label"
-                >
-                  <mat-icon class="mat-icon-rtl-mirror">
-                    {{
-                      treeControl.isExpanded(node)
-                        ? 'expand_more'
-                        : 'chevron_right'
-                    }}
-                  </mat-icon>
-                </button>
-                {{ node.label }}
-                <button
-                  mat-icon-button
-                  matTooltip="{{ node.help }}"
-                  matTooltipPosition="after"
-                >
-                  <mat-icon class="tooltip-icon">comment</mat-icon>
-                </button>
-              </div>
-              <div [class.tree-node-invisible]="treeControl.isExpanded(node)">
-                <ng-container
-                  [ngTemplateOutlet]="svgboxplot"
-                  [ngTemplateOutletContext]="{ row: node }"
-                ></ng-container>
-              </div>
-            </div>
-            <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
-              <ng-container matTreeNodeOutlet></ng-container>
-            </ul>
-          </li>
-        </mat-nested-tree-node>
-        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasDocuments">
-          <li>
-            <div class="mat-tree-node tree-node">
-              <div>
-                <button
-                  mat-icon-button
-                  matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.label"
-                >
-                  <mat-icon class="mat-icon-rtl-mirror">
-                    {{
-                      treeControl.isExpanded(node)
-                        ? 'expand_more'
-                        : 'chevron_right'
-                    }}
-                  </mat-icon>
-                </button>
-                {{ node.label }}
-                <button
-                  mat-icon-button
-                  matTooltip="{{ node.help }}"
-                  matTooltipPosition="after"
-                >
-                  <mat-icon class="tooltip-icon">comment</mat-icon>
-                </button>
-              </div>
-              <div>
-                <ng-container
-                  [ngTemplateOutlet]="svgboxplot"
-                  [ngTemplateOutletContext]="{ row: node }"
-                ></ng-container>
-              </div>
-            </div>
-            <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
-              <li *ngFor="let doc of node.documents">
-                <div class="mat-tree-node tree-node">
-                  <a
-                    [ngClass]="{
-                      student_col: true,
-                      model_entry: doc.instructor
-                    }"
-                    [routerLink]="'/stv/' + doc.id"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    >{{ doc.label }}</a
+                <line
+                  stroke="currentColor"
+                  [attr.x1]="scale_x(0)"
+                  [attr.x2]="scale_x(max_value)"
+                  [attr.y1]="17"
+                  [attr.y2]="17"
+                />
+                @for (tick of x.ticks(10); track tick; let i = $index) {
+                  <g class="tick">
+                    <line
+                      stroke="currentColor"
+                      [attr.x1]="x(tick)"
+                      [attr.x2]="x(tick)"
+                      y1="12"
+                      y2="17"
+                    />
+                    <text [attr.x]="x(tick)" [attr.y]="11" fill="currentColor">
+                      {{ x.tickFormat(10)(tick) }}
+                    </text>
+                  </g>
+                }
+              </g>
+            </svg>
+          </div>
+        }
+        @if (data) {
+          <mat-tree
+            [dataSource]="treeData"
+            [treeControl]="treeControl"
+            class="tree"
+          >
+            <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+              <li class="mat-tree-node tree-node">
+                <div>
+                  <button mat-icon-button disabled></button>
+                  {{ node.label }}
+                  <button
+                    mat-icon-button
+                    matTooltip="{{ node.help }}"
+                    matTooltipPosition="after"
                   >
+                    <mat-icon class="tooltip-icon">comment</mat-icon>
+                  </button>
+                </div>
+                <div>
                   <ng-container
-                    [ngTemplateOutlet]="docbox"
-                    [ngTemplateOutletContext]="{ row: doc }"
+                    [ngTemplateOutlet]="svgboxplot"
+                    [ngTemplateOutletContext]="{ row: node }"
                   ></ng-container>
                 </div>
               </li>
-            </ul>
-          </li>
-        </mat-nested-tree-node>
-      </mat-tree>
-    </div>
-  </mat-card-content>
-</mat-card>
+            </mat-tree-node>
+            <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+              <li>
+                <div class="mat-tree-node tree-node">
+                  <div>
+                    <button
+                      mat-icon-button
+                      matTreeNodeToggle
+                      [attr.aria-label]="'Toggle ' + node.label"
+                    >
+                      <mat-icon class="mat-icon-rtl-mirror">
+                        {{
+                          treeControl.isExpanded(node)
+                            ? 'expand_more'
+                            : 'chevron_right'
+                        }}
+                      </mat-icon>
+                    </button>
+                    {{ node.label }}
+                    <button
+                      mat-icon-button
+                      matTooltip="{{ node.help }}"
+                      matTooltipPosition="after"
+                    >
+                      <mat-icon class="tooltip-icon">comment</mat-icon>
+                    </button>
+                  </div>
+                  <div
+                    [class.tree-node-invisible]="treeControl.isExpanded(node)"
+                  >
+                    <ng-container
+                      [ngTemplateOutlet]="svgboxplot"
+                      [ngTemplateOutletContext]="{ row: node }"
+                    ></ng-container>
+                  </div>
+                </div>
+                <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+                  <ng-container matTreeNodeOutlet></ng-container>
+                </ul>
+              </li>
+            </mat-nested-tree-node>
+            <mat-nested-tree-node
+              *matTreeNodeDef="let node; when: hasDocuments"
+            >
+              <li>
+                <div class="mat-tree-node tree-node">
+                  <div>
+                    <button
+                      mat-icon-button
+                      matTreeNodeToggle
+                      [attr.aria-label]="'Toggle ' + node.label"
+                    >
+                      <mat-icon class="mat-icon-rtl-mirror">
+                        {{
+                          treeControl.isExpanded(node)
+                            ? 'expand_more'
+                            : 'chevron_right'
+                        }}
+                      </mat-icon>
+                    </button>
+                    {{ node.label }}
+                    <button
+                      mat-icon-button
+                      matTooltip="{{ node.help }}"
+                      matTooltipPosition="after"
+                    >
+                      <mat-icon class="tooltip-icon">comment</mat-icon>
+                    </button>
+                  </div>
+                  <div>
+                    <ng-container
+                      [ngTemplateOutlet]="svgboxplot"
+                      [ngTemplateOutletContext]="{ row: node }"
+                    ></ng-container>
+                  </div>
+                </div>
+                <ul [class.tree-node-invisible]="!treeControl.isExpanded(node)">
+                  @for (doc of node.documents; track doc) {
+                    <li>
+                      <div class="mat-tree-node tree-node">
+                        <a
+                          [ngClass]="{
+                            student_col: true,
+                            model_entry: doc.instructor
+                          }"
+                          [routerLink]="'/stv/' + doc.id"
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          >{{ doc.label }}</a
+                        >
+                        <ng-container
+                          [ngTemplateOutlet]="docbox"
+                          [ngTemplateOutletContext]="{ row: doc }"
+                        ></ng-container>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              </li>
+            </mat-nested-tree-node>
+          </mat-tree>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+}
 <ng-template #svgboxplot let-row="row">
   <svg
     class="box_plot_tree_item"
@@ -241,22 +254,23 @@
       [style.stroke-width]="1"
     />
     <g>
-      <a
-        *ngFor="let out of get_outliers(row)"
-        [routerLink]="'/stv/' + out.id"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        <circle
-          [attr.cx]="scale_x(out.value)"
-          [attr.cy]="scale_y(0.5)"
-          [attr.r]="scale_y(0.1)"
-          [style.fill]="'#52be80'"
-          [style.stroke-width]="1"
-          [style.stroke]="'#eeeeee'"
-          matTooltip="{{ out.title }}: {{ scale(out.value) }}"
-        />
-      </a>
+      @for (out of get_outliers(row); track out) {
+        <a
+          [routerLink]="'/stv/' + out.id"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <circle
+            [attr.cx]="scale_x(out.value)"
+            [attr.cy]="scale_y(0.5)"
+            [attr.r]="scale_y(0.1)"
+            [style.fill]="'#52be80'"
+            [style.stroke-width]="1"
+            [style.stroke]="'#eeeeee'"
+            matTooltip="{{ out.title }}: {{ scale(out.value) }}"
+          />
+        </a>
+      }
     </g>
   </svg>
 </ng-template>

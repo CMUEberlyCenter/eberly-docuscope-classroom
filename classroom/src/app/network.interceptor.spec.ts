@@ -1,7 +1,12 @@
-import { HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
-  HttpClientTestingModule,
+  HttpClient,
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
+import {
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
@@ -16,7 +21,7 @@ describe('NetworkInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         NetworkInterceptor,
         {
@@ -28,6 +33,8 @@ describe('NetworkInterceptor', () => {
           useClass: NetworkInterceptor,
           multi: true,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     http = TestBed.inject(HttpClient);

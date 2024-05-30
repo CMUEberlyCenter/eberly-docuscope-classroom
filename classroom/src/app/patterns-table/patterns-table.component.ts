@@ -27,6 +27,8 @@ export class PatternsTableComponent implements OnInit, AfterViewInit {
     this.pattern_data.sort = this.sort;
   }
   ngAfterViewInit(): void {
-    this.pattern_data.sort = this.sort;
+    if (this.pattern_data) {
+      this.pattern_data.sort = this.sort;
+    }
   }
 }

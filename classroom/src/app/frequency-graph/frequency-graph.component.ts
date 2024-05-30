@@ -57,7 +57,7 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   @Input() unit!: number;
   @Input() sticky = true;
   @ViewChild('rankSort') sort!: MatSort;
-  ranking: MatTableDataSource<FrequencyItem> | undefined;
+  ranking: MatTableDataSource<FrequencyItem> = new MatTableDataSource();
 
   options: Options = {
     width: 250,
@@ -76,12 +76,10 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
           datum.value = this.unit * category_value(this.category, datum);
         }
       }*/
-      this.ranking = new MatTableDataSource(
-        this.data.data.map((datum) => ({
-          ...datum,
-          value: this.getValue(datum),
-        }))
-      );
+      this.ranking.data = this.data.data.map((datum) => ({
+        ...datum,
+        value: this.getValue(datum),
+      }));
       this._max_cache = this.unit * max_boxplot_value(this.data);
     }
   }

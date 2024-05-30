@@ -1,6 +1,6 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -8,6 +8,10 @@ import { Spied } from 'src/testing';
 import { environment } from './../environments/environment';
 import { DocumentService } from './document.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 const data = {
   course: 'course',
@@ -47,10 +51,12 @@ describe('DocumentService', () => {
           edata
     );
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatSnackBarModule],
+      imports: [MatSnackBarModule],
       providers: [
         DocumentService,
         { provide: HttpErrorHandlerService, useValue: errorServiceMock },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(DocumentService);

@@ -1,6 +1,6 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
@@ -8,6 +8,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from 'src/environments/environment';
 import { FAKE_COMMON_DICTIONARY } from 'src/testing';
 import { CommonDictionaryService } from './common-dictionary.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('CommonDictionaryService', () => {
   let service: CommonDictionaryService;
@@ -16,7 +20,11 @@ describe('CommonDictionaryService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatMenuModule, MatSnackBarModule],
+      imports: [MatMenuModule, MatSnackBarModule],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(CommonDictionaryService);
     httpMock = TestBed.inject(HttpTestingController);

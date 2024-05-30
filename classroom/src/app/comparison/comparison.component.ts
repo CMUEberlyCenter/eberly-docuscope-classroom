@@ -172,11 +172,11 @@ export class ComparisonComponent implements OnInit {
             if (!cpmap.has(cluster.category)) {
               cpmap.set(cluster.category, new Map<string, number[]>());
             }
-            cluster.patterns.forEach((pat) => {
+            cluster.patterns?.forEach((pat) => {
               const counts =
-                cpmap.get(cluster.category).get(pat.pattern) ?? zero.slice();
+                cpmap.get(cluster.category)?.get(pat.pattern) ?? zero.slice();
               counts[i] += pat.count; // simple assignment works on unique assumption
-              cpmap.get(cluster.category).set(pat.pattern, counts);
+              cpmap.get(cluster.category)?.set(pat.pattern, counts);
             });
           });
         });

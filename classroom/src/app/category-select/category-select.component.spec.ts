@@ -1,12 +1,16 @@
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatMenuHarness } from '@angular/material/menu/testing';
 import { FAKE_COMMON_DICTIONARY } from 'src/testing';
 import { CategorySelectComponent } from './category-select.component';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 @Component({
   selector: 'app-fake-category-select-component',
@@ -27,8 +31,11 @@ describe('CategorySelectComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [CategorySelectComponent, TestCategorySelectComponent],
-      imports: [HttpClientTestingModule, MatMenuModule],
-      providers: [],
+      imports: [MatMenuModule],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(TestCategorySelectComponent);
     component = fixture.componentInstance;

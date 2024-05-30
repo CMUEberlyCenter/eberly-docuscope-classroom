@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +25,10 @@ import { PatternTreeNode } from '../pattern-tree-node';
 import { PatternData } from '../patterns.service';
 import { SettingsService } from '../settings.service';
 import { TextViewComponent } from './text-view.component';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 @Component({ selector: 'app-patterns-table', template: '' })
 class PatternsTableStubComponent {
@@ -141,7 +145,7 @@ describe('TextViewComponent', () => {
         SunburstStubComponent,
       ],
       imports: [
-        HttpClientTestingModule, // settings import requires.
+        // settings import requires.
         MatCardModule,
         MatCheckboxModule,
         MatIconModule,
@@ -161,6 +165,8 @@ describe('TextViewComponent', () => {
         //{ provide: DomSanitizer, useValue: sanitizer },
         { provide: SettingsService, useValue: settings_spy },
         { provide: DocumentService, useValue: tagged_text_service_spy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(TextViewComponent);

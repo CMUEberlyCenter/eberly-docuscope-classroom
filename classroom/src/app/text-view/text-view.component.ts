@@ -79,12 +79,11 @@ export class TextViewComponent implements OnInit {
       this.treeControl.dataNodes = this.treeData.data; // needed to get expand all to work
       const sunmap = (node: CommonDictionaryTreeNode): SunburstNode => ({
         name: node.label,
-        children: cpmap.get(node.id)
-          ? cpmap.get(node.id).map((p) => ({
-              name: p.pattern,
-              value: p.count,
-            }))
-          : node.children?.map(sunmap),
+        children:
+          cpmap.get(node.id)?.map((p) => ({
+            name: p.pattern,
+            value: p.count,
+          })) ?? node.children?.map(sunmap),
       });
       this.sundata = { name: 'root', children: common.tree.map(sunmap) };
     });

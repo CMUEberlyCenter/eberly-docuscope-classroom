@@ -7,10 +7,10 @@ import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import {
   CategoryData,
-  category_value,
-  DocumentData,
   DocuScopeData,
+  DocumentData,
   DsDataService,
+  category_value,
   max_document_data_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
@@ -58,20 +58,15 @@ export class ScatterplotComponent implements OnInit {
     private settingsService: SettingsService
   ) {}
 
-  get_value(category: CategoryData, datum: DocumentData): number {
+  get_value(category: CategoryData | undefined, datum: DocumentData): number {
     return this.unit * category_value(category, datum);
   }
-  get_max_value(x_category: CategoryData, y_category: CategoryData): number {
-    return !this.data
-      ? 0
-      : Math.max(
-          ...this.data.data.map((doc) =>
-            Math.max(
-              this.get_value(x_category, doc),
-              this.get_value(y_category, doc)
-            )
-          )
-        );
+  get_max_value(...category: (CategoryData | undefined)[]): number {
+    return Math.max(
+      ...(this.data?.data.flatMap((doc) =>
+        category.map((c) => this.get_value(c, doc))
+      ) ?? [0])
+    );
   }
   is_model(datum: DocumentData) {
     return datum.ownedby === 'instructor';
@@ -127,11 +122,11 @@ export class ScatterplotComponent implements OnInit {
   }
   point_tooltip(datum: DocumentData): string {
     return `${datum.title}
-              ${this.x_axis.label}: ${this.get_value(
+              ${this.x_axis?.label ?? 'X'}: ${this.get_value(
                 this.x_category,
                 datum
               ).toFixed(2)}
-              ${this.y_axis.label}: ${this.get_value(
+              ${this.y_axis?.label ?? 'Y'}: ${this.get_value(
                 this.y_category,
                 datum
               ).toFixed(2)}`;

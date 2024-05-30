@@ -34,7 +34,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(  # pylint: disable=invalid-name
     title="DocuScope Classroom Analysis Tools",
     description="Collection of corpus analysis tools to be used in a classroom.",
-    version="5.3.6",
+    version="5.3.10",
     lifespan=lifespan,
     license={
         'name': 'CC BY-NC-SA 4.0',

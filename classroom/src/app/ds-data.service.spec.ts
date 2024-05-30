@@ -1,6 +1,6 @@
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Spied } from 'src/testing';
@@ -13,6 +13,10 @@ import {
   max_document_data_value,
 } from './ds-data.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 const data = {
   categories: [
@@ -66,10 +70,12 @@ describe('DsDataService', () => {
       () => (_fn: () => unknown, edata: unknown) => edata
     );
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         DsDataService,
         { provide: HttpErrorHandlerService, useValue: heh_spy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(DsDataService);

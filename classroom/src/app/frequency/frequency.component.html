@@ -1,37 +1,41 @@
-<mat-card appearance="outlined" *ngIf="corpus">
-  <mat-card-header>
-    <mat-card-title>Frequency</mat-card-title>
-    <mat-card-subtitle>
-      Frequency of the selected category for each document.
-    </mat-card-subtitle>
-    <mat-card-subtitle>
-      The bar represents the difference from the median value and is the average
-      number of instances per {{ unit }} words.
-    </mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content *ngIf="data">
-    <aside class="select_category_box">
-      <app-category-select
-        [dictionary]="dictionary"
-        [selectedCategory]="selected_category"
-        (selectedCategoryChange)="onSelectCategory($event)"
-      ></app-category-select>
-    </aside>
-    <article>
-      <app-frequency-graph
-        *ngIf="category; else noData"
-        [data]="data"
-        [unit]="unit"
-        [category]="category"
-        [sticky]="sticky"
-      >
-      </app-frequency-graph>
-      <ng-template #noData>
-        <mat-error>
-          No data for the selected category:
-          {{ selected_category?.label ?? 'UNKNOWN' }}
-        </mat-error>
-      </ng-template>
-    </article>
-  </mat-card-content>
-</mat-card>
+@if (corpus) {
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Frequency</mat-card-title>
+      <mat-card-subtitle>
+        Frequency of the selected category for each document.
+      </mat-card-subtitle>
+      <mat-card-subtitle>
+        The bar represents the difference from the median value and is the
+        average number of instances per {{ unit }} words.
+      </mat-card-subtitle>
+    </mat-card-header>
+    @if (data) {
+      <mat-card-content>
+        <aside class="select_category_box">
+          <app-category-select
+            [dictionary]="dictionary"
+            [selectedCategory]="selected_category"
+            (selectedCategoryChange)="onSelectCategory($event)"
+          ></app-category-select>
+        </aside>
+        <article>
+          @if (category) {
+            <app-frequency-graph
+              [data]="data"
+              [unit]="unit"
+              [category]="category"
+              [sticky]="sticky"
+            >
+            </app-frequency-graph>
+          } @else {
+            <mat-error>
+              No data for the selected category:
+              {{ selected_category?.label ?? 'UNKNOWN' }}
+            </mat-error>
+          }
+        </article>
+      </mat-card-content>
+    }
+  </mat-card>
+}
