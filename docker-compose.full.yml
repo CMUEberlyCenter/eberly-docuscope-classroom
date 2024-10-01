@@ -1,5 +1,4 @@
 # Example compose file for the full DocuScope classroom system.
-version: "3.9"
 services:
   cache:
     image: docker.io/memcached:1.6-alpine
@@ -53,7 +52,7 @@ services:
       - LTI_PREVIEW_HOST=https://oli.cmu.edu
       - MYSQL_DATABASE=docuscope
   classroom:
-    image: registry.gitlab.com/cmu_sidecar/docuscope-classroom:latest
+    image: ghcr.io/cmueberlycenter/eberly-docuscope-classroom:latest
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -73,7 +72,7 @@ services:
       - "dictionaries:/app/dictionaries:ro"
       # - "assets:/app/static/assets:ro" # used for classroom customization
   tagger:
-    image: registry.gitlab.com/cmu_sidecar/docuscope-tag:latest
+    image: ghcr.io/cmueberlycenter/eberly-docuscope-tagger:latest
     environment:
       - DICTIONARY_HOME=/app/dictionaries
       - MEMCACHE_URL=cache

@@ -24,7 +24,7 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 FROM base
 ENV PYTHONOPTIMIZE=2
 ENV PATH="/.venv/bin:$PATH"
-ENV ROOT_PATH /
+ENV ROOT_PATH=/
 RUN useradd --create-home appuser
 ARG BRANCH="master"
 ARG COMMIT=""
