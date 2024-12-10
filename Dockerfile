@@ -19,7 +19,7 @@ RUN pip install --upgrade pip
 RUN pip install pipenv
 COPY ./Pipfile .
 COPY ./Pipfile.lock .
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv --python $(which python3)  install --deploy
 
 FROM base
 ENV PYTHONOPTIMIZE=2
