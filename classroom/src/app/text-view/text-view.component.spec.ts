@@ -30,12 +30,18 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
-@Component({ selector: 'app-patterns-table', template: '' })
+@Component({
+    selector: 'app-patterns-table', template: '',
+    standalone: false
+})
 class PatternsTableStubComponent {
   @Input() patterns!: PatternData[];
 }
 
-@Component({ selector: 'app-sunburst-chart', template: '' })
+@Component({
+    selector: 'app-sunburst-chart', template: '',
+    standalone: false
+})
 class SunburstStubComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() data: any;

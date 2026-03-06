@@ -16,9 +16,10 @@ import {
 import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: 'app-scatterplot',
-  templateUrl: './scatterplot.component.html',
-  styleUrls: ['./scatterplot.component.scss'],
+    selector: 'app-scatterplot',
+    templateUrl: './scatterplot.component.html',
+    styleUrls: ['./scatterplot.component.scss'],
+    standalone: false
 })
 export class ScatterplotComponent implements OnInit {
   corpus: string[] = [];

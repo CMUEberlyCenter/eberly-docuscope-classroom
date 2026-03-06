@@ -7,7 +7,10 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToolLayoutComponent } from './tool-layout.component';
 
-@Component({ selector: 'app-nav' })
+@Component({
+    selector: 'app-nav',
+    standalone: false
+})
 class AppNavStubComponent {}
 
 describe('ToolLayoutComponent', () => {

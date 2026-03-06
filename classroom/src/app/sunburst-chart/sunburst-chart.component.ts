@@ -44,9 +44,10 @@ const labelTransform = (d: Segment | undefined, radius: number): string => {
 };
 
 @Component({
-  selector: 'app-sunburst-chart',
-  templateUrl: './sunburst-chart.component.html',
-  styleUrls: ['./sunburst-chart.component.scss'],
+    selector: 'app-sunburst-chart',
+    templateUrl: './sunburst-chart.component.html',
+    styleUrls: ['./sunburst-chart.component.scss'],
+    standalone: false
 })
 export class SunburstChartComponent implements OnChanges, AfterViewInit {
   @Input() data: SunburstNode | undefined;

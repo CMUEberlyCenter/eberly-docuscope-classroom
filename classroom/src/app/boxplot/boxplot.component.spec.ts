@@ -15,7 +15,10 @@ import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
 //import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 
-@Component({ selector: 'app-frequency-graph', template: '' })
+@Component({
+    selector: 'app-frequency-graph', template: '',
+    standalone: false
+})
 class FrequencyGraphStubComponent {
   @Input() data!: DocuScopeData;
   @Input() category!: CategoryData;

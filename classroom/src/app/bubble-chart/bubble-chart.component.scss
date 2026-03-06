@@ -1,6 +1,6 @@
-@import '../../cmu-app-theme.scss';
+@use '../../cmu-app-theme.scss' as cmu;
 circle {
-  fill: $cmu-secondary-blue;
+  fill: cmu.$cmu-secondary-blue;
 }
 
 .mat-column-title {
@@ -44,7 +44,7 @@ circle {
 
 circle.tick {
   fill: none;
-  stroke: $cmu-secondary-blue;
+  stroke: cmu.$cmu-secondary-blue;
 }
 
 text.tick {

@@ -12,9 +12,10 @@ import { version } from '../../environments/version';
 import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: 'app-about',
-  templateUrl: './about.component.html',
-  styleUrls: ['./about.component.scss'],
+    selector: 'app-about',
+    templateUrl: './about.component.html',
+    styleUrls: ['./about.component.scss'],
+    standalone: false
 })
 export class AboutComponent implements OnInit {
   title = 'DocuScope Classroom'; // For the Title text

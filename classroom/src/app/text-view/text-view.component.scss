@@ -1,4 +1,4 @@
-@import '../../cmu-app-theme.scss';
+@use '../../cmu-app-theme.scss' as cmu;
 
 .container {
   display: flex;
@@ -15,7 +15,7 @@
 .tree-tools {
   display: flex;
   flex-direction: row;
-  background-color: $cmu-core-grey;
+  background-color: cmu.$cmu-core-grey;
 }
 .tree {
   ul,

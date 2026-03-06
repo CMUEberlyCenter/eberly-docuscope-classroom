@@ -21,9 +21,10 @@ import {
 import { SettingsService } from '../settings.service';
 
 @Component({
-  selector: 'app-frequency',
-  templateUrl: './frequency.component.html',
-  styleUrls: ['./frequency.component.scss'],
+    selector: 'app-frequency',
+    templateUrl: './frequency.component.html',
+    styleUrls: ['./frequency.component.scss'],
+    standalone: false
 })
 export class FrequencyComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's

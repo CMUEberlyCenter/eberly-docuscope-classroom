@@ -10,9 +10,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ComparePatternData } from '../patterns.service';
 
 @Component({
-  selector: 'app-compare-patterns-table',
-  templateUrl: './compare-patterns-table.component.html',
-  styleUrls: ['./compare-patterns-table.component.scss'],
+    selector: 'app-compare-patterns-table',
+    templateUrl: './compare-patterns-table.component.html',
+    styleUrls: ['./compare-patterns-table.component.scss'],
+    standalone: false
 })
 export class ComparePatternsTableComponent implements OnInit {
   @ViewChild('patternTableSort', { static: true }) sort!: MatSort;

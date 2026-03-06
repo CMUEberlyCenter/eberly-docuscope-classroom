@@ -9,13 +9,14 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComparePatternsTableComponent } from './compare-patterns-table.component';
 
 @Component({
-  selector: 'app-fake-compare-patterns-table',
-  // prettier-ignore
-  template: `<app-compare-patterns-table
+    selector: 'app-fake-compare-patterns-table',
+    // prettier-ignore
+    template: `<app-compare-patterns-table
   patterns="{}"
   colors="['red','blue']"
 ></app-compare-patterns-table>
 `,
+    standalone: false
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)

@@ -1,5 +1,6 @@
 /* angular material */
 @use '@angular/material' as mat;
+@use 'cmu-app-theme' as cmu;
 
 /* fonts */
 // Currently, it is better to use link in index.html to load foreign resoruces.
@@ -18,15 +19,15 @@
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
 @include mat.all-component-typographies();
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 //@import "@angular/material/prebuilt-themes/indigo-pink.css";
-@import 'cmu-app-theme';
-@include mat.all-component-themes($cmu-theme);
+@include mat.all-component-themes(cmu.$cmu-theme);
 
 .cluster_id {
-  background: $cmu-core-grey;
-  border: 1px solid $cmu-core-darkgrey;
+  background: cmu.$cmu-core-grey;
+  border: 1px solid cmu.$cmu-core-darkgrey;
   padding: 3px;
 }
 .cluster {
@@ -39,18 +40,18 @@
 }
 
 .selected_text {
-  background-color: rgba($cmu-secondary-gold, 0.3);
+  background-color: rgba(cmu.$cmu-secondary-gold, 0.3);
 }
 
 /* scatterplot */
 circle.dot {
   cursor: pointer;
-  fill: $cmu-core-black;
+  fill: cmu.$cmu-core-black;
   filter: opacity(60%);
 }
 
 circle.dot.model {
-  fill: $cmu-secondary-blue;
+  fill: cmu.$cmu-secondary-blue;
   filter: opacity(40%);
 }
 

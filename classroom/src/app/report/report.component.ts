@@ -4,9 +4,10 @@ import { ReportIntroductionService } from './report-introduction.service';
 import { ReportService } from './report.service';
 
 @Component({
-  selector: 'app-report',
-  templateUrl: './report.component.html',
-  styleUrls: ['./report.component.scss'],
+    selector: 'app-report',
+    templateUrl: './report.component.html',
+    styleUrls: ['./report.component.scss'],
+    standalone: false
 })
 export class ReportComponent implements OnInit {
   @ViewChild('download_link') download_link!: ElementRef;
