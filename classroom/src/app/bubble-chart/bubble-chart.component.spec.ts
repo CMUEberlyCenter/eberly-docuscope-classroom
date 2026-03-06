@@ -14,7 +14,10 @@ import { SettingsService } from '../settings.service';
 
 import { BubbleChartComponent } from './bubble-chart.component';
 
-@Component({ selector: 'app-nav', template: '' })
+@Component({
+    selector: 'app-nav', template: '',
+    standalone: false
+})
 class NavStubComponent {}
 
 describe('BubbleChartComponent', () => {

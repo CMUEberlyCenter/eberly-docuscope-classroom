@@ -49,8 +49,9 @@ const data = {
 };
 
 @Component({
-  selector: 'app-fake-rank-component',
-  template: `<app-frequency-graph data="" unit="100"></app-frequency-graph>`,
+    selector: 'app-fake-rank-component',
+    template: `<app-frequency-graph data="" unit="100"></app-frequency-graph>`,
+    standalone: false
 })
 class TestRankComponent {
   @ViewChild(FrequencyGraphComponent)

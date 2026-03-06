@@ -20,9 +20,10 @@ import { PatternData } from '../patterns.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
-  selector: 'app-text-view',
-  templateUrl: './text-view.component.html',
-  styleUrls: ['./text-view.component.scss'],
+    selector: 'app-text-view',
+    templateUrl: './text-view.component.html',
+    styleUrls: ['./text-view.component.scss'],
+    standalone: false
 })
 export class TextViewComponent implements OnInit {
   colors = d3.scaleOrdinal(d3.schemeCategory10);

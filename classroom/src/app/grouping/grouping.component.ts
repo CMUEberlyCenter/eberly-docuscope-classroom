@@ -11,9 +11,10 @@ import { CorpusService } from '../corpus.service';
 import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
-  selector: 'app-grouping',
-  templateUrl: './grouping.component.html',
-  styleUrls: ['./grouping.component.scss'],
+    selector: 'app-grouping',
+    templateUrl: './grouping.component.html',
+    styleUrls: ['./grouping.component.scss'],
+    standalone: false
 })
 export class GroupingComponent implements OnInit {
   size_min = 2; // Minimum size of groups (no singletons)

@@ -89,9 +89,10 @@ class CompareTreeNode {
 }
 
 @Component({
-  selector: 'app-comparison',
-  templateUrl: './comparison.component.html',
-  styleUrls: ['./comparison.component.scss'],
+    selector: 'app-comparison',
+    templateUrl: './comparison.component.html',
+    styleUrls: ['./comparison.component.scss'],
+    standalone: false
 })
 export class ComparisonComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's

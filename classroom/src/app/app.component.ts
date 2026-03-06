@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { LoadingService } from './loading.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  providers: [],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    providers: [],
+    standalone: false
 })
 export class AppComponent {
   loading$ = this.loader.loading$;

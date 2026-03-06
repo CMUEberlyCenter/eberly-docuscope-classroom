@@ -31,7 +31,10 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
-@Component({ selector: 'app-compare-patterns-table' })
+@Component({
+    selector: 'app-compare-patterns-table',
+    standalone: false
+})
 class ComparePatternsTableStubComponent {
   @Input() colors!: string[];
   @Input() patterns!: ComparePatternData[];

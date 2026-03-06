@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-tool-layout',
-  templateUrl: './tool-layout.component.html',
-  styleUrls: ['./tool-layout.component.scss'],
+    selector: 'app-tool-layout',
+    templateUrl: './tool-layout.component.html',
+    styleUrls: ['./tool-layout.component.scss'],
+    standalone: false
 })
 export class ToolLayoutComponent {
   constructor(private route: ActivatedRoute) {}

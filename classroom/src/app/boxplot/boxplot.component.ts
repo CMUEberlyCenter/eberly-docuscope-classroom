@@ -56,9 +56,10 @@ interface DocBox {
 }
 
 @Component({
-  selector: 'app-boxplot',
-  templateUrl: './boxplot.component.html',
-  styleUrls: ['./boxplot.component.scss'],
+    selector: 'app-boxplot',
+    templateUrl: './boxplot.component.html',
+    styleUrls: ['./boxplot.component.scss'],
+    standalone: false
 })
 export class BoxplotComponent implements OnInit {
   commonDictionary: CommonDictionary | undefined; // Hierachical dictionary

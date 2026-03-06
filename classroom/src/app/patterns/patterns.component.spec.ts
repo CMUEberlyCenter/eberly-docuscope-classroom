@@ -11,12 +11,18 @@ import { CorpusService } from '../corpus.service';
 import { PatternData, PatternsService } from '../patterns.service';
 import { PatternsComponent } from './patterns.component';
 
-@Component({ selector: 'app-patterns-table', template: '' })
+@Component({
+    selector: 'app-patterns-table', template: '',
+    standalone: false
+})
 class PatternsTableStubComponent {
   @Input() patterns!: PatternData[];
 }
 
-@Component({ selector: 'app-sunburst-chart', template: '' })
+@Component({
+    selector: 'app-sunburst-chart', template: '',
+    standalone: false
+})
 class SunburstStubComponent {
   @Input() data: unknown;
   @Input() width!: number;

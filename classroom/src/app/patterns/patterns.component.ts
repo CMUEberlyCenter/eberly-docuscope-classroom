@@ -22,9 +22,10 @@ import {
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
-  selector: 'app-patterns',
-  templateUrl: './patterns.component.html',
-  styleUrls: ['./patterns.component.scss'],
+    selector: 'app-patterns',
+    templateUrl: './patterns.component.html',
+    styleUrls: ['./patterns.component.scss'],
+    standalone: false
 })
 export class PatternsComponent implements OnInit {
   treeControl = new NestedTreeControl<PatternTreeNode>((node) => node.children);

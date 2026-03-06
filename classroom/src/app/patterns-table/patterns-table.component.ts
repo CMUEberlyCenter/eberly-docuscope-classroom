@@ -11,9 +11,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { PatternData } from '../patterns.service';
 
 @Component({
-  selector: 'app-patterns-table',
-  templateUrl: './patterns-table.component.html',
-  styleUrls: ['./patterns-table.component.scss'],
+    selector: 'app-patterns-table',
+    templateUrl: './patterns-table.component.html',
+    styleUrls: ['./patterns-table.component.scss'],
+    standalone: false
 })
 export class PatternsTableComponent implements OnInit, AfterViewInit {
   @ViewChild('patternTableSort', { static: false }) sort!: MatSort;

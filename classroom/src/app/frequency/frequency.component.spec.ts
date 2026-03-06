@@ -14,14 +14,20 @@ import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { FrequencyComponent } from './frequency.component';
 
-@Component({ selector: 'app-frequency-graph', template: '' })
+@Component({
+    selector: 'app-frequency-graph', template: '',
+    standalone: false
+})
 class FrequencyGraphStubComponent {
   @Input() data!: DocuScopeData;
   @Input() category!: CategoryData;
   @Input() unit!: number;
 }
 
-@Component({ selector: 'app-category-select', template: '' })
+@Component({
+    selector: 'app-category-select', template: '',
+    standalone: false
+})
 class CategorySelectStubComponent {
   @Input() dictionary: CommonDictionary | undefined;
   @Input() selectedCategory: Entry | undefined;

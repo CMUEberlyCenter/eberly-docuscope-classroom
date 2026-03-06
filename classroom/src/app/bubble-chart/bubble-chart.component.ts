@@ -38,9 +38,10 @@ interface ICell {
 }
 
 @Component({
-  selector: 'app-bubble-chart',
-  templateUrl: './bubble-chart.component.html',
-  styleUrls: ['./bubble-chart.component.scss'],
+    selector: 'app-bubble-chart',
+    templateUrl: './bubble-chart.component.html',
+    styleUrls: ['./bubble-chart.component.scss'],
+    standalone: false
 })
 export class BubbleChartComponent implements OnInit, AfterViewChecked {
   @ViewChild('bubble') bubble!: ElementRef;

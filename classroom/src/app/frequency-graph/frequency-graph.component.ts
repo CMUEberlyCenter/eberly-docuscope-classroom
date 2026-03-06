@@ -41,9 +41,10 @@ interface FrequencyItem {
 }
 
 @Component({
-  selector: 'app-frequency-graph',
-  templateUrl: './frequency-graph.component.html',
-  styleUrls: ['./frequency-graph.component.scss'],
+    selector: 'app-frequency-graph',
+    templateUrl: './frequency-graph.component.html',
+    styleUrls: ['./frequency-graph.component.scss'],
+    standalone: false
 })
 export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   @Input() set data(ds_data: DocuScopeData | undefined) {

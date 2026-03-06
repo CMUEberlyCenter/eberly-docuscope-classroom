@@ -13,9 +13,10 @@ import {
 } from '@angular/common/http';
 
 @Component({
-  selector: 'app-fake-category-select-component',
-  template: `<app-category-select [dictionary]="dictionary">
+    selector: 'app-fake-category-select-component',
+    template: `<app-category-select [dictionary]="dictionary">
   </app-category-select>`,
+    standalone: false
 })
 class TestCategorySelectComponent {
   @ViewChild(CategorySelectComponent)

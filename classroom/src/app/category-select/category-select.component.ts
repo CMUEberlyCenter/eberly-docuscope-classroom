@@ -18,9 +18,10 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
 
 @Component({
-  selector: 'app-category-select',
-  templateUrl: './category-select.component.html',
-  styleUrls: ['./category-select.component.scss'],
+    selector: 'app-category-select',
+    templateUrl: './category-select.component.html',
+    styleUrls: ['./category-select.component.scss'],
+    standalone: false
 })
 export class CategorySelectComponent {
   @Input() dictionary: CommonDictionary | undefined;

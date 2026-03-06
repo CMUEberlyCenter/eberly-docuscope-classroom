@@ -13,7 +13,10 @@ import { DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { ScatterplotComponent } from './scatterplot.component';
 
-@Component({ selector: 'app-category-select', template: '' })
+@Component({
+    selector: 'app-category-select', template: '',
+    standalone: false
+})
 class CategorySelectStubComponent {
   @Input() dictionary: CommonDictionary | undefined;
   @Input() selectedCategory: Entry | undefined;

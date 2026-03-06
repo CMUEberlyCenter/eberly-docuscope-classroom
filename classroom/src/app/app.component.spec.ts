@@ -14,7 +14,10 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
-@Component({ selector: 'app-messages', template: '' })
+@Component({
+    selector: 'app-messages', template: '',
+    standalone: false
+})
 class MessagesStubComponent {}
 
 describe('AppComponent', () => {
