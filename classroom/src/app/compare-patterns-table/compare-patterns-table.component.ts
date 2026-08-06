@@ -4,16 +4,25 @@ A table that lists the exemplars that make up the category
 with the counts of the occurrences of those patterns in
 two documents.
 */
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ComparePatternData } from '../patterns.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-compare-patterns-table',
-    templateUrl: './compare-patterns-table.component.html',
-    styleUrls: ['./compare-patterns-table.component.scss'],
-    standalone: false
+  selector: 'app-compare-patterns-table',
+  templateUrl: './compare-patterns-table.component.html',
+  styleUrls: ['./compare-patterns-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [MatSortModule, MatTableModule, MatIconModule],
 })
 export class ComparePatternsTableComponent implements OnInit {
   @ViewChild('patternTableSort', { static: true }) sort!: MatSort;

@@ -2,21 +2,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Spied } from 'src/testing';
 import {
   HandleError,
   HttpErrorHandlerService,
 } from './http-error-handler.service';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
 describe('HttpErrorHandlerService', () => {
-  let snack_spy: Spied<MatSnackBar>;
+  let snack_spy: Mocked<MatSnackBar>;
 
   beforeEach(() => {
-    snack_spy = jasmine.createSpyObj('MatSnackBar', [
-      'open',
-    ]) as Spied<MatSnackBar>;
+    snack_spy = {
+      open: vi.fn().mockName('MatSnackBar.open'),
+    } as unknown as Mocked<MatSnackBar>;
     TestBed.configureTestingModule({
-      imports: [MatSnackBarModule, NoopAnimationsModule],
+      imports: [MatSnackBarModule],
       providers: [{ provide: MatSnackBar, useValue: snack_spy }],
     });
   });
@@ -25,7 +25,7 @@ describe('HttpErrorHandlerService', () => {
     const service: HttpErrorHandlerService = TestBed.inject(
       HttpErrorHandlerService
     );
-    await expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
   });
 
   it('createHandleError', async () => {
@@ -33,7 +33,7 @@ describe('HttpErrorHandlerService', () => {
       HttpErrorHandlerService
     );
     const handler: HandleError = service.createHandleError('http-service-spec');
-    await expect(handler).toBeTruthy();
+    expect(handler).toBeTruthy();
   });
 
   it('handleError default', () => {

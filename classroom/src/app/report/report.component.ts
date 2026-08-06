@@ -1,13 +1,20 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CorpusService } from '../corpus.service';
 import { ReportIntroductionService } from './report-introduction.service';
 import { ReportService } from './report.service';
 
 @Component({
-    selector: 'app-report',
-    templateUrl: './report.component.html',
-    styleUrls: ['./report.component.scss'],
-    standalone: false
+  selector: 'app-report',
+  templateUrl: './report.component.html',
+  styleUrls: ['./report.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ReportComponent implements OnInit {
   @ViewChild('download_link') download_link!: ElementRef;

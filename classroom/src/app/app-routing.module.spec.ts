@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppRoutingModule, routes } from './app-routing.module';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('AppRoutingModule', () => {
   let appRoutingModule: AppRoutingModule;
@@ -10,7 +11,7 @@ describe('AppRoutingModule', () => {
   beforeEach(async () => {
     appRoutingModule = new AppRoutingModule();
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule.withRoutes(routes)],
+      imports: [RouterModule.forRoot(routes)],
       declarations: [],
       providers: [],
     }).compileComponents();
@@ -24,30 +25,30 @@ describe('AppRoutingModule', () => {
 
   // TODO: add tests to see if routing to the right place.
   it('navigate to ""', async () => {
-    await expect(() => router.navigate([''])).not.toThrowError();
+    expect(() => router.navigate([''])).not.toThrow();
   });
   it('navigate to "mtv"', async () => {
-    await expect(() => router.navigate(['mtv'])).not.toThrowError();
+    expect(() => router.navigate(['mtv'])).not.toThrow();
   });
   it('navigate to "boxplot"', async () => {
-    await expect(() => router.navigate(['boxplot'])).not.toThrowError();
+    expect(() => router.navigate(['boxplot'])).not.toThrow();
   });
   it('navigate to "bubble"', async () => {
-    await expect(() => router.navigate(['bubble'])).not.toThrowError();
+    expect(() => router.navigate(['bubble'])).not.toThrow();
   });
   it('navigate to "groups"', async () => {
-    await expect(() => router.navigate(['groups'])).not.toThrowError();
+    expect(() => router.navigate(['groups'])).not.toThrow();
   });
   it('navigate to "patterns"', async () => {
-    await expect(() => router.navigate(['patterns'])).not.toThrowError();
+    expect(() => router.navigate(['patterns'])).not.toThrow();
   });
   it('navigate to "frequency"', async () => {
-    await expect(() => router.navigate(['frequency'])).not.toThrowError();
+    expect(() => router.navigate(['frequency'])).not.toThrow();
   });
   it('navigate to "report"', async () => {
-    await expect(() => router.navigate(['report'])).not.toThrowError();
+    expect(() => router.navigate(['report'])).not.toThrow();
   });
   it('navigate to "scatterplot"', async () => {
-    await expect(() => router.navigate(['scatterplot'])).not.toThrowError();
+    expect(() => router.navigate(['scatterplot'])).not.toThrow();
   });
 });

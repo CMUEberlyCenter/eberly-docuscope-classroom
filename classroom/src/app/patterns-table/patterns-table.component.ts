@@ -5,16 +5,18 @@ import {
   Input,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { PatternData } from '../patterns.service';
 
 @Component({
-    selector: 'app-patterns-table',
-    templateUrl: './patterns-table.component.html',
-    styleUrls: ['./patterns-table.component.scss'],
-    standalone: false
+  selector: 'app-patterns-table',
+  templateUrl: './patterns-table.component.html',
+  styleUrls: ['./patterns-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class PatternsTableComponent implements OnInit, AfterViewInit {
   @ViewChild('patternTableSort', { static: false }) sort!: MatSort;

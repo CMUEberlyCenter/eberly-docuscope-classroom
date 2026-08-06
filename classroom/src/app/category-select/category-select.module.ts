@@ -5,8 +5,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { CategorySelectComponent } from './category-select.component';
 
 @NgModule({
-  declarations: [CategorySelectComponent],
-  imports: [CommonModule, MatButtonModule, MatMenuModule],
+  imports: [
+    CategorySelectComponent,
+    CommonModule,
+    MatButtonModule,
+    MatMenuModule,
+  ],
   exports: [
     CategorySelectComponent,
     CommonModule,

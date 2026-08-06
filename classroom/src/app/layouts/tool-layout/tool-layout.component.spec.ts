@@ -1,58 +1,72 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import {
+  ActivatedRoute,
+  RouterLink,
+  RouterLinkActive,
+  RouterModule,
+} from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ToolLayoutComponent } from './tool-layout.component';
+import { routes } from '../../app-routing.module';
 
 @Component({
-    selector: 'app-nav',
-    standalone: false
+  selector: 'app-nav',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
+  template: '',
 })
 class AppNavStubComponent {}
 
 describe('ToolLayoutComponent', () => {
   let component: ToolLayoutComponent;
   let fixture: ComponentFixture<ToolLayoutComponent>;
-  const activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [
-    'paramMap',
-  ]);
-  activatedRouteSpy.snapshot = jasmine.createSpyObj('snapshot', ['paramMap']);
-  activatedRouteSpy.snapshot.queryParamMap = jasmine.createSpyObj(
-    'queryParamMap',
-    ['get', 'has']
-  );
+  let queryParams: Record<string, string> = {};
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ToolLayoutComponent, AppNavStubComponent],
-      imports: [RouterTestingModule],
-      providers: [{ provide: ActivatedRoute, useValue: activatedRouteSpy }],
+      imports: [ToolLayoutComponent, RouterModule.forRoot(routes)],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: {
+                get: (key: string) => queryParams[key] ?? null,
+                has: (key: string) => key in queryParams,
+              },
+            },
+          },
+        },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(ToolLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    activatedRouteSpy.snapshot.queryParamMap.has.and.returnValue(false);
+    // activatedRouteSpy.snapshot.queryParamMap.has.mockReturnValue(false);
   });
 
   it('should create', async () => {
-    await expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
   it('is_instructor null', () => {
-    expect(component.is_instructor()).toBeFalse();
+    expect(component.is_instructor()).toBe(false);
   });
 
   it('is_instructor false', () => {
-    activatedRouteSpy.snapshot.queryParamMap.has.and.returnValue(true);
-    activatedRouteSpy.snapshot.queryParamMap.get.and.returnValue('Student');
-    expect(component.is_instructor()).toBeFalse();
+    queryParams['roles'] = 'Student';
+    // activatedRouteSpy.snapshot.queryParamMap.has.mockReturnValue(true);
+    // activatedRouteSpy.snapshot.queryParamMap.get.mockReturnValue('Student');
+    expect(component.is_instructor()).toBe(false);
   });
   it('is_instructor true', () => {
-    activatedRouteSpy.snapshot.queryParamMap.has.and.returnValue(true);
-    activatedRouteSpy.snapshot.queryParamMap.get.and.returnValue('Instructor');
-    expect(component.is_instructor()).toBeTrue();
+    queryParams['roles'] = 'Instructor';
+    // activatedRouteSpy.snapshot.queryParamMap.has.mockReturnValue(true);
+    // activatedRouteSpy.snapshot.queryParamMap.get.mockReturnValue('Instructor');
+    expect(component.is_instructor()).toBe(true);
   });
 });

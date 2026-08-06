@@ -5,7 +5,7 @@
   TODO: add toggle for hiding model texts. (pending approval)
   TODO: side-by-side displays for comparison. (pending approval)
 */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
@@ -21,10 +21,11 @@ import {
 import { SettingsService } from '../settings.service';
 
 @Component({
-    selector: 'app-frequency',
-    templateUrl: './frequency.component.html',
-    styleUrls: ['./frequency.component.scss'],
-    standalone: false
+  selector: 'app-frequency',
+  templateUrl: './frequency.component.html',
+  styleUrls: ['./frequency.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class FrequencyComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's

@@ -9,8 +9,8 @@ import { BoxplotRoutingModule } from './boxplot-routing.module';
 import { BoxplotComponent } from './boxplot.component';
 
 @NgModule({
-  declarations: [BoxplotComponent],
   imports: [
+    BoxplotComponent,
     BoxplotRoutingModule,
     CommonModule,
     MatCardModule,

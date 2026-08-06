@@ -7,6 +7,7 @@ import { ReportIntroductionService } from './report-introduction.service';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 
 describe('ReportIntroductionService', () => {
@@ -18,7 +19,7 @@ describe('ReportIntroductionService', () => {
       imports: [],
       providers: [
         ReportIntroductionService,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });

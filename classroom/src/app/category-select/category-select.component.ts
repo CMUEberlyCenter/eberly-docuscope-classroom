@@ -13,15 +13,18 @@ import {
   Input,
   Output,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
 
 @Component({
-    selector: 'app-category-select',
-    templateUrl: './category-select.component.html',
-    styleUrls: ['./category-select.component.scss'],
-    standalone: false
+  selector: 'app-category-select',
+  templateUrl: './category-select.component.html',
+  styleUrls: ['./category-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [MatMenuModule],
 })
 export class CategorySelectComponent {
   @Input() dictionary: CommonDictionary | undefined;

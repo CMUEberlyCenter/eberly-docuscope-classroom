@@ -1,9 +1,22 @@
 import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
+import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Spied } from 'src/testing';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import { environment } from './../environments/environment';
 import {
   category_value,
@@ -13,10 +26,6 @@ import {
   max_document_data_value,
 } from './ds-data.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
 
 const data = {
   categories: [
@@ -63,18 +72,18 @@ describe('DsDataService', () => {
   const server = `${environment.backend_server}/ds_data`;
 
   beforeEach(() => {
-    const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
-      'createHandleError',
-    ]) as Spied<HttpErrorHandlerService>;
-    heh_spy.createHandleError.and.returnValue(
-      () => (_fn: () => unknown, edata: unknown) => edata
-    );
+    const heh_spy = {
+      createHandleError: vi
+        .fn()
+        .mockName('HttpErrorHandlerService.createHandleError')
+        .mockReturnValue(() => (_fn: () => unknown, edata: unknown) => edata),
+    } as unknown as Mocked<HttpErrorHandlerService>;
     TestBed.configureTestingModule({
       imports: [],
       providers: [
         DsDataService,
         { provide: HttpErrorHandlerService, useValue: heh_spy },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
@@ -85,34 +94,34 @@ describe('DsDataService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', async () => {
-    await expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
   });
 
   it('server', () => expect(service.server).toBe(server));
 
   it('DocuScopeData', async () => {
-    await expect(max_boxplot_value(data)).toEqual(4);
-    await expect(max_document_data_value(data)).toEqual(0.25);
-    await expect(max_document_data_value({ data: [] })).toEqual(1);
+    expect(max_boxplot_value(data)).toEqual(4);
+    expect(max_document_data_value(data)).toEqual(0.25);
+    expect(max_document_data_value({ data: [] })).toEqual(1);
   });
   it('category_value', async () => {
-    await expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
-    await expect(category_value('bog', data.data[1])).toBe(0.0);
-    await expect(category_value('ownedby', data.data[1])).toBe(0.0);
+    expect(category_value(data.categories[0], data.data[0])).toBe(4.5);
+    expect(category_value('bog', data.data[1])).toBe(0.0);
+    expect(category_value('ownedby', data.data[1])).toBe(0.0);
   });
   it('genCategoryDataMap', async () => {
     // test null data
-    await expect(genCategoryDataMap({ data: [] }).size).toBe(0);
+    expect(genCategoryDataMap({ data: [] }).size).toBe(0);
   });
 
   // This causes warning while testing.
-  xit('getData error', async () => {
+  it.skip('getData error', async () => {
     service.getData(['1', '2', '3']).subscribe((rdata) => {
       void expect(rdata.categories).toEqual([]);
       void expect(rdata.data).toEqual([]);
     });
     const req = httpMock.expectOne(server);
-    await expect(req.request.method).toBe('POST');
+    expect(req.request.method).toBe('POST');
     req.error(new ProgressEvent('fail'), { status: 404 });
   });
 
@@ -122,7 +131,7 @@ describe('DsDataService', () => {
       void expect(edata.data[0].id).toEqual('over_outlier');
     });
     const req = httpMock.expectOne(server);
-    await expect(req.request.method).toBe('POST');
+    expect(req.request.method).toBe('POST');
     req.flush(data);
     // check caching
     service.getData(['1', '2', '3']).subscribe((cdata) => {

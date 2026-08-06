@@ -1,22 +1,24 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComparePatternsTableComponent } from './compare-patterns-table.component';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 @Component({
-    selector: 'app-fake-compare-patterns-table',
-    // prettier-ignore
-    template: `<app-compare-patterns-table
-  patterns="{}"
-  colors="['red','blue']"
+  selector: 'app-fake-compare-patterns-table',
+  // prettier-ignore
+  template: `<app-compare-patterns-table
+  [patterns]="[]"
+  [colors]="['red','blue']"
 ></app-compare-patterns-table>
 `,
-    standalone: false
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [ComparePatternsTableComponent],
 })
 class TestComparePatternsTableComponent {
   @ViewChild(ComparePatternsTableComponent)
@@ -31,12 +33,8 @@ describe('ComparePatternsTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        ComparePatternsTableComponent,
-        TestComparePatternsTableComponent,
-      ],
       imports: [
-        NoopAnimationsModule,
+        TestComparePatternsTableComponent,
         MatCardModule,
         MatIconModule,
         MatSortModule,

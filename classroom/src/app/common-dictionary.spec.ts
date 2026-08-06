@@ -1,4 +1,4 @@
-import { FAKE_COMMON_DICTIONARY } from 'src/testing';
+import { FAKE_COMMON_DICTIONARY } from '../testing';
 import { CommonDictionary } from './common-dictionary';
 
 describe('CommonDictionary', () => {

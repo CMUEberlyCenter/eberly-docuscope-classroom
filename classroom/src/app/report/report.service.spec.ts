@@ -9,6 +9,7 @@ import { ReportService } from './report.service';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 
 describe('ReportService', () => {
@@ -20,7 +21,7 @@ describe('ReportService', () => {
       imports: [MatSnackBarModule],
       providers: [
         ReportService,
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });

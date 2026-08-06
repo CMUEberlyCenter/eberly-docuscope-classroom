@@ -3,6 +3,7 @@ import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -33,7 +34,7 @@ describe('NetworkInterceptor', () => {
           useClass: NetworkInterceptor,
           multi: true,
         },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
@@ -43,13 +44,13 @@ describe('NetworkInterceptor', () => {
   });
 
   /*it('should be created', async () => {
-    const interceptor: NetworkInterceptor = TestBed.inject(NetworkInterceptor);
-    await expect(interceptor).toBeTruthy();
-  });*/
+      const interceptor: NetworkInterceptor = TestBed.inject(NetworkInterceptor);
+      await expect(interceptor).toBeTruthy();
+    });*/
 
   it('should call show and hide on request.', async () => {
-    spyOn(mockService, 'show').and.callFake(() => of());
-    spyOn(mockService, 'hide').and.callFake(() => of());
+    vi.spyOn(mockService, 'show').mockImplementation(() => of());
+    vi.spyOn(mockService, 'hide').mockImplementation(() => of());
     http.get('/ds_data').subscribe((data) => {
       void expect(data).toEqual('Payload');
     });

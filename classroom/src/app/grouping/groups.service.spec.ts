@@ -1,35 +1,46 @@
 import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
+import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Spied } from 'src/testing';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import { environment } from '../../environments/environment';
 import { HttpErrorHandlerService } from '../http-error-handler.service';
 import { GroupsService } from './groups.service';
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
 
 describe('GroupsService', () => {
   let service: GroupsService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
-      'createHandleError',
-    ]) as Spied<HttpErrorHandlerService>;
-    heh_spy.createHandleError.and.returnValue(
-      () => (_fn: unknown, data: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        data
-    );
+    const heh_spy = {
+      createHandleError: vi
+        .fn()
+        .mockName('HttpErrorHandlerService.createHandleError')
+        .mockReturnValue(
+          () => (_fn: unknown, data: any) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            data
+        ),
+    } as unknown as Mocked<HttpErrorHandlerService>;
     TestBed.configureTestingModule({
       imports: [],
       providers: [
         { provide: HttpErrorHandlerService, useValue: heh_spy },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });

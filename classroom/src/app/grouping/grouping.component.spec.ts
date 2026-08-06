@@ -11,8 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { asyncData, Spied } from '../../testing';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupingComponent } from './grouping.component';
@@ -73,28 +73,32 @@ describe('GroupingComponent', () => {
   const dragDropEventFactory = new DragDropEventFactory<string>();
   let component: GroupingComponent;
   let fixture: ComponentFixture<GroupingComponent>;
-  let corpus_service_spy: Spied<CorpusService>;
-  let groups_data_service_spy: Spied<GroupsService>;
-  let snack_spy: Spied<MatSnackBar>;
+  let corpus_service_spy: Mocked<CorpusService>;
+  let groups_data_service_spy: Mocked<GroupsService>;
+  let snack_spy: Mocked<MatSnackBar>;
   const test_corpus = ['a', 'b', 'c', 'd', 'e', 'f'];
 
   beforeEach(async () => {
-    corpus_service_spy = jasmine.createSpyObj('CorpusService', [
-      'getCorpus',
-    ]) as Spied<CorpusService>;
-    corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    groups_data_service_spy = jasmine.createSpyObj('GroupsService', [
-      'getGroupsData',
-    ]) as Spied<GroupsService>;
-    groups_data_service_spy.getGroupsData.and.returnValue(
-      asyncData({ groups: [] })
-    );
-    snack_spy = jasmine.createSpyObj('MatSnackBar', [
-      'open',
-    ]) as Spied<MatSnackBar>;
-    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-      'setAssignmentData',
-    ]) as Spied<AssignmentService>;
+    corpus_service_spy = {
+      getCorpus: vi
+        .fn()
+        .mockName('CorpusService.getCorpus')
+        .mockReturnValue(of([])),
+    } as unknown as Mocked<CorpusService>;
+    groups_data_service_spy = {
+      getGroupsData: vi
+        .fn()
+        .mockName('GroupsService.getGroupsData')
+        .mockReturnValue(of({ groups: [] })),
+    } as unknown as Mocked<GroupsService>;
+    snack_spy = {
+      open: vi.fn().mockName('MatSnackBar.open'),
+    } as unknown as Mocked<MatSnackBar>;
+    const assignment_spy = {
+      setAssignmentData: vi
+        .fn()
+        .mockName('AssignemntService.setAssignmentData'),
+    } as unknown as Mocked<AssignmentService>;
 
     await TestBed.configureTestingModule({
       declarations: [GroupingComponent],
@@ -106,7 +110,6 @@ describe('GroupingComponent', () => {
         MatFormFieldModule,
         MatSidenavModule,
         MatSnackBarModule,
-        NoopAnimationsModule,
       ],
       providers: [
         { provide: AssignmentService, useValue: assignment_spy },

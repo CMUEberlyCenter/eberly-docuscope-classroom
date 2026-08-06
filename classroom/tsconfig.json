@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
@@ -17,6 +16,7 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "outDir": "./dist/out-tsc",
+    "rootDir": "./src",
     "esModuleInterop": true,
     "resolveJsonModule": true
   },

@@ -1,10 +1,12 @@
 /* Application specific page-not-found component. */
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
-    selector: 'app-page-not-found',
-    templateUrl: './page-not-found.component.html',
-    styleUrls: ['./page-not-found.component.scss'],
-    standalone: false
+  selector: 'app-page-not-found',
+  templateUrl: './page-not-found.component.html',
+  styleUrls: ['./page-not-found.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatCardModule],
 })
 export class PageNotFoundComponent {}

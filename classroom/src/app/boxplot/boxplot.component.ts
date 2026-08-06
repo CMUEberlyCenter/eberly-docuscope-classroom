@@ -7,8 +7,8 @@ At the bottom level, the bar graphs of the documents
 can be seen.
 */
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { Component, OnInit } from '@angular/core';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import * as d3 from 'd3';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
@@ -27,6 +27,13 @@ import {
   max_boxplot_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { CommonModule } from '@angular/common';
 
 /** Class for storing boxplot outliers. */
 class Outlier {
@@ -56,10 +63,21 @@ interface DocBox {
 }
 
 @Component({
-    selector: 'app-boxplot',
-    templateUrl: './boxplot.component.html',
-    styleUrls: ['./boxplot.component.scss'],
-    standalone: false
+  selector: 'app-boxplot',
+  templateUrl: './boxplot.component.html',
+  styleUrls: ['./boxplot.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    MatCardModule,
+    MatTreeModule,
+    MatIconModule,
+    RouterLink,
+    MatTooltipModule,
+    CommonModule,
+    MatTableModule,
+    MatSortModule,
+  ],
+  standalone: true,
 })
 export class BoxplotComponent implements OnInit {
   commonDictionary: CommonDictionary | undefined; // Hierachical dictionary

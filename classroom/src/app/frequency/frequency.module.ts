@@ -11,8 +11,9 @@ import { FrequencyRoutingModule } from './frequency-routing.module';
 import { FrequencyComponent } from './frequency.component';
 
 @NgModule({
-  declarations: [FrequencyComponent, FrequencyGraphComponent],
+  declarations: [FrequencyComponent],
   imports: [
+    FrequencyGraphComponent,
     CommonModule,
     CategorySelectModule,
     FrequencyRoutingModule,

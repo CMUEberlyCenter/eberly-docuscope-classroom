@@ -4,9 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Spied } from 'src/testing';
-import { asyncData } from '../../testing/async-observable-helpers';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { CorpusService } from '../corpus.service';
 import { ReportIntroductionService } from './report-introduction.service';
 import { ReportComponent } from './report.component';
@@ -15,38 +14,38 @@ import { ReportService } from './report.service';
 describe('ReportComponent', () => {
   let component: ReportComponent;
   let fixture: ComponentFixture<ReportComponent>;
-  let corpus_service_spy: Spied<CorpusService>;
-  let report_service_spy: Spied<ReportService>;
-  let intro_service_spy: Spied<ReportIntroductionService>;
+  let corpus_service_spy: Mocked<CorpusService>;
+  let report_service_spy: Mocked<ReportService>;
+  let intro_service_spy: Mocked<ReportIntroductionService>;
 
   beforeEach(async () => {
-    corpus_service_spy = jasmine.createSpyObj('CorpusService', [
-      'getCorpus',
-    ]) as Spied<CorpusService>;
-    corpus_service_spy.getCorpus.and.returnValue(asyncData([]));
-    report_service_spy = jasmine.createSpyObj('ReportService', [
-      'getReports',
-    ]) as Spied<ReportService>;
-    report_service_spy.getReports.and.returnValue(asyncData(''));
-    intro_service_spy = jasmine.createSpyObj('ReportIntroductionService', [
-      'getIntroductionText',
-    ]) as Spied<ReportIntroductionService>;
-    intro_service_spy.getIntroductionText.and.returnValue(
-      asyncData({
-        introduction: 'Intro Text',
-        stv_introduction: 'STV Introduction',
-      })
-    );
+    corpus_service_spy = {
+      getCorpus: vi
+        .fn()
+        .mockName('CorpusService.getCorpus')
+        .mockReturnValue(of([])),
+    } as unknown as Mocked<CorpusService>;
+    report_service_spy = {
+      getReports: vi
+        .fn()
+        .mockName('ReportService.getReports')
+        .mockReturnValue(of('')),
+    } as unknown as Mocked<ReportService>;
+    intro_service_spy = {
+      getIntroductionText: vi
+        .fn()
+        .mockName('ReportIntroductionService.getIntroductionText')
+        .mockReturnValue(
+          of({
+            introduction: 'Intro Text',
+            stv_introduction: 'STV Introduction',
+          })
+        ),
+    } as unknown as Mocked<ReportIntroductionService>;
 
     await TestBed.configureTestingModule({
       declarations: [ReportComponent],
-      imports: [
-        FormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        NoopAnimationsModule,
-      ],
+      imports: [FormsModule, MatCardModule, MatFormFieldModule, MatInputModule],
       providers: [
         { provide: CorpusService, useValue: corpus_service_spy },
         { provide: ReportService, useValue: report_service_spy },
@@ -59,44 +58,46 @@ describe('ReportComponent', () => {
   });
 
   it('should create', async () => {
-    await expect(component).toBeDefined();
+    expect(component).toBeDefined();
   });
 
   it('generate_report empty', async () => {
     await fixture.whenStable();
     fixture.detectChanges();
-    spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
-    spyOn(window.URL, 'revokeObjectURL');
-    component.download_link.nativeElement.click = jasmine.createSpy('click');
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('bogus.pdf');
+    vi.spyOn(window.URL, 'revokeObjectURL').mockReturnValue(undefined);
+    component.download_link.nativeElement.click = vi.fn().mockName('click');
     component.generate_report(new MouseEvent('click'));
     fixture.detectChanges();
 
     // TODO: check if spinner openned.
-    await expect(report_service_spy.getReports).toHaveBeenCalled();
+    expect(report_service_spy.getReports).toHaveBeenCalled();
     // TODO: check if spinner closed.
   });
 
   it('generate_report', async () => {
     await fixture.whenStable();
-    report_service_spy.getReports.and.returnValue(asyncData('data'));
+    report_service_spy.getReports.mockReturnValue(of(new Blob(['data'])));
     fixture.detectChanges();
-    spyOn(window.URL, 'createObjectURL').and.returnValue('bogus.pdf');
-    spyOn(window.URL, 'revokeObjectURL');
-    component.download_link.nativeElement.click = jasmine.createSpy('click');
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('bogus.pdf');
+    vi.spyOn(window.URL, 'revokeObjectURL').mockReturnValue(undefined);
+    component.download_link.nativeElement.click = vi.fn().mockName('click');
     component.generate_report(new MouseEvent('click'));
     fixture.detectChanges();
 
     // TODO: check if spinner openned.
-    await expect(report_service_spy.getReports).toHaveBeenCalled();
+    expect(report_service_spy.getReports).toHaveBeenCalled();
     // TODO: check if spinner closed.
   });
   it('generate_report error', async () => {
     await fixture.whenStable();
-    report_service_spy.getReports.and.throwError('test');
+    report_service_spy.getReports.mockImplementation(() => {
+      throw new Error('test');
+    });
     fixture.detectChanges();
-    await expect(() =>
-      component.generate_report(new MouseEvent('click'))
-    ).toThrowError('test');
+    expect(() => component.generate_report(new MouseEvent('click'))).toThrow(
+      'test'
+    );
     fixture.detectChanges();
   });
 });

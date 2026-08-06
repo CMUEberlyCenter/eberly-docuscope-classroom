@@ -10,9 +10,10 @@ import {
   Input,
   OnChanges,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import * as d3 from 'd3';
 import {
   CategoryData,
@@ -21,6 +22,11 @@ import {
   DocuScopeData,
   max_boxplot_value,
 } from '../ds-data.service';
+import { MatCardModule } from '@angular/material/card';
+import { CategorySelectComponent } from '../category-select/category-select.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 
 interface Options {
   width: number;
@@ -41,10 +47,19 @@ interface FrequencyItem {
 }
 
 @Component({
-    selector: 'app-frequency-graph',
-    templateUrl: './frequency-graph.component.html',
-    styleUrls: ['./frequency-graph.component.scss'],
-    standalone: false
+  selector: 'app-frequency-graph',
+  templateUrl: './frequency-graph.component.html',
+  styleUrls: ['./frequency-graph.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatTableModule,
+    MatTooltipModule,
+  ],
 })
 export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   @Input() set data(ds_data: DocuScopeData | undefined) {

@@ -1,22 +1,25 @@
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterTestingModule } from '@angular/router/testing';
-import {} from 'jasmine';
+import { RouterModule } from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
 
 @Component({
-    selector: 'app-messages', template: '',
-    standalone: false
+  selector: 'app-messages',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
 })
 class MessagesStubComponent {}
 
@@ -26,16 +29,18 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AppComponent, HeaderComponent, MessagesStubComponent],
       imports: [
+        AppComponent,
+        MessagesStubComponent,
+        HeaderComponent,
         MatDialogModule,
         MatIconModule,
         MatToolbarModule,
         MatTooltipModule,
-        RouterTestingModule,
+        RouterModule.forRoot([]),
       ],
       providers: [
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();
@@ -45,13 +50,13 @@ describe('AppComponent', () => {
   });
 
   it('should create the app', async () => {
-    await expect(app).toBeTruthy();
+    expect(app).toBeTruthy();
   });
 
   it('should render title in the toolbar', async () => {
     const compiled = fixture.debugElement.nativeElement as HTMLElement;
-    await expect(
-      compiled.querySelector('mat-toolbar > span')?.textContent
-    ).toContain('DocuScope Classroom @ CMU');
+    expect(compiled.querySelector('mat-toolbar > span')?.textContent).toContain(
+      'DocuScope Classroom @ CMU'
+    );
   });
 });

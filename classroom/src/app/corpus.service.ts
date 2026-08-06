@@ -6,7 +6,7 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class CorpusService {
-  private _corpus: string[] | undefined;
+  private _corpus: string[] | undefined = undefined;
 
   constructor(private activatedRoute: ActivatedRoute) {}
 

@@ -1,11 +1,19 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import {
+  ActivatedRoute,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 
 @Component({
-    selector: 'app-tool-layout',
-    templateUrl: './tool-layout.component.html',
-    styleUrls: ['./tool-layout.component.scss'],
-    standalone: false
+  selector: 'app-tool-layout',
+  templateUrl: './tool-layout.component.html',
+  styleUrls: ['./tool-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule],
 })
 export class ToolLayoutComponent {
   constructor(private route: ActivatedRoute) {}

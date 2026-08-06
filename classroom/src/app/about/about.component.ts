@@ -6,16 +6,18 @@ funding.  Most of the information is in the HTML template
 with some minor customization available from
 assets/settings.json
 */
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { version } from '../../environments/version';
 import { SettingsService } from '../settings.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-about',
-    templateUrl: './about.component.html',
-    styleUrls: ['./about.component.scss'],
-    standalone: false
+  selector: 'app-about',
+  templateUrl: './about.component.html',
+  styleUrls: ['./about.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatDialogModule, MatIconModule],
 })
 export class AboutComponent implements OnInit {
   title = 'DocuScope Classroom'; // For the Title text

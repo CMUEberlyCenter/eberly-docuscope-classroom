@@ -1,15 +1,20 @@
 /* Component for the application header */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutComponent } from '../about/about.component';
 import { AssignmentService } from '../assignment.service';
 import { SettingsService } from '../settings.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-header',
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss'],
-    standalone: false
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [MatIconModule, MatToolbarModule, MatTooltipModule],
 })
 export class HeaderComponent implements OnInit {
   title = 'DocuScope Classroom';

@@ -1,28 +1,30 @@
-//import { HarnessLoader } from '@angular/cdk/testing';
-//import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
-import { MatTreeModule } from '@angular/material/tree';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
-import { asyncData, FAKE_COMMON_DICTIONARY, Spied } from '../../testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it, vi, type Mocked } from 'vitest';
+import { FAKE_COMMON_DICTIONARY } from '../../testing';
+import { FAKE_DS_DATA } from '../../testing/fake-ds-data';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { CategoryData, DocuScopeData, DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
 import { BoxplotComponent } from './boxplot.component';
-//import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 
 @Component({
-    selector: 'app-frequency-graph', template: '',
-    standalone: false
+  selector: 'app-frequency-graph',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
 })
 class FrequencyGraphStubComponent {
-  @Input() data!: DocuScopeData;
-  @Input() category!: CategoryData;
-  @Input() unit!: number;
+  @Input()
+  data!: DocuScopeData;
+  @Input()
+  category!: CategoryData;
+  @Input()
+  unit!: number;
 }
 
 describe('BoxplotComponent', () => {
@@ -31,53 +33,59 @@ describe('BoxplotComponent', () => {
   //let loader: HarnessLoader;
 
   beforeEach(async () => {
-    const corpusService_spy = jasmine.createSpyObj('CorpusService', [
-      'getCorpus',
-    ]) as Spied<CorpusService>;
-    corpusService_spy.getCorpus.and.returnValue(
-      asyncData({
-        course: 'stub',
-        assignment: 'stub',
-        documents: ['1', '2', '3'],
-        intro: 'stub',
-        stv_intro: 'stub',
-      })
-    );
-    const dataService_spy = jasmine.createSpyObj('DsDataService', [
-      'getData',
-    ]) as Spied<DsDataService>;
-    dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
-    const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
-      'SettingsService',
-      ['getSettings']
-    ) as Spied<SettingsService>;
-    settings_spy.getSettings.and.returnValue(
-      asyncData({
-        title: 'DocuScope Classroom',
-        institution: 'CMU',
-        unit: 100,
-        homepage:
-          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-        scatter: { width: 400, height: 400 },
-        boxplot: { cloud: true },
-        stv: { max_clusters: 4 },
-      })
-    );
-    const commonDictionaryService_spy = jasmine.createSpyObj(
-      'CommonDictionaryService',
-      ['getJSON']
-    ) as Spied<CommonDictionaryService>;
-    commonDictionaryService_spy.getJSON.and.returnValue(
-      asyncData(FAKE_COMMON_DICTIONARY)
-    );
-    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-      'setAssignmentData',
-    ]) as Spied<AssignmentService>;
+    const corpusService_spy = {
+      getCorpus: vi
+        .fn()
+        .mockName('CorpusService.getCorpus')
+        .mockReturnValue(
+          of({
+            course: 'stub',
+            assignment: 'stub',
+            documents: ['1', '2', '3'],
+            intro: 'stub',
+            stv_intro: 'stub',
+          })
+        ),
+    } as unknown as Mocked<CorpusService>;
+    const dataService_spy = {
+      getData: vi
+        .fn()
+        .mockName('DsDataService.getData')
+        .mockReturnValue(of(FAKE_DS_DATA)),
+    } as unknown as Mocked<DsDataService>;
+    const settings_spy: Mocked<SettingsService> = {
+      getSettings: vi
+        .fn()
+        .mockName('SettingsService.getSettings')
+        .mockReturnValue(
+          of({
+            title: 'DocuScope Classroom',
+            institution: 'CMU',
+            unit: 100,
+            homepage:
+              'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+            scatter: { width: 400, height: 400 },
+            boxplot: { cloud: true },
+            stv: { max_clusters: 4 },
+          })
+        ),
+    } as unknown as Mocked<SettingsService>;
+    const commonDictionaryService_spy = {
+      getJSON: vi
+        .fn()
+        .mockName('CommonDictionaryService.getJSON')
+        .mockReturnValue(of(FAKE_COMMON_DICTIONARY)),
+    } as unknown as Mocked<CommonDictionaryService>;
+    const assignment_spy = {
+      setAssignmentData: vi
+        .fn()
+        .mockName('AssignemntService.setAssignmentData'),
+    } as unknown as Mocked<AssignmentService>;
 
     await TestBed.configureTestingModule({
-      declarations: [BoxplotComponent, FrequencyGraphStubComponent],
-      imports: [MatCardModule, MatTreeModule, NoopAnimationsModule],
+      imports: [BoxplotComponent, FrequencyGraphStubComponent],
       providers: [
+        provideRouter([]),
         { provide: AssignmentService, useValue: assignment_spy },
         {
           provide: CommonDictionaryService,
@@ -101,26 +109,26 @@ describe('BoxplotComponent', () => {
   });
 
   /*it('null select', () => {
-    component.onSelectCategory(null);
-    expect(component.selected_category).toBe(null);
-  });
+      component.onSelectCategory(null);
+      expect(component.selected_category).toBe(null);
+    });
 
-  it(
-    'bogus rank',
-    waitForAsync(() => {
-      component.onSelectCategory({
-        id: 'bogus',
-        q1: 1,
-        q2: 2,
-        q3: 3,
-        min: 0,
-        max: 4,
-        uifence: 3.5,
-        lifence: 0.5,
-      });
-      expect(component.selected_category).toBeTruthy();
-    })
-  );*/
+    it(
+      'bogus rank',
+      waitForAsync(() => {
+        component.onSelectCategory({
+          id: 'bogus',
+          q1: 1,
+          q2: 2,
+          q3: 3,
+          min: 0,
+          max: 4,
+          uifence: 3.5,
+          lifence: 0.5,
+        });
+        expect(component.selected_category).toBeTruthy();
+      })
+    );*/
 
   it('scale', () => {
     void expect(component.scale(0.2)).toBe('20.00');
@@ -129,13 +137,13 @@ describe('BoxplotComponent', () => {
   });
   it('get_outliers', async () => {
     await fixture.whenStable();
-    await expect(
+    expect(
       component.get_outliers(component.data?.categories?.at(0))
     ).toBeTruthy();
-    await expect(
+    expect(
       component.get_outliers(component.data?.categories?.at(0))
     ).toBeTruthy(); // cache check
-    await expect(
+    expect(
       component.get_outliers(component.data?.categories?.at(1))
     ).toBeTruthy();
 
@@ -156,17 +164,17 @@ describe('BoxplotComponent', () => {
   });
   it('hasChild', async () => {
     await fixture.whenStable();
-    return expect(component.hasChild(0, component.treeData.data[0])).toBeTrue();
+    return expect(component.hasChild(0, component.treeData.data[0])).toBe(true);
   });
   it('hasDocuments', async () => {
     await fixture.whenStable();
     const td = component.treeData.data[2];
-    await expect(td.documents?.length).toEqual(2);
-    expect(component.hasDocuments(2, component.treeData.data[2])).toBeTrue();
+    expect(td.documents?.length).toEqual(2);
+    expect(component.hasDocuments(2, component.treeData.data[2])).toBe(true);
   });
   it('treeControl child acsesson', async () => {
     await fixture.whenStable();
-    await expect(
+    expect(
       component.treeControl.getChildren(component.treeData.data[0])
     ).toBeTruthy();
   });
@@ -189,6 +197,6 @@ describe('BoxplotComponent', () => {
       uifence: 3.5,
       lifence: 0.5,
     });
-    expect(tip.startsWith('test')).toBeTrue();
+    expect(tip.startsWith('test')).toBe(true);
   });
 });

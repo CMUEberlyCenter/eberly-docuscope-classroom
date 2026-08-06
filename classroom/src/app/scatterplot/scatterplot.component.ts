@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import * as d3 from 'd3';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
@@ -16,10 +16,11 @@ import {
 import { SettingsService } from '../settings.service';
 
 @Component({
-    selector: 'app-scatterplot',
-    templateUrl: './scatterplot.component.html',
-    styleUrls: ['./scatterplot.component.scss'],
-    standalone: false
+  selector: 'app-scatterplot',
+  templateUrl: './scatterplot.component.html',
+  styleUrls: ['./scatterplot.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ScatterplotComponent implements OnInit {
   corpus: string[] = [];

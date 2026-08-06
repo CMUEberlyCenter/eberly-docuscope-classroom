@@ -1,6 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
@@ -20,10 +20,11 @@ import { PatternData } from '../patterns.service';
 import { SunburstNode } from '../sunburst-chart/sunburst-chart.component';
 
 @Component({
-    selector: 'app-text-view',
-    templateUrl: './text-view.component.html',
-    styleUrls: ['./text-view.component.scss'],
-    standalone: false
+  selector: 'app-text-view',
+  templateUrl: './text-view.component.html',
+  styleUrls: ['./text-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class TextViewComponent implements OnInit {
   colors = d3.scaleOrdinal(d3.schemeCategory10);

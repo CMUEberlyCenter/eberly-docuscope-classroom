@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SunburstChartComponent } from './sunburst-chart.component';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('SunburstChartComponent', () => {
   let component: SunburstChartComponent;
@@ -15,13 +16,13 @@ describe('SunburstChartComponent', () => {
   });
 
   it('should create', async () => {
-    await expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
     component.ngOnChanges();
   });
 
   it('setting data', async () => {
     component.drawChart();
-    await expect(component.arc).toBeUndefined();
+    expect(component.arc).toBeUndefined();
     component.data = {
       name: 'root',
       children: [
@@ -44,7 +45,7 @@ describe('SunburstChartComponent', () => {
     };
     component.ngOnChanges();
     component.ngAfterViewInit();
-    await expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
 
     component.clicked(null, null);
     component.clicked(null, component.root);

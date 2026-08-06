@@ -1,22 +1,26 @@
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatMenuHarness } from '@angular/material/menu/testing';
-import { FAKE_COMMON_DICTIONARY } from 'src/testing';
-import { CategorySelectComponent } from './category-select.component';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuHarness } from '@angular/material/menu/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { FAKE_COMMON_DICTIONARY } from '../../testing';
+import { CategorySelectComponent } from './category-select.component';
 
 @Component({
-    selector: 'app-fake-category-select-component',
-    template: `<app-category-select [dictionary]="dictionary">
+  selector: 'app-fake-category-select-component',
+  template: `<app-category-select [dictionary]="dictionary">
   </app-category-select>`,
-    standalone: false
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [CategorySelectComponent],
 })
 class TestCategorySelectComponent {
   @ViewChild(CategorySelectComponent)
@@ -31,10 +35,9 @@ describe('CategorySelectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CategorySelectComponent, TestCategorySelectComponent],
-      imports: [MatMenuModule],
+      imports: [TestCategorySelectComponent, MatMenuModule],
       providers: [
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     }).compileComponents();

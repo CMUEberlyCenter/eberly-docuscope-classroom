@@ -1,22 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { asyncData, Spied, FAKE_COMMON_DICTIONARY } from 'src/testing';
-import { FAKE_DS_DATA } from 'src/testing/fake-ds-data';
+import { FAKE_COMMON_DICTIONARY } from '../../testing';
+import { FAKE_DS_DATA } from '../../testing/fake-ds-data';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionaryService } from '../common-dictionary.service';
 import { CorpusService } from '../corpus.service';
 import { DsDataService } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
-
 import { BubbleChartComponent } from './bubble-chart.component';
+import { beforeEach, describe, expect, it, vi, type Mocked } from 'vitest';
+import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 
 @Component({
-    selector: 'app-nav', template: '',
-    standalone: false
+  selector: 'app-nav',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
 })
 class NavStubComponent {}
 
@@ -25,59 +29,66 @@ describe('BubbleChartComponent', () => {
   let fixture: ComponentFixture<BubbleChartComponent>;
 
   beforeEach(async () => {
-    const corpusService_spy = jasmine.createSpyObj('CorpusService', [
-      'getCorpus',
-    ]) as Spied<CorpusService>;
-    corpusService_spy.getCorpus.and.returnValue(
-      asyncData({
-        course: 'stub',
-        assignment: 'stub',
-        documents: ['1', '2', '3'],
-        intro: 'stub',
-        stv_intro: 'stub',
-      })
-    );
-    const dataService_spy = jasmine.createSpyObj('DsDataService', [
-      'getData',
-    ]) as Spied<DsDataService>;
-    dataService_spy.getData.and.returnValue(asyncData(FAKE_DS_DATA));
-    const settings_spy: Spied<SettingsService> = jasmine.createSpyObj(
-      'SettingsService',
-      ['getSettings']
-    ) as Spied<SettingsService>;
-    settings_spy.getSettings.and.returnValue(
-      asyncData({
-        title: 'DocuScope Classroom',
-        institution: 'CMU',
-        unit: 100,
-        homepage:
-          'https://www.cmu.edu/dietrich/english/research/docuscope.html',
-        scatter: { width: 400, height: 400 },
-        boxplot: { cloud: true },
-        bubble: { initial_level: 'Category' },
-        stv: { max_clusters: 4 },
-      })
-    );
-    const commonDictionaryService_spy = jasmine.createSpyObj(
-      'CommonDictionaryService',
-      ['getJSON']
-    ) as Spied<CommonDictionaryService>;
-    commonDictionaryService_spy.getJSON.and.returnValue(
-      asyncData(FAKE_COMMON_DICTIONARY)
-    );
-    const assignment_spy = jasmine.createSpyObj('AssignemntService', [
-      'setAssignmentData',
-    ]) as Spied<AssignmentService>;
+    const corpusService_spy: Mocked<CorpusService> = {
+      getCorpus: vi
+        .fn()
+        .mockName('CorpusService.getCorpus')
+        .mockReturnValue(
+          of({
+            course: 'stub',
+            assignment: 'stub',
+            documents: ['1', '2', '3'],
+            intro: 'stub',
+            stv_intro: 'stub',
+          })
+        ),
+    } as unknown as Mocked<CorpusService>;
+    const dataService_spy: Mocked<DsDataService> = {
+      getData: vi
+        .fn()
+        .mockName('DsDataService.getData')
+        .mockReturnValue(of(FAKE_DS_DATA)),
+    } as unknown as Mocked<DsDataService>;
+    const settings_spy: Mocked<SettingsService> = {
+      getSettings: vi
+        .fn()
+        .mockName('SettingsService.getSettings')
+        .mockReturnValue(
+          of({
+            title: 'DocuScope Classroom',
+            institution: 'CMU',
+            unit: 100,
+            homepage:
+              'https://www.cmu.edu/dietrich/english/research/docuscope.html',
+            scatter: { width: 400, height: 400 },
+            boxplot: { cloud: true },
+            bubble: { initial_level: 'Category' },
+            stv: { max_clusters: 4 },
+          })
+        ),
+    } as unknown as Mocked<SettingsService>;
+    const commonDictionaryService_spy: Mocked<CommonDictionaryService> = {
+      getJSON: vi
+        .fn()
+        .mockName('CommonDictionaryService.getJSON')
+        .mockReturnValue(of(FAKE_COMMON_DICTIONARY)),
+    } as unknown as Mocked<CommonDictionaryService>;
+    const assignment_spy = {
+      setAssignmentData: vi
+        .fn()
+        .mockName('AssignemntService.setAssignmentData'),
+    } as unknown as Mocked<AssignmentService>;
 
     await TestBed.configureTestingModule({
-      declarations: [BubbleChartComponent, NavStubComponent],
       imports: [
+        BubbleChartComponent,
+        NavStubComponent,
         MatCardModule,
         MatButtonToggleModule,
         MatFormFieldModule,
-        NoopAnimationsModule,
       ],
       providers: [
+        provideRouter([]),
         { provide: AssignmentService, useValue: assignment_spy },
         {
           provide: CommonDictionaryService,

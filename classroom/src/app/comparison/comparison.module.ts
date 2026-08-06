@@ -16,8 +16,9 @@ import { ComparisonRoutingModule } from './comparison-router.module';
 import { ComparisonComponent } from './comparison.component';
 
 @NgModule({
-  declarations: [ComparisonComponent, ComparePatternsTableComponent],
+  declarations: [ComparisonComponent],
   imports: [
+    ComparePatternsTableComponent,
     AngularSplitModule,
     CommonModule,
     ComparisonRoutingModule,

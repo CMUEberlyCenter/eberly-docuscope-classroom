@@ -12,9 +12,10 @@ import {
   ElementRef,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import * as d3 from 'd3';
 import { forkJoin } from 'rxjs';
 import { AssignmentService } from '../assignment.service';
@@ -28,6 +29,12 @@ import {
   max_document_data_value,
 } from '../ds-data.service';
 import { SettingsService } from '../settings.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 
 interface ICell {
   proportion: number;
@@ -38,10 +45,21 @@ interface ICell {
 }
 
 @Component({
-    selector: 'app-bubble-chart',
-    templateUrl: './bubble-chart.component.html',
-    styleUrls: ['./bubble-chart.component.scss'],
-    standalone: false
+  selector: 'app-bubble-chart',
+  templateUrl: './bubble-chart.component.html',
+  styleUrls: ['./bubble-chart.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [
+    MatCardModule,
+    MatButtonToggleModule,
+    MatFormFieldModule,
+    RouterLink,
+    MatTooltipModule,
+    CommonModule,
+    MatTableModule,
+    MatSortModule,
+  ],
 })
 export class BubbleChartComponent implements OnInit, AfterViewChecked {
   @ViewChild('bubble') bubble!: ElementRef;

@@ -1,4 +1,4 @@
-import { CommonDictionary } from 'src/app/common-dictionary';
+import { CommonDictionary } from '../app/common-dictionary';
 
 export const FAKE_COMMON_DICTIONARY: CommonDictionary = new CommonDictionary({
   default_dict: 'fake_dict',

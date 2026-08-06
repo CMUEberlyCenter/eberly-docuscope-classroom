@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { PageNotFoundComponent } from './page-not-found.component';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('PageNotFoundComponent', () => {
   let component: PageNotFoundComponent;
@@ -8,8 +9,7 @@ describe('PageNotFoundComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PageNotFoundComponent],
-      imports: [MatCardModule],
+      imports: [PageNotFoundComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(PageNotFoundComponent);
     component = fixture.componentInstance;
@@ -17,6 +17,6 @@ describe('PageNotFoundComponent', () => {
   });
 
   it('should create', async () => {
-    await expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

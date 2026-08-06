@@ -4,17 +4,18 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AssignmentService } from '../assignment.service';
 import { CorpusService } from '../corpus.service';
 import { GroupsData, GroupsService } from './groups.service';
 
 @Component({
-    selector: 'app-grouping',
-    templateUrl: './grouping.component.html',
-    styleUrls: ['./grouping.component.scss'],
-    standalone: false
+  selector: 'app-grouping',
+  templateUrl: './grouping.component.html',
+  styleUrls: ['./grouping.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class GroupingComponent implements OnInit {
   size_min = 2; // Minimum size of groups (no singletons)

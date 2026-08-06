@@ -1,4 +1,4 @@
-import { DocuScopeData } from 'src/app/ds-data.service';
+import { DocuScopeData } from '../app/ds-data.service';
 
 export const FAKE_DS_DATA: DocuScopeData = {
   assignment: 'Test Assignment',

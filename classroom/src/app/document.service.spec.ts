@@ -4,14 +4,23 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Spied } from 'src/testing';
-import { environment } from './../environments/environment';
+import { environment } from '../environments/environment';
 import { DocumentService } from './document.service';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 
 const data = {
   course: 'course',
@@ -38,24 +47,26 @@ const data = {
 describe('DocumentService', () => {
   let service: DocumentService;
   let httpMock: HttpTestingController;
-  let errorServiceMock: Spied<HttpErrorHandlerService>;
+  let errorServiceMock: Mocked<HttpErrorHandlerService>;
   const server = `${environment.backend_server}/document`;
 
   beforeEach(() => {
-    errorServiceMock = jasmine.createSpyObj('HttpErrorHandlerService', [
-      'createHandleError',
-    ]) as Spied<HttpErrorHandlerService>;
-    errorServiceMock.createHandleError.and.returnValue(
-      () =>
-        (_fn: () => unknown, edata: unknown): unknown =>
-          edata
-    );
+    errorServiceMock = {
+      createHandleError: vi
+        .fn()
+        .mockName('HttpErrorHandlerService.createHandleError')
+        .mockReturnValue(
+          () =>
+            (_fn: () => unknown, edata: unknown): unknown =>
+              edata
+        ),
+    } as unknown as Mocked<HttpErrorHandlerService>;
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule],
       providers: [
         DocumentService,
         { provide: HttpErrorHandlerService, useValue: errorServiceMock },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
@@ -66,7 +77,7 @@ describe('DocumentService', () => {
   afterEach(() => httpMock.verify());
 
   it('should be created', async () => {
-    await expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
     expect(errorServiceMock.createHandleError).toHaveBeenCalledWith(
       'DocumentService'
     );
@@ -79,7 +90,7 @@ describe('DocumentService', () => {
       void expect(d.documents[0].text_id).toBe('1');
     });
     const req = httpMock.expectOne(server);
-    await expect(req.request.method).toBe('POST');
+    expect(req.request.method).toBe('POST');
     req.flush(data);
   });
 });

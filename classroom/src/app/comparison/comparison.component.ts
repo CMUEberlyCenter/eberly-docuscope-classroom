@@ -5,7 +5,7 @@ It is based on the single document text-view component.
 */
 import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
@@ -89,10 +89,11 @@ class CompareTreeNode {
 }
 
 @Component({
-    selector: 'app-comparison',
-    templateUrl: './comparison.component.html',
-    styleUrls: ['./comparison.component.scss'],
-    standalone: false
+  selector: 'app-comparison',
+  templateUrl: './comparison.component.html',
+  styleUrls: ['./comparison.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ComparisonComponent implements OnInit {
   corpus: string[] = []; // list of document UUID's

@@ -10,8 +10,8 @@ import { BubbleChartRoutingModule } from './bubble-chart-routing.module';
 import { BubbleChartComponent } from './bubble-chart.component';
 
 @NgModule({
-  declarations: [BubbleChartComponent],
   imports: [
+    BubbleChartComponent,
     BubbleChartRoutingModule,
     CommonModule,
     MatCardModule,

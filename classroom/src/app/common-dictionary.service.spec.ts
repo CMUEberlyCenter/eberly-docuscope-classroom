@@ -5,12 +5,13 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { environment } from 'src/environments/environment';
-import { FAKE_COMMON_DICTIONARY } from 'src/testing';
+import { environment } from '../environments/environment';
+import { FAKE_COMMON_DICTIONARY } from '../testing';
 import { CommonDictionaryService } from './common-dictionary.service';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 
 describe('CommonDictionaryService', () => {
@@ -22,7 +23,7 @@ describe('CommonDictionaryService', () => {
     TestBed.configureTestingModule({
       imports: [MatMenuModule, MatSnackBarModule],
       providers: [
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });

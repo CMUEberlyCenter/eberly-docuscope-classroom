@@ -1,40 +1,49 @@
 import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr,
+} from '@angular/common/http';
+import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Spied } from 'src/testing';
-import { environment } from './../environments/environment';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mocked,
+} from 'vitest';
+import { environment } from '../environments/environment';
 import { HttpErrorHandlerService } from './http-error-handler.service';
 import {
   ComparePatternData,
   instance_count,
-  PatternsService,
   pattern_compare,
+  PatternsService,
 } from './patterns.service';
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
 
 describe('PatternsService', () => {
   let service: PatternsService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    const heh_spy = jasmine.createSpyObj('HttpErrorHandlerService', [
-      'createHandleError',
-    ]) as Spied<HttpErrorHandlerService>;
-    heh_spy.createHandleError.and.returnValue(
-      () => (_fn: () => unknown, edata: unknown) => edata
-    );
+    const heh_spy = {
+      createHandleError: vi
+        .fn()
+        .mockName('HttpErrorHandlerService.createHandleError')
+        .mockReturnValue(() => (_fn: () => unknown, edata: unknown) => edata),
+    } as unknown as Mocked<HttpErrorHandlerService>;
     TestBed.configureTestingModule({
       imports: [MatSnackBarModule],
       providers: [
         PatternsService,
         { provide: HttpErrorHandlerService, useValue: heh_spy },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });

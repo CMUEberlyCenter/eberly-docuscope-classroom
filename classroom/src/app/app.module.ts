@@ -2,6 +2,7 @@ import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,18 +25,15 @@ import { NetworkInterceptor } from './network.interceptor';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
-  declarations: [
-    AboutComponent,
-    AppComponent,
-    HeaderComponent,
-    PageNotFoundComponent,
-    ToolLayoutComponent,
-  ],
   bootstrap: [AppComponent],
   imports: [
+    ToolLayoutComponent,
+    HeaderComponent,
+    AboutComponent,
+    PageNotFoundComponent,
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
+    // BrowserAnimationsModule,
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
@@ -52,7 +50,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
       useClass: NetworkInterceptor,
       multi: true,
     },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@ import { SettingsService } from './settings.service';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 
 describe('SettingsService', () => {
@@ -18,7 +19,7 @@ describe('SettingsService', () => {
     TestBed.configureTestingModule({
       imports: [],
       providers: [
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
@@ -44,7 +45,7 @@ describe('SettingsService', () => {
     service.getSettings().subscribe((data) => {
       void expect(data.title).toBe('TestScope');
       void expect(data.unit).toBe(1);
-      void expect(data.sticky_headers).toBeTrue(); // check defaults.
+      void expect(data.sticky_headers).toBe(true); // check defaults.
     });
     const req = httpMock.expectOne('assets/settings.json');
     await expect(req.request.method).toBe('GET');

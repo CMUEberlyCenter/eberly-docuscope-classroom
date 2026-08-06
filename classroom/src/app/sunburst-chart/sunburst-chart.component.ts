@@ -5,6 +5,7 @@ import {
   Input,
   OnChanges,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { BaseType, HierarchyRectangularNode } from 'd3';
@@ -44,10 +45,11 @@ const labelTransform = (d: Segment | undefined, radius: number): string => {
 };
 
 @Component({
-    selector: 'app-sunburst-chart',
-    templateUrl: './sunburst-chart.component.html',
-    styleUrls: ['./sunburst-chart.component.scss'],
-    standalone: false
+  selector: 'app-sunburst-chart',
+  templateUrl: './sunburst-chart.component.html',
+  styleUrls: ['./sunburst-chart.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SunburstChartComponent implements OnChanges, AfterViewInit {
   @Input() data: SunburstNode | undefined;
