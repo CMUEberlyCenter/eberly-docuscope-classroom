@@ -222,10 +222,10 @@ describe('TextViewComponent', () => {
   it('click_select', async () => {
     await fixture.whenStable();
     fixture.detectChanges();
-    await expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
-    await expect(component.tagged_text).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('.sidebar'))).toBeTruthy();
+    expect(component.tagged_text).toBeTruthy();
     const txt = fixture.debugElement.query(By.css('.text_content'));
-    await expect(txt.nativeElement.innerText).toBeDefined();
+    expect(txt.nativeElement.innerText).toBeDefined();
     txt.triggerEventHandler('click', new MouseEvent('click'));
     (
       fixture.debugElement.query(By.css('#tag_3')).nativeElement as HTMLElement

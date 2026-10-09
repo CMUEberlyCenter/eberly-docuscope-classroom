@@ -6,10 +6,10 @@ two documents.
 */
 import {
   Component,
-  Input,
   OnInit,
   ViewChild,
   ChangeDetectionStrategy,
+  input,
 } from '@angular/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -26,23 +26,25 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class ComparePatternsTableComponent implements OnInit {
   @ViewChild('patternTableSort', { static: true }) sort!: MatSort;
-  @Input() patterns!: ComparePatternData[]; // parameterized table data
-  @Input() colors!: string[]; // parameterized column colors
+  readonly patterns = input.required<ComparePatternData[]>(); // parameterized table data
+  readonly colors = input.required<string[]>(); // parameterized column colors
 
   displayColumns = ['pattern', 'count0', 'count1']; // columns to display
   pattern_data: MatTableDataSource<ComparePatternData> | undefined;
 
   ngOnInit(): void {
-    this.pattern_data = new MatTableDataSource(this.patterns);
+    this.pattern_data = new MatTableDataSource(this.patterns());
     this.pattern_data.sort = this.sort;
   }
 
   /** Get color for first document. */
   get left_color(): string {
-    return this.colors && this.colors.length > 0 ? this.colors[0] : 'black';
+    const colors = this.colors();
+    return colors && colors.length > 0 ? colors[0] : 'black';
   }
   /** Get color for second document. */
   get right_color(): string {
-    return this.colors && this.colors.length > 1 ? this.colors[1] : 'black';
+    const colors = this.colors();
+    return colors && colors.length > 1 ? colors[1] : 'black';
   }
 }

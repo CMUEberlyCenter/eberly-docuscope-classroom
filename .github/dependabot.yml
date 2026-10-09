@@ -4,4 +4,9 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+  # Keeps your GitHub Codespaces / Dev Container Features up to date
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "weekly" # Options: daily, weekly, monthly

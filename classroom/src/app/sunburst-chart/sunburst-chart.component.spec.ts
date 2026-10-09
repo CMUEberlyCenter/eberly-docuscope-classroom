@@ -23,7 +23,7 @@ describe('SunburstChartComponent', () => {
   it('setting data', async () => {
     component.drawChart();
     expect(component.arc).toBeUndefined();
-    component.data = {
+    fixture.componentRef.setInput('data', {
       name: 'root',
       children: [
         {
@@ -42,7 +42,7 @@ describe('SunburstChartComponent', () => {
         },
         { name: 'sub2', value: 2 },
       ],
-    };
+    });
     component.ngOnChanges();
     component.ngAfterViewInit();
     expect(component).toBeTruthy();

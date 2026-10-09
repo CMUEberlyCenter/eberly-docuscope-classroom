@@ -4,29 +4,29 @@
   - Frequency value
   - graphical deviation from median
 */
+import { CommonModule } from '@angular/common';
 import {
   AfterViewChecked,
-  Component,
-  Input,
-  OnChanges,
-  ViewChild,
   ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  OnChanges,
+  ViewChild
 } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import * as d3 from 'd3';
 import {
-  CategoryData,
   category_value,
+  CategoryData,
   DocumentData,
   DocuScopeData,
   max_boxplot_value,
 } from '../ds-data.service';
-import { MatCardModule } from '@angular/material/card';
-import { CategorySelectComponent } from '../category-select/category-select.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule } from '@angular/common';
 
 interface Options {
   width: number;
@@ -62,16 +62,10 @@ interface FrequencyItem {
   ],
 })
 export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
-  @Input() set data(ds_data: DocuScopeData | undefined) {
-    this.ds_data = ds_data;
-    this._max_cache = null;
-  }
-  get data(): DocuScopeData | undefined {
-    return this.ds_data;
-  }
-  @Input() category: CategoryData | null = null;
-  @Input() unit!: number;
-  @Input() sticky = true;
+  readonly data = input.required<DocuScopeData | undefined>()
+  readonly category = input<CategoryData | null>(null);
+  readonly unit = input.required<number>();
+  readonly sticky = input(true);
   @ViewChild('rankSort') sort!: MatSort;
   ranking: MatTableDataSource<FrequencyItem> = new MatTableDataSource();
 
@@ -82,48 +76,36 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   };
   displayedColumns: string[] = ['title', 'value', 'meanbar'];
 
-  private _max_cache: number | null = null;
-  private ds_data: DocuScopeData | undefined;
+  /** The maximum value over all documents and categories. */
+  readonly max_value = computed(() => this.unit() * max_boxplot_value(this.data()))
+  readonly median = computed(() => this.unit() * (this.category()?.q2 ?? 0))
 
   ngOnChanges(): void {
-    if (this.data) {
+    if (this.data()) {
       /*if (this.category) {
         for (const datum of this.data.data) {
           datum.value = this.unit * category_value(this.category, datum);
         }
       }*/
-      this.ranking.data = this.data.data.map((datum) => ({
+      this.ranking.data = this.data()?.data.map((datum) => ({
         ...datum,
         value: this.getValue(datum),
-      }));
-      this._max_cache = this.unit * max_boxplot_value(this.data);
+      })) ?? [];
     }
   }
   ngAfterViewChecked(): void {
-    if (this.data && this.ranking) {
+    if (this.data() && this.ranking) {
       this.ranking.sort = this.sort;
     }
   }
 
-  /** Get the median value of the category. */
-  get median(): number {
-    return this.unit * (this.category?.q2 ?? 0);
-  }
-
-  /** The maximum value over all documents and categories. */
-  get max_value(): number {
-    if (!this._max_cache) {
-      this._max_cache = this.unit * max_boxplot_value(this.data);
-    }
-    return this._max_cache;
-  }
   /**
    * Gets the value of the currently selected category of the given
    * DocumentData
    * @param datum An entry from the document section of the DocuscopeData.
    */
   getValue(datum: DocumentData): number {
-    return this.unit * category_value(this.category, datum);
+    return this.unit() * category_value(this.category(), datum);
   }
   /**
    * Get the min of the given value and the median.
@@ -131,23 +113,23 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
    * @param value Frequency value.
    */
   mean_start(value: number): number {
-    return Math.min(value, this.median);
+    return Math.min(value, this.median());
   }
   /**
    * Get the deviation of the value from the mean.
    * @param value Frequency value.
    */
   mean_width(value: number): number {
-    return Math.abs(value - this.median);
+    return Math.abs(value - this.median());
   }
   /**
    * Tooltip text for a given value.
    * @param value Frequency value.
    */
   bar_tip(value: number): string {
-    const diff = value - this.median;
+    const diff = value - this.median();
     const val: string = value.toFixed(2);
-    const avg: string = this.median.toFixed(2);
+    const avg: string = this.median().toFixed(2);
     const d: string = Math.abs(diff).toFixed(2);
     const sign: string = diff >= 0 ? 'more' : 'less';
     return `${val} which is about ${d} ${sign} than the median of ${avg}.`;
@@ -164,7 +146,7 @@ export class FrequencyGraphComponent implements OnChanges, AfterViewChecked {
   get x(): d3.ScaleLinear<number, number> {
     return d3
       .scaleLinear()
-      .domain([0, this.max_value])
+      .domain([0, this.max_value()])
       .range([this.left, this.right])
       .nice()
       .clamp(true);

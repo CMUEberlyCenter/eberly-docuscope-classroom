@@ -6,7 +6,7 @@ import {
   withXhr,
 } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, provideZoneChangeDetection, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatMenuHarness } from '@angular/material/menu/testing';
@@ -37,6 +37,7 @@ describe('CategorySelectComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TestCategorySelectComponent, MatMenuModule],
       providers: [
+        provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true}),
         provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
@@ -51,18 +52,26 @@ describe('CategorySelectComponent', () => {
     return expect(component).toBeTruthy();
   });
 
-  it('selectCategory', () =>
-    fixture.whenStable().then(async () => {
-      component.select.selectCategory({ label: 'Insurection', help: '' });
-      void expect(component.select.selectedCategory?.label).toBe('Insurection');
-      await loader.getHarness(MatMenuHarness);
-      component.select.selectCategory({
-        name: 'foo',
-        label: 'foobar',
-        help: '',
-      });
-      void expect(component.select.selectedCategory?.label).toBe('foobar');
-    }));
+  it('selectCategory', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    component.select.selectCategory({ label: 'Insurection', help: '' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    void expect(component.select.selectedCategory()?.label).toBe('Insurection');
+    await loader.getHarness(MatMenuHarness);
+    component.select.selectCategory({
+      name: 'foo',
+      label: 'foobar',
+      help: '',
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    void expect(component.select.selectedCategory()?.label).toBe('foobar');
+  });
   it('selectCluster', () =>
     fixture.whenStable().then(() => {
       component.select.selectCluster({
@@ -70,6 +79,6 @@ describe('CategorySelectComponent', () => {
         label: 'foobar',
         help: '',
       });
-      void expect(component.select.selectedCategory?.label).toBe('foobar');
+      void expect(component.select.selectedCategory()?.label).toBe('foobar');
     }));
 });

@@ -8,12 +8,11 @@ It will only show the category, subcategory, and cluster
 levels.  LAT and Tone levels are not accessible.
 */
 import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  ViewChild,
   ChangeDetectionStrategy,
+  Component,
+  input,
+  model,
+  ViewChild
 } from '@angular/core';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
@@ -27,9 +26,8 @@ import { CommonDictionary, Entry, ICluster } from '../common-dictionary';
   imports: [MatMenuModule],
 })
 export class CategorySelectComponent {
-  @Input() dictionary: CommonDictionary | undefined;
-  @Input() selectedCategory: Entry | undefined;
-  @Output() selectedCategoryChange = new EventEmitter<Entry>();
+  dictionary = input<CommonDictionary | undefined>();
+  selectedCategory = model<Entry | undefined>();
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
 
   /**
@@ -37,8 +35,7 @@ export class CategorySelectComponent {
    * @param cat The (sub)category selected
    */
   selectCategory(cat: Entry): void {
-    this.selectedCategory = cat;
-    this.selectedCategoryChange.emit(this.selectedCategory);
+    this.selectedCategory.set(cat);
     this.menuTrigger.closeMenu(); // Needs to force close menu on non-leaf nodes.
   }
   /**
@@ -46,7 +43,7 @@ export class CategorySelectComponent {
    * @param menuItem The selected cluster
    */
   selectCluster(menuItem: ICluster): void {
-    this.selectedCategory = menuItem;
-    this.selectedCategoryChange.emit(this.selectedCategory);
+    this.selectedCategory.set(menuItem);
+    // this.selectedCategoryChange.emit(this.selectedCategory);
   }
 }

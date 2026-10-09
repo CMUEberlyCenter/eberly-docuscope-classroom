@@ -1,13 +1,13 @@
-@if (dictionary) {
+@if (dictionary()) {
   <button mat-raised-button color="primary" [matMenuTriggerFor]="categoryMenu">
     Category
-    @if (selectedCategory) {
-      <span>: {{ selectedCategory.path }}</span>
+    @if (selectedCategory()) {
+      <span>: {{ selectedCategory()?.path }}</span>
     }
   </button>
   <mat-menu #categoryMenu="matMenu">
     <ng-template matMenuContent>
-      @for (category of dictionary.categories; track category) {
+      @for (category of dictionary()?.categories??[]; track category) {
         <button
           mat-menu-item
           [matMenuTriggerFor]="subcat"

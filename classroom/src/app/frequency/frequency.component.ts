@@ -75,8 +75,8 @@ export class FrequencyComponent implements OnInit {
    * Populates the category data for the given category.
    * @param category the menu entry selected by user.
    */
-  onSelectCategory(category: Entry): void {
+  onSelectCategory(category: Entry | undefined): void {
     this.selected_category = category;
-    this.category = this.dsmap?.get(category.name ?? category.label);
+    this.category = category ? this.dsmap?.get(category.name ?? category.label) : undefined;
   }
 }

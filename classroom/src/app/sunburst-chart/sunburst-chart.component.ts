@@ -2,10 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
   OnChanges,
   ViewChild,
   ChangeDetectionStrategy,
+  input,
+  computed,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { BaseType, HierarchyRectangularNode } from 'd3';
@@ -52,9 +53,10 @@ const labelTransform = (d: Segment | undefined, radius: number): string => {
   standalone: false,
 })
 export class SunburstChartComponent implements OnChanges, AfterViewInit {
-  @Input() data: SunburstNode | undefined;
-  @Input() width = 500;
+  readonly data = input<SunburstNode>();
+  readonly width = input(500);
   @ViewChild('sunburst') sunburst!: ElementRef;
+  readonly radius = computed(() => this.width() / 6);
 
   color = d3.scaleOrdinal(d3.schemeCategory10);
   current_path = '';
@@ -89,14 +91,10 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
     | undefined;
   g!: d3.Selection<SVGGElement, unknown, null, undefined>;
 
-  get radius(): number {
-    return this.width / 6;
-  }
-
   //constructor() {}
 
   ngOnChanges(): void {
-    if (this.data && this.sunburst) {
+    if (this.data() && this.sunburst) {
       this.drawChart();
     }
   }
@@ -168,21 +166,22 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
         .attr('fill-opacity', (d) => +labelVisible(d.data.target))
         .attrTween(
           'transform',
-          (d) => () => labelTransform(d.data.current, this.radius)
+          (d) => () => labelTransform(d.data.current, this.radius())
         );
     }
   }
   drawChart(): void {
-    if (!this.data || !this.data.children) return;
+    const data = this.data();
+    if (!data || !data.children) return;
     this.arc = d3
       .arc<Segment>()
       .startAngle((d) => d.x0)
       .endAngle((d) => d.x1)
       .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
-      .padRadius(this.radius * 1.5)
-      .innerRadius((d) => d.y0 * this.radius)
-      .outerRadius((d) => Math.max(d.y0 * this.radius, d.y1 * this.radius - 1));
-    this.root = partition(this.data);
+      .padRadius(this.radius() * 1.5)
+      .innerRadius((d) => d.y0 * this.radius())
+      .outerRadius((d) => Math.max(d.y0 * this.radius(), d.y1 * this.radius() - 1));
+    this.root = partition(data);
     this.root.each((d) => (d.data.current = d));
     const root = this.root;
     this.root.each(
@@ -203,12 +202,12 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
     const svg = d3
       .select(this.sunburst.nativeElement)
       .append('svg')
-      .attr('viewBox', `0 0 ${this.width} ${this.width}`)
+      .attr('viewBox', `0 0 ${this.width()} ${this.width()}`)
       .style('font', '12px open-sans');
     this.svg = svg;
     this.g = svg
       .append('g')
-      .attr('transform', `translate(${this.width / 2},${this.width / 2})`);
+      .attr('transform', `translate(${this.width() / 2},${this.width() / 2})`);
     this.path = this.g
       .append('g')
       .selectAll('path')
@@ -241,12 +240,12 @@ export class SunburstChartComponent implements OnChanges, AfterViewInit {
       .join('text')
       .attr('dy', '0.35em')
       .attr('fill-opacity', (d) => +labelVisible(d.data.current))
-      .attr('transform', (d) => labelTransform(d.data.current, this.radius))
+      .attr('transform', (d) => labelTransform(d.data.current, this.radius()))
       .text((d) => d.data.name);
     this.parent = this.g
       .append('circle')
       .datum(this.root)
-      .attr('r', this.radius)
+      .attr('r', this.radius())
       .attr('fill', 'none')
       .attr('pointer-events', 'all')
       .style('cursor', 'pointer');

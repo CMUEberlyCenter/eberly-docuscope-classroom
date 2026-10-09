@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_COMMON_DICTIONARY } from '../../testing';
 import { FAKE_DS_DATA } from '../../testing/fake-ds-data';
 import { AssignmentService } from '../assignment.service';

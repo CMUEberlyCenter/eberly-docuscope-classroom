@@ -80,8 +80,10 @@ describe('RankGraphComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(TestRankComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
-    component.rank.category = data.categories[0];
+    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', async () => {
@@ -90,58 +92,59 @@ describe('RankGraphComponent', () => {
   });
 
   it('ngOnChanges', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     expect(() => component.rank.ngOnChanges()).not.toThrow();
-    component.rank.category = null;
+    fixture.componentRef.setInput('category', null)
     fixture.detectChanges();
     expect(() => component.rank.ngOnChanges()).not.toThrow();
-    component.rank.data = undefined;
+    fixture.componentRef.setInput('data', undefined);
     fixture.detectChanges();
     expect(() => component.rank.ngOnChanges()).not.toThrow();
   });
 
   it('median', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     await fixture.whenStable();
     expect(component.rank.median).toBe(50);
   });
   it('max_value', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     expect(component.rank.max_value).toBe(100);
     expect(component.rank.max_value).toBe(100);
   });
   it('getValue', async () => {
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('category', data.categories[0]);
     fixture.detectChanges();
+    await fixture.whenStable();
     expect(component.rank.getValue(data.data[0])).toBe(60);
   });
   it('left', () => expect(component.rank.left).toBe(10));
   it('right', () => expect(component.rank.right).toBe(240));
   it('x', () => expect(component.rank.x(0)).toBe(125));
   it('mean_start', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     expect(component.rank.mean_start(30)).toBe(30);
     expect(component.rank.mean_start(60)).toBe(50);
   });
   it('mean_width', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     expect(component.rank.mean_width(30)).toBe(20);
     expect(component.rank.mean_width(75)).toBe(25);
   });
 
   it('bar_tip', async () => {
-    component.rank.data = data;
-    component.rank.category = data.categories[0];
+    fixture.componentRef.setInput('data', data);
+    fixture.componentRef.setInput('category', data.categories[0])
     fixture.detectChanges();
     expect(component.rank.bar_tip(20)).toBe(
       '20.00 which is about 30.00 less than the median of 50.00.'

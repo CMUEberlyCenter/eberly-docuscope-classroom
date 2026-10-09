@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { PatternsTableComponent } from './patterns-table.component';
 
 describe('PatternsTableComponent', () => {
@@ -15,7 +15,6 @@ describe('PatternsTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [PatternsTableComponent],
       imports: [
-        NoopAnimationsModule,
         MatCardModule,
         MatIconModule,
         MatSortModule,

@@ -58,7 +58,7 @@ export class ScatterplotComponent implements OnInit {
     private assignment_service: AssignmentService,
     private dataService: DsDataService,
     private settingsService: SettingsService
-  ) {}
+  ) { }
 
   get_value(category: CategoryData | undefined, datum: DocumentData): number {
     return this.unit * category_value(category, datum);
@@ -107,15 +107,15 @@ export class ScatterplotComponent implements OnInit {
     this.x.domain([0, this.max_value]).nice();
     this.y.domain([0, this.max_value]).nice();
   }
-  on_select_x(clust: Entry): void {
+  on_select_x(clust: Entry | undefined): void {
     this.x_axis = clust;
-    this.x_category = this.get_category(clust.name ?? clust.label);
+    this.x_category = clust ? this.get_category(clust.name ?? clust.label) : undefined;
     this.update_axis();
     //this.genPoints();
   }
-  on_select_y(clust: Entry): void {
+  on_select_y(clust: Entry | undefined): void {
     this.y_axis = clust;
-    this.y_category = this.get_category(clust.name ?? clust.label);
+    this.y_category = clust ? this.get_category(clust.name ?? clust.label) : undefined;
     this.update_axis();
     //this.genPoints();
   }
@@ -125,12 +125,12 @@ export class ScatterplotComponent implements OnInit {
   point_tooltip(datum: DocumentData): string {
     return `${datum.title}
               ${this.x_axis?.label ?? 'X'}: ${this.get_value(
-                this.x_category,
-                datum
-              ).toFixed(2)}
+      this.x_category,
+      datum
+    ).toFixed(2)}
               ${this.y_axis?.label ?? 'Y'}: ${this.get_value(
-                this.y_category,
-                datum
-              ).toFixed(2)}`;
+      this.y_category,
+      datum
+    ).toFixed(2)}`;
   }
 }

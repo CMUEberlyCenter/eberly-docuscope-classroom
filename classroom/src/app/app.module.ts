@@ -15,7 +15,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AboutComponent } from './about/about.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';

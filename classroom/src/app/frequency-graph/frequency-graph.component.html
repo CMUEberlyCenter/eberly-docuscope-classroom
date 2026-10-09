@@ -1,4 +1,4 @@
-@if (category) {
+@if (category()) {
   <mat-card appearance="outlined">
     <!-- <mat-card-title> -->
     <!-- Category: {{ category.id }} -->
@@ -54,7 +54,7 @@
           <ng-container matColumnDef="meter">
             <mat-header-cell *matHeaderCellDef></mat-header-cell>
             <mat-cell *matCellDef="let element">
-              <meter [max]="max_value" [value]="getValue(element)">
+              <meter [max]="max_value()" [value]="getValue(element)">
                 {{ getValue(element) }}
               </meter>
             </mat-cell>
@@ -80,7 +80,7 @@
                   <line
                     stroke="currentColor"
                     [attr.x1]="x(0)"
-                    [attr.x2]="x(max_value)"
+                    [attr.x2]="x(max_value())"
                     [attr.y1]="17"
                     [attr.y2]="17"
                   />
@@ -188,8 +188,8 @@
                 >
                   <desc>A bar that shows {{ bar_tip(getValue(element)) }}</desc>
                   <line
-                    [attr.x1]="x(median)"
-                    [attr.x2]="x(median)"
+                    [attr.x1]="x(median())"
+                    [attr.x2]="x(median())"
                     [attr.y1]="0"
                     [attr.y2]="'100%'"
                     [style.stroke]="'black'"
@@ -216,7 +216,7 @@
             </mat-cell>
           </ng-container>
           <mat-header-row
-            *matHeaderRowDef="displayedColumns; sticky: sticky"
+            *matHeaderRowDef="displayedColumns; sticky: sticky()"
           ></mat-header-row>
           <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
         </mat-table>

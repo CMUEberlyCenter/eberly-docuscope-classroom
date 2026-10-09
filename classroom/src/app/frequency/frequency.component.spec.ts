@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FAKE_COMMON_DICTIONARY } from '../../testing';
 import { AssignmentService } from '../assignment.service';
 import { CommonDictionary, Entry } from '../common-dictionary';
