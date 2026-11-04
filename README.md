@@ -1,3 +1,13 @@
+# ⚠️ ARCHIVED / UNMAINTAINED
+
+This repository is **no longer actively maintained or supported**. 
+
+- **Status:** Archived
+- **Reason:** Project reached end-of-life and is no longer funded.
+- **Usage:** You are free to browse the code, but no new features, bug fixes, or security patches will be applied. 
+
+*If you wish to continue developing this codebase, please feel free to **fork** it.*
+
 # DocuScope Classroom Analysis tools
 
 A Docker'ed service for analyzing text that has been processed by

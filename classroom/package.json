@@ -85,7 +85,8 @@
     "undici": ">7.27.2",
     "piscina": ">5.1.4",
     "@babel/core": ">7.29.0",
-    "@hono/node-server": ">=2.1.0"
+    "@hono/node-server": ">=2.1.0",
+    "minimatch": ">=11.0.1"
   },
   "allowScripts": {
     "msgpackr-extract@3.0.4": true,
